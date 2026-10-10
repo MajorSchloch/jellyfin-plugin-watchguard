@@ -10,7 +10,7 @@ namespace Jellyfin.Plugin.WatchGuard;
 
 public sealed class Configuration : BasePluginConfiguration
 {
-    public bool DiagnosticMode { get; set; }
+    public bool DiagnosticMode { get; set; } = false;
 }
 
 public sealed class Plugin : BasePlugin<Configuration>
@@ -19,7 +19,7 @@ public sealed class Plugin : BasePlugin<Configuration>
     public static Plugin? Instance { get; private set; }
     public override string Name => "WatchGuard";
     public override Guid Id => Guid.Parse("a3c6bc84-783d-4ba8-a0db-89bfb83ab486");
-    public override string Description => "Personal watchlists, native interest detection and a web deletion proof of concept.";
+    public override string Description => "Personal watchlists, native interest detection and advisory web deletion warnings.";
 }
 
 public sealed class ServiceRegistrator : IPluginServiceRegistrator

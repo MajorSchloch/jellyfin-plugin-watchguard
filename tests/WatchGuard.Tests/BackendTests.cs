@@ -266,4 +266,12 @@ public sealed class BackendTests : IDisposable
         Assert.Empty(Directory.GetFiles(directory, "*.tmp"));
     }
 
+    [Fact]
+    public void ReleaseMetadataAndDiagnosticDefault()
+    {
+        Assert.Equal(new Version(0, 1, 0, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.False(new Configuration().DiagnosticMode);
+        Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
+    }
+
 }

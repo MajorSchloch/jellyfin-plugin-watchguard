@@ -1,4 +1,4 @@
-"""Start an isolated Jellyfin 12.2 deletion PoC test; never mounts real media.
+"""Run isolated Jellyfin 12.2 deployment and browser tests; never mounts real media.
 Default runs browser-poc.cjs and cleans up. --serve keeps the fixture alive until Ctrl+C.
 """
 import argparse
@@ -30,6 +30,7 @@ def main():
     artifact = ROOT / 'artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
     if not artifact.exists():
         raise SystemExit('Publish WatchGuard first.')
+    pristine_web_hash = docker('run', '--rm', '--entrypoint', 'sha256sum', IMAGE, '/jellyfin/jellyfin-web/index.html').split()[0]
     name = 'watchguard-poc-' + uuid.uuid4().hex[:10]
     with tempfile.TemporaryDirectory(prefix='watchguard-poc-') as temp:
         root = Path(temp)
@@ -99,6 +100,15 @@ def main():
                 time.sleep(1)
             else: raise RuntimeError('Synthetic media was not scanned.')
             assert 'WatchGuard: This item may still be in use.' in call('/JavaScriptInjector/private.js', token=token, raw=True)
+            injector_id = 'f5a34f7b-2e8a-4e6a-a722-3a216a81b374'
+            injector_config = call('/Plugins/' + injector_id + '/Configuration', token=token)
+            assert not injector_config['DisableScriptInjectionMiddleware']
+            registrations = [s for s in injector_config['PluginJavaScripts'] if s['Id'] == 'watchguard-v1']
+            assert len(registrations) == 1
+            registration = registrations[0]
+            assert registration['Enabled'] and registration['RequiresAuthentication']
+            assert registration['PluginVersion'] == '0.1.0' and registration['Name'] == 'WatchGuard'
+            assert 'WatchGuard web script registered with JavaScript Injector.' in docker('logs', name)
             assert call('/WatchGuard/Watchlist', token=token) == []
             runpy.run_path(str(ROOT / 'tests/backend-smoke.py'))['run'](
                 call, token, {i['Name']: i['Id'] for i in items}, plugins)
@@ -111,6 +121,13 @@ def main():
                 while True: time.sleep(1)
             else:
                 subprocess.run(['node', str(ROOT / 'tests/browser-poc.cjs'), str(fixture)], check=True)
+                # Same operation as removing the plugin-managed script in Injector's dashboard.
+                injector_config['PluginJavaScripts'] = [s for s in injector_config['PluginJavaScripts'] if s['Id'] != 'watchguard-v1']
+                call('/Plugins/' + injector_id + '/Configuration', 'POST', injector_config, token, expected=204)
+                assert 'WatchGuard: This item may still be in use.' not in call('/JavaScriptInjector/private.js', token=token, raw=True)
+                assert docker('exec', name, 'sha256sum', '/jellyfin/jellyfin-web/index.html').split()[0] == pristine_web_hash
+                print('Deployment checks passed: v0.1.0 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
+
         finally:
             subprocess.run(['docker', 'rm', '-f', name], stdout=subprocess.DEVNULL, check=False)
 

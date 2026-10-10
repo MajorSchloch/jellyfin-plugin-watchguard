@@ -28,9 +28,9 @@ public sealed class InjectorRegistration(ILogger<InjectorRegistration> logger) :
                         StringComparison.Ordinal);
                     var payload = JsonSerializer.Serialize(new
                     {
-                        id = "watchguard-v1", name = "WatchGuard deletion PoC", script,
+                        id = "watchguard-v1", name = "WatchGuard", script,
                         enabled = true, requiresAuthentication = true,
-                        pluginId = Plugin.Instance!.Id.ToString(), pluginName = "WatchGuard", pluginVersion = "1.1.0"
+                        pluginId = Plugin.Instance!.Id.ToString(), pluginName = "WatchGuard", pluginVersion = typeof(Plugin).Assembly.GetName().Version!.ToString(3)
                     });
                     var payloadType = register.GetParameters().Single().ParameterType;
                     var parsed = payloadType.GetMethod("Parse", [typeof(string)])!.Invoke(null, [payload]);
@@ -47,6 +47,6 @@ public sealed class InjectorRegistration(ILogger<InjectorRegistration> logger) :
             }
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
-        logger.LogWarning("WatchGuard deletion PoC was not registered. No deletion confirmation is active. Install/enable a Jellyfin 12 compatible JavaScript Injector and restart Jellyfin.");
+        logger.LogWarning("WatchGuard web script was not registered. No deletion confirmation is active. Install/enable a Jellyfin 12 compatible JavaScript Injector and restart Jellyfin.");
     }
 }
