@@ -150,3 +150,53 @@ test('dialog renders untrusted content as text and closes on identity abort', as
     assert.equal(f.nodes[0].children[0].textContent, '<img onerror=evil()>');
     abort.abort(); assert.equal(await pending, false);
 });
+
+test('episode and season scope uses verified parent, labels actual target and preserves deletion ID', async () => {
+    for (const type of ['Episode', 'Season']) {
+        const calls = [], lookups = [];
+        const api = { getCurrentUserId: () => 'self', accessToken: () => 'token', getUrl: p => p,
+            getItem: async (user, id) => { lookups.push(id); return id === 'target' ? {Id:id, Type:type, SeriesId:'parent', Name:'Target title'} : {Id:id, Type:'Series', Name:'Parent title'}; },
+            ajax: async options => { assert.equal(options.url,'WatchGuard/Protection/parent'); return {ItemId:'parent',HasInterest:true,HasOtherInterestedUsers:true,Users:[{UserId:'other',DisplayName:'Other',Reasons:['Watchlisted']}]}; },
+            deleteItem: async (...args) => calls.push(args) };
+        createAdapter(async text => { assert.match(text,new RegExp('Deleting ' + type.toLowerCase() + ': Target title')); assert.match(text,/parent series: Parent title/); return true; },undefined,protectionCheck).install(api);
+        await api.deleteItem('target'); assert.deepEqual(calls,[['target']]); assert.deepEqual(lookups,['target','parent']);
+    }
+});
+test('episode and season with confirmed clear parent need no extra confirmation', async () => {
+    for (const type of ['Episode','Season']) {
+        const f = backendFixture();
+        f.api.getItem = async (user,id) => id === 'child' ? {Id:id,Type:type,SeriesId:'movie'} : {Id:id,Type:'Series'};
+        await f.api.deleteItem('child'); assert.deepEqual(f.counts(),[1,0]);
+    }
+});
+test('missing, wrong-type, mismatched and failed parent resolution never deletes', async () => {
+    for (const parent of [null,{Id:'parent',Type:'Movie'},{Id:'wrong',Type:'Series'},'throw']) {
+        const f = backendFixture();
+        f.api.getItem = async (user,id) => { if(id==='child')return {Id:id,Type:'Episode',SeriesId:'parent'}; if(parent==='throw')throw new Error('404'); return parent; };
+        await assert.rejects(f.api.deleteItem('child')); assert.deepEqual(f.counts(),[0,0]);
+    }
+    for (const type of ['Episode','Season','Folder','BoxSet','Playlist','Unknown']) {
+        const f = backendFixture(); f.api.getItem = async () => ({Id:'movie',Type:type});
+        await assert.rejects(f.api.deleteItem('movie')); assert.deepEqual(f.counts(),[0,0]);
+    }
+});
+
+test('My Watchlist discards late responses after closing or account credential changes', async () => {
+    const {openWatchlist} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    for (const action of ['abort','token']) {
+        const f = documentFixture();
+        f.doc.querySelector = () => null;
+        const create = f.doc.createElement;
+        f.doc.createElement = tag => { const node = create(tag); node.replaceChildren = () => { node.children = []; }; return node; };
+        let complete, token = 'original', closeCallbacks = 0;
+        const api = {getCurrentUserId:()=> 'self',accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',ajax:()=>new Promise(resolve=>{complete=resolve;})};
+        const abort = new AbortController();
+        openWatchlist(f.doc,api,abort.signal,()=>{closeCallbacks++;});
+        assert.equal(f.nodes[0].children[1].textContent,'Loading your watchlist…');
+        if(action==='abort') abort.abort(); else token='another-account';
+        complete([{ItemId:'a'.repeat(32),Name:'Private title'}]);
+        await new Promise(resolve=>setImmediate(resolve));
+        assert.equal(f.nodes[0].children[3].children.length,0);
+        if(action==='abort') { assert.equal(f.nodes[0].removed,true); assert.equal(closeCallbacks,0); }
+    }
+});

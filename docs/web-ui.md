@@ -1,6 +1,6 @@
 # Phase 3: Jellyfin Web integration
 
-Target: Jellyfin Server and bundled Web **12.2**, .NET 10. The [backend](backend.md) remains unchanged. This phase adds plain JavaScript detail controls and connects the previously validated [instance deletion adapter](deletion-poc.md) to fresh protection checks. No framework, dependency, Jellyfin source modification, metadata tag or Favorites integration was added.
+Target: Jellyfin Server and bundled Web **12.2**, .NET 10. This records Phase 3; [Phase 4](hardening.md) extends episode/season handling, verifies both application shells and adds My Watchlist. The [backend](backend.md) remains unchanged. This phase adds plain JavaScript detail controls and connects the previously validated [instance deletion adapter](deletion-poc.md) to fresh protection checks. No framework, dependency, Jellyfin source modification, metadata tag or Favorites integration was added.
 
 ## Detail controls
 
@@ -32,7 +32,7 @@ Queued operations run this sequence independently:
 
 An HTTP/network failure, unauthorized response, missing item or malformed status is **not** zero interest. WatchGuard shows an explanation with only Cancel and blocks deletion. There is no failure override. Non-administrators can manage their watchlist but cannot complete a protected deletion check, even if Jellyfin separately gives them deletion rights.
 
-**Unsupported types are blocked** with the same status-unavailable explanation and no Delete Anyway button. This includes episodes, seasons, folders, collections, playlists and other types. The script does not guess a parent or claim that a movie/series response covers an arbitrary recursive deletion. Deleting an episode requires a future explicitly designed policy; users should not mistake this limitation for confirmed absence of interest.
+**Phase 3 originally blocked unsupported types**, including episodes and seasons. Phase 4 now checks their verified parent series; folders, collections, playlists and unknown types remain blocked with no Delete Anyway button. The script does not guess a parent or claim that a movie/series response covers an arbitrary recursive deletion. See the Phase 4 scope policy; users should not mistake a failed lookup for confirmed absence of interest.
 
 Bulk selection remains per-item, not transactional. Each queued item is checked immediately before its own warning/native call. Cancelling one does not cancel other queued calls or restore already deleted items. A mixed batch may delete confirmed-clear or separately approved items while rejecting others.
 
@@ -79,7 +79,7 @@ Evidence is generated under `artifacts/poc/`, including `report.json`, a visuall
 
 ## Remaining limitations
 
-- Validated detail placement is the legacy desktop Web layout in Chromium. Modern React details, other browsers, mobile/TV layouts, base-path deployments and multi-server navigation are not covered by the live test fixture. Unsupported layouts may have no detail controls; the wrapper protects only calls on its installed instance.
+- Validated detail placement is the legacy desktop Web layout in Chromium. Phase 4 verifies the modern and legacy shells share that detail route. Separate future React details, other browsers, mobile/TV layouts, base-path deployments and multi-server navigation remain unverified. Unsupported layouts may have no detail controls; the wrapper protects only calls on its installed instance.
 - Missing/disabled Injector, requests before installation, other ApiClient instances, another script replacing the method, direct SDK/API deletion, native clients, server cleanup and filesystem deletion can bypass this web-only warning.
 - There is no atomic check-to-delete transaction. A different user's interest can change after the fresh check or while confirmation is open.
 - Displayed interest is a view snapshot; see backend limitations for session activity, available episodes and alternate versions. Unsupported deletion types deliberately block at this boundary.

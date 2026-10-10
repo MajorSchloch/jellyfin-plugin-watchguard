@@ -95,7 +95,7 @@
             if (allowDelete) dialog.append(proceed);
             if (signal?.aborted) { finish(false); return; }
             try { document.body.append(dialog); dialog.showModal(); cancel.focus(); }
-            catch (error) { dialog.remove(); reject(error); }
+            catch (error) { signal?.removeEventListener('abort', abort); dialog.remove(); reject(error); }
         });
     }
 
@@ -124,15 +124,84 @@
     async function protectionCheck(api, id, user) {
         if (!user) throw new Error('Not signed in');
         const item = await api.getItem(user, id);
-        if (!item || key(item.Id) !== key(id) || !['Movie', 'Series'].includes(item.Type))
-            throw new Error('Unsupported item');
-        const status = await request(api, 'Protection/' + encodeURIComponent(id));
-        const others = validateStatus(status, id, user);
-        return others.length ? message + '\n\n' + describe(others) : null;
+        if (!item || key(item.Id) !== key(id)) throw new Error('Invalid target');
+        let scope = item;
+        if (['Episode', 'Season'].includes(item.Type)) {
+            if (!key(item.SeriesId) || key(item.SeriesId) === key(id)) throw new Error('Missing parent series');
+            scope = await api.getItem(user, item.SeriesId);
+            if (!scope || scope.Type !== 'Series' || key(scope.Id) !== key(item.SeriesId)) throw new Error('Invalid parent series');
+        } else if (!['Movie', 'Series'].includes(item.Type)) throw new Error('Unsupported item');
+        const status = await request(api, 'Protection/' + encodeURIComponent(scope.Id));
+        const others = validateStatus(status, scope.Id, user);
+        const target = scope === item ? '' : '\n\nDeleting ' + item.Type.toLowerCase() + ': ' + (item.Name || item.Id) +
+            '\nThese users are interested in the parent series: ' + (scope.Name || scope.Id) + '. Interest is series-wide.';
+        return others.length ? message + target + '\n\n' + describe(others) : null;
+    }
+
+    function openWatchlist(document, api, signal, onClose) {
+        if (document.querySelector('.watchguard-watchlist')) return;
+        const previousFocus = document.activeElement;
+        const dialog = document.createElement('dialog');
+        dialog.className = 'watchguard-watchlist'; dialog.setAttribute('aria-label', 'My Watchlist');
+        dialog.style.cssText = 'width:min(34rem,85vw);max-height:80vh;padding:1.5rem;border:1px solid #888;border-radius:.5rem;background:#202020;color:white;';
+        const heading = document.createElement('h2'); heading.textContent = 'My Watchlist';
+        const status = document.createElement('p'); status.setAttribute('role', 'status');
+        const error = document.createElement('p'); error.setAttribute('role', 'alert');
+        const list = document.createElement('ul'); list.style.paddingInlineStart = '1.2em';
+        const retry = document.createElement('button'); retry.textContent = 'Refresh';
+        const close = document.createElement('button'); close.textContent = 'Close';
+        for (const button of [retry, close]) { button.type = 'button'; button.className = 'emby-button raised'; button.style.margin = '.3em'; }
+        let closed = false, generation = 0;
+        const user = api.getCurrentUserId(), token = api.accessToken();
+        const active = () => !closed && !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
+        const finish = () => {
+            if (closed) return;
+            closed = true; signal.removeEventListener('abort', finish); dialog.remove();
+            if (!signal.aborted) { if (previousFocus?.isConnected) previousFocus.focus(); onClose(); }
+        };
+        signal.addEventListener('abort', finish, { once: true });
+        close.onclick = finish;
+        dialog.addEventListener('cancel', e => { e.preventDefault(); finish(); });
+        dialog.addEventListener('close', finish);
+        async function load() {
+            const revision = ++generation;
+            retry.disabled = true; list.replaceChildren(); error.textContent = ''; status.textContent = 'Loading your watchlist…';
+            try {
+                const entries = await request(api, 'Watchlist');
+                if (!active() || revision !== generation) return;
+                if (!Array.isArray(entries) || entries.some(e => !e || !/^[0-9a-f-]{32,36}$/i.test(e.ItemId) || typeof e.Name !== 'string'))
+                    throw new Error('Invalid watchlist');
+                status.textContent = entries.length ? '' : 'Your watchlist is empty.';
+                for (const entry of entries) {
+                    const row = document.createElement('li'); row.style.margin = '.75em 0';
+                    const link = document.createElement('a'); link.className = 'button-link'; link.textContent = entry.Name;
+                    link.href = '#/details?id=' + encodeURIComponent(entry.ItemId) + '&serverId=' + encodeURIComponent(api.serverId());
+                    link.onclick = finish;
+                    const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'emby-button raised';
+                    remove.style.marginInlineStart = '.75em'; remove.textContent = 'Remove'; remove.setAttribute('aria-label', 'Remove ' + entry.Name + ' from Watchlist');
+                    remove.onclick = async () => {
+                        if (!active() || revision !== generation) return;
+                        remove.disabled = true; error.textContent = '';
+                        try {
+                            await request(api, 'Watchlist/' + encodeURIComponent(entry.ItemId), 'DELETE');
+                            if (!active() || revision !== generation) return;
+                            row.remove(); if (!list.children.length) status.textContent = 'Your watchlist is empty.';
+                        } catch { if (active() && revision === generation) { error.textContent = 'WatchGuard: Could not remove this entry. Please retry.'; remove.disabled = false; } }
+                    };
+                    row.append(link, remove); list.append(row);
+                }
+            } catch { if (active() && revision === generation) { status.textContent = ''; error.textContent = 'WatchGuard: Could not load your watchlist. Please refresh to retry.'; } }
+            finally { if (active() && revision === generation) retry.disabled = false; }
+        }
+        retry.onclick = load;
+        dialog.append(heading, status, error, list, retry, close);
+        if (signal.aborted) { finish(); return; }
+        try { document.body.append(dialog); dialog.showModal(); close.focus(); load(); }
+        catch { finish(); }
     }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe };
+        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, openWatchlist };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -156,7 +225,7 @@
         try { return await protectionCheck(api, id, user); }
         catch {
             if (valid(api, user)) await confirmDeletion(document,
-                'WatchGuard: Interest could not be checked. Deletion was blocked. Only administrators can check supported movies and series. Retry after resolving the problem.', false, lifetime.signal);
+                'WatchGuard: Interest could not be checked. Deletion was blocked. An administrator must be able to check this movie, series, or the parent series of this episode/season. Other deletion types are unsupported. Retry after resolving the problem.', false, lifetime.signal);
             throw new Error('Check unavailable');
         }
     }, api => syncIdentity() === api);
@@ -193,7 +262,12 @@
             toggle.append(icon, label);
             const error = document.createElement('p'); error.setAttribute('role', 'alert');
             const interest = document.createElement('p'); interest.className = 'watchguard-interest'; interest.style.whiteSpace = 'pre-line';
-            container.append(toggle, error, interest); anchor.append(container); panel = container;
+            const showList = document.createElement('button'); showList.type = 'button';
+            showList.className = 'emby-button raised'; showList.textContent = 'My Watchlist'; showList.style.marginInlineStart = '.5em';
+            showList.onclick = () => {
+                if (current()) openWatchlist(document, api, lifetime.signal, () => { signature = null; updateDetail(); });
+            };
+            container.append(toggle, showList, error, interest); anchor.append(container); panel = container;
             let member;
             const render = () => {
                 label.textContent = member ? 'Remove from Watchlist' : 'Add to Watchlist';
@@ -237,6 +311,6 @@
     for (const name of ['viewbeforeshow', 'viewshow', 'pointerdown', 'keydown', 'click'])
         document.addEventListener(name, bind, true);
     document.addEventListener('viewshow', () => { signature = null; updateDetail(); }, true);
-    root.addEventListener('hashchange', () => updateDetail());
+    root.addEventListener('hashchange', () => { document.querySelector('.watchguard-watchlist')?.close(); updateDetail(); });
     setInterval(() => { bind(); updateDetail(); }, 500);
 })(typeof window === 'undefined' ? globalThis : window);

@@ -72,7 +72,7 @@ def main():
             call('/Startup/Complete', 'POST', expected=204)
             admin = call('/Users/AuthenticateByName', 'POST', {'Username': username, 'Pw': password})
             token = admin['AccessToken']
-            movies = ['PoC Movie Detail', 'PoC Context Movie', 'PoC Bulk One', 'PoC Bulk Two', 'PoC Escape', 'PoC Modern Movie', 'PoC Zero', 'PoC Self']
+            movies = ['PoC Movie Detail', 'PoC Context Movie', 'PoC Bulk One', 'PoC Bulk Two', 'PoC Escape', 'PoC Modern Movie', 'PoC Zero', 'PoC Self', 'PoC Layout Legacy', 'PoC Layout Modern']
             docker('exec', name, 'mkdir', '-p', '/tmp/poc-movies', '/tmp/poc-tv/PoC Series Detail/Season 01')
             docker('exec', name, '/usr/lib/jellyfin-ffmpeg/ffmpeg', '-hide_banner', '-loglevel', 'error',
                    '-f', 'lavfi', '-i', 'color=c=black:s=64x64:d=2', '-c:v', 'libx264', '-y', '/tmp/fixture.mp4')
@@ -81,6 +81,12 @@ def main():
                 docker('exec', name, 'cp', '/tmp/fixture.mp4', f'/tmp/poc-movies/{title}/{title}.mp4')
             for number in (1, 2):
                 docker('exec', name, 'cp', '/tmp/fixture.mp4', f'/tmp/poc-tv/PoC Series Detail/Season 01/PoC Series Detail S01E0{number}.mp4')
+            for title in ('PoC Parent Interested', 'PoC Parent Clear'):
+                for season in (1, 2):
+                    folder = f'/tmp/poc-tv/{title}/Season 0{season}'
+                    docker('exec', name, 'mkdir', '-p', folder)
+                    for episode in (1, 2):
+                        docker('exec', name, 'cp', '/tmp/fixture.mp4', f'{folder}/{title} S0{season}E0{episode}.mp4')
             library = {'LibraryOptions': {'EnableRealtimeMonitor': False, 'EnableInternetProviders': False,
                        'TypeOptions': [{'Type': kind, 'MetadataFetchers': [], 'ImageFetchers': []}
                                        for kind in ('Movie', 'Series', 'Season', 'Episode')]}}
@@ -89,7 +95,7 @@ def main():
                      'POST', library, token, expected=204)
             for _ in range(60):
                 items = call('/Items?Recursive=true&IncludeItemTypes=Movie,Series', token=token)['Items']
-                if len(items) == 9: break
+                if len(items) == 13: break
                 time.sleep(1)
             else: raise RuntimeError('Synthetic media was not scanned.')
             assert 'WatchGuard: This item may still be in use.' in call('/JavaScriptInjector/private.js', token=token, raw=True)
