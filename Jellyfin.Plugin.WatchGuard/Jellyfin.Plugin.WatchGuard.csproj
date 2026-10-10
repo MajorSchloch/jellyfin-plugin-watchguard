@@ -8,8 +8,8 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Jellyfin.Controller" Version="12.0.0" ExcludeAssets="runtime" />
-    <PackageReference Include="Jellyfin.Model" Version="12.0.0" ExcludeAssets="runtime" />
+    <PackageReference Include="Jellyfin.Controller" Version="12.2.0" ExcludeAssets="runtime" />
+    <PackageReference Include="Jellyfin.Model" Version="12.2.0" ExcludeAssets="runtime" />
     <EmbeddedResource Include="Web/watchguard.js" />
   </ItemGroup>
 </Project>

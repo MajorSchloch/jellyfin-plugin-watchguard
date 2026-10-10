@@ -8,7 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Jellyfin.Plugin.WatchGuard;
 
-public sealed class Configuration : BasePluginConfiguration;
+public sealed class Configuration : BasePluginConfiguration
+{
+    public bool DiagnosticMode { get; set; }
+}
 
 public sealed class Plugin : BasePlugin<Configuration>
 {
@@ -16,7 +19,7 @@ public sealed class Plugin : BasePlugin<Configuration>
     public static Plugin? Instance { get; private set; }
     public override string Name => "WatchGuard";
     public override Guid Id => Guid.Parse("a3c6bc84-783d-4ba8-a0db-89bfb83ab486");
-    public override string Description => "Personal watchlists and administrator deletion warnings for Jellyfin Web.";
+    public override string Description => "Personal watchlists, native interest detection and a web deletion proof of concept.";
 }
 
 public sealed class ServiceRegistrator : IPluginServiceRegistrator
@@ -24,9 +27,8 @@ public sealed class ServiceRegistrator : IPluginServiceRegistrator
     public void RegisterServices(IServiceCollection serviceCollection, IServerApplicationHost applicationHost)
     {
         serviceCollection.AddSingleton(_ => new WatchlistStore(Plugin.Instance?.DataFolderPath
-            ?? throw new InvalidOperationException("WatchGuard plugin has not loaded.")));
-        serviceCollection.AddSingleton<ICatalog, JellyfinCatalog>();
-        serviceCollection.AddSingleton<ProtectionService>();
+            ?? throw new InvalidOperationException("WatchGuard plugin is unavailable.")));
+        serviceCollection.AddSingleton<InterestService>();
         serviceCollection.AddHostedService<InjectorRegistration>();
     }
 }

@@ -22,11 +22,15 @@ public sealed class InjectorRegistration(ILogger<InjectorRegistration> logger) :
                 {
                     using var stream = typeof(Plugin).Assembly.GetManifestResourceStream("Jellyfin.Plugin.WatchGuard.Web.watchguard.js")!;
                     using var reader = new StreamReader(stream);
+                    var script = (await reader.ReadToEndAsync(stoppingToken)).Replace(
+                        "/*WATCHGUARD_DIAGNOSTICS*/false",
+                        Plugin.Instance!.Configuration.DiagnosticMode ? "true" : "false",
+                        StringComparison.Ordinal);
                     var payload = JsonSerializer.Serialize(new
                     {
-                        id = "watchguard-v1", name = "WatchGuard", script = await reader.ReadToEndAsync(stoppingToken),
+                        id = "watchguard-v1", name = "WatchGuard deletion PoC", script,
                         enabled = true, requiresAuthentication = true,
-                        pluginId = Plugin.Instance!.Id.ToString(), pluginName = "WatchGuard", pluginVersion = "1.0.0"
+                        pluginId = Plugin.Instance!.Id.ToString(), pluginName = "WatchGuard", pluginVersion = "1.1.0"
                     });
                     var payloadType = register.GetParameters().Single().ParameterType;
                     var parsed = payloadType.GetMethod("Parse", [typeof(string)])!.Invoke(null, [payload]);
@@ -39,10 +43,10 @@ public sealed class InjectorRegistration(ILogger<InjectorRegistration> logger) :
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                logger.LogDebug(ex, "WatchGuard is waiting for JavaScript Injector registration.");
+                logger.LogDebug("WatchGuard Injector registration failed ({ExceptionType}); retrying.", ex.GetType().Name);
             }
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
-        logger.LogWarning("WatchGuard UI was not registered. Install/enable JavaScript Injector and restart Jellyfin. Backend remains available.");
+        logger.LogWarning("WatchGuard deletion PoC was not registered. No deletion confirmation is active. Install/enable a Jellyfin 12 compatible JavaScript Injector and restart Jellyfin.");
     }
 }

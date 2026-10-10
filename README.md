@@ -1,79 +1,34 @@
-# Jellyfin WatchGuard
+# Jellyfin WatchGuard — Phase 3
 
-Personal movie/series watchlists, separate from Favorites and Seerr, with **web-only deletion warnings**. Built against Jellyfin **12.0.0**, .NET 10. No database, frontend framework, media writes, metadata tags, or automatic deletion.
+Personal watchlists and native interest detection for **Jellyfin 12.2 / .NET 10**, integrated into Jellyfin Web through JavaScript Injector.
 
-On supported Jellyfin Web detail pages, users can add/remove a title and open **My Watchlist**. Administrators see other interested users and their reasons. Interest includes explicit watchlist entries, incomplete playback, and current playback sessions. Manual entries survive playback completion.
+Movie and series detail pages have an independent Watchlist toggle. Administrators see interested users and reasons. Before native Web deletion, WatchGuard checks fresh status: other users' interest requires **Cancel / Delete Anyway**; confirmed zero or self-only interest needs no extra warning. Failed checks and unsupported item types block the wrapped deletion. Native permissions remain authoritative.
 
-## Deletion behavior
+See [Web integration and observed limitations](docs/web-ui.md), [backend API and storage](docs/backend.md), and the historical [deletion proof of concept](docs/deletion-poc.md). The architectural reference is [architecture.md](docs/architecture.md).
 
-Jellyfin's original confirmation appears first. WatchGuard then checks current interest before the native deletion request. Administrators get **Cancel / Delete Anyway**, with usernames and reasons. Cancellation, missing items, or failed checks stop that request. Non-admins with native delete permission receive a generic confirmation because cross-user status is private; their deletion permissions remain Jellyfin's responsibility.
+## Build and tests
 
-This is an advisory web integration, **not server-side deletion enforcement**. Native clients, direct API calls, cleanup plugins, filesystem tools, and unwrapped SDK requests bypass it. Bulk deletion checks each item separately; cancelling one cannot restore earlier approved items. See [architecture and client limits](docs/architecture.md).
-
-## Build and test
-
-Requirements: .NET SDK 10.0.302 (or later patch in its feature band), Node.js 24+ for JavaScript tests. NuGet dependencies are locked. Node tests use only the built-in test runner.
+Requires .NET SDK 10.0.302 or a later patch in that feature band; Node 24+ for tests.
 
 ```sh
 dotnet restore Jellyfin.Plugin.WatchGuard.slnx --locked-mode
-dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
+dotnet build Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
+dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-build --no-restore
 node --test tests/web.test.cjs
 dotnet publish Jellyfin.Plugin.WatchGuard/Jellyfin.Plugin.WatchGuard.csproj \
   -c Release --no-restore -o artifacts/WatchGuard
 ```
 
-Install only `artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll`. Do not copy Jellyfin or framework dependency DLLs into the plugin directory. The JavaScript is embedded.
+Open `Jellyfin.Plugin.WatchGuard.slnx` in Rider. `Jellyfin.Plugin.Template.slnx` remains as an equivalent compatibility entry point for existing Rider workspaces.
 
-## Docker installation
+For real Web path testing, use the disposable Docker/browser harness described in [deletion-poc.md](docs/deletion-poc.md#reproduce). It creates its own test accounts and synthetic media, tests native menus, and removes its container. It never mounts a real library.
 
-Use Jellyfin server **12.0** with its matching bundled web client. For an existing official Docker deployment whose `/config` is a host directory:
+## Install into a test Jellyfin container
 
-```sh
-# Replace ./jellyfin-config with the host directory mounted at /config.
-docker compose stop jellyfin
-mkdir -p ./jellyfin-config/plugins/WatchGuard
-cp artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll \
-  ./jellyfin-config/plugins/WatchGuard/
-docker compose up -d jellyfin
-```
+Use Jellyfin 12.2 and its matching bundled Web client. Install a Jellyfin-12-compatible [JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector). Copy only `artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll` into `/config/plugins/WatchGuard/` while Jellyfin is stopped, then restart. Do not copy Jellyfin dependency DLLs.
 
-For a new deployment, this minimal Compose file uses the same directory:
+WatchGuard registers the embedded script programmatically; there is no manual script installation step. Verify the registration log and reload the Web client. A missing/failed Injector means there is **no active confirmation**. When upgrading from the earlier prototype, the same `watchguard-v1` registration ID replaces that script; remove any manually pasted duplicate and reload all test tabs. The backend uses a versioned JSON store in the plugin data directory. Incompatible or corrupt existing files cause an explicit error; see the recovery instructions in [backend.md](docs/backend.md#persistence-and-recovery).
 
-```yaml
-services:
-  jellyfin:
-    image: jellyfin/jellyfin:12.0
-    ports:
-      - "8096:8096"
-    volumes:
-      - ./jellyfin-config:/config
-      - ./jellyfin-cache:/cache
-      - ./media:/media
-    restart: unless-stopped
-```
+Diagnostics are opt-in; instructions are in [deletion-poc.md](docs/deletion-poc.md#diagnostics). Only fixed event names and operation counters are logged.
 
-Set directory ownership to the UID/GID running Jellyfin. Configure libraries normally; native deletion still requires Jellyfin permissions and writable media mounts. Use disposable media to test deletion.
-
-Install the **Jellyfin 12 build** of [JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector), enable it, and restart Jellyfin. WatchGuard registers `watchguard-v1` through Injector's public `PluginInterface.RegisterScript` API. Check logs for `WatchGuard web script registered with JavaScript Injector`, then reload the web client. The inspected Injector revision is in the architecture document; do not install its Jellyfin 10 artifact on Jellyfin 12.
-
-If registration fails, the backend still works but there is **no web warning**. As a manual fallback, paste `Jellyfin.Plugin.WatchGuard/Web/watchguard.js` into one enabled, authentication-required Injector script. Use either registration or the manual fallback; remove manual copies before upgrades. To uninstall, disable/remove the Injector script too (registered scripts can persist in Injector configuration).
-
-The store is `watchlists.json` under Jellyfin's assigned plugin `DataFolderPath` (`/config/plugins/Jellyfin.Plugin.WatchGuard` in the tested official image; check your host's plugin-path settings). Back up this directory with `/config`. Writes use a lock, a flushed temporary file, and atomic replacement. Unknown versions or corrupt stores cause errors instead of silent data loss. One Jellyfin process must own the file. Stale entries are hidden, not automatically destroyed; users can remove their own stale IDs via the API.
-
-## API
-
-All endpoints require a real authenticated Jellyfin user session. User identity comes from Jellyfin's claim, never a supplied user ID. API keys without a user are rejected. Item reads obey native library visibility.
-
-| Method | Path | Access / result |
-| --- | --- | --- |
-| GET | `/WatchGuard/Watchlist` | Own accessible movie/series entries |
-| GET | `/WatchGuard/Watchlist/{itemId}` | Own `Watchlisted` state |
-| PUT | `/WatchGuard/Watchlist/{itemId}` | Add own entry, idempotent |
-| DELETE | `/WatchGuard/Watchlist/{itemId}` | Remove own entry, including stale IDs |
-| GET | `/WatchGuard/Protection/{itemId}` | Admin only: title, deduplicated users and reasons |
-
-Prefix URLs with your Jellyfin base path if configured. Protection responses include the requesting administrator when interested; the UI excludes them from warnings about **other** users. Non-admins get HTTP 403, with no cross-user names, counts, or playback details. Unsupported/inaccessible/missing titles return 404. Responses are not cached.
-
-## Validation
-
-Automated backend tests cover shared interest, movie/series progress, completion, durable manual entries, active sessions, authorization boundaries, missing items/users, concurrent writes, and unsupported store versions. JavaScript tests cover pre-request cancellation, explicit override, fresh checks, errors, non-admin privacy, idempotent installation, and per-item bulk behavior. An optional real-server test runs with `python3 tests/docker-smoke.py` after publishing. See [runtime test notes](docs/validation.md) for the exercised environment and remaining manual checks.
+**Limits:** this does not protect native clients, direct API requests, filesystem deletion, or cleanup plugins. Cancelling can trigger Jellyfin's generic deletion-error alert. Bulk prompts operate per item, not as an atomic transaction. Use disposable media for validation. No production deployment is included.

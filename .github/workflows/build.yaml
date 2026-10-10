@@ -14,7 +14,8 @@ jobs:
         with:
           node-version: '24'
       - run: dotnet restore Jellyfin.Plugin.WatchGuard.slnx --locked-mode
-      - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
+      - run: dotnet build Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
+      - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-build --no-restore
       - run: node --test tests/web.test.cjs
       - run: dotnet publish Jellyfin.Plugin.WatchGuard/Jellyfin.Plugin.WatchGuard.csproj -c Release --no-restore -o artifacts/WatchGuard
       - uses: actions/upload-artifact@v4

@@ -1,15 +1,15 @@
 ---
 name: "WatchGuard"
 guid: "a3c6bc84-783d-4ba8-a0db-89bfb83ab486"
-version: "1.0.0.0"
-targetAbi: "12.0.0.0"
+version: "1.1.0.0"
+targetAbi: "12.2.0.0"
 framework: "net10.0"
-overview: "Personal watchlists and web deletion warnings"
+overview: "Deletion interception proof of concept"
 description: >
-  Keeps personal watchlists separate from Favorites and warns administrators
-  before supported Jellyfin Web deletion requests when others are interested.
+  Phase 1: asks for confirmation before supported native Jellyfin Web deletion
+  calls. No watchlists or playback tracking. For disposable test media only.
 category: "General"
 owner: "watchguard"
 artifacts:
   - "Jellyfin.Plugin.WatchGuard.dll"
-changelog: "Initial Jellyfin 12 MVP."
+changelog: "Phase 1 deletion interception PoC for Jellyfin 12.2."
