@@ -1,65 +1,165 @@
-# Architecture and research
+# WatchGuard architecture proposal — Jellyfin 12
 
-Inspected on 2026-10-10. Compatibility baseline is **server/web v12.0**, not an assumption that all future 12.x internals stay compatible. NuGet `Jellyfin.Controller` and `Jellyfin.Model` **12.0.0** restore successfully and target **net10.0**. WatchGuard builds against them with runtime assets excluded.
+Research date: **2026-10-10**. Status: **research and proposed design; deletion-warning approach awaits browser validation and approval before implementation proceeds**. This review changes documentation only. Existing prototype code and previous 12.0 test results are not evidence that the proposed integration works in every current 12.x client.
 
-## Sources inspected
+## Recommendation and decision gate
 
-| Repository | Revision / result |
+Use native Jellyfin identity, permissions, library queries, playback state, and deletion. Store only explicit personal watchlist membership in a small plugin-owned JSON file. Use JavaScript Injector for a small web adapter.
+
+**There is no supported cancellable pre-delete event in the inspected Jellyfin 12.2 library API.** `ItemRemoved` occurs after file deletion. An injected wrapper around the specific Web `ApiClient.deleteItem` method is a feasible **web-only advisory warning**, subject to validating the actual browser call path. It is an internal, version-specific integration, not a supported Jellyfin extension contract or server-wide deletion safeguard.
+
+Proceed only if that limited scope is acceptable and the validation checklist below passes. If universal prevention across native clients and server cleanup is required, this design is insufficient; a supported upstream server hook would be the appropriate longer-term solution.
+
+## Research baseline and sources
+
+The current stable [server](https://github.com/jellyfin/jellyfin/releases/tag/v12.2) and [web client](https://github.com/jellyfin/jellyfin-web/releases/tag/v12.2) are **12.2**, rather than the previously reviewed 12.0 baseline. Source archives were inspected at these revisions:
+
+| Repository | Inspected revision | Relevant evidence |
+| --- | --- | --- |
+| [jellyfin/jellyfin](https://github.com/jellyfin/jellyfin/tree/ca0f16eb7c195f720a1493ed469a27c4657db0c6) | `v12.2`, `ca0f16eb7c195f720a1493ed469a27c4657db0c6` | User data, library queries, permissions, controllers, deletion, playlists |
+| [jellyfin/jellyfin-web](https://github.com/jellyfin/jellyfin-web/tree/61b1f890365ad15138e943e694af723c1d47df2a) | `v12.2`, `61b1f890365ad15138e943e694af723c1d47df2a` | Detail views, context menus, bulk deletion, confirmation and ApiClient |
+| [jellyfin/jellyfin-plugin-template](https://github.com/jellyfin/jellyfin-plugin-template/tree/c93225a0a5a76d3843db05b4b5b77fcfc482fba3) | `c93225a0a5a76d3843db05b4b5b77fcfc482fba3` | Plugin discovery, configuration pages, service registration and controllers |
+| [shemanaev/jellyfin-plugin-media-cleaner](https://github.com/shemanaev/jellyfin-plugin-media-cleaner/tree/bafbfd33a69c96834f4f076d579090cde6d8ee89) | `bafbfd33a69c96834f4f076d579090cde6d8ee89` | Native playback reading and direct library deletion from a plugin |
+| [n00bcodr/Jellyfin-JavaScript-Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/tree/2758804c987d490ef32fc2fbdb8a73a44facdf2c) | `2758804c987d490ef32fc2fbdb8a73a44facdf2c` | Programmatic registration, authenticated script delivery, response-time injection |
+
+`MediaBrowser.Controller.csproj` at v12.2 targets **net10.0** with package version **12.2.0**. The NuGet flat-container indexes for [Jellyfin.Controller](https://api.nuget.org/v3-flatcontainer/jellyfin.controller/index.json) and [Jellyfin.Model](https://api.nuget.org/v3-flatcontainer/jellyfin.model/index.json) confirm published 12.0.0, 12.1.0 and 12.2.0 packages. The proposed initial validation target is matching server/web 12.2; support for older 12.x versions should be declared only after testing. Do not copy old framework/package versions from template examples.
+
+## 1. Native playback storage and access
+
+Jellyfin owns persistent per-user playback data in its database. The current [`UserData` entity](https://github.com/jellyfin/jellyfin/blob/v12.2/src/Jellyfin.Database/Jellyfin.Database.Implementations/Entities/UserData.cs) includes `PlaybackPositionTicks`, `Played`, `PlayCount`, `LastPlayedDate`, and `IsFavorite`. Its [composite key](https://github.com/jellyfin/jellyfin/blob/v12.2/src/Jellyfin.Database/Jellyfin.Database.Implementations/ModelConfiguration/UserDataConfiguration.cs) is `(ItemId, UserId, CustomDataKey)`. `CustomDataKey` participates in Jellyfin's own item/user-data key resolution; it is not an arbitrary plugin watchlist field. WatchGuard should neither query this schema directly nor add watchlist rows to it.
+
+Use [`IUserDataManager`](https://github.com/jellyfin/jellyfin/blob/v12.2/MediaBrowser.Controller/Library/IUserDataManager.cs) through dependency injection:
+
+| Native API | Proposed use |
 | --- | --- |
-| [jellyfin/jellyfin](https://github.com/jellyfin/jellyfin/tree/6c073e19ddf604b2369c638716164fdab4c952dc) | `v12.0`, `6c073e19ddf604b2369c638716164fdab4c952dc` |
-| [jellyfin/jellyfin-web](https://github.com/jellyfin/jellyfin-web/tree/0e83c6a724b31f3e9b5a499244331a288c060a4a) | `v12.0`, `0e83c6a724b31f3e9b5a499244331a288c060a4a` |
-| [plugin template](https://github.com/jellyfin/jellyfin-plugin-template/tree/c93225a0a5a76d3843db05b4b5b77fcfc482fba3) | `c93225a0a5a76d3843db05b4b5b77fcfc482fba3`; discovery, DI and controller conventions; historical template packages were not reused |
-| [Media Cleaner](https://github.com/shemanaev/jellyfin-plugin-media-cleaner/tree/bafbfd33a69c96834f4f076d579090cde6d8ee89) | `bafbfd33a69c96834f4f076d579090cde6d8ee89`; native playback reader, compatibility adapter, cleanup paths |
-| [JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/tree/2758804c987d490ef32fc2fbdb8a73a44facdf2c) | `2758804c987d490ef32fc2fbdb8a73a44facdf2c`; `PluginInterface`, registration service, script controller, separate jf12/jf10 builds |
+| `GetUserData(User, BaseItem)` | Read an item's played/resume state; respect the nullable interface contract |
+| `GetUserDataBatch(IReadOnlyList<BaseItem>, User)` | Read episode state in batches; avoid a custom per-episode database query loop |
+| `GetUserDataDto(BaseItem, User)` | Obtain native UI-oriented state, including alternate-version resume handling |
+| `GetResumeUserData` / `GetResumeUserDataBatch` | Reuse native alternate-version selection when evaluating a title's playback |
+| `UserDataSaved` | Optional future cache invalidation; unnecessary for an uncached MVP |
 
-## Native versus custom
+The [implementation](https://github.com/jellyfin/jellyfin/blob/v12.2/Emby.Server.Implementations/Library/UserDataManager.cs) resolves current and older user-data keys. The single-item read uses the item's loaded user-data rows; the batch path can query missing rows. Prefer the batch service when aggregating loaded episode lists. Native `UpdatePlayState` applies configured resume/completion thresholds, so do not invent a second completion percentage or write playback state from WatchGuard.
 
-Native Jellyfin provides authentication, users, library visibility, playback state, active sessions, and all actual deletion. Custom code provides a JSON watchlist, interest aggregation, five small REST operations, and an injected JavaScript adapter. Favorites, tags, and media files are never modified by WatchGuard. No Seerr calls or data synchronization exist.
+For clients, current endpoints include `GET /UserItems/{itemId}/UserData`, `GET /UserItems/Resume`, and item DTOs with `UserData`. Legacy `/Users/{userId}/…` forms remain in the inspected source, but should not be the default for new client code. [`TvShowsController`](https://github.com/jellyfin/jellyfin/blob/v12.2/Jellyfin.Api/Controllers/TvShowsController.cs) exposes `GET /Shows/{seriesId}/Episodes` and `/Shows/NextUp`. Server-side plugin logic can use the injected services directly instead of making HTTP requests back to Jellyfin.
 
-`IUserManager.GetUsers()` / `GetUserById()` provide current identities and display names. `IUserDataManager.GetUserData(User, BaseItem)` returns nullable state with `Played` and `PlaybackPositionTicks`. This is the v12 signature; older GUID-based examples are not used. `ILibraryManager.GetItemById<BaseItem>(id, user)` enforces native standalone visibility, including ancestors. A user-scoped `InternalItemsQuery` with series `AncestorIds`, episode type, `IsVirtualItem=false` and `IsMissing=false` enumerates currently available episodes. Removed and disabled users do not produce interest; unavailable titles are not returned. An episode set is evaluated per user against that user's accessible library.
+## 2. Proposed interest rules
 
-A movie is incomplete when it has a nonzero position and is not played. A series is incomplete when any available episode is played or has a nonzero position, and not all available episodes are played. Zero episodes means no inferred interest. Specials count if Jellyfin exposes them as available episodes. New episodes can make an already-started series incomplete again. `Played` is authoritative even if Jellyfin retains a resume position. `ISessionManager.Sessions` adds “Currently watching” for reported now-playing items, including session additional users; paused sessions count until Jellyfin clears the item. This uses reported state, not a guarantee that someone is looking at the screen.
+These rules are WatchGuard product decisions built on native state, not native watchlist semantics:
 
-Each user appears once with all applicable reasons. Manual membership persists until explicitly removed. No playback-triggered writes occur. Status is computed on demand without caching; cost is proportional to users × available episodes. This favors freshness and a small implementation; very large multi-user libraries may need measurement before introducing batching.
+- **Watchlisted:** an explicit `(UserId, ItemId)` membership exists. Completion never clears it.
+- **Partially watched movie:** native effective state is `Played == false` and `PlaybackPositionTicks > 0`.
+- **In-progress series:** at least one currently available episode is played or has a resume position, and at least one available episode is not played. An empty or completely unstarted series contributes no inferred interest.
+- **Currently watching:** a native session reports the movie, or an episode of the series, as its now-playing item. Include additional session users; a paused session can still count. This is reported session state, not proof of attention.
 
-## Watchlist storage and authorization
+Enumerate current users through `IUserManager.GetUsers()` and resolve display names with `GetUserById()`. Use `ILibraryManager.GetItemById<BaseItem>(id, user)` for native visibility checks. For series, use a user-scoped `InternalItemsQuery` with episode type, series ancestor, and exclusion of virtual/missing episodes, then `GetUserDataBatch`. Count specials if they are part of the available episode set. New episodes can make a previously complete series in progress again. Removed episodes cease contributing to the set.
 
-`BasePlugin.DataFolderPath/watchlists.json` is a version-1 document containing `(UserId, ItemId)` GUID pairs. A singleton serializes mutations, writes and flushes a same-directory temporary file, atomically replaces the old file, then publishes its in-memory snapshot. Failed writes do not change memory. Unknown schemas/corruption fail closed. Stale references remain on disk but are filtered from results, allowing temporary library unavailability without destroying explicit intent. This store is single-process, not a distributed database.
+Use `Played` as authoritative for completion even if a position remains. The native DTO/resume services consider alternate versions; reading only the primary item's raw position can miss a resumed alternate. Validate multi-version behavior and the actual deletion scope together before claiming coverage. Explicit watchlist IDs remain local Jellyfin item IDs; independently imported copies are not automatically the same watchlist title.
 
-An ASP.NET controller is discovered through Jellyfin's plugin assembly discovery. `[Authorize]` applies Jellyfin's default policy. The controller additionally requires a current, enabled user resolved from the **`Jellyfin-UserId`** claim (verified in `Jellyfin.Api/Constants/InternalClaimTypes.cs`). It never accepts a target user ID. Admin checks read current native permissions, not a browser-supplied flag. API keys without users cannot access personal lists. Cross-user names, reasons, counts, and interest booleans are all admin-only. Non-admin detail pages expose only their own watchlist. This resolves the requirement conflict between a general cross-user badge and administrator-only status visibility in favor of privacy.
+Use `ISessionManager.Sessions` for active state. Deduplicate by user ID and return all applicable reasons. Ignore removed/disabled users and hide missing/inaccessible titles. Distinguish service/query failures from confirmed absence of interest: a failed check must not silently authorize deletion. Native Continue Watching and Next Up are useful UI features but are not a complete cross-user interest policy; their filters and viewing-order behavior should not define protection implicitly.
 
-## Actual deletion pipeline — findings reported before UI implementation
+## 3. Personal watchlists and authentication
 
-[LibraryController](https://github.com/jellyfin/jellyfin/blob/v12.0/Jellyfin.Api/Controllers/LibraryController.cs) implements `DELETE /Items/{itemId}` and `DELETE /Items?ids=…`. It resolves the authenticated user/API key, checks visibility and `CanDelete(user)`, then calls `ILibraryManager.DeleteItem` with `DeleteFileLocation=true`. Bulk deletion loops, so native deletion is not transactional.
+No inspected native API provides a general independent movie-and-series personal watchlist with the required semantics. Options:
 
-[LibraryManager](https://github.com/jellyfin/jellyfin/blob/v12.0/Emby.Server.Implementations/Library/LibraryManager.cs) deletes filesystem paths before persistence removal and `ReportItemRemoved`. The `ItemRemoved` event is a notification after deletion, not a cancellation hook; handler exceptions are caught/logged. The inspected `ILibraryManager` contract has no supported cancellable pre-delete event. `DeleteItemsUnsafeFast` is another internal path. General ASP.NET filters/middleware could gate some HTTP routes, but cannot guarantee protection for direct internal library calls and introduce global interception and override protocol complexity. This MVP does not install them or claim universal protection.
+| Option | Assessment |
+| --- | --- |
+| Favorites | Native and easy, but changes user meaning; excluded |
+| Native playlists | Useful for stock clients, but series expand into playable descendants; not equivalent |
+| Plugin configuration XML | Appropriate for small administrative settings; mutable multi-user lists would share its configuration lifecycle |
+| Plugin-owned versioned JSON | Recommended: small, independent, no external database or synchronization |
+| Custom tables in Jellyfin's database | Unnecessary coupling to internal migrations and schema; avoid |
 
-In [web deleteHelper](https://github.com/jellyfin/jellyfin-web/blob/v12.0/src/scripts/deleteHelper.js), the native confirmation resolves before `ServerConnections.getApiClient(...).deleteItem(item.Id)`. Context menus use that helper. [multiSelect](https://github.com/jellyfin/jellyfin-web/blob/v12.0/src/components/multiSelect/multiSelect.js) confirms and calls `apiClient.deleteItem` for every selected ID. There is no public injected-script pre-delete event or stable external module import for the bundled helper.
+Proposed storage: `BasePlugin.DataFolderPath/watchlists.json`, schema version plus unique user/item GUID pairs. Resolve names at request time. Use one singleton writer lock, same-directory temporary files, flushed writes, and atomic replacement. Publish in-memory changes only after durable replacement. Reject unknown schema versions and corruption without overwriting the store. Filter stale references from results; permit users to remove their own stale entries. Do not automatically clear manual entries on playback completion.
 
-The narrow feasible integration wraps the current **`window.ApiClient.deleteItem` instance method**, not fetch/XHR. `ServerConnections.setLocalApiClient` assigns that global in v12. The wrapper gets fresh item/user/status data, excludes the acting user's interest, and only invokes the original method after approval. Cancel/Escape reject the promise before a delete request exists. Network/server failures also reject. The original receiver, arguments, return value and permissions are preserved. Native UI can show its generic “Error deleting item” alert on cancellation because it sees a rejected promise; this is preferable to reporting a deletion that did not happen.
+The [base plugin](https://github.com/jellyfin/jellyfin/blob/v12.2/MediaBrowser.Common/Plugins/BasePluginOfT.cs) derives this data folder from `IApplicationPaths.PluginsPath` and the assembly name. Do not assume it is under `/config/data`: with the official container it can be `/config/plugins/Jellyfin.Plugin.WatchGuard`. Use the supplied property. This is a single-server-process design.
 
-Movie/series deletion is covered. Episode/season requests check their containing series when `SeriesId` is supplied. Other types pass through, including folders and collections. The wrapper rebinds on view events and polls for a replaced client every 500 ms. Prompts are queued to avoid stacked bulk dialogs. Checks happen when a queued deletion begins. Each item is an independent action; cancelling a later item cannot undo earlier approved items. There is also a normal check-to-delete race: interest can change while a warning is open. No atomic server override token is claimed.
+Use native plugin service registration and ASP.NET controller discovery. `[Authorize]` invokes Jellyfin's default authentication/authorization policy. Resolve the current enabled user from the native authenticated principal; v12.2's claim name is [`Jellyfin-UserId`](https://github.com/jellyfin/jellyfin/blob/v12.2/Jellyfin.Api/Constants/InternalClaimTypes.cs). Prefer the native accessor where available through appropriate references; otherwise isolate this verified claim dependency in a small adapter. Never accept a caller-supplied user ID for list mutation. API keys without a user should not own a watchlist.
 
-## Injector and detail UI
+Proposed operations: list own entries, get own membership, idempotently add/remove own membership, and get administrator-only protection status. Check item visibility before exposing or adding a title. Check administrator permission against the current native user, not a JavaScript flag. No cross-user names, counts, or interest booleans should be returned to non-admins under the existing privacy requirement. That means a cross-user detail badge must also be admin-only. Responses should be non-cacheable.
 
-Injector's documented `PluginInterface.RegisterScript(JObject)` is called via reflection by a hosted service, with an embedded script and `requiresAuthentication=true`. JObject is constructed through the interface's own parameter type, avoiding a direct Injector/Newtonsoft dependency. Registration retries for 60 seconds to tolerate startup order. Absence/failure logs a warning and leaves the backend working. The inspected Injector jf12 project still defaults to an RC package; runtime validation builds that exact source with `JellyfinVersion=12.0.0`.
+## 4. Web extension without a source fork
 
-The script uses v12 `viewshow` event parameters, one known detail-page ID, and `.detailPagePrimaryContent` for placement. All names are inserted with `textContent`. There is no page-wide mutation observer, generic network patch, or imported frontend framework. “My Watchlist” reads the own-list API and links to the native detail route. These DOM/global seams are **version-specific**, not official Jellyfin extension points. The modern React details UI is not validated; no claim is made that its components or direct SDK calls use this adapter.
+Native `IHasWebPages` supplies plugin dashboard pages, not arbitrary movie/series detail-page extension slots. The template establishes backend extension conventions but does not provide a public pre-delete Web hook.
 
-## Known bypasses and upgrade checks
+Use Injector's documented [`PluginInterface.RegisterScript(JObject)`](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/blob/2758804c987d490ef32fc2fbdb8a73a44facdf2c/Jellyfin.Plugin.JavaScriptInjector/PluginInterface.cs), with a stable script ID, plugin identity, embedded JavaScript and `requiresAuthentication=true`. Its documented reflection approach can avoid a hard assembly dependency; constructing the expected payload through the discovered type can also avoid adding a direct Newtonsoft dependency. Registration needs startup-order handling and visible failure logging. Plan for script update/unregistration because persisted registrations can outlive the plugin.
 
-- Native/mobile/TV clients that do not load the injected web script.
-- Direct REST calls, scripts, administrator API keys, alternative web clients, and server-side cleanup plugins.
-- Direct `ILibraryManager`/filesystem deletion, including Media Cleaner.
-- Generic folder/library deletion and unsupported item types; alternate versions with independent IDs have independent watchlists.
-- Modern web or future code paths using the generated SDK rather than the wrapped legacy ApiClient.
-- Requests on another client instance, or made before injection/rebinding, or after a different plugin replaces the method.
-- Disabled/missing Injector, stale registered scripts after uninstall, client caching or failed script execution.
+The inspected Injector uses [`IStartupFilter` response middleware](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/blob/2758804c987d490ef32fc2fbdb8a73a44facdf2c/Jellyfin.Plugin.JavaScriptInjector/Services/ScriptInjectionStartupFilter.cs) to inject its loader into the served Web index. It also has legacy disk-rewrite/File Transformation fallback paths. Prefer response-time injection to satisfy the no-source-modification objective. Injector requires a Jellyfin 12 build; the inspected source's jf12 package default is still an RC version, so verify the selected release artifact independently.
 
-On upgrades, verify the named native APIs, claim, deleteHelper and multiSelect call sites, global assignment, detail selectors, and Injector payload. Run the tests and the disposable manual deletion checks before relying on the warning. The backend compiles against 12.0; later 12.x releases need their own compatibility validation.
+Proposed detail integration: native view events and a narrowly scoped, source-verified placement anchor; ordinary DOM controls and native button styling. The legacy view currently has `itemDetailPage`, `.detailPagePrimaryContent` and `viewshow` parameters. These are internal DOM conventions, not a stable plugin contract. Modern React layout needs a separate placement assessment. Insert user/title names as text, handle account/server changes, and avoid generic fetch/XHR patches or a page-wide mutation observer.
 
-## Future stock-client playlist access
+## 5. Manual deletion pipeline and interception
 
-Native playlists have owner/sharing semantics and are accessible to stock clients, but their item preparation is not a title-level watchlist abstraction. [`Playlist.GetPlaylistItems`](https://github.com/jellyfin/jellyfin/blob/v12.0/MediaBrowser.Controller/Playlists/Playlist.cs) expands `Folder` inputs (including series) into playable descendants. Copying JSON entries into native playlists would create a second writable representation and require reconciliation for client edits, new episodes, deleted items and completion semantics.
+### Server
 
-A future movie-only mode could make one private native playlist per user the sole source of truth. Full movie/series semantics would require a different native abstraction or a deliberate migration/design change. The MVP does not mirror playlists or infer watchlists from Favorites.
+[`LibraryController`](https://github.com/jellyfin/jellyfin/blob/v12.2/Jellyfin.Api/Controllers/LibraryController.cs) exposes `DELETE /Items/{itemId}` and `DELETE /Items?ids=…`. It resolves a user/API-key context, gets the item with applicable visibility, checks `CanDelete(user)` for user requests, then calls `ILibraryManager.DeleteItem` with `DeleteFileLocation=true`. API-key handling is distinct; do not replace or simplify these native permission semantics in a custom delete endpoint.
+
+[`LibraryManager`](https://github.com/jellyfin/jellyfin/blob/v12.2/Emby.Server.Implementations/Library/LibraryManager.cs) removes file paths before persistence removal and `ReportItemRemoved`. The `ItemRemoved` handler runs after removal and its exceptions are caught/logged. [`ILibraryManager`](https://github.com/jellyfin/jellyfin/blob/v12.2/MediaBrowser.Controller/Library/ILibraryManager.cs) exposes added/updated/removed notifications but no cancellable “before delete” event. It also exposes `DeleteItemsUnsafeFast`.
+
+General ASP.NET middleware/action filters could reject matching HTTP requests before the controller executes, but that would be custom HTTP gating, not a native library veto. It would need a client warning/override protocol and would miss direct library calls. Media Cleaner's [`JellyfinMutationAdapter`](https://github.com/shemanaev/jellyfin-plugin-media-cleaner/blob/bafbfd33a69c96834f4f076d579090cde6d8ee89/MediaCleaner/Adapters/JellyfinMutationAdapter.cs) demonstrates the direct plugin deletion path. Do not represent an after-delete event, exception from that event, or HTTP-only middleware as universal prevention.
+
+### Web
+
+The source-observed sequence is:
+
+1. Context menu selects delete.
+2. [`deleteHelper.deleteItem`](https://github.com/jellyfin/jellyfin-web/blob/v12.2/src/scripts/deleteHelper.js) shows native confirmation.
+3. On confirmation, `ServerConnections.getApiClient(item.ServerId).deleteItem(item.Id)` sends deletion.
+4. Success triggers native navigation/refresh; rejection triggers native error handling.
+
+[`multiSelect`](https://github.com/jellyfin/jellyfin-web/blob/v12.2/src/components/multiSelect/multiSelect.js) confirms once, then invokes `apiClient.deleteItem` separately for each selected ID using `Promise.all`. Neither that flow nor the server bulk endpoint is transactional.
+
+The modern [`MoreCommandsButton`](https://github.com/jellyfin/jellyfin-web/blob/v12.2/src/apps/modern/features/details/components/buttons/MoreCommandsButton.tsx) also delegates to the shared `itemContextMenu`; modern Web is not categorically a bypass. However, each actual path and client instance must be checked. Future/direct SDK calls need not use this method.
+
+### Proposed warning adapter
+
+The narrow candidate is a wrapper around the relevant `ApiClient.deleteItem` instance. [`ServerConnections`](https://github.com/jellyfin/jellyfin-web/blob/v12.2/src/lib/jellyfin-apiclient/ServerConnections.js) assigns the local client to `window.ApiClient`. It is necessary to prove that the client used by the selected deletion path is the wrapped instance; the global alone is not a guarantee for all servers or views.
+
+After native confirmation, but before invoking the original method, resolve the affected movie/series and fetch fresh protection status. Exclude the acting user's own interest. When another user is interested, show names/reasons and **Cancel / Delete Anyway**. Cancel/Escape rejects without invoking native deletion; override invokes the original method exactly once with its original receiver and arguments. Network errors, invalid responses and account changes should reject. Keep the native permission checks and deletion request unchanged.
+
+A rejected wrapper promise can trigger Jellyfin's generic deletion-error alert even for deliberate cancellation. Do not return success to hide that alert: native code would then navigate/refresh as though the item were deleted. Validate whether this UX is acceptable before implementation.
+
+Bulk cancellation must be described precisely: a method wrapper controls each item, not the whole batch. Serializing prompts does not make deletion atomic; a later cancellation cannot undo earlier approved items. If one Cancel must abort the entire selection before any file is removed, this integration point is insufficient without a separate, validated batch-level integration.
+
+Non-admins cannot receive detailed interest under the privacy rule. Proposed MVP: a generic, clearly labelled “status unavailable to this account” confirmation for non-admin users who have native delete permission. It is not a successful protection check. Alternatively defer non-admin warning support; do not silently reveal cross-user state or claim equivalent coverage. This policy needs agreement with the advisory scope.
+
+## 6. Reuse and dependency choices
+
+| Native capability | Reuse recommendation |
+| --- | --- |
+| User/library/session services and batch playback reads | Use directly; do not duplicate playback persistence |
+| Native deletion confirmation and permissions | Preserve; add the interest check before the original delete call |
+| Web [`confirm.ts`](https://github.com/jellyfin/jellyfin-web/blob/v12.2/src/components/confirm/confirm.ts) and dialog components | Internal bundled modules, not a stable injected-script import API; avoid webpack/runtime extraction merely to reuse them |
+| Browser `<dialog>` and Jellyfin button styling | Small fallback for the extra warning; verify accessibility, Escape and focus return |
+| Native own-list navigation/detail links | Reuse item pages instead of creating a frontend framework |
+| Native playlist ownership/sharing | Useful future option only if playlist semantics become the sole source of truth |
+
+[`Playlist.GetPlaylistItems`](https://github.com/jellyfin/jellyfin/blob/v12.2/MediaBrowser.Controller/Playlists/Playlist.cs) expands folder inputs, including series, into playable descendants. JSON-to-playlist mirroring would add reconciliation for client edits, new episodes and removed items. A future movie-only mode could use one private native playlist per user as the sole store, but it is not a drop-in solution for title-level movie/series lists. Do not maintain two writable representations in the MVP.
+
+Proposed dependencies: .NET 10, matched/pinned Jellyfin Controller and Model packages with runtime assets excluded, shared ASP.NET runtime, and Jellyfin-12-compatible JavaScript Injector for Web UI. Use `System.Text.Json`; no external database, Seerr, automation integrations or frontend framework. Keep test-only packages separate from plugin deployment. Backend endpoints should remain usable when Injector is absent, with an explicit indication that no web warning is active.
+
+## Limitations
+
+- Direct REST clients, native/mobile/TV clients without the injected script, cleanup plugins and filesystem deletion bypass the web adapter.
+- Deletion before script installation, on an unwrapped client instance, or after another script replaces the method bypasses it.
+- Folder/library deletion, unsupported types and alternate-version deletion scope require separate analysis. Movie/series coverage must not imply recursive protection for every container.
+- Check-to-delete races remain: another user can express interest while the warning is open. There is no atomic server transaction binding the check to deletion.
+- Scripts and DOM/global conventions can change across upgrades. Injector persistence/caching can leave stale scripts installed.
+- Per-user episode aggregation costs grow with users and episodes. Use native batches, measure, and add caching only with a defined freshness policy.
+
+## Recommended MVP and required validation
+
+**Proposed scope:** personal movie/series membership; own-list API and small Web controls; administrator-only interest detail; native playback/session aggregation; conditional Web deletion warning. No new delete endpoint, automatic deletion, metadata tags, Favorites reuse, automatic clearing, or playlist synchronization.
+
+Before implementing that MVP, validate the deletion adapter on disposable media with the chosen **12.2 server, matching Web build and Injector artifact**:
+
+1. Trace legacy detail/context-menu, modern More Commands and multi-select deletion to the exact client instance and method.
+2. Verify native confirmation remains first, the latest status is fetched, and no DELETE is sent before explicit approval.
+3. Cancel, Escape, dialog close, network failure, malformed status and logout during the check must issue no DELETE for that action.
+4. Delete Anyway must issue exactly one unchanged native request; native permission denial must still win.
+5. Validate multiple simultaneous deletions and agree on per-item versus whole-batch cancellation semantics.
+6. Test startup, delayed injection, restored views, server switches, base URLs, script duplication and plugin replacement of the method.
+7. Exercise partial/completed movies, series episode availability, current sessions, alternate versions, manual-entry retention, missing media and removed users.
+8. Verify non-admin privacy, names rendered as text, keyboard focus and the native error alert after cancellation.
+9. Demonstrate and document bypass paths rather than treating their absence from the UI test as protection.
+
+Source review establishes feasibility, not browser reliability. Prior 12.0 server/adapter tests in this repository do not close this 12.2 validation gate. **Recommended decision: conditionally accept an advisory web-only MVP after the above proof; do not claim server-enforced protection.**
