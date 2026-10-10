@@ -21,7 +21,7 @@
       "args": [
         "publish",
         "--configuration=Debug",
-        "${workspaceFolder}/${config:pluginName}.sln",
+        "${workspaceFolder}/${config:pluginName}/${config:pluginName}.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -60,14 +60,14 @@
       "command": "cp",
       "windows": {
         "args": [
-          "./${config:pluginName}/bin/Debug/net9.0/publish/*",
+          "./${config:pluginName}/bin/Debug/net10.0/publish/${config:pluginName}.dll",
           "${config:jellyfinWindowsDataDir}/plugins/${config:pluginName}/"
         ]
       },
       "linux": {
         "args": [
           "-r",
-          "./${config:pluginName}/bin/Debug/net9.0/publish/*",
+          "./${config:pluginName}/bin/Debug/net10.0/publish/${config:pluginName}.dll",
           "${config:jellyfinLinuxDataDir}/plugins/${config:pluginName}/"
         ]
       }

@@ -1,16 +1,15 @@
 ---
-name: "Template"
-guid: "eb5d7894-8eef-4b36-aa6f-5d124e828ce1"
+name: "WatchGuard"
+guid: "a3c6bc84-783d-4ba8-a0db-89bfb83ab486"
 version: "1.0.0.0"
-targetAbi: "10.11.0.0"
-framework: "net9.0"
-overview: "Short description about your plugin"
+targetAbi: "12.0.0.0"
+framework: "net10.0"
+overview: "Personal watchlists and web deletion warnings"
 description: >
-  This is a longer description that can span more than one
-  line and include details about your plugin.
+  Keeps personal watchlists separate from Favorites and warns administrators
+  before supported Jellyfin Web deletion requests when others are interested.
 category: "General"
-owner: "jellyfin"
+owner: "watchguard"
 artifacts:
-- "Jellyfin.Plugin.Template.dll"
-changelog: >
-  changelog
+  - "Jellyfin.Plugin.WatchGuard.dll"
+changelog: "Initial Jellyfin 12 MVP."

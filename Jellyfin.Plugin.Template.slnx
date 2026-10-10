@@ -1,3 +1,4 @@
 <Solution>
-  <Project Path="Jellyfin.Plugin.Template/Jellyfin.Plugin.Template.csproj" />
+  <Project Path="Jellyfin.Plugin.WatchGuard/Jellyfin.Plugin.WatchGuard.csproj" />
+  <Project Path="tests/WatchGuard.Tests/WatchGuard.Tests.csproj" />
 </Solution>
