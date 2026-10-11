@@ -11,5 +11,6 @@
     <PackageReference Include="Jellyfin.Controller" Version="12.2.0" ExcludeAssets="runtime" />
     <PackageReference Include="Jellyfin.Model" Version="12.2.0" ExcludeAssets="runtime" />
     <EmbeddedResource Include="Web/watchguard.js" />
+    <EmbeddedResource Include="Web/settings.html" />
   </ItemGroup>
 </Project>

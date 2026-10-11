@@ -1,4 +1,4 @@
-# Jellyfin WatchGuard v0.3.0
+# Jellyfin WatchGuard v0.3.1
 
 Deployment-test build for **Jellyfin Server and Web 12.2 / .NET 10**. Personal movie/series watchlists remain separate from Favorites. Administrators can see interest based on watchlists, unfinished playback and active sessions.
 
@@ -8,14 +8,14 @@ Detail headers show compact status icons beside administrator-visible usernames 
 
 Supported native movie/series menus now offer personal Add/Remove beside collection/playlist actions. Filters use a compact icon/count. My list and individual-user activity requests are scoped on the server; all-users aggregation stays bounded and uncached. The measured default view settled in 82.4 ms versus 214.2 ms in the disposable baseline. See [native actions and deliberate hover-control limitation](docs/native-actions.md) and [measurement details](docs/performance-v030.md).
 
-**Catalog preparation:** the source repository is private and has no public release yet. The checked-in manifest is valid but empty; no speculative download URL is advertised. Release tooling and real native catalog installation/migration tests are included. See [plugin repository](docs/plugin-repository.md) and [LinuxServer.io manual-to-catalog migration](docs/manual-to-catalog.md) for `/config/data/plugins`. Publication and production migration remain separate actions.
+**Catalog installation:** v0.3.0 is published and catalog-tested. Add the WatchGuard repository URL below and install JavaScript Injector separately. v0.3.1 is prepared locally and is **not published yet**; the manifest continues to advertise the existing v0.3.0 release until authorized publication. See [catalog installation and updates](docs/deployment.md#native-catalog-installation-and-upgrades).
 
-Start with the [deployment checklist, Docker Compose installation, verification and rollback instructions](docs/deployment.md). No production deployment or GitHub release has been performed.
+v0.3.1 adds a native Dashboard → Plugins → WatchGuard [settings and integration status page](docs/settings.md), plus [personal saved defaults](docs/user-preferences.md) in the existing filter popover. Settings apply without restarting; reload Web tabs for changed diagnostics. Preferences remain separate from memberships and explicit URL parameters take priority. [Future single-plugin research](docs/injector-alternatives.md) does not remove the Injector dependency.
 
 ## Release artifact and build
 
-- `artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip`
-- `artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip.sha256`
+- `artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip`
+- `artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip.sha256`
 
 The ZIP contains **one runtime DLL** and `LICENSE`. The Web adapter is embedded in the DLL. It does not contain Jellyfin assemblies, test dependencies, loose JavaScript, configuration, watchlists or JavaScript Injector.
 
@@ -23,11 +23,11 @@ Release packaging requires .NET SDK **10.0.302** and Python 3.10+. Node 24+ and 
 
 ```sh
 python3 scripts/build-release.py
-(cd artifacts && shasum -a 256 -c Jellyfin.Plugin.WatchGuard-v0.3.0.zip.sha256)
+(cd artifacts && shasum -a 256 -c Jellyfin.Plugin.WatchGuard-v0.3.1.zip.sha256)
 dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
 node --test tests/web.test.cjs
 python3 tests/catalog_test.py
-python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip
+python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
 npm ci --prefix tests/browser
 (cd tests/browser && npx playwright install chromium)
 python3 tests/docker-smoke.py --injector-dll /path/to/Jellyfin.Plugin.JavaScriptInjector.dll
@@ -37,25 +37,28 @@ The release script uses locked NuGet dependencies, forced deterministic Release 
 
 Open `Jellyfin.Plugin.WatchGuard.slnx` in Rider. `Jellyfin.Plugin.Template.slnx` remains an equivalent compatibility entry point for existing workspaces. Historical PoC documents and test filenames remain as evidence; the runtime `WatchGuardPoc` diagnostic object and `watchguard-v1` script ID are retained compatibility identifiers.
 
-## Install into a test Jellyfin container
+## Install through Jellyfin's catalog
 
-Use the official **12.2** image and a matching **JavaScript Injector jf12/.NET 10** build. The [deployment guide](docs/deployment.md#javascript-injector-dependency) pins the tested Injector revision and build command. Keep its **response-time middleware enabled** (`DisableScriptInjectionMiddleware=false`). Do not use its legacy Web-file rewrite mode or install File Transformation for WatchGuard.
+1. Dashboard → Plugins → Repositories: add WatchGuard's published repository:
+   `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
+2. Add JavaScript Injector's Jellyfin 12 repository:
+   `https://raw.githubusercontent.com/n00bcodr/jellyfin-plugins/main/12/manifest.json`
+3. Install **JavaScript Injector 4.0.0.0 jf12** and WatchGuard from the Catalog, then restart Jellyfin. Keep Injector's response-time middleware enabled (`DisableScriptInjectionMiddleware=false`). The catalog does not install dependencies automatically.
+4. Open WatchGuard's dashboard settings. Confirm server registration succeeded, verify exactly one enabled/authenticated `watchguard-v1` in Injector's Plugin Scripts, fully reload Web clients and run the browser check. Registration alone does not prove browser execution.
 
-With Jellyfin stopped, copy only the WatchGuard DLL into `/config/plugins/WatchGuard/` and the separate Injector DLL into `/config/plugins/JavaScriptInjector/`. Keep `/config` persistent and writable by the Jellyfin process. Start Jellyfin and fully reload Web tabs. Neither installation nor uninstall requires editing Jellyfin Web files.
-
-Verify the exact log **`WatchGuard web script registered with JavaScript Injector.`**, then check Injector's **Plugin Scripts** entry: name `WatchGuard`, ID `watchguard-v1`, version `0.3.0`, enabled and requiring authentication. Finally, in a newly loaded signed-in Web tab, `window.WatchGuardPoc?.isInstalled()` must return `true`. Full registration and functional checks are in [deployment.md](docs/deployment.md#verify-registration-and-operation).
+Normal catalog updates require no manual DLL copy/removal. Preserve the persistent `/config` volume. LinuxServer.io uses the supplied `/config/data/plugins` layout; the official image commonly uses `/config/plugins`. See [deployment, backups and rollback](docs/deployment.md), and [one-time migration](docs/manual-to-catalog.md) only if a manual installation still remains. Do not alter Jellyfin Web files or bundle/install File Transformation for WatchGuard. v0.3.1 local test installation remains documented separately until its publication.
 
 **Diagnostics default to off.** Existing installations retain their saved setting; set `DiagnosticMode=false` before routine deployment testing if earlier tests enabled it. The automated disposable browser fixture deliberately enables diagnostics for ordering assertions.
 
 ## Data, upgrades and removal
 
-Membership lives at **`/config/plugins/Jellyfin.Plugin.WatchGuard/watchlists.json`** in the official container. This is distinct from the DLL installation directory. Back up the entire persistent `/config` while Jellyfin is stopped, including this file and plugin configuration XML. Preserve it during upgrades; playback completion never removes manual entries. Corrupt or unsupported storage returns an error instead of silently resetting lists.
+Membership lives at **`/config/plugins/Jellyfin.Plugin.WatchGuard/watchlists.json`** in the official container. This is distinct from the DLL installation directory. Back up the entire persistent `/config` while Jellyfin is stopped, including this file, the adjacent `preferences.json`, and plugin configuration XML. Preserve it during upgrades; playback completion never removes manual entries. Corrupt or unsupported storage returns an error instead of silently resetting lists.
 
 When uninstalling, remove the DLL and also delete the persisted **`watchguard-v1`** entry from Injector's **Plugin Scripts**. Reload all Web tabs. Removing the DLL alone does not remove that registration or an adapter already loaded in a browser. Keep watchlists for rollback unless you deliberately intend to discard them. Detailed upgrade, uninstall and rollback steps are in [deployment.md](docs/deployment.md).
 
 ## Compatibility and limitations
 
-| Area | v0.3.0 scope |
+| Area | v0.3.1 scope |
 | --- | --- |
 | Server/runtime | Jellyfin **12.2**, .NET **10**; other server versions are not validated. |
 | Web layouts | Explicit modern and legacy desktop shells tested in Chromium; both use the legacy detail template in 12.2. |
@@ -71,9 +74,9 @@ Unwrapped client instances, another plugin replacing the method, requests before
 
 ## Validation
 
-v0.3.0: **45 backend tests and 37 JavaScript tests passed**, plus the complete disposable Docker backend/browser suite. Both layouts, parent-series scope, Cancel/override, failed checks, bulk deletion, account isolation and list controls passed. Release registration and persisted-script removal passed; the on-disk Web index remained identical to the pristine official image. See [final results](docs/deployment.md#automated-results).
+v0.3.1: **53 backend tests and 41 JavaScript tests passed**, plus the complete disposable Docker backend/browser suite. Both layouts, parent-series scope, Cancel/override, failed checks, bulk deletion, account isolation and list controls passed. Release registration and persisted-script removal passed; the on-disk Web index remained identical to the pristine official image. See [final results](docs/deployment.md#automated-results).
 
-The separate v0.2.4 ZIP and checksum remain in `artifacts/` for rollback. Both releases use the same watchlist JSON schema; stop Jellyfin, replace the DLL and reload every Web tab as described in the deployment guide.
+The separate v0.3.0 ZIP and checksum remain in `artifacts/` for rollback. Both releases use the same watchlist JSON schema; stop Jellyfin, replace the DLL and reload every Web tab as described in the deployment guide.
 
 Watchlist-add dates are not present in the unchanged JSON schema, so date-added sorting is unavailable rather than guessed.
 

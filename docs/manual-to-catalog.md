@@ -1,3 +1,5 @@
+> v0.3.1: production has already completed catalog migration. Normal updates require no manual DLL operations; use [current deployment instructions](deployment.md#native-catalog-installation-and-upgrades). This guide remains for older manual installations. Preserve the new preferences.json alongside watchlists.json when backing up or retiring folders.
+
 # Manual v0.2.4 to catalog v0.3.0 — LinuxServer.io
 
 **Planning instructions only. No production files or server settings were changed.** Production is Jellyfin 12.2 in LinuxServer.io Docker, with plugins at `/config/data/plugins`, manual WatchGuard v0.2.4 and existing JavaScript Injector. Do not copy the official-image `/config/plugins` paths blindly.

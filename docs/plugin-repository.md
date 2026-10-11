@@ -1,3 +1,5 @@
+> **v0.3.1 update:** v0.3.0 is now published and installed successfully. The private/empty-catalog statements below describe the historical preparation stage. Current [catalog installation/upgrade instructions](deployment.md#native-catalog-installation-and-upgrades) supersede them. The release workflow now prepares v0.3.1, verifies the published v0.3.0 rollback ZIP, exercises normal catalog upgrade/rollback and preserves the existing manifest entry. No v0.3.1 asset URL is generated before publication.
+
 # WatchGuard v0.3.0 — plugin repository preparation
 
 ## Publication status

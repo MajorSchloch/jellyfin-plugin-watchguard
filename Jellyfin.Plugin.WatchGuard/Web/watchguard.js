@@ -263,7 +263,18 @@
         };
     }
 
+    function preferenceView(saved, owner, interest, sort) {
+        return { owner: owner ?? saved.Owner, interest: interest ?? (saved.Statuses.join(',') || 'none'), sort: sort ?? saved.Sort };
+    }
+    function preferenceRequest(api, type = 'GET', value) {
+        if (!api.getCurrentUserId() || !api.accessToken()) return Promise.reject(new Error('Not signed in'));
+        return api.ajax({url: api.getUrl('WatchGuard/Preferences'), type, dataType: 'json',
+            ...(value ? {data: JSON.stringify(value), contentType: 'application/json'} : {})});
+    }
+
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
+        let raw = {owner: filter, interest: options.interest, sort: options.sort};
+        let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
         let kind = selectedStatuses(options.interest);
         let sort = options.sort === 'recent' ? 'recent' : 'title';
         const page = document.createElement('section'); page.className = 'watchguard-page padded-left padded-right';
@@ -290,7 +301,30 @@
             label.append(checkbox, text); choicesPanel.append(label); checkboxes.set(value, checkbox);
         }
         const reset = document.createElement('button'); reset.type = 'button'; reset.className = 'emby-button button-flat'; reset.textContent = 'Reset to Defaults';
-        reset.onclick = () => { kind = [...defaultFilters]; change(); };
+        reset.onclick = async () => {
+            if (!options.preferences) { kind = [...defaultFilters]; change(); return; }
+            if (!active()) return;
+            reset.disabled = true;
+            try {
+                await preferenceRequest(api, 'DELETE');
+                if (!active()) return;
+                saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'};
+                preferenceMessage.textContent = 'Defaults restored.';
+                navigate('mine', defaultFilters.join(','), 'title');
+            } catch { if (active()) preferenceMessage.textContent = 'Could not reset saved defaults. Please retry.'; }
+            finally { reset.disabled = false; }
+        };
+        const save = document.createElement('button'); save.type = 'button'; save.className = 'emby-button button-flat'; save.textContent = 'Save view as defaults';
+        save.onclick = async () => {
+            if (!active()) return;
+            save.disabled = true;
+            try {
+                const result = await preferenceRequest(api, 'PUT', {Owner: admin ? filter || 'mine' : 'mine', Statuses: [...kind], Sort: sort});
+                if (active()) { saved = result; preferenceMessage.textContent = 'View saved as your defaults.'; }
+            } catch { if (active()) preferenceMessage.textContent = 'Could not save defaults. Please retry.'; }
+            finally { save.disabled = false; }
+        };
+        if (options.preferences) choicesPanel.append(save);
         choicesPanel.append(reset); interestFilter.append(summary, choicesPanel);
         interestFilter.addEventListener('keydown', event => { if (event.key === 'Escape') { interestFilter.open = false; summary.focus(); event.preventDefault(); } });
         document.addEventListener?.('pointerdown', event => { if (!interestFilter.contains(event.target)) interestFilter.open = false; }, {signal});
@@ -305,7 +339,8 @@
         const notice = document.createElement('p'); notice.className = 'watchguard-notice secondaryText';
         const error = document.createElement('p'); error.setAttribute('role', 'alert');
         const grid = document.createElement('div'); grid.className = 'watchguard-grid';
-        page.append(heading, toolbar, status, notice, error, grid);
+        const preferenceMessage = document.createElement('p'); preferenceMessage.setAttribute('role', 'status'); preferenceMessage.className = 'watchguard-notice';
+        page.append(heading, toolbar, status, notice, error, grid, preferenceMessage);
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
         let directory = [], loadedScope;
@@ -393,6 +428,18 @@
                 const account = await api.getCurrentUser();
                 if (!current()) return;
                 admin = account.Policy?.IsAdministrator === true;
+                if (options.preferences && !preferencesLoaded) {
+                    try {
+                        const result = await preferenceRequest(api);
+                        if (!current()) return;
+                        if (!result || typeof result.Owner !== 'string' || !Array.isArray(result.Statuses) || result.Statuses.some(s => !activityFilters[s]) || !['title','recent'].includes(result.Sort)) throw new Error('Invalid preferences');
+                        saved = result;
+                    } catch { if (current()) preferenceMessage.textContent = 'Saved defaults unavailable. Using URL or built-in defaults; stored data was not changed.'; }
+                    if (!current()) return;
+                    preferencesLoaded = true;
+                    const view = preferenceView(saved, raw.owner, raw.interest, raw.sort);
+                    filter = view.owner; kind = selectedStatuses(view.interest); sort = view.sort === 'recent' ? 'recent' : 'title';
+                }
                 const scope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
                 loadedScope = scope;
                 if (admin && !directory.length) {
@@ -422,7 +469,9 @@
             finally { if (current()) refresh.disabled = false; }
         }
         page.updateFilters = (owner, interest, sorting) => {
-            filter = owner || 'mine'; kind = selectedStatuses(interest); sort = sorting === 'recent' ? 'recent' : 'title';
+            raw = {owner, interest, sort: sorting};
+            const view = preferenceView(saved, owner, interest, sorting);
+            filter = view.owner; kind = selectedStatuses(view.interest); sort = view.sort === 'recent' ? 'recent' : 'title';
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
             if (loadedScope && nextScope !== loadedScope) { explicit = []; automatic = []; pending = true; render(); load(); } else render();
         };
@@ -434,7 +483,7 @@
     }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership };
+        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -563,9 +612,9 @@
         }
         closePage(); pageSignature = hash;
         pageLifetime = new AbortController();
-        pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner') || 'mine', (owner, interest, sort) => {
+        pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner'), (owner, interest, sort) => {
             root.location.hash = '/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort);
-        }, {interest: params.get('interest'), sort: params.get('sort')});
+        }, {interest: params.get('interest'), sort: params.get('sort'), preferences: true});
         document.body.classList.add('watchguard-page-open'); document.body.append(pagePanel);
     }
 

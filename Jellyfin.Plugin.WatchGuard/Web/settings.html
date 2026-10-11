@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>WatchGuard</title></head><body>
+<div id="WatchGuardSettings" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+<div data-role="content"><div class="content-primary">
+<h2>WatchGuard</h2>
+<form id="WatchGuardSettingsForm">
+<div class="inputContainer"><label class="inputLabel" for="wgDays">Activity window (days)</label><input is="emby-input" id="wgDays" type="number" min="1" max="90" step="1" required><div class="fieldDescription">Default 30; 1–90 days of bounded recent viewing history. Does not change deletion protection.</div></div>
+<div class="inputContainer"><label class="inputLabel" for="wgLimit">Activity candidate limit</label><input is="emby-input" id="wgLimit" type="number" min="1" max="100" step="1" required><div class="fieldDescription">Default 100; 1–100 automatic candidates. Results are bounded, not an exhaustive playback history.</div></div>
+<div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input is="emby-checkbox" id="wgDiagnostics" type="checkbox"><span>Diagnostic mode</span></label><div class="fieldDescription">Default off. Logs timing and adapter events without tokens or private data. Save, then fully reload Web clients for script changes.</div></div>
+<button is="emby-button" class="raised button-submit block" type="submit">Save</button>
+</form>
+<p id="wgSettingsMessage" role="status"></p>
+<h2>Integration status</h2><div id="wgIntegration" role="status">Loading…</div>
+<button is="emby-button" class="button-flat" id="wgCheck" type="button">Refresh status and check this browser</button>
+<p id="wgBrowser" class="fieldDescription">Server registration alone cannot verify browser execution.</p>
+</div></div>
+<script>
+(function () {
+    const page = document.querySelector('#WatchGuardSettings'), id = 'a3c6bc84-783d-4ba8-a0db-89bfb83ab486';
+    const field = name => page.querySelector(name);
+    let epoch = 0;
+    function identity() { return [ApiClient, ApiClient.getCurrentUserId(), ApiClient.accessToken()]; }
+    function valid(who, revision) { return revision === epoch && who.every((v,i) => v === identity()[i]); }
+    async function status() {
+        const who = identity(), revision = epoch;
+        try {
+            const result = await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/IntegrationStatus'), dataType:'json'});
+            if (!valid(who, revision)) return;
+            const target = field('#wgIntegration'); target.replaceChildren();
+            for (const text of [ 'WatchGuard ' + result.PluginVersion + ' · Jellyfin ' + result.JellyfinVersion,
+                result.TestedCompatibility + (result.ServerMatchesTestedVersion ? ' — server version matches' : ' — server version not validated'),
+                'Injector discovered: ' + result.Registration.InjectorDiscovered + ' · Interface compatible: ' + result.Registration.InterfaceCompatible,
+                result.Registration.State + ' · Script version: ' + (result.Registration.ScriptVersion || 'not registered'), result.Instructions ]) {
+                const p = document.createElement('p'); p.textContent = text; target.append(p);
+            }
+            field('#wgBrowser').textContent = window.WatchGuardPoc?.isInstalled() === true
+                ? 'This browser: adapter installed on its current ApiClient. This does not verify every deletion path; test Cancel on disposable media.'
+                : 'This browser: adapter not detected. Check Injector registration, then fully reload this tab.';
+        } catch { if (valid(who, revision)) field('#wgIntegration').textContent = 'Integration status unavailable. Administrator access is required.'; }
+    }
+    page.addEventListener('pageshow', async function () {
+        const revision = ++epoch, who = identity();
+        field('#wgSettingsMessage').textContent = ''; field('#wgIntegration').textContent = 'Loading…'; field('#wgBrowser').textContent = '';
+        try {
+            const config = await ApiClient.getPluginConfiguration(id);
+            if (!valid(who, revision)) return;
+            field('#wgDays').value = config.ActivityWindowDays; field('#wgLimit').value = config.ActivityLimit;
+            field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
+        } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not load settings. Administrator access is required.'; }
+    });
+    page.addEventListener('pagehide', () => { epoch++; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
+    field('#wgCheck').onclick = status;
+    field('#WatchGuardSettingsForm').onsubmit = async function (event) {
+        event.preventDefault();
+        const days = Number(field('#wgDays').value), limit = Number(field('#wgLimit').value), diagnostic = field('#wgDiagnostics').checked;
+        if (!Number.isInteger(days) || days < 1 || days > 90 || !Number.isInteger(limit) || limit < 1 || limit > 100) {
+            field('#wgSettingsMessage').textContent = 'Enter whole numbers in the displayed ranges.'; return;
+        }
+        const who = identity(), revision = epoch;
+        const button = this.querySelector('button[type=submit]'); button.disabled = true;
+        try {
+            const config = await ApiClient.getPluginConfiguration(id);
+            if (!valid(who, revision)) return;
+            config.ActivityWindowDays = days; config.ActivityLimit = limit; config.DiagnosticMode = diagnostic;
+            await ApiClient.updatePluginConfiguration(id, config);
+            if (valid(who, revision)) { field('#wgSettingsMessage').textContent = 'Saved. Activity settings apply to the next query. Fully reload Web clients for diagnostic script changes; no server restart needed.'; await status(); }
+        } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not save settings. Please retry.'; }
+        finally { button.disabled = false; }
+    };
+})();
+</script></div></body></html>

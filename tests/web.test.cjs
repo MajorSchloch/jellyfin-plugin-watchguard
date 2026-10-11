@@ -244,7 +244,7 @@ test('Personal overview rejects cross-user payloads even with forged owner filte
     assert.match(page.children[4].textContent,/Viewing activity unavailable/);
 });
 
-function progressiveFixture(admin = true) {
+function progressiveFixture(admin = true, preferences = false, owner = 'all') {
     const f = documentFixture(), create = f.doc.createElement, calls = [];
     f.doc.createElement = tag => { const n = create(tag); n.replaceChildren = () => { for(const child of [...n.children]) child.remove(); }; n.classList = {add(){}}; return n; };
     let token = 'first';
@@ -252,7 +252,7 @@ function progressiveFixture(admin = true) {
         ajax:o=>o.url==='WatchGuard/Users'?Promise.resolve(overviewItems[0].Users):new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
     const abort = new AbortController();
     const navigation=[];
-    const page = watchlistsPage(f.doc,api,abort.signal,'all',(...args)=>{navigation.push(args);page.updateFilters(...args);});
+    const page = watchlistsPage(f.doc,api,abort.signal,owner,(...args)=>{navigation.push(args);page.updateFilters(...args);},{preferences});
     return {page,calls,abort,navigation,changeAccount(){token='second';}};
 }
 const turn = () => new Promise(resolve=>setImmediate(resolve));
@@ -388,4 +388,39 @@ test('Shared personal membership helper coalesces reads and rejects stale accoun
     const write=helper.set(other,true);resolve();await write;assert.deepEqual(changes,[[other,true]]);
     const stale=helper.read();token='second';resolve([]);await assert.rejects(stale);
     await assert.rejects(helper.set(other,false));assert.equal(calls.length,3);
+});
+
+test('Saved defaults apply only to absent URL parameters, including an explicit empty status selection', () => {
+    const {preferenceView} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const saved = {Owner:'all', Statuses:['watched'], Sort:'recent'};
+    assert.deepEqual(preferenceView(saved,null,null,null), {owner:'all',interest:'watched',sort:'recent'});
+    assert.deepEqual(preferenceView(saved,'mine','none','title'), {owner:'mine',interest:'none',sort:'title'});
+    assert.deepEqual(preferenceView(saved,null,'watching',null), {owner:'all',interest:'watching',sort:'recent'});
+    assert.equal(preferenceView({...saved,Statuses:[]},null,null,null).interest,'none');
+});
+
+
+test('Preference responses cannot cross account or navigation lifetimes', async()=>{
+    for(const action of ['abort','account']) {
+        const f=progressiveFixture(true,true,null); await turn();
+        assert.equal(f.calls[0].o.url,'WatchGuard/Preferences');
+        if(action==='abort') f.abort.abort(); else f.changeAccount();
+        f.calls[0].resolve({Owner:'all',Statuses:['watched'],Sort:'recent'}); await turn();
+        assert.equal(f.calls.length,1); assert.equal(f.page.children[5].children.length,0);
+    }
+});
+test('Saved owner scopes queries while explicit URL updates win during preference loading', async()=>{
+    const f=progressiveFixture(true,true,null); await turn();
+    f.page.updateFilters('mine','none','title');
+    f.calls[0].resolve({Owner:'all',Statuses:['watched'],Sort:'recent'}); await turn();
+    assert.equal(f.calls[1].o.url,'WatchGuard/Watchlist');
+    const g=progressiveFixture(true,true,null); await turn();
+    g.calls[0].resolve({Owner:other,Statuses:['watched'],Sort:'recent'}); await turn();
+    assert.equal(g.calls[1].o.url,'WatchGuard/Watchlists/'+other);
+});
+test('Failed preferences retain a visible error and use defaults without writing recovery data', async()=>{
+    const f=progressiveFixture(false,true,null); await turn(); f.calls[0].reject(new Error('corruption')); await turn();
+    assert.equal(f.calls[1].o.url,'WatchGuard/Watchlist');
+    assert.match(f.page.children[6].textContent,/stored data was not changed/);
+    assert.ok(f.calls.every(c=>c.o.type==='GET'));
 });

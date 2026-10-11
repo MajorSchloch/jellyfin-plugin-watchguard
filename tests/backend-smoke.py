@@ -7,10 +7,42 @@ from concurrent.futures import ThreadPoolExecutor
 def run(call, admin_token, items, plugins):
     movie = items['PoC Modern Movie']
     series = items['PoC Series Detail']
+    guid = 'a3c6bc84-783d-4ba8-a0db-89bfb83ab486'
+    config = call('/Plugins/'+guid+'/Configuration', token=admin_token)
+    changed = dict(config, ActivityWindowDays=14, ActivityLimit=25)
+    call('/Plugins/'+guid+'/Configuration', 'POST', changed, admin_token, expected=204)
+    assert call('/Plugins/'+guid+'/Configuration', token=admin_token)['ActivityLimit'] == 25
+    # Diagnostic script changes re-register live; no restart and no duplicate ID.
+    for enabled in [False, True]:
+        call('/Plugins/'+guid+'/Configuration', 'POST', dict(changed, DiagnosticMode=enabled), admin_token, expected=204)
+        for _ in range(30):
+            script = call('/JavaScriptInjector/private.js', token=admin_token, raw=True)
+            if ('let diagnostic = '+str(enabled).lower()+';') in script: break
+            time.sleep(.1)
+        else: raise AssertionError('Diagnostic script did not update live')
+    call('/Plugins/'+guid+'/Configuration', 'POST', config, admin_token, expected=204)
+    assert 'WatchGuardSettings' in call('/web/ConfigurationPage?name=WatchGuard', token=admin_token, raw=True)
+    status = call('/WatchGuard/IntegrationStatus', token=admin_token)
+    assert status['PluginVersion'] == '0.3.1' and status['BrowserExecutionVerified'] is False
+    defaults = call('/WatchGuard/Preferences', token=admin_token)
+    assert defaults == {'Owner':'mine', 'Statuses':['watchlisted','watching','playing'], 'Sort':'title'}
+    call('/WatchGuard/Preferences','PUT',{'Owner':'all','Statuses':['watched'],'Sort':'recent'},admin_token)
+    assert call('/WatchGuard/Preferences',token=admin_token)['Owner']=='all'
+    call('/WatchGuard/Preferences','DELETE',token=admin_token)
     password = 'Disposable-' + uuid.uuid4().hex
     member = call('/Users/New', 'POST', {'Name': 'BackendMember', 'Password': password}, admin_token)
     signed = call('/Users/AuthenticateByName', 'POST', {'Username': 'BackendMember', 'Pw': password})
     token = signed['AccessToken']
+    call('/Plugins/'+guid+'/Configuration', token=token, expected=403)
+    call('/Plugins/'+guid+'/Configuration', 'POST', changed, token, expected=403)
+    call('/WatchGuard/IntegrationStatus', token=token, expected=403)
+    call('/WatchGuard/Preferences','PUT',{'Owner':'all','Statuses':[],'Sort':'title'},token,expected=403)
+    call('/WatchGuard/Preferences','PUT',{'Owner':'mine','Statuses':['invalid'],'Sort':'title'},token,expected=400)
+    assert call('/WatchGuard/Preferences',token=token)==defaults
+    call('/WatchGuard/Preferences','PUT',{'Owner':'mine','Statuses':['watched'],'Sort':'recent'},token)
+    assert call('/WatchGuard/Preferences',token=admin_token)==defaults
+    call('/WatchGuard/Preferences','DELETE',token=token)
+
     route = '/WatchGuard/Watchlist/' + movie
     call('/WatchGuard/Watchlist', expected=401)
     call('/WatchGuard/Watchlists', expected=401)

@@ -1,29 +1,45 @@
-# WatchGuard v0.3.0 deployment testing
+# WatchGuard v0.3.1 deployment testing
 
 Native-style Watchlists and detail toolbar UI, packaged for **Jellyfin Server/Web 12.2, .NET 10**. Deletion semantics, permission policies, Injector registration ID and schema-1 membership data remain compatible with v0.2.0. These instructions use a separate Docker Compose test stack and disposable media; do not point them at production configuration or media. Nothing has been published to GitHub.
 
+## Native catalog installation and upgrades
+
+v0.3.0 is published and installed through the catalog. v0.3.1 remains local/unpublished until explicit release authorization. `manifest.json` retains the verified public v0.3.0 metadata and download URL; release preparation never advertises a future asset.
+
+Add `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json` in Dashboard → Plugins → Repositories. Separately add Injector's `https://raw.githubusercontent.com/n00bcodr/jellyfin-plugins/main/12/manifest.json`, install its **4.0.0.0 jf12** release, then install WatchGuard and restart. Confirm dependency middleware is enabled. Normal catalog updates use Jellyfin's installer and restart workflow: **do not manually copy DLLs or delete installer-owned meta.json**. Jellyfin may retain older version directories as superseded; this is different from duplicate manually installed assemblies. Keep manual copies out of discovery using the one-time [migration guide](manual-to-catalog.md).
+
+Open Dashboard → Plugins → WatchGuard for [settings and integration diagnostics](settings.md). Verify one current enabled/authenticated `watchguard-v1`, then fully reload Web clients and run the browser check. Existing settings XML, plugin GUID and script ID are preserved. Never infer browser execution from registration alone.
+
+Back up the whole persistent `/config` with Jellyfin stopped, including `watchlists.json`, new `preferences.json` and plugin XML. Both JSON files are under `BasePlugin.DataFolderPath`: `/config/data/plugins/Jellyfin.Plugin.WatchGuard/` in the supplied LinuxServer.io layout, `/config/plugins/Jellyfin.Plugin.WatchGuard/` in the official fixture. Restore corrupt preferences from backup; failed reads never reset data.
+
+### v0.3.1 rollback to v0.3.0
+
+Retain the published v0.3.0 ZIP and SHA-256 `4ce9f89924391e9842ba444b7dd0d2fcf509a23845497b45f601c2f3c18339a6`. Downgrades are deliberate: stop Jellyfin, back up configuration, retire the newer WatchGuard installation directory outside plugin discovery, and restore the known-good v0.3.0 assembly/metadata (or regenerate only that installation's metadata). Preserve the separate data directory and configuration XML. Restart and fully reload clients; confirm one loaded version and one `watchguard-v1` at 0.3.0. v0.3.0 ignores `preferences.json`; keep it for later re-upgrade. Never roll back playback/media or change watchlist schema. See historical rollback instructions below only for older releases.
+
+The rest of this guide retains manual local-test installation instructions. They are not required for an ordinary catalog update.
+
 ## Catalog status and LinuxServer.io
 
-The repository is currently private with no releases; `manifest.json` intentionally contains an empty array. Catalog tooling and the native installer are validated locally, but there is **no public install URL yet**. See [repository preparation and future release workflow](plugin-repository.md). No workflow or release was published by this task.
+The repository and v0.3.0 release are public. Use the verified catalog URL above; the manifest retains v0.3.0 while v0.3.1 is under preparation. This task does not publish a release.
 
 For the supplied production LinuxServer.io layout, plugins/data live under `/config/data/plugins`, not the official-image paths below. Follow [manual-to-catalog migration](manual-to-catalog.md), preserving the existing data directory, configuration and Injector. Do not apply these test Compose paths to production.
 
 ## Release contents and reproducibility
 
-`artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip` contains:
+`artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip` contains:
 
 ```text
 Jellyfin.Plugin.WatchGuard.dll   # only runtime file; Web script is embedded
 LICENSE                        # repository's GPLv3 license text
 ```
 
-No Jellyfin/runtime libraries, test DLLs, PDB, deps.json, loose script, external service, user data or secret is shipped. JavaScript Injector is installed separately. The official Jellyfin process supplies the shared framework and Jellyfin assemblies. Manual DLL installation does not need a plugin catalog or manifest. Jellyfin assembly/file version is `0.3.0.0`; product and Injector registration version is `0.3.0`.
+No Jellyfin/runtime libraries, test DLLs, PDB, deps.json, loose script, external service, user data or secret is shipped. JavaScript Injector is installed separately. The official Jellyfin process supplies the shared framework and Jellyfin assemblies. Manual DLL installation does not need a plugin catalog or manifest. Jellyfin assembly/file version is `0.3.1.0`; product and Injector registration version is `0.3.1`.
 
 Use the unchanged source checkout and NuGet lock files, SDK **10.0.302**, and Python 3.10+:
 
 ```sh
 python3 scripts/build-release.py
-(cd artifacts && shasum -a 256 -c Jellyfin.Plugin.WatchGuard-v0.3.0.zip.sha256)
+(cd artifacts && shasum -a 256 -c Jellyfin.Plugin.WatchGuard-v0.3.1.zip.sha256)
 ```
 
 Linux may use `sha256sum -c` instead of `shasum -a 256 -c`. The script checks the SDK, restores in locked mode, forces a new Release compilation, maps source paths, omits debug symbols, publishes to a temporary directory and packages an explicit allowlist. ZIP entries have fixed timestamps, modes, ordering and no compression variability. Tests consume a DLL extracted from that ZIP at `artifacts/WatchGuard/`. Two forced rebuilds produced byte-identical archives on the validation machine; cross-platform byte identity is not separately claimed. Keep the matching source checkout and lock files with your build record.
@@ -31,7 +47,7 @@ Linux may use `sha256sum -c` instead of `shasum -a 256 -c`. The script checks th
 SHA-256:
 
 ```text
-4ce9f89924391e9842ba444b7dd0d2fcf509a23845497b45f601c2f3c18339a6
+c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2
 ```
 
 ## JavaScript Injector dependency
@@ -74,14 +90,14 @@ Create `config/plugins/WatchGuard`, `config/plugins/JavaScriptInjector`, `cache`
 Verify/extract the release into a staging directory on the host:
 
 ```sh
-unzip /absolute/path/to/artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip -d /tmp/watchguard-v0.3.0
+unzip /absolute/path/to/artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip -d /tmp/watchguard-v0.3.1
 ```
 
 From the new test directory, with the service stopped:
 
 ```sh
 docker compose stop jellyfin
-cp /tmp/watchguard-v0.3.0/Jellyfin.Plugin.WatchGuard.dll config/plugins/WatchGuard/
+cp /tmp/watchguard-v0.3.1/Jellyfin.Plugin.WatchGuard.dll config/plugins/WatchGuard/
 cp /absolute/path/to/Jellyfin.Plugin.JavaScriptInjector.dll config/plugins/JavaScriptInjector/
 docker compose up -d jellyfin
 ```
@@ -92,9 +108,9 @@ On first installation there may be no service to stop. Retain the extracted lice
 
 Check all layers; a server log alone does not prove that a browser instance is wrapped.
 
-1. **Loaded plugins:** Dashboard → Plugins lists WatchGuard version `0.3.0.0` (some UI formatting may show `0.3.0`) and the jf12 Injector without load errors. There should be only one installed WatchGuard DLL/version.
+1. **Loaded plugins:** Dashboard → Plugins lists WatchGuard version `0.3.1.0` (some UI formatting may show `0.3.1`) and the jf12 Injector without load errors. There should be one loaded WatchGuard version, with no duplicate manual assemblies.
 2. **Registration log:** run `docker compose logs jellyfin` and look for the exact line **`WatchGuard web script registered with JavaScript Injector.`** Registration retries for about one minute if startup ordering delays Injector. The warning **`WatchGuard web script was not registered. No deletion confirmation is active...`** means registration failed; do not treat the Web warning as installed.
-3. **Persisted Injector configuration:** Dashboard → Plugins → JavaScript Injector → **Plugin Scripts** must contain one enabled **WatchGuard** entry from WatchGuard, version **0.3.0**, requiring authentication. The stable ID is **`watchguard-v1`** and plugin ID is **`a3c6bc84-783d-4ba8-a0db-89bfb83ab486`**. Verify middleware is not disabled. If the UI does not expose those fields, this read-only console command in a signed-in admin tab prints only relevant metadata:
+3. **Persisted Injector configuration:** Dashboard → Plugins → JavaScript Injector → **Plugin Scripts** must contain one enabled **WatchGuard** entry from WatchGuard, version **0.3.1**, requiring authentication. The stable ID is **`watchguard-v1`** and plugin ID is **`a3c6bc84-783d-4ba8-a0db-89bfb83ab486`**. Verify middleware is not disabled. If the UI does not expose those fields, this read-only console command in a signed-in admin tab prints only relevant metadata:
 
    ```js
    ApiClient.ajax({
@@ -128,15 +144,19 @@ The data directory comes from native `Plugin.DataFolderPath`, not the DLL instal
 
 Stop Jellyfin and back up the entire `config` directory to a location **outside** `config/plugins` before install/upgrade/removal. Keep the old binaries, settings, checksum and source/build record. Whole-configuration backup preserves the native user/library IDs that the JSON references. A watchlist file alone is not a portable migration to an unrelated server. Do not delete the file to clear corruption errors: preserve the damaged copy, restore a known-good file while stopped and verify list/protection responses. Missing JSON is treated as a fresh empty store. The plugin does not create automatic backups.
 
-## Upgrade
+## Manual local-test upgrade only
+
+For an existing catalog installation, use the native update procedure above; skip these DLL operations. The steps below apply only to manual/development fixtures.
 
 1. Close old Web tabs. Stop the Compose service and take the backup above.
-2. Check for duplicate `Jellyfin.Plugin.WatchGuard.dll` files under `config/plugins`. Retire old DLLs/version folders outside the plugin discovery tree; do not delete `Jellyfin.Plugin.WatchGuard/watchlists.json`. Old development builds advertised `1.1.0.0`, so this `0.3.0.0` release requires deliberate manual replacement rather than relying on catalog version ordering.
+2. Check for duplicate `Jellyfin.Plugin.WatchGuard.dll` files under `config/plugins`. Retire old DLLs/version folders outside the plugin discovery tree; do not delete `Jellyfin.Plugin.WatchGuard/watchlists.json`. Old development builds advertised `1.1.0.0`, so this `0.3.1.0` release requires deliberate manual replacement rather than relying on catalog version ordering.
 3. Replace the DLL in `config/plugins/WatchGuard/`. Preserve WatchGuard and Injector configuration, including other plugins' scripts. For an old generated `meta.json` in this manual installation directory, back it up and remove it while stopped so Jellyfin can regenerate metadata from the new assembly. Do not remove metadata for unrelated plugins.
-4. Ensure the tested jf12 Injector is installed, middleware remains enabled and diagnostics are off unless deliberately needed. v0.3.0 uses the existing version-1 JSON schema; no migration is needed.
+4. Ensure the tested jf12 Injector is installed, middleware remains enabled and diagnostics are off unless deliberately needed. v0.3.1 uses the existing version-1 JSON schema; no migration is needed.
 5. Start the stack. WatchGuard re-registers the same `watchguard-v1` ID with its current embedded script/version. Verify a single enabled entry and all registration/functional checks. Remove any separately pasted obsolete custom WatchGuard script. Fully reload every client tab so it cannot retain the previous in-memory wrapper.
 
 ## Uninstall and persisted registration cleanup
+
+For catalog-managed WatchGuard, use Dashboard → Plugins → WatchGuard → Uninstall and restart, then remove the persisted Injector registration as described below. Preserve both JSON files if rollback is wanted. Manual DLL removal is only for manual installations.
 
 Removing a DLL does **not** automatically remove its persisted Injector script. No automatic unregister-on-shutdown feature was added, because normal restarts should keep the registration.
 
@@ -158,7 +178,7 @@ If Injector itself is no longer needed, remove its DLL after removing all regist
 - [ ] Stopped-server `/config` backup, old binary/checksum and restore location recorded.
 - [ ] Injector middleware enabled; no Web-folder edits, Web bind mount or File Transformation dependency.
 - [ ] Diagnostics off; both plugins loaded; exact success log present.
-- [ ] One enabled/authenticated `watchguard-v1` registration at version 0.3.0; browser delivery/`isInstalled()` verified.
+- [ ] One enabled/authenticated `watchguard-v1` registration at version 0.3.1; browser delivery/`isInstalled()` verified.
 - [ ] Add/remove, reload persistence and Watchlists navigation/filtering work separately for two accounts.
 - [ ] Status defaults hide completed-only titles; explicit completed memberships remain visible. Check checkbox OR/same-user matching, Reset to Defaults, back/forward and reload.
 - [ ] Normal users see only their own data; inline administrator names/reasons work on movies, series, seasons and episodes.
@@ -171,35 +191,16 @@ If Injector itself is no longer needed, remove its DLL after removing all regist
 
 ## Rollback
 
-The retained `artifacts/Jellyfin.Plugin.WatchGuard-v0.2.4.zip` and `.zip.sha256` provide a direct rollback. Its SHA-256 is `aaecc83c2a2186e90aa311c697efeb990fd1325fcbc00b9739d1d97ffe0f9298`. Stop Jellyfin, replace the v0.3.0 DLL with v0.2.4, retire stale installation `meta.json`, preserve schema-1 `watchlists.json`, restart and verify exactly one `watchguard-v1` registration at **0.2.4**. Fully reload Web tabs. Open the bare Watchlists link after rollback if an older UI does not understand a multi-status URL; no data is stored in those filter parameters. Activity history is native Jellyfin state, never a second database; no conversion or data rollback is needed. The older release archives remain available too.
+Use the v0.3.0 rollback procedure above. Retain its published ZIP/checksum, preserve both JSON files and plugin XML, and fully reload clients after restoring the older plugin. Older release archives remain available for historical recovery, but v0.3.0 is the tested rollback target for this release.
 
 Stop the test stack and close tabs. Preserve the failed deployment's configuration/data separately for diagnosis. Restore the previous known-good WatchGuard DLL and its installation metadata from backup, keeping only one discoverable version. Restore its compatible settings and Injector build/configuration if changed. Keep the current version-1 membership file when the prior build supports it; otherwise restore the stopped-server configuration backup as a unit and accept loss of changes since that backup. Never convert an unreadable store to an empty file as a rollback shortcut.
 
-Start and fully reload Web. Re-run the registration checks: an older binary should re-register its own script at the same ID. If the rollback removes WatchGuard entirely, perform persisted-script cleanup rather than leaving the v0.3.0 script behind. If Jellyfin cannot start, stop it, remove just the newly installed plugin binaries and restore the known-good configuration before trying again. No Web files need modification. A backup of configuration does not restore media deliberately deleted during tests; recreate the disposable fixtures if needed.
+Start and fully reload Web. Re-run the registration checks: an older binary should re-register its own script at the same ID. If the rollback removes WatchGuard entirely, perform persisted-script cleanup rather than leaving the v0.3.1 script behind. If Jellyfin cannot start, stop it, remove just the newly installed plugin binaries and restore the known-good configuration before trying again. No Web files need modification. A backup of configuration does not restore media deliberately deleted during tests; recreate the disposable fixtures if needed.
 
 ## Automated results
 
-Validated on 2026-10-11 against the packaged DLL:
+v0.3.1 validation results are recorded in `artifacts/release-validation-v0.3.1.json`, `artifacts/settings-validation.json`, `artifacts/catalog-validation.json` and `artifacts/poc/report.json`. Backend and JavaScript totals: **53** and **41**; catalog unit checks: **3**. The disposable suites exercise native settings persistence/authorization, saved-default precedence/reset, catalog upgrade/rollback with preserved files, missing Injector, context actions, account changes and all existing deletion regressions. Final packaged runs passed: 13 media DELETE requests, 0 ordering violations, one current script registration, and unchanged Web index. Live diagnostic changes re-registered without restart. Catalog rollback/re-upgrade preserved both JSON files and XML. No production configuration/media is mounted and no release is published by these tests.
 
-- Release build: 0 warnings/errors; two forced compilations produced identical ZIP SHA-256 values.
-- Catalog: **3/3 Python tests passed**; native installer checks cover MD5 rejection, clean catalog install, real v0.2.4 manual upgrade, preserved JSON/XML, generated meta.json, unique assembly/registration and missing Injector diagnostics. See [catalog validation](plugin-repository.md).
-- Backend: **45/45 passed**, including all prior cases plus bounded overview discovery, playback-only series, combined session/membership reasons, personal privacy, budget/error handling and the optional automatic-only contract.
-- JavaScript: **37/37 passed**; default/multi-status same-user filtering, compact calendar dates, accessible icons and checkbox/history state covered; all deletion adapter tests retained, plus user/reason filtering, recency sorting, stale-response isolation, cross-user payload rejection and literal rendering of title/owner text, deferred progressive merge, retained card identity, local filter/sort/removal updates and independent source errors.
-- Native actions/scoping: supported movie/series menus use personal Add/Remove, current detail state updates, and failed mutations are visible. My/selected user endpoints enforce native authorization and visibility; filter/sort changes remain local. See [native actions](native-actions.md) and [before/after performance](performance-v030.md).
-- UI refinement: completed-only titles hidden by default, explicit completed titles retained; checkbox OR/same-user predicates, keyboard selection/reset, history/reload, icon labels and calendar dates passed. Eight desktop columns and two narrow columns, viewport-contained popovers and long-name truncation were verified. See [UI decisions and screenshots](ui-refinement.md).
-- Live Docker: existing backend HTTP suite passed; full browser suite passed in explicit modern/legacy layouts, including poster delivery/fallback, responsive grid at 390/1280 px, My/All Users/individual filters, deduplication, failed load/removal recovery, history/reload, inline detail usernames and separate bookmark toggle, Favorites isolation, parent-series membership controls, account lifecycle, clear/self-only interest, failures, permissions and bulk cancellation/override.
-- Progressive loading: explicit cards appeared while automatic discovery was deliberately held; changing filters/sort sent no extra requests, loading never became a false empty state, and the card node survived completion. Inline headers showed all three reasons and five users (including long names) with bounded height and readable, non-overlapping action geometry at 390/1280 px. Current screenshots are in [ui-refinement.md](ui-refinement.md).
-- Playback-only series: appeared under Watching, retained deletion protection, cancelled with zero DELETE, and never became a stored membership. Combined reasons, user filters, title/recency sorting and inline detail reasons passed.
-- Activity: completed movie and whole-series history, localized native dates, 4/4 counts, combined membership/history and active filters passed. The history-only movie deleted natively with no WatchGuard prompt; the completed movie with another user’s explicit membership retained its warning. Spinner/deferred response checks passed. Configuration bounds, newly available episodes and disabled/removed/invisible users passed backend tests. See [activity.md](activity.md).
-- Browser totals: **27 intercepted operations, 11 cancellations, three blocked checks, four clear decisions, nine overrides, 13 media DELETE requests, zero diagnostic ordering violations**.
-- Deployment assertions: exact v0.3.0 registration name/version/enabled/authenticated flags and success log verified; middleware enabled; restart retained exactly one registration; removal of the persisted registration stopped WatchGuard delivery. On-disk `index.html` SHA-256 after install/use/registration cleanup matched the pristine official image.
+## Activity settings
 
-The disposable fixture enables diagnostic mode for event ordering and optional performance measurements and cleans up its container/config/media. No production configuration or media was accessed, and no GitHub release was published. These tests establish the documented Web-only scope, not universal deletion prevention. Remaining compatibility/UX limitations are summarized in [README](../README.md#compatibility-and-limitations) and [hardening.md](hardening.md).
-
-See [performance measurements and UI details](performance.md) for the bounded discovery contract, progressive loading, screenshots and reproduction commands. No server-side overview cache was introduced; deletion still uses its unchanged fresh protection endpoint.
-
-## Activity settings (unchanged since v0.2.3)
-
-Defaults require no configuration change. Optional `ActivityWindowDays` defaults to **30** (effective range 1–90) and `ActivityLimit` to **100** distinct automatic candidates (effective range 1–100). Values outside these ranges are clamped. While Jellyfin is stopped, edit only those elements in `/config/plugins/configurations/Jellyfin.Plugin.WatchGuard.xml`, retaining other settings, then restart. No new service, volume or dependency is needed. v0.3.0 adds user-scoped read-only overview routes; these activity settings, existing API contracts and protection semantics are unchanged. See [activity.md](activity.md) for query/episode budgets and non-exhaustive coverage. These settings never affect deletion checks.
-
-Deployment checks: verify native dates/counts and the four status checkboxes, active-interest defaults, Reset to Defaults and filter history/reload, explicit cards with a pending spinner, and failure recovery. A disposable recently watched movie with **no** explicit membership or active/unfinished playback must delete through the native flow with no additional WatchGuard warning. A completed movie **with** another user's membership must still warn. Do not infer deletion safety from absence in the overview.
+Use the native [settings page](settings.md). Defaults remain 30 days, 100 candidates and diagnostics off; ranges remain 1–90 and 1–100. Saving applies activity settings immediately and refreshes script registration for diagnostic changes; fully reload browsers. No XML editing or restart is needed for these changes. [Personal defaults](user-preferences.md) use a separate own-user API and JSON file. Neither changes fresh deletion protection.

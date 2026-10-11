@@ -55,6 +55,88 @@ public sealed class BackendTests : IDisposable
         .ReturnsAsync(new AuthorizationInfo { User = user, IsAuthenticated = user is not null, IsApiKey = apiKey });
     private WatchGuardController Controller() => new(auth.Object, users.Object, library.Object, store, service,
         NullLogger<WatchGuardController>.Instance, new(store, library.Object, users.Object, sessions.Object, service)) { ControllerContext = new() { HttpContext = new DefaultHttpContext() } };
+    private PreferencesController Preferences(PreferenceStore? preferences = null) => new(auth.Object, users.Object,
+        preferences ?? new PreferenceStore(directory), new IntegrationStatus(), Mock.Of<MediaBrowser.Controller.IServerApplicationHost>(),
+        NullLogger<PreferencesController>.Instance) { ControllerContext = new() { HttpContext = new DefaultHttpContext() } };
+
+    [Fact]
+    public async Task PreferencesArePersonalAndScopeIsAuthorized()
+    {
+        var c = Preferences();
+        Assert.Equal("mine", Assert.IsType<ViewPreferences>(Assert.IsType<OkObjectResult>(await c.Get()).Value).Owner);
+        Assert.IsType<ForbidResult>(await c.Put(new("all", ["watched"], "recent")));
+        Assert.IsType<OkObjectResult>(await c.Put(new("mine", ["watched"], "recent")));
+        SignIn(bob);
+        Assert.Equal("title", Assert.IsType<ViewPreferences>(Assert.IsType<OkObjectResult>(await c.Get()).Value).Sort);
+        Assert.IsType<ForbidResult>(await c.Status());
+        SignIn(alice);
+        Assert.Equal("recent", Assert.IsType<ViewPreferences>(Assert.IsType<OkObjectResult>(await c.Get()).Value).Sort);
+        Assert.IsType<OkObjectResult>(await c.Reset());
+        Assert.Equal("title", Assert.IsType<ViewPreferences>(Assert.IsType<OkObjectResult>(await c.Get()).Value).Sort);
+        SignIn(null); Assert.IsType<UnauthorizedResult>(await c.Get());
+        SignIn(alice, true); Assert.IsType<UnauthorizedResult>(await c.Put(ViewPreferences.Defaults));
+    }
+    [Fact]
+    public async Task PreferencesRevalidateRemovedDisabledOwnersAndRevokedAdmin()
+    {
+        var c = Preferences(); alice.SetPermission(PermissionKind.IsAdministrator, true);
+        Assert.IsType<OkObjectResult>(await c.Put(new(bob.Id.ToString(), [], "recent")));
+        bob.SetPermission(PermissionKind.IsDisabled, true);
+        Assert.Equal("mine", Assert.IsType<ViewPreferences>(Assert.IsType<OkObjectResult>(await c.Get()).Value).Owner);
+        bob.SetPermission(PermissionKind.IsDisabled, false);
+        users.Setup(u => u.GetUserById(bob.Id)).Returns((User?)null);
+        Assert.Equal("mine", Assert.IsType<ViewPreferences>(Assert.IsType<OkObjectResult>(await c.Get()).Value).Owner);
+        await c.Put(new("all", [], "recent")); alice.SetPermission(PermissionKind.IsAdministrator, false);
+        Assert.Equal("mine", Assert.IsType<ViewPreferences>(Assert.IsType<OkObjectResult>(await c.Get()).Value).Owner);
+        Assert.IsType<BadRequestObjectResult>(await c.Put(new("mine", ["invalid"], "recent")));
+        Assert.IsType<BadRequestObjectResult>(await c.Put(new("mine", ["watched", "watched"], "title")));
+        Assert.IsType<BadRequestObjectResult>(await c.Put(new("wrong", [], "wrong")));
+    }
+    [Fact]
+    public void PreferenceWritesAreAtomicAndConcurrentAndSeparateFromMembership()
+    {
+        var preferences = new PreferenceStore(directory);
+        var ids = Enumerable.Range(0, 30).Select(_ => Guid.NewGuid()).ToArray();
+        store.Set(alice.Id, movie.Id, true);
+        var before = File.ReadAllBytes(Path.Combine(directory, "watchlists.json"));
+        Parallel.ForEach(ids, id => preferences.Set(id, new("mine", ["watching"], "recent")));
+        Assert.All(ids, id => Assert.Equal("recent", new PreferenceStore(directory).Read(id).Sort));
+        Assert.Equal(before, File.ReadAllBytes(Path.Combine(directory, "watchlists.json")));
+        Assert.Empty(Directory.GetFiles(directory, "*.tmp"));
+    }
+    [Theory]
+    [InlineData("not json")]
+    [InlineData("{\"Version\":2,\"Entries\":[]}")]
+    [InlineData("{\"Version\":1,\"Entries\":null}")]
+    public async Task CorruptPreferencesCannotBeSilentlyOverwritten(string content)
+    {
+        Directory.CreateDirectory(directory); var path = Path.Combine(directory, "preferences.json"); await File.WriteAllTextAsync(path, content);
+        var c = Preferences();
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await c.Get()).StatusCode);
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await c.Put(ViewPreferences.Defaults)).StatusCode);
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await c.Reset()).StatusCode);
+        Assert.Equal(content, await File.ReadAllTextAsync(path));
+    }
+    [Fact]
+    public void ExistingConfigurationXmlDefaultsAndRangesRemainCompatible()
+    {
+        var serializer = new System.Xml.Serialization.XmlSerializer(typeof(Configuration));
+        using var input = new StringReader("<Configuration><DiagnosticMode>true</DiagnosticMode><ActivityWindowDays>999</ActivityWindowDays><ActivityLimit>0</ActivityLimit></Configuration>");
+        var config = Assert.IsType<Configuration>(serializer.Deserialize(input));
+        Assert.True(config.DiagnosticMode); Assert.Equal(90, config.ActivityWindowDays); Assert.Equal(1, config.ActivityLimit);
+        using var legacy = new StringReader("<Configuration><DiagnosticMode>false</DiagnosticMode></Configuration>");
+        var old = Assert.IsType<Configuration>(serializer.Deserialize(legacy));
+        Assert.Equal(30, old.ActivityWindowDays); Assert.Equal(100, old.ActivityLimit);
+    }
+    [Fact]
+    public void MissingOrIncompatibleInjectorIsNotSuccessfulRegistration()
+    {
+        var integration = new IntegrationStatus(); Assert.False(integration.Snapshot.RegistrationSucceeded);
+        Assert.Null(IntegrationStatus.RegistrationMethod(null));
+        Assert.Null(IntegrationStatus.RegistrationMethod(typeof(InvalidInjector)));
+    }
+    private static class InvalidInjector { public static bool RegisterScript(string payload) => true; }
+
     private ProtectionStatus Status(BaseItem? item = null) => service.Get(item ?? movie, alice.Id);
     [Fact]
     public async Task ScopedActivityAndMembershipRequireAdminAndKeepUserIsolation()
@@ -293,7 +375,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 3, 0, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 3, 1, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
     }

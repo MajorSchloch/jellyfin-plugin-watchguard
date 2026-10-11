@@ -415,6 +415,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.goForward(); await page.waitForFunction(()=>!document.querySelector('.watchguard-filter input[value="watched"]').checked);
         await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.disabled===false);
         assert.equal(await myList().getByRole('link',{name:'PoC Zero',exact:true}).count(),0);
+        await selectOwner('all'); // Reset now restores the complete personal view, including My list.
         await setStatuses('watched');
         await myList().getByRole('link',{name:'PoC Zero',exact:true}).waitFor();
         await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);

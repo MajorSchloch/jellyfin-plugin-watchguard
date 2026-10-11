@@ -10,15 +10,18 @@ namespace Jellyfin.Plugin.WatchGuard;
 
 public sealed class Configuration : BasePluginConfiguration
 {
-    public int ActivityWindowDays { get; set; } = 30;
-    public int ActivityLimit { get; set; } = 100;
+    private int activityWindowDays = 30;
+    public int ActivityWindowDays { get => activityWindowDays; set => activityWindowDays = Math.Clamp(value, 1, 90); }
+    private int activityLimit = 100;
+    public int ActivityLimit { get => activityLimit; set => activityLimit = Math.Clamp(value, 1, 100); }
     public bool DiagnosticMode { get; set; } = false;
 }
 
-public sealed class Plugin : BasePlugin<Configuration>
+public sealed class Plugin : BasePlugin<Configuration>, IHasWebPages
 {
     public Plugin(IApplicationPaths paths, IXmlSerializer serializer) : base(paths, serializer) => Instance = this;
     public static Plugin? Instance { get; private set; }
+    public IEnumerable<PluginPageInfo> GetPages() => [new() { Name = "WatchGuard", EmbeddedResourcePath = "Jellyfin.Plugin.WatchGuard.Web.settings.html" }];
     public override string Name => "WatchGuard";
     public override Guid Id => Guid.Parse("a3c6bc84-783d-4ba8-a0db-89bfb83ab486");
     public override string Description => "Personal watchlists, native interest detection and advisory web deletion warnings.";
@@ -30,6 +33,8 @@ public sealed class ServiceRegistrator : IPluginServiceRegistrator
     {
         serviceCollection.AddSingleton(_ => new WatchlistStore(Plugin.Instance?.DataFolderPath
             ?? throw new InvalidOperationException("WatchGuard plugin is unavailable.")));
+        serviceCollection.AddSingleton(_ => new PreferenceStore(Plugin.Instance!.DataFolderPath));
+        serviceCollection.AddSingleton<IntegrationStatus>();
         serviceCollection.AddSingleton<InterestService>();
         serviceCollection.AddSingleton<InterestOverviewService>();
         serviceCollection.AddHostedService<InjectorRegistration>();

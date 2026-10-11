@@ -30,7 +30,7 @@ class CatalogTests(unittest.TestCase):
             with zipfile.ZipFile(path,'w') as z:z.writestr('OtherPlugin.dll','not allowed')
             with self.assertRaises(ValueError):catalog.inspect_zip(path)
     def test_release_archive(self):
-        path=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip')
+        path=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip')
         _,sha=catalog.inspect_zip(path)
         self.assertEqual(path.with_suffix('.zip.sha256').read_text().split(),[sha,path.name])
 

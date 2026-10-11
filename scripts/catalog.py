@@ -24,7 +24,7 @@ def inspect_zip(path):
     return hashlib.md5(content).hexdigest(), hashlib.sha256(content).hexdigest()
 
 
-def entry(path, url, timestamp, version='0.3.0.0'):
+def entry(path, url, timestamp, version='0.3.1.0'):
     md5, _ = inspect_zip(path)
     return {'version': version, 'changelog': 'See the matching release notes.', 'targetAbi': ABI,
             'sourceUrl': url, 'checksum': md5, 'timestamp': timestamp}
@@ -109,4 +109,4 @@ if __name__ == '__main__':
         md5, sha = inspect_zip(args.zip)
         if args.zip.with_suffix('.zip.sha256').read_text().split() != [sha, args.zip.name]: raise ValueError('SHA-256 sidecar mismatch')
         print('Validated ZIP: MD5='+md5+' SHA-256='+sha)
-    print('Catalog valid. Empty manifest means no public version is advertised.')
+    print('Catalog valid; only existing published versions are advertised.')
