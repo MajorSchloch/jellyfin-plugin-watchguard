@@ -1,5 +1,7 @@
 # WatchGuard v0.2.3 — viewing activity and dates
 
+> **v0.2.4 UI:** See [status checkboxes, compact cards and inline icons](ui-refinement.md). The release-specific behavior below remains historical.
+
 Target: Jellyfin Server/Web **12.2**, .NET **10**. Watchlists is now a small shared activity overview; regular accounts see only themselves. No activity database, background scan, new framework or runtime dependency is added. Personal membership storage remains schema 1 and is compatible with v0.2.2.
 
 ## Dates and statuses

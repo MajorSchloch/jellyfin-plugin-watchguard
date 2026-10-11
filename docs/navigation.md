@@ -1,5 +1,7 @@
 # WatchGuard v0.2.0 navigation and detail UI
 
+> **v0.2.4 UI:** See [status checkboxes, compact cards and inline icons](ui-refinement.md). The release-specific behavior below remains historical.
+
 > **v0.2.2 update:** See [performance and inline detail UI](performance.md). The numeric badge/popover is removed; explicit entries now render before a separate automatic-interest request. Filters reuse the current page snapshot. The historical decisions below describe their named release.
 
 See [v0.2.1 interest overview and UI refinement](interest-overview.md) for the new playback-aware overview and count popover. Existing explicit-list API contracts and navigation anchors below remain unchanged.

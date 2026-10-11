@@ -88,7 +88,7 @@ function documentFixture() {
     const nodes = [];
     const focus = { isConnected: true, focus() { this.restored = true; } };
     const doc = { activeElement: focus, body: { append(node) { nodes.push(node); } }, createElement(tag) {
-        return { tag, style: {}, children: [], events: {}, setAttribute() {},
+        return { tag, style: {}, children: [], events: {}, attributes: {}, setAttribute(k,v) { this.attributes[k]=v; },
             append(...children) { for(const child of children) { child.remove(); child.parent = this; child.removed = false; this.children.push(child); } }, addEventListener(event, fn) { this.events[event] = fn; },
             showModal() { this.opened = true; }, focus() { this.focused = true; }, remove() { if(this.parent) this.parent.children = this.parent.children.filter(c=>c!==this); this.parent = null; this.removed = true; } };
     } };
@@ -207,12 +207,12 @@ const overviewItems=[{ItemId:'c'.repeat(32),Name:'Alpha',Users:[
     {ItemId:'d'.repeat(32),Name:'Beta',Users:[{UserId:me,DisplayName:'Me',Reasons:['CurrentlyPlaying'],LastPlayedDate:'2026-10-10T00:00:00Z'}]}];
 test('Overview filters user and interest together, preserves reasons and sorts known playback dates',()=>{
     assert.equal(selectInterest(overviewItems,'all',me).length,2);
-    assert.equal(selectInterest(overviewItems,'mine',me,'watching')[0].Name,'Beta');
+    assert.equal(selectInterest(overviewItems,'mine',me,['watching','playing'])[0].Name,'Beta');
     assert.deepEqual(selectInterest(overviewItems,other,me,'watching')[0].Users[0].Reasons,['Watchlisted','InProgress']);
     assert.equal(selectInterest(overviewItems,'all',me,'watchlisted').length,1);
     assert.equal(selectInterest(overviewItems,'all',me,'all','recent')[0].Name,'Beta');
     assert.equal(selectInterest(overviewItems,'all',me,'all','title')[0].Name,'Alpha');
-    assert.equal(selectInterest(overviewItems,'mine',me,'watching')[0].IsWatchlistedByMe,false);
+    assert.equal(selectInterest(overviewItems,'mine',me,['watching','playing'])[0].IsWatchlistedByMe,false);
     assert.throws(()=>selectInterest([...overviewItems,overviewItems[0]],'all',me));
     assert.throws(()=>selectInterest([{...overviewItems[0],Users:[{UserId:me,DisplayName:'Me',Reasons:['Unknown']}]}],'all',me));
 });
@@ -229,7 +229,7 @@ test('Overview renders text literally, distinguishes reasons and offers only exp
     const cards=page.children[5].children;
     assert.equal(cards.length,2);
     assert.equal(cards[0].children[0].children[1].textContent,text);
-    assert.ok(cards[0].children[1].children[1].textContent.startsWith(text+' — Watchlist · Watching · Last played: '));
+    assert.ok(cards[0].children[1].children[1].title.startsWith(text+' — Watchlist · Watching · Last played: '));
     assert.equal(cards[0].children.length,3);
     assert.equal(cards[1].children.length,2);
 });
@@ -251,8 +251,9 @@ function progressiveFixture(admin = true) {
     const api = {getCurrentUser:async()=>({Name:'Me',Policy:{IsAdministrator:admin}}),getCurrentUserId:()=>me,accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/image',
         ajax:o=>new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
     const abort = new AbortController();
-    const page = watchlistsPage(f.doc,api,abort.signal,'all',()=>{});
-    return {page,calls,abort,changeAccount(){token='second';}};
+    const navigation=[];
+    const page = watchlistsPage(f.doc,api,abort.signal,'all',(...args)=>{navigation.push(args);page.updateFilters(...args);});
+    return {page,calls,abort,navigation,changeAccount(){token='second';}};
 }
 const turn = () => new Promise(resolve=>setImmediate(resolve));
 const automaticResult = {Items:[{...overviewItems[0],Users:[{...overviewItems[0].Users[1],Reasons:['InProgress','CurrentlyPlaying']}]}],IsComplete:false,LimitReached:true,Notice:'Not exhaustive; limit reached'};
@@ -266,7 +267,7 @@ test('Progressive memberships render before automatic discovery; filters and car
     f.page.updateFilters('all','watching','recent'); assert.equal(grid.children.length,0);
     assert.match(f.page.children[2].textContent,/Loading/);assert.equal(f.calls.length,2);
     f.calls[1].resolve(automaticResult);await turn();
-    assert.equal(grid.children[0],card); assert.match(card.children[1].children[0].textContent,/Watchlist · Watching · Currently Playing/);
+    assert.equal(grid.children[0],card); assert.match(card.children[1].children[0].title,/Watchlist · Watching · Currently Playing/);
     assert.match(f.page.children[3].textContent,/limit reached/);
     f.page.updateFilters('mine','all','title'); assert.equal(grid.children[0],card);assert.equal(f.calls.length,2);
     const removal=card.children.at(-1).onclick(); assert.equal(f.calls[2].o.type,'DELETE');f.calls[2].resolve();await removal;
@@ -323,4 +324,48 @@ test('Activity spinner stays visible during deferred discovery and disappears on
         if(fail)f.calls[1].reject(new Error('failure'));else f.calls[1].resolve(automaticResult);await turn();
         assert.equal(spinner.hidden,true);assert.equal(f.page.children[5].children.length,1);
     }
+});
+
+
+test('Status defaults, OR and owner predicates agree on the same user, including completed membership',()=>{
+    const {selectedStatuses}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const history={...overviewItems[0],Users:[{...overviewItems[0].Users[0],Reasons:['Watched']}]};
+    assert.equal(selectInterest([history],'all',me).length,0);
+    history.Users[0].Reasons.push('Watchlisted');
+    assert.equal(selectInterest([history],'all',me).length,1);
+    assert.equal(selectInterest([history],'all',me,[]).length,0);
+    assert.equal(selectInterest(overviewItems,'mine',me,['watching']).length,0);
+    assert.equal(selectInterest(overviewItems,'mine',me,['watching','playing']).length,1);
+    assert.equal(selectInterest(overviewItems,'all',me,['watchlisted','playing']).length,2);
+    assert.deepEqual(selectedStatuses(null),['watchlisted','watching','playing']);
+    assert.deepEqual(selectedStatuses('watched,playing,watched'),['playing','watched']);
+    assert.deepEqual(selectedStatuses('none'),[]);
+    assert.equal(selectedStatuses('all').length,4);
+});
+test('Compact rows use safe names, distinct accessible icons, calendar dates and exact timestamp tooltips',()=>{
+    const {userLine}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const date='2026-10-11T09:12:34Z';
+    const owner={DisplayName:'<Tom>',Reasons:['Watchlisted','InProgress','CurrentlyPlaying','Watched','Watched'],LastPlayedDate:date,AvailableEpisodes:12,WatchedEpisodes:7};
+    const line=userLine(documentFixture().doc,owner);
+    assert.deepEqual(line.children[0].children.map(i=>i.textContent),['bookmark','play_circle','sensors','check_circle']);
+    assert.deepEqual(line.children[0].children.map(i=>i.attributes['aria-label']),['Watchlist','Watching','Currently Playing','Watched']);
+    assert.equal(line.children[1].textContent,'<Tom>');assert.equal(line.children[2].textContent,' · 7/12');
+    const time=line.children[3];assert.equal(time.tag,'time');assert.equal(time.dateTime,date);
+    assert.equal(time.textContent,new Intl.DateTimeFormat(undefined,{dateStyle:'medium'}).format(new Date(date)));
+    assert.equal(time.attributes['aria-label'],'Last played: '+new Intl.DateTimeFormat(undefined,{dateStyle:'full',timeStyle:'long'}).format(new Date(date)));
+    assert.equal(time.tabIndex,0);
+    assert.equal(userLine(documentFixture().doc,{...owner,Reasons:['CurrentlyPlaying']}).children.length,3);
+});
+test('Checkboxes serialize all selections, reset defaults and reflect history without fetching',async()=>{
+    const f=progressiveFixture();await turn();f.calls[0].resolve([overviewItems[0]]);await turn();f.calls[1].resolve(automaticResult);await turn();
+    const filter=f.page.children[1].children[1],panel=filter.children[1];
+    assert.deepEqual(panel.children.slice(0,4).map(l=>l.children[0].checked),[true,true,true,false]);
+    f.page.updateFilters('all','watched,playing','title');
+    assert.deepEqual(panel.children.slice(0,4).map(l=>l.children[0].checked),[false,false,true,true]);
+    panel.children[3].children[0].checked=false;panel.children[3].children[0].onchange();
+    assert.deepEqual(f.navigation.at(-1),['all','playing','title']);
+    panel.children[4].onclick();assert.deepEqual(f.navigation.at(-1),['all','watchlisted,watching,playing','title']);
+    assert.deepEqual(panel.children.slice(0,4).map(l=>l.children[0].checked),[true,true,true,false]);
+    filter.open=true;filter.events.keydown({key:'Escape',preventDefault(){}});assert.equal(filter.open,false);assert.equal(filter.children[0].focused,true);
+    assert.equal(f.calls.length,2);
 });

@@ -50,8 +50,21 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
     async function openInterest() {
         await page.waitForFunction(() => {
             const node = document.querySelector('#itemDetailPage:not(.hide) .watchguard-interest');
-            return node && node.textContent && !node.textContent.includes('Loading');
+            return node && node.getAttribute('aria-busy') === 'false';
         });
+    }
+    async function setStatuses(value) {
+        const selected = Array.isArray(value) ? value : value === 'all' ? ['watchlisted','watching','playing','watched'] : value === 'watching' ? ['watching','playing'] : [value];
+        const filter=page.locator('.watchguard-filter');
+        if (!await filter.evaluate(e=>e.open)) await filter.locator('summary').click();
+        for(const [id,label] of [['watchlisted','Watchlisted'],['watching','Watching'],['playing','Currently Playing'],['watched','Watched']]) {
+            const checkbox=filter.getByRole('checkbox',{name:label,exact:true});
+            if(await checkbox.isChecked()===selected.includes(id)) continue;
+            await checkbox.setChecked(selected.includes(id));
+            await page.waitForFunction(({id,checked})=>new URLSearchParams(location.hash.split('?')[1]).get('interest')?.split(',').includes(id)===checked,{id,checked:selected.includes(id)});
+            await page.waitForFunction(()=>document.querySelector('.watchguard-filter summary').textContent==='Status ('+new URLSearchParams(location.hash.split('?')[1]).get('interest').split(',').filter(s=>s!=='none').length+')');
+        }
+        await filter.getByRole('checkbox',{name:'Watched',exact:true}).press('Escape');
     }
     async function nativeDelete() {
         await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').click();
@@ -126,10 +139,10 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         assert.equal(await myList().locator('.watchguard-spinner').isVisible(),true);
         const originalCard = await myList().locator('.watchguard-card').first().elementHandle();
         await page.screenshot({path:path.join(output,'progressive-memberships.png')});
-        await myList().getByRole('combobox',{name:'Interest filter'}).selectOption('watching');
+        await setStatuses('watching');
         await page.waitForFunction(()=>!document.querySelector('.watchguard-card'));
         assert.ok(!(await myList().innerText()).includes('No matching interest'));
-        await myList().getByRole('combobox',{name:'Interest filter'}).selectOption('all');
+        await setStatuses('all');
         await myList().getByRole('combobox',{name:'Sort by'}).selectOption('recent');
         await myList().getByRole('combobox',{name:'Sort by'}).selectOption('title');
         assert.equal(overviewRequests,2,'filter/sort changes must not repeat discovery');
@@ -183,7 +196,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await api('/UserItems/' + fixture.items['PoC Movie Detail'] + '/UserData','POST',{Played:false,PlaybackPositionTicks:1000000,LastPlayedDate:'2026-10-10T10:00:00Z'},member.AccessToken);
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
         await myList().getByRole('combobox',{name:'Watchlist owner'}).selectOption('all');
-        await myList().getByRole('combobox',{name:'Interest filter'}).selectOption('watching');
+        await setStatuses('watching');
         await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).waitFor();
         assert.equal(await myList().locator('.watchguard-card').count(),2);
         await myList().getByRole('combobox',{name:'Sort by'}).selectOption('recent');
@@ -195,20 +208,27 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await myList().getByRole('combobox',{name:'Watchlist owner'}).selectOption(member.User.Id.replaceAll('-',''));
         await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).waitFor();
         assert.equal(await myList().getByRole('button',{name:'Remove PoC Parent Clear from Watchlist',exact:true}).count(),0);
-        assert.match(await myList().innerText(),/BrowserMember — Watchlist · Watching/);
+        assert.ok(await myList().getByRole('img',{name:'Watching',exact:true}).count());
         assert.ok(!(await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===automaticId.replaceAll('-','')));
+        assert.equal(await myList().locator('.watchguard-grid').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length),8);
         await page.screenshot({path:path.join(output,'interest-overview.png')});
         await page.setViewportSize({width:390,height:844});
         await page.waitForFunction(()=>{const e=document.querySelector('.watchguard-page');return e && e.scrollWidth<=e.clientWidth;});
         const cardsAtNarrow = await myList().locator('.watchguard-card').evaluateAll(cards=>cards.map(c=>{const b=c.getBoundingClientRect();return {left:b.left,right:b.right,width:b.width};}));
         assert.ok(cardsAtNarrow.every(c=>c.left>=0 && c.right<=390 && c.width>100));
+        assert.equal(await myList().locator('.watchguard-grid').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length),2);
         await page.screenshot({path:path.join(output,'interest-overview-narrow.png')});
+        await page.locator('.watchguard-filter summary').click();
+        const popoverBounds=await page.locator('.watchguard-filter-options').boundingBox();
+        assert.ok(popoverBounds.x>=0 && popoverBounds.x+popoverBounds.width<=390);
+        await page.screenshot({path:path.join(output,'status-filters-narrow.png')});
+        await page.locator('.watchguard-filter').getByRole('checkbox',{name:'Watching',exact:true}).press('Escape');
         await page.setViewportSize({width:1280,height:900});
         await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).click();
         await page.locator('#itemDetailPage:not(.hide)').getByText('PoC Parent Clear',{exact:true}).first().waitFor();
         await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
         await openInterest();
-        await page.getByRole('status',{name:'Title interest',exact:true}).getByText('BrowserMember — Watching',{exact:true}).waitFor();
+        await page.getByRole('status',{name:'Title interest',exact:true}).getByRole('img',{name:'Watching',exact:true}).waitFor();
         await page.keyboard.press('Escape');
         const beforeAuto = report.deletes.length;
         await nativeDelete(); await nativeConfirm();
@@ -231,7 +251,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.reload();
         await page.getByRole('button', { name:'Remove from Watchlist', exact:true }).waitFor();
         await openInterest();
-        await page.locator('.watchguard-interest').filter({hasText:'BrowserMember — Watchlist'}).waitFor();
+        await page.locator('.watchguard-interest').getByText('BrowserMember',{exact:true}).waitFor();
         const nativeState = await api('/UserItems/' + fixture.items['PoC Movie Detail'] + '/UserData');
         assert.equal(nativeState.IsFavorite,false,'Watchlist must not change Favorites');
         assert.equal(await page.locator('.watchguard-controls').evaluate(e=>e.parentElement.classList.contains('mainDetailButtons')),true);
@@ -250,8 +270,8 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await api('/UserItems/'+fixture.items['PoC Movie Detail']+'/UserData','POST',{Played:false,PlaybackPositionTicks:1000000},member.AccessToken);
         for (const width of [1280,390]) {
             await page.setViewportSize({width,height:900}); await page.reload(); await openInterest();
-            await page.locator('.watchguard-interest').filter({hasText:'Currently Playing'}).waitFor();
-            await page.locator('.watchguard-interest').filter({hasText:'Watching'}).waitFor();
+            await page.locator('.watchguard-interest').getByRole('img',{name:'Currently Playing',exact:true}).waitFor();
+            await page.locator('.watchguard-interest').getByRole('img',{name:'Watching',exact:true}).waitFor();
             const geometry=await page.locator('#itemDetailPage:not(.hide)').evaluate(view=>{
                 const info=view.querySelector('.infoWrapper'),header=view.querySelector('.watchguard-header'),actions=view.querySelector('.mainDetailButtons');
                 const h=header.getBoundingClientRect(),a=actions.getBoundingClientRect();
@@ -325,16 +345,34 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         assert.equal((await api('/WatchGuard/Watchlist', 'GET', undefined, member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===historySeries.replaceAll('-','')),false);
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
         await myList().getByRole('combobox',{name:'Watchlist owner'}).selectOption('all');
-        await myList().getByRole('combobox',{name:'Interest filter'}).selectOption('watched');
+        await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
+        assert.equal(await myList().getByRole('link',{name:'PoC Zero',exact:true}).count(),0);
+        assert.equal(await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).count(),0);
+        await myList().getByRole('link',{name:'PoC Movie Detail',exact:true}).waitFor(); // Explicit + completed remains.
+        const filterSummary=page.locator('.watchguard-filter summary');
+        await filterSummary.focus(); await page.keyboard.press('Enter');
+        await page.locator('.watchguard-filter').getByRole('checkbox',{name:'Watched',exact:true}).focus();
+        await page.keyboard.press('Space');
+        await page.screenshot({path:path.join(output,'status-filters-desktop.png')});
+        await myList().getByRole('link',{name:'PoC Zero',exact:true}).waitFor();
+        await page.locator('.watchguard-filter').getByRole('button',{name:'Reset to Defaults'}).click();
+        await page.waitForFunction(()=>!document.querySelector('.watchguard-filter input[value="watched"]').checked);
+        await page.locator('.watchguard-filter').getByRole('button',{name:'Reset to Defaults'}).press('Escape');
+        await page.goBack(); await myList().getByRole('link',{name:'PoC Zero',exact:true}).waitFor();
+        await page.goForward(); await page.waitForFunction(()=>!document.querySelector('.watchguard-filter input[value="watched"]').checked);
+        await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.disabled===false);
+        assert.equal(await myList().getByRole('link',{name:'PoC Zero',exact:true}).count(),0);
+        await setStatuses('watched');
         await myList().getByRole('link',{name:'PoC Zero',exact:true}).waitFor();
         await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
         assert.equal(await myList().locator('.watchguard-card').count(),3);
         const completedCard=myList().locator('.watchguard-card').filter({hasText:'PoC Parent Clear'});
-        assert.match(await completedCard.innerText(),/BrowserMember — Watched · 4\/4 episodes · Last played:/);
+        assert.match(await completedCard.innerText(),/BrowserMember/); assert.match(await completedCard.innerText(),/4\/4/);
+        await completedCard.getByRole('img',{name:'Watched',exact:true}).waitFor();
         const nativeDate=(await api('/WatchGuard/ActivityOverview')).Items.find(i=>i.ItemId.replaceAll('-','')===historySeries.replaceAll('-','')).Users.find(u=>u.DisplayName==='BrowserMember').LastPlayedDate;
-        const displayed=await page.evaluate(date=>new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(new Date(date)),nativeDate);
+        const displayed=await page.evaluate(date=>new Intl.DateTimeFormat(undefined,{dateStyle:'medium'}).format(new Date(date)),nativeDate);
         assert.ok((await completedCard.innerText()).includes(displayed));
-        assert.match(await myList().locator('.watchguard-card').filter({hasText:'PoC Movie Detail'}).innerText(),/Watchlist · Watched/);
+        for(const name of ['Watchlist','Watched']) await myList().locator('.watchguard-card').filter({hasText:'PoC Movie Detail'}).getByRole('img',{name,exact:true}).waitFor();
         await page.screenshot({path:path.join(output,'activity-watched.png')});
         await myList().getByRole('combobox',{name:'Watchlist owner'}).selectOption('mine');
         await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor();
@@ -342,10 +380,10 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         assert.equal(await myList().locator('.watchguard-card').count(),3);
         await api('/Sessions/Playing','POST',{ItemId:historyMovie,PlayMethod:'DirectPlay',PositionTicks:0},member.AccessToken);
         await myList().getByRole('button',{name:'Refresh',exact:true}).click();
-        await myList().getByRole('combobox',{name:'Interest filter'}).selectOption('playing');
+        await setStatuses('playing');
         await myList().getByRole('link',{name:'PoC Zero',exact:true}).waitFor();
         assert.equal(await myList().locator('.watchguard-card').count(),1);
-        assert.match(await myList().innerText(),/Currently Playing ●/);
+        await myList().getByRole('img',{name:'Currently Playing',exact:true}).waitFor();
         await page.screenshot({path:path.join(output,'activity-playing.png')});
         await api('/Sessions/Playing/Stopped','POST',{ItemId:historyMovie,PositionTicks:0},member.AccessToken);
         // Ensure the later native clear-deletion regression targets recent completed history.
@@ -413,9 +451,9 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
                 await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
                 await page.getByRole('button',{name:'Add to Watchlist',exact:true}).waitFor();
                 await openInterest();
-                await page.locator('.watchguard-interest').filter({hasText:'Series: ' + parentTitle}).waitFor();
                 if (interested) {
-                    await page.locator('.watchguard-interest').filter({hasText:'BrowserMember — Watchlist'}).waitFor();
+                    await page.locator('.watchguard-interest').filter({hasText:'Series: ' + parentTitle}).waitFor();
+                    await page.locator('.watchguard-interest').getByText('BrowserMember',{exact:true}).waitFor();
                     await page.screenshot({path:path.join(output,'inline-' + target.Type.toLowerCase() + '.png')});
                 }
                 await page.keyboard.press('Escape');
