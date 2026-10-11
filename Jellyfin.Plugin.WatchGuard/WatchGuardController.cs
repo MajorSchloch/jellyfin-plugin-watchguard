@@ -106,6 +106,21 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         return Ok(overview.Get(user, automaticOnly: automaticOnly));
     });
 
+    [HttpGet("ActivityOverview")]
+    public Task<IActionResult> Activity() => ActivityCore(false);
+
+    [HttpGet("ActivityOverview/Me")]
+    public Task<IActionResult> OwnActivity() => ActivityCore(true);
+
+    private Task<IActionResult> ActivityCore(bool ownOnly) => Execute(async () =>
+    {
+        var user = await CurrentUser();
+        if (user is null) return Unauthorized();
+        if (!ownOnly && !user.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
+        var config = Plugin.Instance?.Configuration;
+        return Ok(overview.GetActivity(user, ownOnly, config?.ActivityWindowDays ?? 30, config?.ActivityLimit ?? 100));
+    });
+
     [HttpGet("Protection/{itemId:guid}")]
     public Task<IActionResult> Protection(Guid itemId) => Execute(async () =>
     {

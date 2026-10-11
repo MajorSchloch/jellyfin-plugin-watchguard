@@ -10,6 +10,8 @@ namespace Jellyfin.Plugin.WatchGuard;
 
 public sealed class Configuration : BasePluginConfiguration
 {
+    public int ActivityWindowDays { get; set; } = 30;
+    public int ActivityLimit { get; set; } = 100;
     public bool DiagnosticMode { get; set; } = false;
 }
 

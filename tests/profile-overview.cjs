@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {execFileSync} = require('node:child_process');
 const {chromium} = require('./browser/node_modules/playwright');
 const fixture = JSON.parse(fs.readFileSync(process.argv[2]));
-const label = process.argv[3]; assert.ok(['before', 'after'].includes(label));
+const label = process.argv[3]; assert.ok(['before', 'after', 'activity'].includes(label));
 assert.match(fixture.base, /^http:\/\/127\.0\.0\.1:\d+$/); assert.equal(fixture.username, 'WatchGuardPoCTest');
 const container = execFileSync('docker', ['ps','--format','{{.Names}}'],{encoding:'utf8'}).trim().split('\n').filter(n=>n.startsWith('watchguard-poc-'));
 assert.equal(container.length,1, 'Only one disposable fixture may be running');
@@ -25,10 +25,15 @@ async function call(route, method='GET', body, token=fixture.token) {
    const episode=episodes.find(e=>e.SeriesId===fixture.items[series]); assert.ok(episode);
    await call('/UserItems/'+episode.Id+'/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:'2026-10-11T10:00:00Z'},auth.AccessToken);
   }
+  if(label==='activity') {
+   const date=new Date(Date.now()-86400000).toISOString();
+   for(const id of [fixture.items['PoC Context Movie'],...episodes.filter(e=>e.SeriesId===fixture.items['PoC Parent Interested']).map(e=>e.Id)])
+    await call('/UserItems/'+id+'/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:date},auth.AccessToken);
+  }
   await call('/UserItems/'+fixture.items['PoC Movie Detail']+'/UserData','POST',{Played:false,PlaybackPositionTicks:10000000,LastPlayedDate:'2026-10-11T09:00:00Z'},auth.AccessToken);
  }
- const routes=['Watchlists','InterestOverview'+(label==='after'?'?automaticOnly=true':'')];
- const results={label, fixture:{users:4,movies:10,series:3,episodes:10,memberships:39}, http:{}, client:[]};
+ const routes=label==='activity' ? ['Watchlists','InterestOverview?automaticOnly=true','ActivityOverview'] : ['Watchlists','InterestOverview'+(label==='after'?'?automaticOnly=true':'')];
+ const results={label, fixture:{users:4,movies:10,series:3,episodes:10,memberships:39,completedMoviesPerUser:label==='activity'?1:0,completedSeriesPerUser:label==='activity'?1:0}, http:{}, client:[]};
  for(const route of routes) {
   await call('/WatchGuard/'+route); // warm-up
   const start=new Date().toISOString(); const times=[];

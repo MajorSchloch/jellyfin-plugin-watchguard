@@ -142,6 +142,17 @@
         return others.length ? message + target + '\n\n' + describe(others) : null;
     }
 
+    // History is an overview-only status. Never add it to protection's reason allowlist.
+    const activityReasons = { ...reasons, Watched: 'Watched' };
+    const activityFilters = ['all', 'watchlisted', 'watching', 'watched', 'playing'];
+    function activityText(owner, showName) {
+        let text = (showName ? owner.DisplayName + ' — ' : '') + owner.Reasons.map(r => activityReasons[r] + (r === 'CurrentlyPlaying' ? ' ●' : '')).join(' · ');
+        if (owner.AvailableEpisodes != null) text += ' · ' + owner.WatchedEpisodes + '/' + owner.AvailableEpisodes + ' episodes';
+        if (owner.LastPlayedDate && owner.Reasons.some(r => r === 'InProgress' || r === 'Watched'))
+            text += ' · Last played: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'medium', timeStyle: 'short'}).format(new Date(owner.LastPlayedDate));
+        return text;
+    }
+
     function selectInterest(entries, owner, user, kind = 'all', sort = 'title') {
         if (!Array.isArray(entries)) throw new Error('Invalid overview');
         const seen = new Set();
@@ -152,12 +163,14 @@
             const owners = new Set();
             for (const u of entry.Users) {
                 if (!u || !/^[0-9a-f]{32}$/i.test(key(u.UserId)) || owners.has(key(u.UserId)) || typeof u.DisplayName !== 'string' ||
-                    !Array.isArray(u.Reasons) || !u.Reasons.length || u.Reasons.some(r => !Object.hasOwn(reasons, r)) ||
+                    !Array.isArray(u.Reasons) || !u.Reasons.length || u.Reasons.some(r => !Object.hasOwn(activityReasons, r)) ||
                     (u.LastPlayedDate != null && (typeof u.LastPlayedDate !== 'string' || !Number.isFinite(Date.parse(u.LastPlayedDate))))) throw new Error('Invalid interest');
+                if ((u.AvailableEpisodes == null) !== (u.WatchedEpisodes == null) ||
+                    (u.AvailableEpisodes != null && (!Number.isSafeInteger(u.AvailableEpisodes) || !Number.isSafeInteger(u.WatchedEpisodes) || u.AvailableEpisodes < 0 || u.WatchedEpisodes < 0 || u.WatchedEpisodes > u.AvailableEpisodes))) throw new Error('Invalid progress');
                 owners.add(key(u.UserId));
             }
             const matches = entry.Users.filter(u => (owner === 'all' || key(u.UserId) === key(owner === 'mine' ? user : owner)) &&
-                (kind === 'all' || (kind === 'watchlisted' ? u.Reasons.includes('Watchlisted') : u.Reasons.some(r => r === 'InProgress' || r === 'CurrentlyPlaying'))));
+                (kind === 'all' || (kind === 'watchlisted' ? u.Reasons.includes('Watchlisted') : kind === 'watched' ? u.Reasons.includes('Watched') : kind === 'playing' ? u.Reasons.includes('CurrentlyPlaying') : u.Reasons.some(r => r === 'InProgress' || r === 'CurrentlyPlaying'))));
             if (matches.length) selected.push({ ...entry, Users: matches,
                 IsWatchlistedByMe: entry.Users.some(u => key(u.UserId) === key(user) && u.Reasons.includes('Watchlisted')) });
         }
@@ -178,6 +191,7 @@
                     if (!previous) item.Users.push({ ...owner, Reasons: [...owner.Reasons] });
                     else {
                         previous.Reasons = [...new Set([...previous.Reasons, ...owner.Reasons])];
+                        if (owner.AvailableEpisodes != null) { previous.AvailableEpisodes = owner.AvailableEpisodes; previous.WatchedEpisodes = owner.WatchedEpisodes; }
                         if (owner.LastPlayedDate && (!previous.LastPlayedDate || Date.parse(owner.LastPlayedDate) > Date.parse(previous.LastPlayedDate))) previous.LastPlayedDate = owner.LastPlayedDate;
                     }
                 }
@@ -187,7 +201,7 @@
     }
 
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
-        let kind = ['all', 'watchlisted', 'watching'].includes(options.interest) ? options.interest : 'all';
+        let kind = activityFilters.includes(options.interest) ? options.interest : 'all';
         let sort = options.sort === 'recent' ? 'recent' : 'title';
         const page = document.createElement('section'); page.className = 'watchguard-page padded-left padded-right';
         page.setAttribute('role', 'region'); page.setAttribute('aria-label', 'Watchlists');
@@ -201,13 +215,15 @@
             return select;
         }
         const select = dropdown('Watchlist owner', []); select.hidden = true;
-        const interestFilter = dropdown('Interest filter', [['all', 'All interest'], ['watchlisted', 'Watchlisted'], ['watching', 'Watching']]); interestFilter.value = kind;
+        const interestFilter = dropdown('Interest filter', [['all', 'All activity'], ['watchlisted', 'Watchlisted'], ['watching', 'Watching'], ['watched', 'Watched'], ['playing', 'Currently Playing']]); interestFilter.value = kind;
         const order = dropdown('Sort by', [['title', 'Title'], ['recent', 'Playback recency'], ['added', 'Watchlist date — not recorded', true]]); order.value = sort;
         order.title = 'Playback recency uses available native dates; unknown dates sort last. Watchlist add dates are not stored.';
         const refresh = document.createElement('button'); refresh.className = 'emby-button button-flat watchguard-refresh'; refresh.type = 'button'; refresh.title = 'Refresh'; refresh.setAttribute('aria-label', 'Refresh');
         const refreshIcon = document.createElement('span'); refreshIcon.className = 'material-icons'; refreshIcon.textContent = 'refresh'; refreshIcon.setAttribute('aria-hidden', 'true'); refresh.append(refreshIcon);
         toolbar.append(select, interestFilter, order, refresh);
         const status = document.createElement('p'); status.setAttribute('role', 'status');
+        const spinner = document.createElement('span'); spinner.className = 'material-icons watchguard-spinner'; spinner.textContent = 'sync'; spinner.setAttribute('aria-hidden', 'true');
+        status.className = 'watchguard-loading-status';
         const notice = document.createElement('p'); notice.className = 'watchguard-notice secondaryText';
         const error = document.createElement('p'); error.setAttribute('role', 'alert');
         const grid = document.createElement('div'); grid.className = 'watchguard-grid';
@@ -234,7 +250,8 @@
                 const option = document.createElement('option'); option.value = filter; option.textContent = 'Unavailable user'; select.append(option); select.value = filter;
             }
             interestFilter.value = kind; order.value = sort;
-            status.textContent = pending ? 'Loading viewing interest…' : selected.length || failures.length ? '' : 'No matching interest in this overview.';
+            status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : 'No matching activity in this overview.';
+            spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
             notice.textContent = coverage;
             error.textContent = failures.join(' ');
             const visible = new Set(selected.map(e => key(e.ItemId)));
@@ -260,7 +277,7 @@
                 record.name.textContent = entry.Name; record.ownersText.replaceChildren();
                 for (const owner of entry.Users) {
                     const line = document.createElement('div');
-                    line.textContent = (admin ? owner.DisplayName + ' — ' : '') + owner.Reasons.map(r => reasons[r]).join(' · '); record.ownersText.append(line);
+                    line.textContent = activityText(owner, true); record.ownersText.append(line);
                 }
                 record.remove?.remove(); record.remove = null;
                 if (entry.IsWatchlistedByMe) {
@@ -288,7 +305,7 @@
             const revision = ++generation;
             const current = () => active() && revision === generation;
             pending = true; failures = []; coverage = ''; refresh.disabled = true;
-            status.textContent = 'Loading watchlists…'; error.textContent = '';
+            status.textContent = 'Loading watchlists…'; spinner.hidden = false; status.append(spinner); page.setAttribute('aria-busy', 'true'); error.textContent = '';
             try {
                 const account = await api.getCurrentUser();
                 if (!current()) return;
@@ -302,19 +319,19 @@
                 } catch { if (!current()) return; explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
                 automatic = []; render(); // Paint memberships before issuing expensive discovery.
                 try {
-                    const result = await request(api, (admin ? 'InterestOverview' : 'InterestOverview/Me') + '?automaticOnly=true');
+                    const result = await request(api, admin ? 'ActivityOverview' : 'ActivityOverview/Me');
                     if (!current()) return;
                     if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
                     selectInterest(result.Items, 'all', user);
                     if (result.Items.some(e => e.Users.some(u => (!admin && key(u.UserId) !== key(user)) || u.Reasons.includes('Watchlisted')))) throw new Error('Invalid automatic scope');
                     automatic = result.Items; coverage = result.Notice;
-                } catch { if (!current()) return; automatic = []; failures.push('WatchGuard: Viewing interest unavailable. Results are incomplete; refresh to retry.'); }
+                } catch { if (!current()) return; automatic = []; failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.'); }
                 pending = false; render();
             } catch { if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; render(); } }
             finally { if (current()) refresh.disabled = false; }
         }
         page.updateFilters = (owner, interest, sorting) => {
-            filter = owner || 'mine'; kind = ['all', 'watchlisted', 'watching'].includes(interest) ? interest : 'all'; sort = sorting === 'recent' ? 'recent' : 'title';
+            filter = owner || 'mine'; kind = activityFilters.includes(interest) ? interest : 'all'; sort = sorting === 'recent' ? 'recent' : 'title';
             render();
         };
         const change = () => { if (active()) navigate(select.value || 'mine', interestFilter.value, order.value); };
@@ -325,7 +342,7 @@
     }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, watchlistsPage };
+        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, watchlistsPage };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -372,6 +389,10 @@
         .watchguard-page select {width:auto;min-width:9em;max-width:100%;appearance:auto}
         .watchguard-toolbar {display:flex;align-items:center;gap:.8em;flex-wrap:wrap;margin:1.2em 0}
         .watchguard-refresh {margin-inline-start:auto;padding:.6em}
+        .watchguard-loading-status {display:flex;align-items:center;gap:.5em}
+        .watchguard-spinner {font-size:1.2em;animation:watchguard-spin 1s linear infinite;color:var(--jf-palette-primary-main,#00a4dc)}
+        @keyframes watchguard-spin {to {transform:rotate(360deg)}}
+        @media(prefers-reduced-motion:reduce) {.watchguard-spinner {animation:none}}
         .watchguard-notice {font-size:.85em;margin-bottom:1.5em}
         .watchguard-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1.5em 1em;margin:1em 0;align-items:start}
         .watchguard-card {position:relative;min-width:0}

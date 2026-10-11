@@ -229,7 +229,7 @@ test('Overview renders text literally, distinguishes reasons and offers only exp
     const cards=page.children[5].children;
     assert.equal(cards.length,2);
     assert.equal(cards[0].children[0].children[1].textContent,text);
-    assert.equal(cards[0].children[1].children[1].textContent,text+' — Watchlist · Watching');
+    assert.ok(cards[0].children[1].children[1].textContent.startsWith(text+' — Watchlist · Watching · Last played: '));
     assert.equal(cards[0].children.length,3);
     assert.equal(cards[1].children.length,2);
 });
@@ -241,7 +241,7 @@ test('Personal overview rejects cross-user payloads even with forged owner filte
     const page=watchlistsPage(f.doc,api,new AbortController().signal,'all',()=>{});
     await new Promise(resolve=>setImmediate(resolve));
     assert.equal(page.children[5].children.length,0);
-    assert.match(page.children[4].textContent,/Viewing interest unavailable/);
+    assert.match(page.children[4].textContent,/Viewing activity unavailable/);
 });
 
 function progressiveFixture(admin = true) {
@@ -262,7 +262,7 @@ test('Progressive memberships render before automatic discovery; filters and car
     f.calls[0].resolve([overviewItems[0]]);await turn();
     const grid=f.page.children[5],card=grid.children[0];
     assert.equal(grid.children.length,1);assert.match(f.page.children[2].textContent,/Loading viewing/);
-    assert.equal(f.calls[1].o.url,'WatchGuard/InterestOverview?automaticOnly=true');
+    assert.equal(f.calls[1].o.url,'WatchGuard/ActivityOverview');
     f.page.updateFilters('all','watching','recent'); assert.equal(grid.children.length,0);
     assert.match(f.page.children[2].textContent,/Loading/);assert.equal(f.calls.length,2);
     f.calls[1].resolve(automaticResult);await turn();
@@ -293,4 +293,34 @@ test('Explicit failure does not prevent automatic results and keeps failure visi
     const f=progressiveFixture();await turn();f.calls[0].reject(new Error('private'));await turn();
     assert.match(f.page.children[2].textContent,/Loading/);f.calls[1].resolve(automaticResult);await turn();
     assert.equal(f.page.children[5].children.length,1);assert.match(f.page.children[4].textContent,/Could not load watchlists/);
+});
+
+
+test('Activity dates, progress and status filters do not widen the protection reason allowlist', () => {
+    const {activityText, mergeInterest, validateStatus} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const date = '2026-10-11T09:12:00Z';
+    const owner = {UserId:other,DisplayName:'Other',Reasons:['Watched'],LastPlayedDate:date,AvailableEpisodes:12,WatchedEpisodes:12};
+    const item = {...overviewItems[0],Users:[owner]};
+    assert.equal(selectInterest([item],'all',me,'watched').length,1);
+    assert.equal(selectInterest([item],'all',me,'watching').length,0);
+    assert.equal(selectInterest([item],'all',me,'playing').length,0);
+    assert.match(activityText(owner,true),/Other — Watched · 12\/12 episodes · Last played:/);
+    assert.ok(activityText(owner,true).includes(new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(new Date(date))));
+    assert.ok(!activityText({...owner,Reasons:['CurrentlyPlaying']},true).includes('Last played'));
+    assert.match(activityText({...owner,Reasons:['CurrentlyPlaying']},true),/Currently Playing ●/);
+    assert.ok(!activityText({...owner,Reasons:['Watchlisted']},true).includes('Last played'));
+    const merged=mergeInterest([{...item,Users:[{...owner,Reasons:['Watchlisted'],LastPlayedDate:null,AvailableEpisodes:null,WatchedEpisodes:null}]}],[item]);
+    assert.equal(merged.length,1);assert.equal(merged[0].Users.length,1);assert.deepEqual(merged[0].Users[0].Reasons,['Watchlisted','Watched']);
+    assert.equal(merged[0].Users[0].WatchedEpisodes,12);
+    assert.throws(()=>selectInterest([{...item,Users:[{...owner,WatchedEpisodes:13}]}],'all',me));
+    assert.throws(()=>validateStatus({ItemId:item.ItemId,HasInterest:true,HasOtherInterestedUsers:true,Users:[owner]},item.ItemId,me));
+});
+test('Activity spinner stays visible during deferred discovery and disappears on success or failure',async()=>{
+    for(const fail of [false,true]) {
+        const f=progressiveFixture();await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+        const spinner=f.page.children[2].children.find(e=>e.className==='material-icons watchguard-spinner');
+        assert.ok(spinner);assert.equal(spinner.hidden,false);assert.equal(f.page.children[5].children.length,1);
+        if(fail)f.calls[1].reject(new Error('failure'));else f.calls[1].resolve(automaticResult);await turn();
+        assert.equal(spinner.hidden,true);assert.equal(f.page.children[5].children.length,1);
+    }
 });

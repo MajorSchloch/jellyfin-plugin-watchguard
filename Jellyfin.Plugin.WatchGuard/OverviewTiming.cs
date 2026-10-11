@@ -20,7 +20,7 @@ internal sealed class OverviewSerializationTimingAttribute : Attribute, IAsyncRe
     public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
     {
         context.ActionDescriptor.RouteValues.TryGetValue("action", out var action);
-        using var timing = action is "Overview" or "OwnOverview" or "AllWatchlists" or "List"
+        using var timing = action is "Activity" or "OwnActivity" or "Overview" or "OwnOverview" or "AllWatchlists" or "List"
             ? OverviewTiming.Begin("SerializationAndWrite", context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("WatchGuard.Performance")) : null;
         await next();
     }

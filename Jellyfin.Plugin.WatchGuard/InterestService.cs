@@ -66,8 +66,14 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
             if (item is Series && effective.Any(s => s.Played || s.PlaybackPositionTicks > 0) && effective.Any(s => !s.Played))
                 reasons.Add("InProgress");
             if (budget is not null)
+            {
                 budget.PlaybackDates[user.Id] = states.Values.Select(s => s.LastPlayedDate)
                     .Concat(resumes.Values.Select(r => r.UserData.LastPlayedDate)).Max();
+                // Overview-only observations reuse these reads. Completed history is never a protection reason.
+                budget.Playback[user.Id] = new(user.Username, budget.PlaybackDates[user.Id],
+                    effective.Length > 0 && effective.All(s => s.Played),
+                    item is Series ? effective.Length : null, item is Series ? effective.Count(s => s.Played) : null);
+            }
             var ids = items.Select(i => i.Id).ToHashSet();
             if (playing.Any(s => s.Users.Contains(user.Id) &&
                 (ids.Contains(s.ItemId) || library.GetItemById<BaseItem>(s.ItemId, user) is Video

@@ -1,5 +1,7 @@
 # WatchGuard v0.2.2 — detail UI and overview performance
 
+> The v0.2.2 measurements below are retained. See the [v0.2.3 activity measurements](#v023-activity-measurements) for the additional bounded history query and current UI.
+
 Target: Jellyfin Server/Web **12.2**, .NET 10. No production deployment. Watchlist schema 1, plugin GUID, `watchguard-v1`, native InterestService and the deletion adapter remain unchanged.
 
 ## Header placement and responsive behavior
@@ -88,3 +90,33 @@ See [deployment results](deployment.md#automated-results) for release validation
 - [Multiple users, narrow viewport](screenshots/v0.2.2/inline-users-390.png)
 - [Series](screenshots/v0.2.2/inline-series.png), [episode](screenshots/v0.2.2/inline-episode.png), [season](screenshots/v0.2.2/inline-season.png)
 - [Explicit cards while automatic discovery is pending](screenshots/v0.2.2/progressive-memberships.png)
+
+## v0.2.3 activity measurements
+
+The [activity projection](activity.md) adds a bounded completed-movie query and reuses existing episode verification for whole-series completion and counts. No new per-poster or second series-episode query is issued. Native InterestOverview routes remain available for comparison.
+
+Measured on the same disposable 12.2 image and host, using the same four-account, ten-movie, three-series, ten-episode, 39-membership fixture. Each viewing user additionally had **one completed movie and one fully completed series**, with native dates within the window. Seven serial HTTP samples per route after warm-up; five browser visits. The two endpoint columns below are from **the same v0.2.3 binary and seeded fixture**: the retained v0.2.2-compatible interest-only contract versus the new activity contract. This isolates the feature cost without claiming a separate old-binary benchmark. Earlier v0.2.2 measurements above remain historical and use a different completion mix.
+
+[Raw activity run](performance-data/activity-v0.2.3.json). Server stages are means; round trips and browser timings are medians, in milliseconds. Serialization includes response writing as explained above.
+
+| Measurement | Interest-only automatic endpoint | Activity endpoint |
+| --- | ---: | ---: |
+| Resume discovery | 23.95 | 24.75 |
+| Played-episode discovery | 19.17 | 19.57 |
+| Completed-movie discovery | — | 16.96 |
+| Series/user verification | 45.01 | 57.46 |
+| Serialization + write | 0.21 | 0.25 |
+| HTTP round trip | 113.22 | 136.93 |
+
+Explicit retrieval averaged **86.03 ms** on the server, **89.87 ms** median HTTP round trip. Browser first cards appeared at **99.50 ms** median; both sources settled at **254.60 ms**. Response-end to first card insertion was **2.20 ms** median. Initial/late samples varied, so these small warm-fixture figures are not production-scale promises or a new claim of acceleration.
+
+The extra native completed-movie query and verification of its additional title are the main added costs: about **24 ms** median endpoint latency in this run. Episode progress/completion is computed from arrays already loaded by verification; a backend test asserts one episode query per eligible account, not a second query for progress. The spinner makes the additional automatic work visible while explicit posters remain usable. Filtering/sorting still makes zero discovery requests, and no cache was justified or added. Fresh deletion checks never use an overview cache or history.
+
+Reproduce with:
+
+```sh
+python3 scripts/build-release.py
+python3 tests/docker-smoke.py --injector-dll /path/to/Jellyfin.Plugin.JavaScriptInjector.dll --profile activity
+```
+
+The runner writes `artifacts/performance/activity.json`, verifies registration/restart/cleanup and removes the fixture. Use the normal runner without `--profile` for the destructive disposable browser regression suite. Diagnostic mode is enabled only inside the fixture; the release default remains false.

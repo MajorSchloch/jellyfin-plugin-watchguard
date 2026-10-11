@@ -1,3 +1,4 @@
+using Jellyfin.Data.Enums;
 using Jellyfin.Data;
 using Jellyfin.Database.Implementations.Entities;
 using Jellyfin.Database.Implementations.Enums;
@@ -270,7 +271,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 2, 2, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 2, 3, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
     }
@@ -433,6 +434,128 @@ public sealed class BackendTests : IDisposable
         Assert.IsType<ForbidResult>(await Controller().Overview(true));
         var own = Assert.IsType<InterestOverview>(Assert.IsType<OkObjectResult>(await Controller().OwnOverview(true)).Value);
         Assert.Empty(own.Items);
+    }
+
+    private async Task<InterestOverview> Activity(bool own = false) => Assert.IsType<InterestOverview>(
+        Assert.IsType<OkObjectResult>(await (own ? Controller().OwnActivity() : Controller().Activity())).Value);
+
+    [Fact]
+    public async Task CompletedMovieHasNativeDateButDoesNotProtectWithoutMembership()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var date = DateTime.UtcNow.AddDays(-2);
+        states[(bob.Id, movie.Id)] = new() { Key = "test", Played = true, LastPlayedDate = date };
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([movie]);
+        var owner = Assert.Single(Assert.Single((await Activity()).Items).Users);
+        Assert.Equal(new[] { "Watched" }, owner.Reasons); Assert.Equal(date, owner.LastPlayedDate);
+        Assert.Null(owner.AvailableEpisodes); Assert.False(Status().HasInterest); Assert.Empty(store.Read());
+        Assert.Empty((await Overview()).Items); // Old endpoint retains its interest-only contract.
+        store.Set(bob.Id, movie.Id, true);
+        Assert.Equal(new[] { "Watchlisted" }, Assert.Single(Status().Users).Reasons);
+        Assert.Equal(new[] { "Watched" }, Assert.Single(Assert.Single((await Activity()).Items).Users).Reasons);
+    }
+
+    [Theory]
+    [InlineData(-31)]
+    [InlineData(1)]
+    [InlineData(0)] // No timestamp, not an invented completion date.
+    public async Task CompletedHistoryRequiresANativeDateInsideTheWindow(int days)
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        states[(bob.Id, movie.Id)] = new() { Key = "test", Played = true, LastPlayedDate = days == 0 ? null : DateTime.UtcNow.AddDays(days) };
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([movie]);
+        Assert.Empty((await Activity()).Items); Assert.False(Status().HasInterest);
+    }
+
+    [Fact]
+    public async Task SeriesCompletionCountsEveryAvailableEpisodeAndNewEpisodesRestoreWatching()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var series = new Series { Id = Guid.NewGuid(), Name = "Series" };
+        var episodes = new[] { new Episode { Id = Guid.NewGuid(), SeriesId = series.Id }, new Episode { Id = Guid.NewGuid(), SeriesId = series.Id } };
+        foreach (var item in new BaseItem[] { series, episodes[0], episodes[1] })
+            library.Setup(l => l.GetItemById<BaseItem>(item.Id, It.IsAny<User>())).Returns(item);
+        IReadOnlyList<BaseItem> available = episodes;
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) => q.AncestorIds.Contains(series.Id) ? available : [episodes[0]]);
+        var earlier = DateTime.UtcNow.AddDays(-5); var latest = DateTime.UtcNow.AddDays(-1);
+        states[(bob.Id, episodes[0].Id)] = new() { Key = "test", Played = true, LastPlayedDate = earlier };
+        states[(bob.Id, episodes[1].Id)] = new() { Key = "test", Played = true, LastPlayedDate = latest };
+        var owner = Assert.Single(Assert.Single((await Activity()).Items).Users);
+        Assert.Equal(new[] { "Watched" }, owner.Reasons); Assert.Equal(latest, owner.LastPlayedDate);
+        Assert.Equal(2, owner.AvailableEpisodes); Assert.Equal(2, owner.WatchedEpisodes);
+        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id) && q.IsMissing == false && q.IsVirtualItem == false)), Times.Exactly(2));
+        Assert.False(Status(series).HasInterest);
+        available = [.. episodes, new Episode { Id = Guid.NewGuid(), SeriesId = series.Id }];
+        owner = Assert.Single(Assert.Single((await Activity()).Items).Users);
+        Assert.Equal(new[] { "InProgress" }, owner.Reasons); Assert.Equal(3, owner.AvailableEpisodes); Assert.Equal(2, owner.WatchedEpisodes);
+        Assert.True(Status(series).HasOtherInterestedUsers);
+        available = []; Assert.Empty((await Activity()).Items); // Empty series is never complete.
+    }
+
+    [Fact]
+    public async Task ActiveCompletedPlaybackAndMultipleUsersRemainDistinctAndPrivate()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var date = DateTime.UtcNow.AddDays(-1);
+        states[(bob.Id, movie.Id)] = new() { Key = "test", Played = true, LastPlayedDate = date };
+        states[(alice.Id, movie.Id)] = new() { Key = "test", PlaybackPositionTicks = 100, LastPlayedDate = date };
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([movie]);
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance) { UserId = bob.Id, NowPlayingItem = new BaseItemDto { Id = movie.Id } }]);
+        var result = Assert.Single((await Activity()).Items);
+        Assert.Equal(2, result.Users.Length);
+        Assert.Equal(new[] { "CurrentlyPlaying", "Watched" }, result.Users.Single(u => u.UserId == bob.Id).Reasons);
+        Assert.Equal(new[] { "InProgress" }, result.Users.Single(u => u.UserId == alice.Id).Reasons);
+        Assert.All(Status().Users, u => Assert.DoesNotContain("Watched", u.Reasons));
+        Assert.Single(Assert.Single((await Activity(own: true)).Items).Users);
+        alice.SetPermission(PermissionKind.IsAdministrator, false);
+        Assert.IsType<ForbidResult>(await Controller().Activity());
+        Assert.Equal(alice.Id, Assert.Single(Assert.Single((await Activity(own: true)).Items).Users).UserId);
+        SignIn(null); Assert.IsType<UnauthorizedResult>(await Controller().Activity()); Assert.IsType<UnauthorizedResult>(await Controller().OwnActivity());
+    }
+
+    [Fact]
+    public async Task ActivityLimitsAreClampedAndLookupErrorsAreNotEmptyHistory()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        states[(bob.Id, movie.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-50) };
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([movie]);
+        var overview = new InterestOverviewService(store, library.Object, users.Object, sessions.Object, service);
+        Assert.Single(overview.GetActivity(alice, days: 9999, limit: 9999).Items);
+        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.Limit > 101)), Times.Never);
+        Assert.Empty(overview.GetActivity(alice, days: -1, limit: -1).Items);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Throws(new IOException("private"));
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await Controller().Activity()).StatusCode);
+    }
+
+    [Fact]
+    public async Task ActivityOmitsDisabledRemovedAndInvisibleOwnersAndMissingItems()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        states[(bob.Id, movie.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-1) };
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([movie]);
+        Assert.Single((await Activity()).Items);
+        bob.SetPermission(PermissionKind.IsDisabled, true); Assert.Empty((await Activity()).Items);
+        bob.SetPermission(PermissionKind.IsDisabled, false);
+        users.Setup(u => u.GetUserById(bob.Id)).Returns((User?)null); Assert.Empty((await Activity()).Items);
+        users.Setup(u => u.GetUserById(bob.Id)).Returns(bob);
+        library.Setup(l => l.GetItemById<BaseItem>(movie.Id, bob)).Returns((BaseItem?)null); Assert.Empty((await Activity()).Items);
+        library.Setup(l => l.GetItemById<BaseItem>(movie.Id, It.IsAny<User>())).Returns((BaseItem?)null); Assert.Empty((await Activity()).Items);
+    }
+
+    [Fact]
+    public void ActivityConfigurationAndCandidateLimitRemainBounded()
+    {
+        Assert.Equal(30, new Configuration().ActivityWindowDays);
+        Assert.Equal(100, new Configuration().ActivityLimit);
+        Assert.False(new Configuration().DiagnosticMode);
+        var second = new Movie { Id = Guid.NewGuid(), Name = "Second" };
+        library.Setup(l => l.GetItemById<BaseItem>(second.Id, It.IsAny<User>())).Returns(second);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) =>
+            q.IncludeItemTypes.SequenceEqual(new[] { BaseItemKind.Movie }) && q.IsPlayed == true ? [movie, second] : []);
+        foreach (var item in new[] { movie, second }) states[(bob.Id, item.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-1) };
+        var result = new InterestOverviewService(store, library.Object, users.Object, sessions.Object, service).GetActivity(alice, limit: 1);
+        Assert.True(result.LimitReached); Assert.False(result.IsComplete); Assert.Single(result.Items);
+        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.IncludeItemTypes.SequenceEqual(new[] { BaseItemKind.Movie }) && q.Limit == 2)), Times.Exactly(2));
     }
 
 }

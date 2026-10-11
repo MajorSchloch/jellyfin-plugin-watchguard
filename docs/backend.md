@@ -139,3 +139,7 @@ The existing endpoints and schema are unchanged. Administrator-only `GET /WatchG
 ## v0.2.2 optional automatic overview
 
 Both `GET /WatchGuard/InterestOverview?automaticOnly=true` (administrator only) and `GET /WatchGuard/InterestOverview/Me?automaticOnly=true` (current account only) retain the existing response shape and native discovery/verification budgets. The optional flag defaults to false, preserving the v0.2.1 combined contract. With the flag enabled, the service does not read membership storage or seed explicit-only candidates; results contain `InProgress` and/or `CurrentlyPlaying`, never `Watchlisted`. The page first loads the unchanged explicit-list endpoint and merges these independent snapshots by item/user ID. Storage errors and automatic lookup errors remain distinguishable in the UI. Native InterestService, protection routes, deletion checks, permissions and storage schema are unchanged. See [performance.md](performance.md).
+
+## v0.2.3 activity projection
+
+`GET /WatchGuard/ActivityOverview` is administrator-only; `GET /WatchGuard/ActivityOverview/Me` returns only the authenticated account. They use the overview response envelope with native `LastPlayedDate`, nullable `AvailableEpisodes`/`WatchedEpisodes`, and an overview-only `Watched` status. The existing InterestOverview routes retain their interest-only reason contract. Neither history nor counts alter protection responses. Read [activity.md](activity.md) for exact dates, budgets, completion rules and examples.

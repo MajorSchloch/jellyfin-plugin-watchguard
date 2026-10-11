@@ -20,7 +20,7 @@ jobs:
       - run: python3 scripts/build-release.py
       - uses: actions/upload-artifact@v4
         with:
-          name: WatchGuard-v0.2.2
+          name: WatchGuard-v0.2.3
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.2.2.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.2.2.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.2.3.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.2.3.zip.sha256

@@ -11,9 +11,11 @@ using MediaBrowser.Model.Entities;
 
 namespace Jellyfin.Plugin.WatchGuard;
 
-public sealed record OverviewUser(Guid UserId, string DisplayName, string[] Reasons, DateTime? LastPlayedDate);
+public sealed record OverviewUser(Guid UserId, string DisplayName, string[] Reasons, DateTime? LastPlayedDate, int? AvailableEpisodes = null, int? WatchedEpisodes = null);
 public sealed record OverviewItem(Guid ItemId, string Name, OverviewUser[] Users);
 public sealed record InterestOverview(OverviewItem[] Items, bool IsComplete, bool LimitReached, string Notice);
+
+internal sealed record OverviewPlayback(string DisplayName, DateTime? LastPlayedDate, bool Completed, int? AvailableEpisodes, int? WatchedEpisodes);
 
 // Request-local safety budget, never used by deletion/protection checks.
 internal sealed class OverviewBudget(WatchlistEntry[] entries, User[] accounts)
@@ -21,6 +23,7 @@ internal sealed class OverviewBudget(WatchlistEntry[] entries, User[] accounts)
     public User[] Accounts { get; } = accounts;
     public HashSet<WatchlistEntry> Entries { get; } = entries.ToHashSet();
     public Dictionary<Guid, DateTime?> PlaybackDates { get; } = new();
+    public Dictionary<Guid, OverviewPlayback> Playback { get; } = new();
     public int Remaining { get; private set; } = 20000;
     public void Consume(int count)
     {
@@ -38,8 +41,13 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
     public const int UserLimit = 50;
     public const int EpisodeLimit = 1000;
 
-    public InterestOverview Get(User caller, bool ownOnly = false, bool automaticOnly = false)
+    public InterestOverview GetActivity(User caller, bool ownOnly = false, int days = 30, int limit = CandidateLimit) =>
+        Get(caller, ownOnly, automaticOnly: true, activityDays: Math.Clamp(days, 1, 90), candidateLimit: Math.Clamp(limit, 1, CandidateLimit));
+
+    public InterestOverview Get(User caller, bool ownOnly = false, bool automaticOnly = false, int? activityDays = null, int candidateLimit = CandidateLimit)
     {
+        var now = DateTime.UtcNow;
+        var cutoff = now.AddDays(-(activityDays ?? 30));
         var enabled = (ownOnly ? new[] { caller } : users.GetUsers()).Select(u => users.GetUserById(u.Id))
             .Where(u => u is not null && !u.HasPermission(PermissionKind.IsDisabled)).Cast<User>().Take(UserLimit + 1).ToArray();
         if (enabled.Length > UserLimit) throw new InvalidOperationException("Overview user budget exceeded.");
@@ -57,7 +65,7 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
             if (!InterestService.Supported(item)) return;
             var visible = library.GetItemById<BaseItem>(item!.Id, caller);
             if (!InterestService.Supported(visible) || candidates.ContainsKey(item.Id)) return;
-            if (candidates.Count == CandidateLimit) { limited = true; return; }
+            if (candidates.Count == candidateLimit) { limited = true; return; }
             candidates.Add(item.Id, visible!);
         }
         // Active playback gets first priority; additional session users are verified natively too.
@@ -83,6 +91,21 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
                 foreach (var item in found.Take(DiscoveryLimit)) Add(item.Id, user);
             }
         }
+        // Keep resume/series candidates ahead of completed movies. No unbounded date/history scan.
+        if (activityDays.HasValue)
+            foreach (var user in enabled)
+            {
+                using var completedTiming = OverviewTiming.Begin("CompletedMovieDiscovery", logger);
+                var found = library.GetItemList(new InternalItemsQuery(user)
+                {
+                    Recursive = true, IsVirtualItem = false, IsMissing = false,
+                    IncludeItemTypes = [BaseItemKind.Movie], IsPlayed = true,
+                    OrderBy = [(ItemSortBy.DatePlayed, SortOrder.Descending)], Limit = candidateLimit + 1,
+                    EnableTotalRecordCount = false
+                });
+                if (found.Count > candidateLimit) limited = true;
+                foreach (var item in found.Take(candidateLimit)) Add(item.Id, user);
+            }
         foreach (var entry in budget.Entries)
             if (enabled.FirstOrDefault(u => u.Id == entry.UserId) is { } owner) Add(entry.ItemId, owner);
         var result = new List<OverviewItem>();
@@ -92,15 +115,28 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
             try
             {
                 budget.PlaybackDates.Clear();
+                budget.Playback.Clear();
                 var status = interest.GetForOverview(item, caller.Id, budget);
-                if (status.HasInterest) result.Add(new(item.Id, item.Name, status.Users.Select(u =>
-                    new OverviewUser(u.UserId, u.DisplayName, u.Reasons, budget.PlaybackDates.GetValueOrDefault(u.UserId))).ToArray()));
+                var owners = status.Users.ToDictionary(u => u.UserId, u => u);
+                if (activityDays.HasValue)
+                    foreach (var (id, playback) in budget.Playback)
+                        if (playback.Completed && playback.LastPlayedDate >= cutoff && playback.LastPlayedDate <= now)
+                        {
+                            if (owners.TryGetValue(id, out var owner)) owners[id] = owner with { Reasons = [.. owner.Reasons, "Watched"] };
+                            else owners[id] = new(id, playback.DisplayName, ["Watched"]);
+                        }
+                if (owners.Count > 0) result.Add(new(item.Id, item.Name, owners.Values.Select(u =>
+                {
+                    var playback = budget.Playback.GetValueOrDefault(u.UserId);
+                    return new OverviewUser(u.UserId, u.DisplayName, u.Reasons, budget.PlaybackDates.GetValueOrDefault(u.UserId),
+                        activityDays.HasValue ? playback?.AvailableEpisodes : null, activityDays.HasValue ? playback?.WatchedEpisodes : null);
+                }).ToArray()));
             }
             catch (OverviewLimitException) { limited = true; break; }
         }
         // Candidate discovery is deliberately bounded. Even below the caps it is not an exhaustive audit.
         return new(result.OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase).ThenBy(i => i.ItemId).ToArray(), false, limited,
-            (automaticOnly ? "Recent viewing interest; not an exhaustive library audit." : "Recent viewing interest and explicit watchlists; not an exhaustive library audit.")
+            (activityDays.HasValue ? $"Recent viewing activity: completed titles with a native playback date in the last {activityDays} days, plus current viewing interest; not an exhaustive library audit." : automaticOnly ? "Recent viewing interest; not an exhaustive library audit." : "Recent viewing interest and explicit watchlists; not an exhaustive library audit.")
             + (limited ? " A safety limit was reached; some items are omitted." : string.Empty));
     }
 }

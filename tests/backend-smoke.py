@@ -15,6 +15,9 @@ def run(call, admin_token, items, plugins):
     call('/WatchGuard/Watchlist', expected=401)
     call('/WatchGuard/Watchlists', expected=401)
     call('/WatchGuard/InterestOverview', expected=401)
+    call('/WatchGuard/ActivityOverview', expected=401)
+    call('/WatchGuard/ActivityOverview/Me', expected=401)
+    call('/WatchGuard/ActivityOverview', token=token, expected=403)
     call('/WatchGuard/InterestOverview/Me', expected=401)
     call('/WatchGuard/InterestOverview', token=token, expected=403)
     call('/WatchGuard/Watchlists', token=token, expected=403)
@@ -94,4 +97,5 @@ def run(call, admin_token, items, plugins):
     call('/Users/' + member['Id'], 'DELETE', token=admin_token, expected=204)
     assert not call('/WatchGuard/Protection/' + movie, token=admin_token)['HasInterest']
     assert call('/WatchGuard/Watchlists', token=admin_token) == []
+    assert call('/WatchGuard/ActivityOverview', token=admin_token)['Items'] == []
     print('Backend HTTP checks passed: CRUD, isolation, concurrency, playback, series, sessions, corruption, removed user.', flush=True)
