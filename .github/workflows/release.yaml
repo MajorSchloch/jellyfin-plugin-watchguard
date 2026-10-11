@@ -43,6 +43,15 @@ jobs:
       - run: cd tests/browser && npx playwright install --with-deps chromium
       - name: Disposable browser regressions
         run: python3 tests/docker-smoke.py --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
+      - name: Upload browser diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: WatchGuard-browser-failure
+          path: |
+            artifacts/poc/hidden-native-more.png
+            artifacts/poc/report.json
+          if-no-files-found: warn
       - name: Rebuild the pinned v0.2.4 rollback fixture
         run: |
           git worktree add --detach /tmp/watchguard-rollback 37e2c0f16a1da1d1495ce1a4ae3b8438aea2fdc7
