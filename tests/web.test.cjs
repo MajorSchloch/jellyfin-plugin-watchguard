@@ -89,8 +89,8 @@ function documentFixture() {
     const focus = { isConnected: true, focus() { this.restored = true; } };
     const doc = { activeElement: focus, body: { append(node) { nodes.push(node); } }, createElement(tag) {
         return { tag, style: {}, children: [], events: {}, setAttribute() {},
-            append(...children) { this.children.push(...children); }, addEventListener(event, fn) { this.events[event] = fn; },
-            showModal() { this.opened = true; }, focus() { this.focused = true; }, remove() { this.removed = true; } };
+            append(...children) { for(const child of children) { child.remove(); child.parent = this; child.removed = false; this.children.push(child); } }, addEventListener(event, fn) { this.events[event] = fn; },
+            showModal() { this.opened = true; }, focus() { this.focused = true; }, remove() { if(this.parent) this.parent.children = this.parent.children.filter(c=>c!==this); this.parent = null; this.removed = true; } };
     } };
     return { doc, nodes, focus };
 }
@@ -223,7 +223,7 @@ test('Overview renders text literally, distinguishes reasons and offers only exp
     const text='<img src=x onerror=alert(1)>';
     const items=structuredClone(overviewItems);items[0].Name=text;items[0].Users[1].DisplayName=text;
     const api={getCurrentUser:async()=>({Policy:{IsAdministrator:true}}),getCurrentUserId:()=>me,accessToken:()=> 'token',getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/image',
-        ajax:async o=>{assert.equal(o.url,'WatchGuard/InterestOverview');return {Items:items,IsComplete:false,LimitReached:false,Notice:'Not exhaustive'};}};
+        ajax:async o=> o.url==='WatchGuard/Watchlists' ? [items[0]] : {Items:items.map(e=>({...e,Users:e.Users.map(u=>({...u,Reasons:u.Reasons.filter(r=>r!=='Watchlisted')})).filter(u=>u.Reasons.length)})),IsComplete:false,LimitReached:false,Notice:'Not exhaustive'}};
     const page=watchlistsPage(f.doc,api,new AbortController().signal,'all',()=>{});
     await new Promise(resolve=>setImmediate(resolve));
     const cards=page.children[5].children;
@@ -237,9 +237,60 @@ test('Personal overview rejects cross-user payloads even with forged owner filte
     const f=documentFixture(),create=f.doc.createElement;
     f.doc.createElement=tag=>{const n=create(tag);n.replaceChildren=()=>{n.children=[];};return n;};
     const api={getCurrentUser:async()=>({Policy:{IsAdministrator:false}}),getCurrentUserId:()=>me,accessToken:()=> 'token',getUrl:p=>p,
-        ajax:async o=>{assert.equal(o.url,'WatchGuard/InterestOverview/Me');return {Items:overviewItems,IsComplete:false,LimitReached:false,Notice:'Not exhaustive'};}};
+        ajax:async o=>o.url==='WatchGuard/Watchlist' ? [] : {Items:overviewItems,IsComplete:false,LimitReached:false,Notice:'Not exhaustive'}};
     const page=watchlistsPage(f.doc,api,new AbortController().signal,'all',()=>{});
     await new Promise(resolve=>setImmediate(resolve));
     assert.equal(page.children[5].children.length,0);
-    assert.match(page.children[4].textContent,/Could not load/);
+    assert.match(page.children[4].textContent,/Viewing interest unavailable/);
+});
+
+function progressiveFixture(admin = true) {
+    const f = documentFixture(), create = f.doc.createElement, calls = [];
+    f.doc.createElement = tag => { const n = create(tag); n.replaceChildren = () => { for(const child of [...n.children]) child.remove(); }; n.classList = {add(){}}; return n; };
+    let token = 'first';
+    const api = {getCurrentUser:async()=>({Name:'Me',Policy:{IsAdministrator:admin}}),getCurrentUserId:()=>me,accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/image',
+        ajax:o=>new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
+    const abort = new AbortController();
+    const page = watchlistsPage(f.doc,api,abort.signal,'all',()=>{});
+    return {page,calls,abort,changeAccount(){token='second';}};
+}
+const turn = () => new Promise(resolve=>setImmediate(resolve));
+const automaticResult = {Items:[{...overviewItems[0],Users:[{...overviewItems[0].Users[1],Reasons:['InProgress','CurrentlyPlaying']}]}],IsComplete:false,LimitReached:true,Notice:'Not exhaustive; limit reached'};
+test('Progressive memberships render before automatic discovery; filters and card identity survive merge without requests', async()=>{
+    const f=progressiveFixture();await turn();
+    assert.equal(f.calls[0].o.url,'WatchGuard/Watchlists');
+    f.calls[0].resolve([overviewItems[0]]);await turn();
+    const grid=f.page.children[5],card=grid.children[0];
+    assert.equal(grid.children.length,1);assert.match(f.page.children[2].textContent,/Loading viewing/);
+    assert.equal(f.calls[1].o.url,'WatchGuard/InterestOverview?automaticOnly=true');
+    f.page.updateFilters('all','watching','recent'); assert.equal(grid.children.length,0);
+    assert.match(f.page.children[2].textContent,/Loading/);assert.equal(f.calls.length,2);
+    f.calls[1].resolve(automaticResult);await turn();
+    assert.equal(grid.children[0],card); assert.match(card.children[1].children[0].textContent,/Watchlist · Watching · Currently Playing/);
+    assert.match(f.page.children[3].textContent,/limit reached/);
+    f.page.updateFilters('mine','all','title'); assert.equal(grid.children[0],card);assert.equal(f.calls.length,2);
+    const removal=card.children.at(-1).onclick(); assert.equal(f.calls[2].o.type,'DELETE');f.calls[2].resolve();await removal;
+    assert.equal(grid.children.length,0);assert.equal(f.calls.length,3);
+    f.page.updateFilters('all','all','title');assert.equal(grid.children[0],card); // Another user's automatic interest survives.
+});
+test('Late automatic results are ignored after navigation and account change',async()=>{
+    for(const action of ['abort','account']) {
+        const f=progressiveFixture();await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+        const before=f.page.children[5].children[0].children[1].children.map(n=>n.textContent);
+        if(action==='abort')f.abort.abort();else f.changeAccount();
+        f.calls[1].resolve(automaticResult);await turn();
+        assert.deepEqual(f.page.children[5].children[0].children[1].children.map(n=>n.textContent),before);
+    }
+});
+test('Automatic failure preserves explicit cards and never claims a complete or empty result',async()=>{
+    const f=progressiveFixture();await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    const card=f.page.children[5].children[0];f.calls[1].reject(new Error('private'));await turn();
+    assert.equal(f.page.children[5].children[0],card);assert.match(f.page.children[4].textContent,/Results are incomplete/);
+    f.page.updateFilters('all','watching','title');assert.equal(f.page.children[2].textContent,'');
+    assert.ok(!f.page.children[4].textContent.includes('private'));
+});
+test('Explicit failure does not prevent automatic results and keeps failure visible',async()=>{
+    const f=progressiveFixture();await turn();f.calls[0].reject(new Error('private'));await turn();
+    assert.match(f.page.children[2].textContent,/Loading/);f.calls[1].resolve(automaticResult);await turn();
+    assert.equal(f.page.children[5].children.length,1);assert.match(f.page.children[4].textContent,/Could not load watchlists/);
 });

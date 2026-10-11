@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Jellyfin.Data;
 using Jellyfin.Data.Enums;
 using Jellyfin.Database.Implementations.Entities;
@@ -30,19 +31,21 @@ internal sealed class OverviewBudget(WatchlistEntry[] entries, User[] accounts)
 internal sealed class OverviewLimitException : Exception;
 
 public sealed class InterestOverviewService(WatchlistStore store, ILibraryManager library, IUserManager users,
-    ISessionManager sessions, InterestService interest)
+    ISessionManager sessions, InterestService interest, ILogger<InterestOverviewService>? logger = null)
 {
     public const int CandidateLimit = 100;
     public const int DiscoveryLimit = 100;
     public const int UserLimit = 50;
     public const int EpisodeLimit = 1000;
 
-    public InterestOverview Get(User caller, bool ownOnly = false)
+    public InterestOverview Get(User caller, bool ownOnly = false, bool automaticOnly = false)
     {
         var enabled = (ownOnly ? new[] { caller } : users.GetUsers()).Select(u => users.GetUserById(u.Id))
             .Where(u => u is not null && !u.HasPermission(PermissionKind.IsDisabled)).Cast<User>().Take(UserLimit + 1).ToArray();
         if (enabled.Length > UserLimit) throw new InvalidOperationException("Overview user budget exceeded.");
-        var budget = new OverviewBudget(store.Read().Where(e => !ownOnly || e.UserId == caller.Id).ToArray(), enabled);
+        WatchlistEntry[] entries;
+        using (OverviewTiming.Begin("StoreRead", logger)) entries = automaticOnly ? [] : store.Read().Where(e => !ownOnly || e.UserId == caller.Id).ToArray();
+        var budget = new OverviewBudget(entries, enabled);
         var candidates = new Dictionary<Guid, BaseItem>();
         var limited = false;
         void Add(Guid id, User owner)
@@ -65,6 +68,7 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
         {
             foreach (var resumable in new[] { true, false })
             {
+                using var discoveryTiming = OverviewTiming.Begin(resumable ? "ResumeDiscovery" : "PlayedDiscovery", logger);
                 // Same native query family as Continue Watching, plus completed episodes to discover
                 // series between episodes. Limit is applied in the database, not after a library scan.
                 var found = library.GetItemList(new InternalItemsQuery(user)
@@ -82,6 +86,7 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
         foreach (var entry in budget.Entries)
             if (enabled.FirstOrDefault(u => u.Id == entry.UserId) is { } owner) Add(entry.ItemId, owner);
         var result = new List<OverviewItem>();
+        using var verificationTiming = OverviewTiming.Begin("Verification", logger);
         foreach (var item in candidates.Values)
         {
             try
@@ -95,7 +100,7 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
         }
         // Candidate discovery is deliberately bounded. Even below the caps it is not an exhaustive audit.
         return new(result.OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase).ThenBy(i => i.ItemId).ToArray(), false, limited,
-            "Recent viewing interest and explicit watchlists; not an exhaustive library audit."
+            (automaticOnly ? "Recent viewing interest; not an exhaustive library audit." : "Recent viewing interest and explicit watchlists; not an exhaustive library audit.")
             + (limited ? " A safety limit was reached; some items are omitted." : string.Empty));
     }
 }

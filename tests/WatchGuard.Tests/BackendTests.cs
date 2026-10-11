@@ -270,7 +270,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 2, 1, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 2, 2, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
     }
@@ -413,6 +413,26 @@ public sealed class BackendTests : IDisposable
         Assert.True(result.LimitReached); Assert.Empty(result.Items);
         Assert.True(Status(series).HasOtherInterestedUsers);
         library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id) && q.Limit == null)), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task AutomaticOverviewSkipsExplicitOnlyCandidatesAndKeepsOriginalContract()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        store.Set(bob.Id, movie.Id, true);
+        Assert.Single((await Overview()).Items);
+        var automatic = Assert.IsType<InterestOverview>(Assert.IsType<OkObjectResult>(await Controller().Overview(true)).Value);
+        Assert.Empty(automatic.Items);
+        Assert.Single(store.Read());
+        states[(bob.Id, movie.Id)] = new() { Key = "test", PlaybackPositionTicks = 100 };
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([movie]);
+        automatic = Assert.IsType<InterestOverview>(Assert.IsType<OkObjectResult>(await Controller().Overview(true)).Value);
+        Assert.Equal(new[] { "InProgress" }, Assert.Single(Assert.Single(automatic.Items).Users).Reasons);
+        Assert.Equal(new[] { "Watchlisted", "InProgress" }, Assert.Single(Status(movie).Users).Reasons);
+        alice.SetPermission(PermissionKind.IsAdministrator, false);
+        Assert.IsType<ForbidResult>(await Controller().Overview(true));
+        var own = Assert.IsType<InterestOverview>(Assert.IsType<OkObjectResult>(await Controller().OwnOverview(true)).Value);
+        Assert.Empty(own.Items);
     }
 
 }

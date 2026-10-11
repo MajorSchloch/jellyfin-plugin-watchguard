@@ -135,3 +135,7 @@ Aggregation is proportional to users and available episodes, with batched native
 ## v0.2.0 addition
 
 The existing endpoints and schema are unchanged. Administrator-only `GET /WatchGuard/Watchlists` provides deduplicated explicit memberships with native owner display names; it is read-only and returns 503 on lookup/storage failure. See [route contract, authorization and example](navigation.md#read-only-administrator-api).
+
+## v0.2.2 optional automatic overview
+
+Both `GET /WatchGuard/InterestOverview?automaticOnly=true` (administrator only) and `GET /WatchGuard/InterestOverview/Me?automaticOnly=true` (current account only) retain the existing response shape and native discovery/verification budgets. The optional flag defaults to false, preserving the v0.2.1 combined contract. With the flag enabled, the service does not read membership storage or seed explicit-only candidates; results contain `InProgress` and/or `CurrentlyPlaying`, never `Watchlisted`. The page first loads the unchanged explicit-list endpoint and merges these independent snapshots by item/user ID. Storage errors and automatic lookup errors remain distinguishable in the UI. Native InterestService, protection routes, deletion checks, permissions and storage schema are unchanged. See [performance.md](performance.md).

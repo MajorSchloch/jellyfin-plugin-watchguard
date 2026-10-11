@@ -1,7 +1,7 @@
 ---
 name: "WatchGuard"
 guid: "a3c6bc84-783d-4ba8-a0db-89bfb83ab486"
-version: "0.2.1.0"
+version: "0.2.2.0"
 targetAbi: "12.2.0.0"
 framework: "net10.0"
 overview: "Personal watchlists and advisory Web deletion warnings"

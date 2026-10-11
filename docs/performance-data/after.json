@@ -1,0 +1,92 @@
+{
+  "label": "after",
+  "fixture": {
+    "users": 4,
+    "movies": 10,
+    "series": 3,
+    "episodes": 10,
+    "memberships": 39
+  },
+  "http": {
+    "Watchlists": {
+      "roundTripMs": [
+        81.11916700000006,
+        81.82333400000016,
+        82.51779099999999,
+        81.71516700000006,
+        87.19512499999996,
+        79.62729100000001,
+        81.62483300000008
+      ],
+      "stagesMeanPerRequestMs": {
+        "ExplicitMemberships": 71.46457142857143,
+        "SerializationAndWrite": 0.21657142857142858
+      }
+    },
+    "InterestOverview?automaticOnly=true": {
+      "roundTripMs": [
+        115.59866699999975,
+        110.38391599999977,
+        103.09900000000016,
+        102.60491700000011,
+        109.47570799999994,
+        102.82679199999984,
+        104.83091699999977
+      ],
+      "stagesMeanPerRequestMs": {
+        "StoreRead": 0,
+        "ResumeDiscovery": 23.879285714285714,
+        "PlayedDiscovery": 16.861,
+        "Verification": 41.25385714285714,
+        "SerializationAndWrite": 0.202
+      }
+    }
+  },
+  "client": [
+    {
+      "completeMs": 292.19999998807907,
+      "firstCardMs": 120.30000001192093,
+      "clientInsertionAfterResponseMs": 6,
+      "responses": [
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/InterestOverview"
+      ]
+    },
+    {
+      "completeMs": 222,
+      "firstCardMs": 95.60000002384186,
+      "clientInsertionAfterResponseMs": 1,
+      "responses": [
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/InterestOverview"
+      ]
+    },
+    {
+      "completeMs": 214.4000000357628,
+      "firstCardMs": 89.70000004768372,
+      "clientInsertionAfterResponseMs": 2.100000023841858,
+      "responses": [
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/InterestOverview"
+      ]
+    },
+    {
+      "completeMs": 225.69999998807907,
+      "firstCardMs": 97.5,
+      "clientInsertionAfterResponseMs": 2.200000047683716,
+      "responses": [
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/InterestOverview"
+      ]
+    },
+    {
+      "completeMs": 209.5,
+      "firstCardMs": 95.19999998807907,
+      "clientInsertionAfterResponseMs": 2.199999988079071,
+      "responses": [
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/InterestOverview"
+      ]
+    }
+  ]
+}

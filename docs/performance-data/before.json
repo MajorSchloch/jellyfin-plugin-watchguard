@@ -1,0 +1,82 @@
+{
+  "label": "before",
+  "fixture": {
+    "users": 4,
+    "movies": 10,
+    "series": 3,
+    "episodes": 10,
+    "memberships": 39
+  },
+  "http": {
+    "Watchlists": {
+      "roundTripMs": [
+        80.58287500000006,
+        81.03829199999996,
+        78.5496250000001,
+        75.06874999999991,
+        77.57841599999983,
+        75.14366600000017,
+        73.43025000000011
+      ],
+      "stagesMeanPerRequestMs": {
+        "ExplicitMemberships": 67.49199999999999,
+        "SerializationAndWrite": 0.09657142857142856
+      }
+    },
+    "InterestOverview": {
+      "roundTripMs": [
+        161.23700000000008,
+        166.86045899999976,
+        156.69174999999996,
+        152.77637499999992,
+        154.36116700000002,
+        150.6550000000002,
+        156.34666700000025
+      ],
+      "stagesMeanPerRequestMs": {
+        "StoreRead": 0.30128571428571427,
+        "ResumeDiscovery": 18.950285714285716,
+        "PlayedDiscovery": 14.992857142857142,
+        "Verification": 99.53928571428571,
+        "SerializationAndWrite": 0.14528571428571427
+      }
+    }
+  },
+  "client": [
+    {
+      "firstCardMs": 246.0999999642372,
+      "clientInsertionAfterResponseMs": 6.199999988079071,
+      "responses": [
+        "/WatchGuard/InterestOverview"
+      ]
+    },
+    {
+      "firstCardMs": 169.60000002384186,
+      "clientInsertionAfterResponseMs": 3.300000011920929,
+      "responses": [
+        "/WatchGuard/InterestOverview"
+      ]
+    },
+    {
+      "firstCardMs": 165,
+      "clientInsertionAfterResponseMs": 3.300000011920929,
+      "responses": [
+        "/WatchGuard/InterestOverview"
+      ]
+    },
+    {
+      "firstCardMs": 165.89999997615814,
+      "clientInsertionAfterResponseMs": 3.5,
+      "responses": [
+        "/WatchGuard/InterestOverview"
+      ]
+    },
+    {
+      "firstCardMs": 171.5,
+      "clientInsertionAfterResponseMs": 3.600000023841858,
+      "responses": [
+        "/WatchGuard/InterestOverview"
+      ]
+    }
+  ]
+}

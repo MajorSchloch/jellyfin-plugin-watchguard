@@ -1,15 +1,15 @@
-# Jellyfin WatchGuard v0.2.1
+# Jellyfin WatchGuard v0.2.2
 
 Deployment-test build for **Jellyfin Server and Web 12.2 / .NET 10**. Personal movie/series watchlists remain separate from Favorites. Administrators can see interest based on watchlists, unfinished playback and active sessions.
 
-**Watchlists** combines explicit memberships and native viewing interest in a responsive poster grid. Administrators can filter users; every account can filter Watchlisted/Watching and sort by title or available playback recency. Regular users see only their own interest. Automatic interest is never stored as membership. The overview is bounded and explicitly **not exhaustive**; see [coverage and API details](docs/interest-overview.md). Detail toolbars have a bookmark toggle and a separate administrator count/popover; season/episode controls refer to the verified parent series. Before supported Web deletion, WatchGuard checks fresh status. Other users' interest prompts **Cancel / Delete Anyway**; zero or self-only interest adds no warning. Episodes and seasons check their verified parent series and explain that scope. Native deletion permissions still apply.
+**Watchlists** combines explicit memberships and native viewing interest in a responsive poster grid. Administrators can filter users; every account can filter Watchlisted/Watching and sort by title or available playback recency. Regular users see only their own interest. Automatic interest is never stored as membership. The overview is bounded and explicitly **not exhaustive**; see [coverage and API details](docs/interest-overview.md). Explicit memberships render first, followed by playback interest; filtering and sorting reuse the loaded results. Detail headers show administrator usernames/reasons inline, with a separate personal bookmark toggle; season/episode controls refer to the verified parent series. Before supported Web deletion, WatchGuard checks fresh status. Other users' interest prompts **Cancel / Delete Anyway**; zero or self-only interest adds no warning. Episodes and seasons check their verified parent series and explain that scope. Native deletion permissions still apply.
 
 Start with the [deployment checklist, Docker Compose installation, verification and rollback instructions](docs/deployment.md). No production deployment or GitHub release has been performed.
 
 ## Release artifact and build
 
-- `artifacts/Jellyfin.Plugin.WatchGuard-v0.2.1.zip`
-- `artifacts/Jellyfin.Plugin.WatchGuard-v0.2.1.zip.sha256`
+- `artifacts/Jellyfin.Plugin.WatchGuard-v0.2.2.zip`
+- `artifacts/Jellyfin.Plugin.WatchGuard-v0.2.2.zip.sha256`
 
 The ZIP contains **one runtime DLL** and `LICENSE`. The Web adapter is embedded in the DLL. It does not contain Jellyfin assemblies, test dependencies, loose JavaScript, configuration, watchlists or JavaScript Injector.
 
@@ -17,7 +17,7 @@ Release packaging requires .NET SDK **10.0.302** and Python 3.10+. Node 24+ and 
 
 ```sh
 python3 scripts/build-release.py
-(cd artifacts && shasum -a 256 -c Jellyfin.Plugin.WatchGuard-v0.2.1.zip.sha256)
+(cd artifacts && shasum -a 256 -c Jellyfin.Plugin.WatchGuard-v0.2.2.zip.sha256)
 dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
 node --test tests/web.test.cjs
 npm ci --prefix tests/browser
@@ -35,7 +35,7 @@ Use the official **12.2** image and a matching **JavaScript Injector jf12/.NET 1
 
 With Jellyfin stopped, copy only the WatchGuard DLL into `/config/plugins/WatchGuard/` and the separate Injector DLL into `/config/plugins/JavaScriptInjector/`. Keep `/config` persistent and writable by the Jellyfin process. Start Jellyfin and fully reload Web tabs. Neither installation nor uninstall requires editing Jellyfin Web files.
 
-Verify the exact log **`WatchGuard web script registered with JavaScript Injector.`**, then check Injector's **Plugin Scripts** entry: name `WatchGuard`, ID `watchguard-v1`, version `0.2.1`, enabled and requiring authentication. Finally, in a newly loaded signed-in Web tab, `window.WatchGuardPoc?.isInstalled()` must return `true`. Full registration and functional checks are in [deployment.md](docs/deployment.md#verify-registration-and-operation).
+Verify the exact log **`WatchGuard web script registered with JavaScript Injector.`**, then check Injector's **Plugin Scripts** entry: name `WatchGuard`, ID `watchguard-v1`, version `0.2.2`, enabled and requiring authentication. Finally, in a newly loaded signed-in Web tab, `window.WatchGuardPoc?.isInstalled()` must return `true`. Full registration and functional checks are in [deployment.md](docs/deployment.md#verify-registration-and-operation).
 
 **Diagnostics default to off.** Existing installations retain their saved setting; set `DiagnosticMode=false` before routine deployment testing if earlier tests enabled it. The automated disposable browser fixture deliberately enables diagnostics for ordering assertions.
 
@@ -47,7 +47,7 @@ When uninstalling, remove the DLL and also delete the persisted **`watchguard-v1
 
 ## Compatibility and limitations
 
-| Area | v0.2.1 scope |
+| Area | v0.2.2 scope |
 | --- | --- |
 | Server/runtime | Jellyfin **12.2**, .NET **10**; other server versions are not validated. |
 | Web layouts | Explicit modern and legacy desktop shells tested in Chromium; both use the legacy detail template in 12.2. |
@@ -63,10 +63,10 @@ Unwrapped client instances, another plugin replacing the method, requests before
 
 ## Validation
 
-v0.2.1: **34 backend tests and 26 JavaScript tests passed**, plus the complete disposable Docker backend/browser suite. Both layouts, parent-series scope, Cancel/override, failed checks, bulk deletion, account isolation and list controls passed. Release registration and persisted-script removal passed; the on-disk Web index remained identical to the pristine official image. See [final results](docs/deployment.md#automated-results).
+v0.2.2: **35 backend tests and 30 JavaScript tests passed**, plus the complete disposable Docker backend/browser suite. Both layouts, parent-series scope, Cancel/override, failed checks, bulk deletion, account isolation and list controls passed. Release registration and persisted-script removal passed; the on-disk Web index remained identical to the pristine official image. See [final results](docs/deployment.md#automated-results).
 
-The separate v0.2.0 ZIP and checksum remain in `artifacts/` for rollback. Both releases use the same watchlist JSON schema; stop Jellyfin, replace the DLL and reload every Web tab as described in the deployment guide.
+The separate v0.2.1 ZIP and checksum remain in `artifacts/` for rollback. Both releases use the same watchlist JSON schema; stop Jellyfin, replace the DLL and reload every Web tab as described in the deployment guide.
 
 Watchlist-add dates are not present in the unchanged JSON schema, so date-added sorting is unavailable rather than guessed.
 
-Further references: [architecture](docs/architecture.md), [backend API/storage](docs/backend.md), [v0.2.1 overview/UI](docs/interest-overview.md), [navigation architecture](docs/navigation.md), [original Web integration](docs/web-ui.md), [compatibility hardening](docs/hardening.md), and the historical [deletion PoC](docs/deletion-poc.md).
+Further references: [architecture](docs/architecture.md), [backend API/storage](docs/backend.md), [overview semantics](docs/interest-overview.md), [v0.2.2 timings and inline UI](docs/performance.md), [navigation architecture](docs/navigation.md), [original Web integration](docs/web-ui.md), [compatibility hardening](docs/hardening.md), and the historical [deletion PoC](docs/deletion-poc.md).

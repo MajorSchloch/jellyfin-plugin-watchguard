@@ -25,7 +25,9 @@ def docker(*args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--injector-dll', type=Path, required=True)
-    parser.add_argument('--serve', action='store_true')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--serve', action='store_true')
+    mode.add_argument('--profile', choices=['before', 'after'], help='Run isolated performance measurements instead of destructive browser tests.')
     options = parser.parse_args()
     artifact = ROOT / 'artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
     if not artifact.exists():
@@ -110,7 +112,7 @@ def main():
             assert len(registrations) == 1
             registration = registrations[0]
             assert registration['Enabled'] and registration['RequiresAuthentication']
-            assert registration['PluginVersion'] == '0.2.1' and registration['Name'] == 'WatchGuard'
+            assert registration['PluginVersion'] == '0.2.2' and registration['Name'] == 'WatchGuard'
             # Restart with the persisted registration: upsert must retain exactly one script.
             docker('restart', name)
             # Docker Desktop can allocate a different ephemeral host port on restart.
@@ -119,7 +121,7 @@ def main():
                 try:
                     current = call('/Plugins/' + injector_id + '/Configuration', token=token)
                     registered = [s for s in current['PluginJavaScripts'] if s['Id'] == 'watchguard-v1']
-                    assert len(registered) == 1 and registered[0]['PluginVersion'] == '0.2.1'
+                    assert len(registered) == 1 and registered[0]['PluginVersion'] == '0.2.2'
                     break
                 except (urllib.error.URLError, http.client.HTTPException, ConnectionError, AssertionError):
                     if attempt == 59: raise
@@ -136,13 +138,13 @@ def main():
             if options.serve:
                 while True: time.sleep(1)
             else:
-                subprocess.run(['node', str(ROOT / 'tests/browser-poc.cjs'), str(fixture)], check=True)
+                subprocess.run(['node', str(ROOT / 'tests/profile-overview.cjs' if options.profile else 'tests/browser-poc.cjs'), str(fixture), *([options.profile] if options.profile else [])], check=True)
                 # Same operation as removing the plugin-managed script in Injector's dashboard.
                 injector_config['PluginJavaScripts'] = [s for s in injector_config['PluginJavaScripts'] if s['Id'] != 'watchguard-v1']
                 call('/Plugins/' + injector_id + '/Configuration', 'POST', injector_config, token, expected=204)
                 assert 'WatchGuard: This item may still be in use.' not in call('/JavaScriptInjector/private.js', token=token, raw=True)
                 assert docker('exec', name, 'sha256sum', '/jellyfin/jellyfin-web/index.html').split()[0] == pristine_web_hash
-                print('Deployment checks passed: v0.2.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
+                print('Deployment checks passed: v0.2.2 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
 
         finally:
             subprocess.run(['docker', 'rm', '-f', name], stdout=subprocess.DEVNULL, check=False)

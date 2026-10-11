@@ -1,5 +1,7 @@
 # WatchGuard v0.2.1 — interest overview and native UI refinement
 
+> **v0.2.2 update:** See [performance and inline detail UI](performance.md). The numeric badge/popover is removed; explicit entries now render before a separate automatic-interest request. Filters reuse the current page snapshot. The historical decisions below describe their named release.
+
 Target: Jellyfin Server/Web **12.2**, .NET 10. The overview combines explicit membership with native playback interest, without persisting automatic interest. Existing watchlists, Favorites, playback state, Injector registration and deletion policies are unchanged.
 
 ## Native discovery research

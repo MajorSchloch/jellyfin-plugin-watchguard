@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.WatchGuard;
 
+[OverviewSerializationTiming]
 [ApiController]
 [Authorize]
 [Route("WatchGuard")]
@@ -58,6 +59,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         var caller = await CurrentUser();
         if (caller is null) return Unauthorized();
         if (!caller.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
+        using var timing = OverviewTiming.Begin("ExplicitMemberships", logger);
         var result = new List<SharedWatchlistItem>();
         foreach (var group in store.Read().GroupBy(e => e.ItemId))
         {
@@ -89,19 +91,19 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
     });
 
     [HttpGet("InterestOverview/Me")]
-    public Task<IActionResult> OwnOverview() => Execute(async () =>
+    public Task<IActionResult> OwnOverview([FromQuery] bool automaticOnly = false) => Execute(async () =>
     {
         var user = await CurrentUser();
-        return user is null ? Unauthorized() : Ok(overview.Get(user, ownOnly: true));
+        return user is null ? Unauthorized() : Ok(overview.Get(user, ownOnly: true, automaticOnly: automaticOnly));
     });
 
     [HttpGet("InterestOverview")]
-    public Task<IActionResult> Overview() => Execute(async () =>
+    public Task<IActionResult> Overview([FromQuery] bool automaticOnly = false) => Execute(async () =>
     {
         var user = await CurrentUser();
         if (user is null) return Unauthorized();
         if (!user.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
-        return Ok(overview.Get(user));
+        return Ok(overview.Get(user, automaticOnly: automaticOnly));
     });
 
     [HttpGet("Protection/{itemId:guid}")]

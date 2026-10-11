@@ -165,9 +165,30 @@
         return selected.sort((a, b) => (sort === 'recent' ? recent(b) - recent(a) : 0) || a.Name.localeCompare(b.Name) || a.ItemId.localeCompare(b.ItemId));
     }
 
+    // Merge independent snapshots by stable IDs; automatic interest never becomes membership.
+    function mergeInterest(...sources) {
+        const items = new Map();
+        for (const source of sources) {
+            selectInterest(source, 'all', '', 'all', 'title'); // Validate before any DOM update.
+            for (const entry of source) {
+                let item = items.get(key(entry.ItemId));
+                if (!item) { item = { ...entry, Users: [] }; items.set(key(entry.ItemId), item); }
+                for (const owner of entry.Users) {
+                    const previous = item.Users.find(u => key(u.UserId) === key(owner.UserId));
+                    if (!previous) item.Users.push({ ...owner, Reasons: [...owner.Reasons] });
+                    else {
+                        previous.Reasons = [...new Set([...previous.Reasons, ...owner.Reasons])];
+                        if (owner.LastPlayedDate && (!previous.LastPlayedDate || Date.parse(owner.LastPlayedDate) > Date.parse(previous.LastPlayedDate))) previous.LastPlayedDate = owner.LastPlayedDate;
+                    }
+                }
+            }
+        }
+        return Array.from(items.values());
+    }
+
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
-        const kind = ['all', 'watchlisted', 'watching'].includes(options.interest) ? options.interest : 'all';
-        const sort = options.sort === 'recent' ? 'recent' : 'title';
+        let kind = ['all', 'watchlisted', 'watching'].includes(options.interest) ? options.interest : 'all';
+        let sort = options.sort === 'recent' ? 'recent' : 'title';
         const page = document.createElement('section'); page.className = 'watchguard-page padded-left padded-right';
         page.setAttribute('role', 'region'); page.setAttribute('aria-label', 'Watchlists');
         const heading = document.createElement('h1'); heading.className = 'sectionTitle'; heading.textContent = 'Watchlists';
@@ -193,38 +214,34 @@
         page.append(heading, toolbar, status, notice, error, grid);
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
-        let generation = 0;
-        signal.addEventListener('abort', () => page.remove(), { once: true });
-        async function load() {
-            const revision = ++generation;
-            const current = () => active() && revision === generation;
-            if (!current()) return;
-            grid.replaceChildren(); select.hidden = true; error.textContent = ''; status.textContent = 'Loading watchlists…'; refresh.disabled = true; interestFilter.disabled = true; order.disabled = true;
-            try {
-                const account = await api.getCurrentUser();
-                if (!current()) return;
-                const admin = account.Policy?.IsAdministrator === true;
-                const result = await request(api, admin ? 'InterestOverview' : 'InterestOverview/Me');
-                if (!current()) return;
-                if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
-                const entries = result.Items;
-                const selected = selectInterest(entries, admin ? filter : 'mine', user, kind, sort);
-                // Reject accidental cross-user payloads even though the personal endpoint enforces isolation.
-                if (!admin && entries.some(e => e.Users.some(u => key(u.UserId) !== key(user)))) throw new Error('Invalid account scope');
-                notice.textContent = result.Notice; interestFilter.disabled = false; order.disabled = false;
-                select.replaceChildren();
-                const owners = new Map(entries.flatMap(entry => entry.Users).map(owner => [key(owner.UserId), owner]));
-                const choices = [['mine', 'My list'], ...(admin ? [['all', 'All users'], ...Array.from(owners.values())
-                    .sort((a, b) => a.DisplayName.localeCompare(b.DisplayName)).map(owner => [key(owner.UserId), owner.DisplayName])] : [])];
-                for (const [value, name] of choices) {
-                    const option = document.createElement('option'); option.value = value; option.textContent = name; select.append(option);
-                }
-                select.value = admin ? filter : 'mine'; select.hidden = !admin;
-                if (admin && !choices.some(([value]) => value === filter)) {
-                    const option = document.createElement('option'); option.value = filter; option.textContent = 'Unavailable user'; select.append(option); select.value = filter;
-                }
-                status.textContent = selected.length ? '' : 'No matching interest in this overview.';
-                for (const entry of selected) {
+        let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', failures = [];
+        const cards = new Map();
+        signal.addEventListener('abort', () => { generation++; cards.clear(); page.remove(); }, { once: true });
+        function render() {
+            if (!active()) return;
+            const entries = mergeInterest(explicit, automatic);
+            if (!admin && entries.some(e => e.Users.some(u => key(u.UserId) !== key(user)))) throw new Error('Invalid account scope');
+            const selected = selectInterest(entries, admin ? filter : 'mine', user, kind, sort);
+            select.replaceChildren();
+            const owners = new Map(entries.flatMap(entry => entry.Users).map(owner => [key(owner.UserId), owner]));
+            const choices = [['mine', 'My list'], ...(admin ? [['all', 'All users'], ...Array.from(owners.values())
+                .sort((a, b) => a.DisplayName.localeCompare(b.DisplayName)).map(owner => [key(owner.UserId), owner.DisplayName])] : [])];
+            for (const [value, name] of choices) {
+                const option = document.createElement('option'); option.value = value; option.textContent = name; select.append(option);
+            }
+            select.value = admin ? filter : 'mine'; select.hidden = !admin;
+            if (admin && !choices.some(([value]) => value === filter)) {
+                const option = document.createElement('option'); option.value = filter; option.textContent = 'Unavailable user'; select.append(option); select.value = filter;
+            }
+            interestFilter.value = kind; order.value = sort;
+            status.textContent = pending ? 'Loading viewing interest…' : selected.length || failures.length ? '' : 'No matching interest in this overview.';
+            notice.textContent = coverage;
+            error.textContent = failures.join(' ');
+            const visible = new Set(selected.map(e => key(e.ItemId)));
+            for (const [id, record] of cards) if (!visible.has(id)) record.card.remove();
+            for (const entry of selected) {
+                let record = cards.get(key(entry.ItemId));
+                if (!record) {
                     const card = document.createElement('article'); card.className = 'watchguard-card';
                     const link = document.createElement('a'); link.className = 'button-link';
                     link.href = '#/details?id=' + encodeURIComponent(entry.ItemId) + '&serverId=' + encodeURIComponent(api.serverId());
@@ -234,32 +251,72 @@
                     const poster = document.createElement('div'); poster.className = 'watchguard-poster';
                     const fallback = document.createElement('span'); fallback.className = 'material-icons'; fallback.textContent = 'movie'; fallback.setAttribute('aria-hidden', 'true');
                     poster.append(fallback, image);
-                    const name = document.createElement('div'); name.className = 'cardText'; name.textContent = entry.Name;
+                    const name = document.createElement('div'); name.className = 'cardText';
                     link.append(poster, name); card.append(link);
                     const ownersText = document.createElement('div'); ownersText.className = 'watchguard-status secondaryText';
                     if (admin) ownersText.classList.add('watchguard-owners');
-                    for (const owner of entry.Users) {
-                        const line = document.createElement('div');
-                        line.textContent = (admin ? owner.DisplayName + ' — ' : '') + owner.Reasons.map(r => reasons[r]).join(' · '); ownersText.append(line);
-                    }
-                    card.append(ownersText);
-                    if (entry.IsWatchlistedByMe) {
-                        const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'emby-button button-flat watchguard-remove';
-                        const icon = document.createElement('span'); icon.className = 'material-icons'; icon.textContent = 'bookmark_remove'; icon.setAttribute('aria-hidden', 'true'); remove.append(icon);
-                        remove.title = 'Remove from Watchlist'; remove.setAttribute('aria-label', 'Remove ' + entry.Name + ' from Watchlist');
-                        remove.onclick = async () => {
-                            if (!current()) return;
-                            remove.disabled = true; error.textContent = '';
-                            try { await request(api, 'Watchlist/' + encodeURIComponent(entry.ItemId), 'DELETE'); if (current()) await load(); }
-                            catch { if (current()) { error.textContent = 'WatchGuard: Could not remove this entry. Please retry.'; remove.disabled = false; } }
-                        };
-                        card.append(remove);
-                    }
-                    grid.append(card);
+                    card.append(ownersText); record = { card, name, ownersText }; cards.set(key(entry.ItemId), record);
                 }
-            } catch { if (current()) { grid.replaceChildren(); select.hidden = true; notice.textContent = ''; status.textContent = ''; error.textContent = 'WatchGuard: Could not load watchlists. Please refresh to retry.'; } }
+                record.name.textContent = entry.Name; record.ownersText.replaceChildren();
+                for (const owner of entry.Users) {
+                    const line = document.createElement('div');
+                    line.textContent = (admin ? owner.DisplayName + ' — ' : '') + owner.Reasons.map(r => reasons[r]).join(' · '); record.ownersText.append(line);
+                }
+                record.remove?.remove(); record.remove = null;
+                if (entry.IsWatchlistedByMe) {
+                    const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'emby-button button-flat watchguard-remove';
+                    const icon = document.createElement('span'); icon.className = 'material-icons'; icon.textContent = 'bookmark_remove'; icon.setAttribute('aria-hidden', 'true'); remove.append(icon);
+                    remove.title = 'Remove from Watchlist'; remove.setAttribute('aria-label', 'Remove ' + entry.Name + ' from Watchlist');
+                    remove.onclick = async () => {
+                        if (!active()) return;
+                        const revision = generation;
+                        remove.disabled = true; error.textContent = '';
+                        try {
+                            await request(api, 'Watchlist/' + encodeURIComponent(entry.ItemId), 'DELETE');
+                            if (!active() || revision !== generation) return;
+                            explicit = explicit.map(e => key(e.ItemId) === key(entry.ItemId) ? { ...e, Users: e.Users.filter(u => key(u.UserId) !== key(user)) } : e).filter(e => e.Users.length);
+                            render();
+                        } catch { if (active() && revision === generation) { error.textContent = 'WatchGuard: Could not remove this entry. Please retry.'; remove.disabled = false; } }
+                    };
+                    record.card.append(remove); record.remove = remove;
+                }
+                grid.append(record.card); // Reuse the card/image node, including when sorting.
+            }
+        }
+        async function load() {
+            if (!active()) return;
+            const revision = ++generation;
+            const current = () => active() && revision === generation;
+            pending = true; failures = []; coverage = ''; refresh.disabled = true;
+            status.textContent = 'Loading watchlists…'; error.textContent = '';
+            try {
+                const account = await api.getCurrentUser();
+                if (!current()) return;
+                admin = account.Policy?.IsAdministrator === true;
+                try {
+                    const result = await request(api, admin ? 'Watchlists' : 'Watchlist');
+                    if (!current()) return;
+                    if (!Array.isArray(result)) throw new Error('Invalid memberships');
+                    const entries = result.map(e => ({ ...e, Users: (admin ? e.Users : [{ UserId: user, DisplayName: account.Name || 'You' }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
+                    selectInterest(entries, 'all', user); explicit = entries;
+                } catch { if (!current()) return; explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
+                automatic = []; render(); // Paint memberships before issuing expensive discovery.
+                try {
+                    const result = await request(api, (admin ? 'InterestOverview' : 'InterestOverview/Me') + '?automaticOnly=true');
+                    if (!current()) return;
+                    if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
+                    selectInterest(result.Items, 'all', user);
+                    if (result.Items.some(e => e.Users.some(u => (!admin && key(u.UserId) !== key(user)) || u.Reasons.includes('Watchlisted')))) throw new Error('Invalid automatic scope');
+                    automatic = result.Items; coverage = result.Notice;
+                } catch { if (!current()) return; automatic = []; failures.push('WatchGuard: Viewing interest unavailable. Results are incomplete; refresh to retry.'); }
+                pending = false; render();
+            } catch { if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; render(); } }
             finally { if (current()) refresh.disabled = false; }
         }
+        page.updateFilters = (owner, interest, sorting) => {
+            filter = owner || 'mine'; kind = ['all', 'watchlisted', 'watching'].includes(interest) ? interest : 'all'; sort = sorting === 'recent' ? 'recent' : 'title';
+            render();
+        };
         const change = () => { if (active()) navigate(select.value || 'mine', interestFilter.value, order.value); };
         select.onchange = change; interestFilter.onchange = change; order.onchange = change;
         refresh.onclick = load;
@@ -268,7 +325,7 @@
     }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, watchlistsPage };
+        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, watchlistsPage };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -327,12 +384,17 @@
         .watchguard-card a:hover .watchguard-poster {box-shadow:0 0 0 2px #00a4dc}
         .watchguard-card .cardText,.watchguard-status {padding-top:.5em;overflow-wrap:anywhere}
         .watchguard-status {font-size:.8em;line-height:1.5}
-        .watchguard-controls {display:inline-flex;position:relative;align-items:center}
-        .watchguard-count {position:relative;z-index:2;border:0;border-radius:1em;background:var(--jf-palette-primary-main,#0086b3);color:white;min-width:1.5em;padding:.15em .4em;margin-inline-start:0;margin-inline-end:.4em;cursor:pointer;font:inherit;font-size:.7em;align-self:flex-start;margin-top:.7em}
-        .watchguard-controls [hidden] {display:none!important}
-        .watchguard-interest {position:fixed;inset:auto;margin:0;max-width:min(26rem,85vw);max-height:50vh;overflow:auto;padding:1em;border:1px solid #666;border-radius:.4em;background:var(--jf-palette-background-paper,#202020);color:var(--jf-palette-text-primary,#ddd);font-size:.9em;white-space:pre-line}
-        .watchguard-error {position:absolute;top:100%;min-width:16rem;color:#ffb4ab;font-size:.85em}
-        .watchguard-error:empty {display:none}
+        .watchguard-controls {display:inline-flex;align-items:center}
+        .watchguard-header {min-width:0;max-width:100%;margin:.4em 0;font-size:.8em;line-height:1.5;overflow-wrap:anywhere}
+        .watchguard-header [hidden] {display:none!important}
+        .watchguard-interest {display:flex;flex-wrap:wrap;gap:.15em 1em;max-height:4.5em;overflow:auto;color:var(--jf-palette-text-secondary,#aaa)}
+        .watchguard-interest>span {display:inline-flex;align-items:baseline;gap:.35em;min-width:0;max-width:100%}
+        .watchguard-user {flex-shrink:0;max-width:min(20ch,40vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        @media(max-width:50em) {
+            .detailRibbon:has(.watchguard-header) {display:block;width:100%;box-sizing:border-box;height:auto;min-height:7.2em}
+        }
+        .watchguard-error {color:#ffb4ab}
+        .watchguard-error:empty,.watchguard-interest:empty {display:none}
         .watchguard-sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
     `;
     document.head.append(style);
@@ -365,7 +427,10 @@
         if (!open) { closePage(); return; }
         const header = visible(legacy) ? legacy : document.querySelector('header.MuiAppBar-root');
         if (header) document.body.style.setProperty('--watchguard-top', Math.max(0, header.getBoundingClientRect().bottom) + 'px');
-        if (pageSignature === hash && pagePanel?.isConnected) return;
+        if (pagePanel?.isConnected) {
+            if (pageSignature !== hash) pagePanel.updateFilters(params.get('owner'), params.get('interest'), params.get('sort'));
+            pageSignature = hash; return;
+        }
         closePage(); pageSignature = hash;
         pageLifetime = new AbortController();
         pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner') || 'mine', (owner, interest, sort) => {
@@ -403,21 +468,13 @@
             const label = document.createElement('span'); label.className = 'watchguard-sr-only'; label.textContent = 'Loading Watchlist…';
             const content = document.createElement('div'); content.className = 'detailButton-content'; content.append(icon, label); toggle.append(content);
             const error = document.createElement('span'); error.className = 'watchguard-error'; error.setAttribute('role', 'alert');
-            const interest = document.createElement('div'); interest.className = 'watchguard-interest'; interest.setAttribute('popover', 'auto'); interest.setAttribute('role', 'dialog'); interest.setAttribute('aria-label', 'Title interest');
-            const count = document.createElement('button'); count.type = 'button'; count.className = 'watchguard-count'; count.hidden = true;
-            count.setAttribute('aria-haspopup', 'dialog'); count.setAttribute('aria-expanded', 'false');
-            count.onclick = () => {
-                if (!current()) return;
-                if (interest.matches(':popover-open')) interest.hidePopover();
-                else {
-                    const bounds = count.getBoundingClientRect();
-                    interest.style.left = Math.max(8, Math.min(bounds.left, root.innerWidth - 340)) + 'px';
-                    interest.style.top = Math.min(bounds.bottom + 8, root.innerHeight - 180) + 'px';
-                    interest.showPopover();
-                }
-            };
-            interest.addEventListener('toggle', () => count.setAttribute('aria-expanded', String(interest.matches(':popover-open'))));
-            container.append(toggle, count, error, interest); anchor.insertBefore(container, anchor.querySelector('.btnMoreCommands')); panel = container; detailButton = toggle;
+            const interest = document.createElement('div'); interest.className = 'watchguard-interest'; interest.setAttribute('role', 'status'); interest.setAttribute('aria-label', 'Title interest');
+            const header = document.createElement('div'); header.className = 'watchguard-header'; header.append(interest, error);
+            // Shared 12.2 template: infoWrapper contains title/metadata, before the sibling action row.
+            const info = anchor.parentElement?.querySelector('.infoWrapper');
+            if (!info) return;
+            info.append(header);
+            container.append(toggle); anchor.insertBefore(container, anchor.querySelector('.btnMoreCommands')); panel = header; detailButton = container;
             let member;
             const render = () => {
                 label.textContent = member ? 'Remove from Watchlist' : 'Add to Watchlist';
@@ -428,21 +485,24 @@
             async function refreshInterest() {
                 const account = await api.getCurrentUser();
                 if (!current()) return;
-                interest.textContent = ''; count.hidden = true;
+                interest.replaceChildren();
                 if (account.Policy?.IsAdministrator !== true) return;
+                interest.textContent = 'Loading interest…';
                 try {
                     const status = await request(api, 'Protection/' + encodeURIComponent(scopeId));
                     validateStatus(status, scopeId, user);
                     if (current()) {
-                        interest.textContent = seriesLabel + (describe(status.Users) || 'No current interest.');
-                        count.textContent = String(status.Users.length); count.hidden = false;
-                        count.title = seriesLabel + 'Interested users: ' + status.Users.length;
-                        count.setAttribute('aria-label', 'Show interested users (' + status.Users.length + ')');
+                        interest.replaceChildren();
+                        if (seriesLabel) { const scopeText = document.createElement('span'); scopeText.textContent = seriesLabel; interest.append(scopeText); }
+                        if (!status.Users.length) { const empty = document.createElement('span'); empty.textContent = 'No current interest.'; interest.append(empty); }
+                        for (const owner of status.Users) {
+                            const line = document.createElement('span');
+                            const name = document.createElement('span'); name.className = 'watchguard-user'; name.textContent = owner.DisplayName; name.title = owner.DisplayName;
+                            const why = document.createElement('span'); why.textContent = ' — ' + owner.Reasons.map(r => reasons[r]).join(' · ');
+                            line.append(name, why); interest.append(line);
+                        }
                     }
-                } catch { if (current()) {
-                    interest.textContent = 'WatchGuard: Interest status unavailable.'; count.textContent = '!'; count.hidden = false;
-                    count.setAttribute('aria-label', 'Interest status unavailable'); count.title = interest.textContent;
-                } }
+                } catch { if (current()) interest.textContent = 'WatchGuard: Interest status unavailable.'; }
             }
             toggle.onclick = async () => {
                 if (!current()) return;
