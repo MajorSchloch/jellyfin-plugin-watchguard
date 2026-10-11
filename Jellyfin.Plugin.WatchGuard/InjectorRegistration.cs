@@ -18,7 +18,8 @@ public sealed class InjectorRegistration(ILogger<InjectorRegistration> logger) :
                     .Select(a => a.GetType("Jellyfin.Plugin.JavaScriptInjector.PluginInterface"))
                     .FirstOrDefault(t => t is not null);
                 var register = type?.GetMethod("RegisterScript", BindingFlags.Public | BindingFlags.Static);
-                if (register is not null)
+                if (register is not null && register.ReturnType == typeof(bool)
+                    && register.GetParameters() is [{ ParameterType.FullName: "Newtonsoft.Json.Linq.JObject" }])
                 {
                     using var stream = typeof(Plugin).Assembly.GetManifestResourceStream("Jellyfin.Plugin.WatchGuard.Web.watchguard.js")!;
                     using var reader = new StreamReader(stream);
@@ -47,6 +48,6 @@ public sealed class InjectorRegistration(ILogger<InjectorRegistration> logger) :
             }
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
-        logger.LogWarning("WatchGuard web script was not registered. No deletion confirmation is active. Install/enable a Jellyfin 12 compatible JavaScript Injector and restart Jellyfin.");
+        logger.LogWarning("WatchGuard web script was not registered. No deletion confirmation is active. Install/enable JavaScript Injector 4.0.0.0 jf12 (.NET 10), keep DisableScriptInjectionMiddleware=false, and restart Jellyfin. Check the RegisterScript(JObject) interface and verify watchguard-v1 in Plugin Scripts; the catalog does not install this dependency.");
     }
 }

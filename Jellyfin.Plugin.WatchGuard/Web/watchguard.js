@@ -234,6 +234,35 @@
         return Array.from(items.values());
     }
 
+    // One identity-bound membership snapshot; never used for playback or deletion decisions.
+    function createMembership(api, signal, changed = () => {}) {
+        const user = api.getCurrentUserId(), token = api.accessToken();
+        let entries, pending, revision = 0;
+        const valid = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
+        return {
+            async read(fresh = false) {
+                if (!valid()) throw new Error('Account changed');
+                if (fresh) entries = undefined;
+                if (entries) return entries;
+                if (!pending) {
+                    const stamp = revision;
+                    pending = request(api, 'Watchlist').then(result => {
+                        if (!valid() || revision !== stamp) throw new Error('Membership changed');
+                        if (!Array.isArray(result) || result.some(e => !/^[0-9a-f]{32}$/i.test(key(e.ItemId)))) throw new Error('Invalid membership');
+                        entries = result; return entries;
+                    }).finally(() => { pending = null; });
+                }
+                return pending;
+            },
+            async set(id, present) {
+                if (!valid()) throw new Error('Account changed');
+                await request(api, 'Watchlist/' + encodeURIComponent(id), present ? 'PUT' : 'DELETE');
+                if (!valid()) throw new Error('Account changed');
+                revision++; entries = undefined; changed(id, present);
+            }
+        };
+    }
+
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
         let kind = selectedStatuses(options.interest);
         let sort = options.sort === 'recent' ? 'recent' : 'title';
@@ -279,16 +308,18 @@
         page.append(heading, toolbar, status, notice, error, grid);
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
+        let directory = [], loadedScope;
         let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', failures = [];
         const cards = new Map();
         signal.addEventListener('abort', () => { generation++; cards.clear(); page.remove(); }, { once: true });
         function render() {
             if (!active()) return;
+            page.setAttribute('data-watchguard-scope', loadedScope || '');
             const entries = mergeInterest(explicit, automatic);
             if (!admin && entries.some(e => e.Users.some(u => key(u.UserId) !== key(user)))) throw new Error('Invalid account scope');
             const selected = selectInterest(entries, admin ? filter : 'mine', user, kind, sort);
             select.replaceChildren();
-            const owners = new Map(entries.flatMap(entry => entry.Users).map(owner => [key(owner.UserId), owner]));
+            const owners = new Map([...directory, ...entries.flatMap(entry => entry.Users)].map(owner => [key(owner.UserId), owner]));
             const choices = [['mine', 'My list'], ...(admin ? [['all', 'All users'], ...Array.from(owners.values())
                 .sort((a, b) => a.DisplayName.localeCompare(b.DisplayName)).map(owner => [key(owner.UserId), owner.DisplayName])] : [])];
             for (const [value, name] of choices) {
@@ -299,7 +330,10 @@
                 const option = document.createElement('option'); option.value = filter; option.textContent = 'Unavailable user'; select.append(option); select.value = filter;
             }
             for (const [id, checkbox] of checkboxes) checkbox.checked = kind.includes(id);
-            summary.textContent = 'Status (' + kind.length + ')'; order.value = sort;
+            summary.replaceChildren();
+            const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
+            const count = document.createElement('span'); count.textContent = String(kind.length); summary.append(filterIcon, count);
+            summary.title = 'Status filters (' + kind.length + ' selected)'; summary.setAttribute('aria-label', summary.title); order.value = sort;
             status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : 'No matching activity in this overview.';
             spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
             notice.textContent = coverage;
@@ -359,20 +393,28 @@
                 const account = await api.getCurrentUser();
                 if (!current()) return;
                 admin = account.Policy?.IsAdministrator === true;
+                const scope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
+                loadedScope = scope;
+                if (admin && !directory.length) {
+                    const owners = await request(api, 'Users');
+                    if (!current()) return;
+                    if (!Array.isArray(owners) || owners.some(u => !/^[0-9a-f]{32}$/i.test(key(u.UserId)) || typeof u.DisplayName !== 'string')) throw new Error('Invalid users');
+                    directory = owners;
+                }
                 try {
-                    const result = await request(api, admin ? 'Watchlists' : 'Watchlist');
+                    const result = await request(api, scope === 'mine' ? 'Watchlist' : scope === 'all' ? 'Watchlists' : 'Watchlists/' + encodeURIComponent(scope));
                     if (!current()) return;
                     if (!Array.isArray(result)) throw new Error('Invalid memberships');
-                    const entries = result.map(e => ({ ...e, Users: (admin ? e.Users : [{ UserId: user, DisplayName: account.Name || 'You' }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
+                    const entries = result.map(e => ({ ...e, Users: (scope !== 'mine' ? e.Users : [{ UserId: user, DisplayName: account.Name || 'You' }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
                     selectInterest(entries, 'all', user); explicit = entries;
                 } catch { if (!current()) return; explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
                 automatic = []; render(); // Paint memberships before issuing expensive discovery.
                 try {
-                    const result = await request(api, admin ? 'ActivityOverview' : 'ActivityOverview/Me');
+                    const result = await request(api, scope === 'mine' ? 'ActivityOverview/Me' : scope === 'all' ? 'ActivityOverview' : 'ActivityOverview/Users/' + encodeURIComponent(scope));
                     if (!current()) return;
                     if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
                     selectInterest(result.Items, 'all', user);
-                    if (result.Items.some(e => e.Users.some(u => (!admin && key(u.UserId) !== key(user)) || u.Reasons.includes('Watchlisted')))) throw new Error('Invalid automatic scope');
+                    if (result.Items.some(e => e.Users.some(u => (scope !== 'all' && key(u.UserId) !== key(scope === 'mine' ? user : scope)) || u.Reasons.includes('Watchlisted')))) throw new Error('Invalid automatic scope');
                     automatic = result.Items; coverage = result.Notice;
                 } catch { if (!current()) return; automatic = []; failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.'); }
                 pending = false; render();
@@ -381,7 +423,8 @@
         }
         page.updateFilters = (owner, interest, sorting) => {
             filter = owner || 'mine'; kind = selectedStatuses(interest); sort = sorting === 'recent' ? 'recent' : 'title';
-            render();
+            const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
+            if (loadedScope && nextScope !== loadedScope) { explicit = []; automatic = []; pending = true; render(); load(); } else render();
         };
         const change = () => { if (active()) navigate(select.value || 'mine', kind.join(',') || 'none', order.value); };
         select.onchange = change; order.onchange = change;
@@ -391,12 +434,12 @@
     }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage };
+        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership };
         return;
     }
     if (root.WatchGuardPoc) return;
     let diagnostic = /*WATCHGUARD_DIAGNOSTICS*/false;
-    let identity, panel, detailButton, signature, epoch = 0;
+    let identity, panel, detailButton, signature, membership, epoch = 0;
     let navigation, pagePanel, pageSignature, pageLifetime;
     let lifetime = new AbortController();
     function syncIdentity() {
@@ -407,6 +450,8 @@
             panel?.remove(); detailButton?.remove(); panel = null; signature = null; epoch++;
             navigation?.remove(); navigation = null; closePage();
             identity = next;
+            membership = next[1] && next[2] ? createMembership(api, lifetime.signal, () => { signature = null; updateDetail(); }) : null;
+            document.querySelectorAll('.watchguard-native-action').forEach(e => e.remove());
         }
         return next[1] && next[2] ? api : null;
     }
@@ -446,7 +491,8 @@
         .watchguard-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:1.5em 1em;margin:1em 0;align-items:start}
         @media(min-width:1100px) {.watchguard-grid {grid-template-columns:repeat(8,minmax(0,1fr))}}
         .watchguard-filter {position:relative}
-        .watchguard-filter summary {cursor:pointer;white-space:nowrap}
+        .watchguard-filter summary {cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:.35em;min-height:2.5em;box-sizing:border-box}
+        .watchguard-filter summary .material-icons {font-size:1.4em}
         .watchguard-filter-options {position:absolute;inset-block-start:100%;inset-inline-start:0;z-index:2;min-width:13em;padding:.5em;background:var(--jf-palette-background-paper,#202020);border:1px solid #666;border-radius:.3em;box-shadow:0 .3em 1em #0008}
         .watchguard-filter-options label {display:flex;align-items:center;gap:.65em;padding:.65em;cursor:pointer}
         .watchguard-filter-options input {width:1.2em;height:1.2em;accent-color:var(--jf-palette-primary-main,#00a4dc)}
@@ -587,7 +633,7 @@
                 if (!current()) return;
                 toggle.disabled = true; error.textContent = '';
                 try {
-                    await request(api, 'Watchlist/' + encodeURIComponent(scopeId), member ? 'DELETE' : 'PUT');
+                    await membership.set(scopeId, !member);
                     if (!current()) return;
                     member = !member; render();
                     try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
@@ -596,7 +642,7 @@
                 }
             };
             try {
-                const entries = await request(api, 'Watchlist');
+                const entries = await membership.read(true);
                 if (!Array.isArray(entries)) throw new Error('Invalid watchlist');
                 if (!current()) return;
                 member = entries.some(e => key(e.ItemId) === key(scopeId)); render();
@@ -604,6 +650,60 @@
             try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
         } catch { /* Native item lookup failed; do not attach controls to an unverified item. */ }
     }
+    // Pinned 12.2: native dialogHelper emits capture-observable `open`; no module patch.
+    // The sheet carries commands, not its item ID. Only accept an unambiguous native trigger.
+    let menuIntent, menuAmbiguous = false;
+    function captureMenu(event) {
+        const target = event.target;
+        if (!target?.closest || target.closest('.watchguard-native-action')) return;
+        const detail = target.closest('#itemDetailPage:not(.hide) .btnMoreCommands');
+        const card = target.closest('.card[data-id][data-type][data-serverid]');
+        const more = target.closest('[data-action="menu"]');
+        if (!((event.type === 'click' && (detail || more)) || (event.type === 'contextmenu' && card))) return;
+        const api = syncIdentity(); if (!api) return;
+        if (menuIntent) { menuAmbiguous = true; menuIntent = null; return; }
+        if (menuAmbiguous) return; // Competing async menus cannot be associated safely until navigation.
+        const params = new URLSearchParams(root.location.hash.split('?')[1] || '');
+        const id = detail ? params.get('id') : card?.dataset.id;
+        const server = detail ? (params.get('serverId') || api.serverId()) : card?.dataset.serverid;
+        if (!id || key(server) !== key(api.serverId()) || (card && !['Movie','Series'].includes(card.dataset.type))) return;
+        menuIntent = {api, id, hash: root.location.hash, identity, node: detail || card};
+    }
+    document.addEventListener('click', captureMenu, true);
+    document.addEventListener('contextmenu', captureMenu, true);
+    document.addEventListener('open', async event => {
+        const intent = menuIntent; menuIntent = null;
+        const sheet = event.target;
+        if (!intent || menuAmbiguous || !sheet.matches?.('.actionSheet')) return;
+        const anchor = sheet.querySelector('[data-id="addtocollection"], [data-id="addtoplaylist"]');
+        if (!anchor || sheet.querySelector('.watchguard-native-action')) return;
+        const {api,id,hash,node} = intent, user = api.getCurrentUserId();
+        const current = () => !menuAmbiguous && identity === intent.identity && valid(api,user) && root.location.hash === hash && node.isConnected && sheet.isConnected && sheet.classList.contains('opened');
+        const command = document.createElement('button'); command.type = 'button'; command.disabled = true;
+        command.className = 'emby-button listItem listItem-button actionSheetMenuItem watchguard-native-action';
+        const icon = document.createElement('span'); icon.className = 'actionsheetMenuItemIcon listItemIcon listItemIcon-transparent material-icons'; icon.setAttribute('aria-hidden','true');
+        const text = document.createElement('span'); text.className = 'listItemBody actionsheetListItemBody'; text.textContent = 'Loading Watchlist…';
+        command.append(icon,text); anchor.after(command);
+        let present;
+        const render = () => { text.textContent = present ? 'Remove from Watchlist' : 'Add to Watchlist'; icon.textContent = present ? 'bookmark_remove' : 'bookmark_add'; command.disabled = false; };
+        command.addEventListener('click', async click => {
+            click.preventDefault(); click.stopImmediatePropagation(); // Only our owned command; native sheet must not execute an unknown command.
+            if (!current() || command.disabled) return;
+            command.disabled = true;
+            try { await membership.set(id, !present); if (current()) { present = !present; render(); } }
+            catch { if (current()) { text.textContent = 'WatchGuard: Update failed. Reopen this menu to retry.'; text.setAttribute('role','alert'); } }
+        });
+        try {
+            const item = await api.getItem(user,id);
+            if (!current()) { command.remove(); return; }
+            if (key(item?.Id) !== key(id) || !['Movie','Series'].includes(item.Type)) { command.remove(); return; }
+            const entries = await membership.read(true);
+            if (!current()) { command.remove(); return; }
+            present = entries.some(e => key(e.ItemId) === key(id)); render();
+        } catch { if (current()) { text.textContent = 'WatchGuard: Watchlist unavailable. Reopen to retry.'; text.setAttribute('role','alert'); } else command.remove(); }
+    }, true);
+    root.addEventListener('hashchange', () => { menuIntent = null; menuAmbiguous = false; });
+
     const bind = () => { syncIdentity(); adapter.install(root.ApiClient); };
     bind();
     for (const name of ['viewbeforeshow', 'viewshow', 'pointerdown', 'keydown', 'click'])

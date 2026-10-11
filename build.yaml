@@ -1,7 +1,7 @@
 ---
 name: "WatchGuard"
 guid: "a3c6bc84-783d-4ba8-a0db-89bfb83ab486"
-version: "0.2.4.0"
+version: "0.3.0.0"
 targetAbi: "12.2.0.0"
 framework: "net10.0"
 overview: "Personal watchlists and advisory Web deletion warnings"
@@ -9,7 +9,7 @@ description: >
   Personal movie and series watchlists with native playback interest detection
   and administrator-only, advisory deletion warnings for Jellyfin Web 12.2.
 category: "General"
-owner: "watchguard"
+owner: "MajorSchloch"
 artifacts:
   - "Jellyfin.Plugin.WatchGuard.dll"
-changelog: "Initial deployment-test build; approved Phase 4 behavior."
+changelog: "Native watchlist menu actions, scoped activity loading, compact filters and catalog distribution preparation."

@@ -41,14 +41,14 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
     public const int UserLimit = 50;
     public const int EpisodeLimit = 1000;
 
-    public InterestOverview GetActivity(User caller, bool ownOnly = false, int days = 30, int limit = CandidateLimit) =>
-        Get(caller, ownOnly, automaticOnly: true, activityDays: Math.Clamp(days, 1, 90), candidateLimit: Math.Clamp(limit, 1, CandidateLimit));
+    public InterestOverview GetActivity(User caller, bool ownOnly = false, int days = 30, int limit = CandidateLimit, Guid? scopeUserId = null) =>
+        Get(caller, ownOnly, automaticOnly: true, activityDays: Math.Clamp(days, 1, 90), candidateLimit: Math.Clamp(limit, 1, CandidateLimit), scopeUserId: scopeUserId);
 
-    public InterestOverview Get(User caller, bool ownOnly = false, bool automaticOnly = false, int? activityDays = null, int candidateLimit = CandidateLimit)
+    public InterestOverview Get(User caller, bool ownOnly = false, bool automaticOnly = false, int? activityDays = null, int candidateLimit = CandidateLimit, Guid? scopeUserId = null)
     {
         var now = DateTime.UtcNow;
         var cutoff = now.AddDays(-(activityDays ?? 30));
-        var enabled = (ownOnly ? new[] { caller } : users.GetUsers()).Select(u => users.GetUserById(u.Id))
+        var enabled = (scopeUserId.HasValue ? new[] { users.GetUserById(scopeUserId.Value) }.OfType<User>() : ownOnly ? new[] { caller } : users.GetUsers()).Select(u => users.GetUserById(u.Id))
             .Where(u => u is not null && !u.HasPermission(PermissionKind.IsDisabled)).Cast<User>().Take(UserLimit + 1).ToArray();
         if (enabled.Length > UserLimit) throw new InvalidOperationException("Overview user budget exceeded.");
         WatchlistEntry[] entries;

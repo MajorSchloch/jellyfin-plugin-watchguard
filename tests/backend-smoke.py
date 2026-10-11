@@ -18,6 +18,8 @@ def run(call, admin_token, items, plugins):
     call('/WatchGuard/ActivityOverview', expected=401)
     call('/WatchGuard/ActivityOverview/Me', expected=401)
     call('/WatchGuard/ActivityOverview', token=token, expected=403)
+    for scoped in ['/WatchGuard/Users', '/WatchGuard/Watchlists/'+member['Id'], '/WatchGuard/ActivityOverview/Users/'+member['Id']]:
+        call(scoped, token=token, expected=403)
     call('/WatchGuard/InterestOverview/Me', expected=401)
     call('/WatchGuard/InterestOverview', token=token, expected=403)
     call('/WatchGuard/Watchlists', token=token, expected=403)
@@ -32,6 +34,8 @@ def run(call, admin_token, items, plugins):
     shared = call('/WatchGuard/Watchlists', token=admin_token)
     assert len(shared) == 1 and len(shared[0]['Users']) == 2
     assert {owner['DisplayName'] for owner in shared[0]['Users']} == {'BackendMember', 'WatchGuardPoCTest'}
+    scoped=call('/WatchGuard/Watchlists/'+member['Id'],token=admin_token)
+    assert len(scoped)==1 and len(scoped[0]['Users'])==1 and scoped[0]['Users'][0]['UserId'].replace('-','')==member['Id'].replace('-','')
     call(route, 'DELETE', token=admin_token, expected=204)
     state = call('/WatchGuard/Protection/' + movie, token=admin_token)
     assert state['HasOtherInterestedUsers'] and state['Users'][0]['DisplayName'] == 'BackendMember'
@@ -44,6 +48,9 @@ def run(call, admin_token, items, plugins):
         call('/UserItems/' + item + '/UserData', 'POST', {'Played': played, 'PlaybackPositionTicks': position}, token)
     playback(movie, False, 1000000)
     assert call('/WatchGuard/Protection/' + movie, token=admin_token)['Users'][0]['Reasons'] == ['InProgress']
+    scoped=call('/WatchGuard/ActivityOverview/Users/'+member['Id'],token=admin_token)
+    assert scoped['Items'] and all(u['UserId'].replace('-','')==member['Id'].replace('-','') for i in scoped['Items'] for u in i['Users'])
+    assert call('/WatchGuard/ActivityOverview/Me',token=admin_token)['Items']==[]
     overview = call('/WatchGuard/InterestOverview', token=admin_token)
     assert not overview['IsComplete']
     assert any(i['ItemId'].replace('-', '') == movie.replace('-', '') for i in overview['Items'])

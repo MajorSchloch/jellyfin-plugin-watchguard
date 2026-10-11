@@ -41,6 +41,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
     {
         var user = await CurrentUser();
         if (user is null) return Unauthorized();
+        using var timing = OverviewTiming.Begin("ExplicitMemberships", logger);
         var items = store.Read().Where(e => e.UserId == user.Id)
             .Select(e => library.GetItemById<BaseItem>(e.ItemId, user))
             .Where(InterestService.Supported).Select(i => new { ItemId = i!.Id, Name = i.Name }).ToArray();
@@ -54,14 +55,29 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
     public Task<IActionResult> Remove(Guid itemId) => Change(itemId, false);
 
     [HttpGet("Watchlists")]
-    public Task<IActionResult> AllWatchlists() => Execute(async () =>
+    public Task<IActionResult> AllWatchlists() => WatchlistsCore(null);
+
+    [HttpGet("Watchlists/{userId:guid}")]
+    public Task<IActionResult> UserWatchlist(Guid userId) => WatchlistsCore(userId);
+
+    [HttpGet("Users")]
+    public Task<IActionResult> OverviewUsers() => Execute(async () =>
+    {
+        var caller = await CurrentUser();
+        if (caller is null) return Unauthorized();
+        if (!caller.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
+        return Ok(users.GetUsers().Where(u => !u.HasPermission(PermissionKind.IsDisabled))
+            .Select(u => new WatchlistOwner(u.Id, u.Username)).OrderBy(u => u.DisplayName).ToArray());
+    });
+
+    private Task<IActionResult> WatchlistsCore(Guid? userId) => Execute(async () =>
     {
         var caller = await CurrentUser();
         if (caller is null) return Unauthorized();
         if (!caller.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         using var timing = OverviewTiming.Begin("ExplicitMemberships", logger);
         var result = new List<SharedWatchlistItem>();
-        foreach (var group in store.Read().GroupBy(e => e.ItemId))
+        foreach (var group in store.Read().Where(e => !userId.HasValue || e.UserId == userId).GroupBy(e => e.ItemId))
         {
             var item = library.GetItemById<BaseItem>(group.Key, caller);
             if (!InterestService.Supported(item)) continue;
@@ -112,13 +128,16 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
     [HttpGet("ActivityOverview/Me")]
     public Task<IActionResult> OwnActivity() => ActivityCore(true);
 
-    private Task<IActionResult> ActivityCore(bool ownOnly) => Execute(async () =>
+    [HttpGet("ActivityOverview/Users/{userId:guid}")]
+    public Task<IActionResult> UserActivity(Guid userId) => ActivityCore(false, userId);
+
+    private Task<IActionResult> ActivityCore(bool ownOnly, Guid? userId = null) => Execute(async () =>
     {
         var user = await CurrentUser();
         if (user is null) return Unauthorized();
         if (!ownOnly && !user.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         var config = Plugin.Instance?.Configuration;
-        return Ok(overview.GetActivity(user, ownOnly, config?.ActivityWindowDays ?? 30, config?.ActivityLimit ?? 100));
+        return Ok(overview.GetActivity(user, ownOnly, config?.ActivityWindowDays ?? 30, config?.ActivityLimit ?? 100, userId));
     });
 
     [HttpGet("Protection/{itemId:guid}")]

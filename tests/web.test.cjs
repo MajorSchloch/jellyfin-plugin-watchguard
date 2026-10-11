@@ -223,7 +223,7 @@ test('Overview renders text literally, distinguishes reasons and offers only exp
     const text='<img src=x onerror=alert(1)>';
     const items=structuredClone(overviewItems);items[0].Name=text;items[0].Users[1].DisplayName=text;
     const api={getCurrentUser:async()=>({Policy:{IsAdministrator:true}}),getCurrentUserId:()=>me,accessToken:()=> 'token',getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/image',
-        ajax:async o=> o.url==='WatchGuard/Watchlists' ? [items[0]] : {Items:items.map(e=>({...e,Users:e.Users.map(u=>({...u,Reasons:u.Reasons.filter(r=>r!=='Watchlisted')})).filter(u=>u.Reasons.length)})),IsComplete:false,LimitReached:false,Notice:'Not exhaustive'}};
+        ajax:async o=> o.url==='WatchGuard/Users' ? overviewItems[0].Users : o.url==='WatchGuard/Watchlists' ? [items[0]] : {Items:items.map(e=>({...e,Users:e.Users.map(u=>({...u,Reasons:u.Reasons.filter(r=>r!=='Watchlisted')})).filter(u=>u.Reasons.length)})),IsComplete:false,LimitReached:false,Notice:'Not exhaustive'}};
     const page=watchlistsPage(f.doc,api,new AbortController().signal,'all',()=>{});
     await new Promise(resolve=>setImmediate(resolve));
     const cards=page.children[5].children;
@@ -249,7 +249,7 @@ function progressiveFixture(admin = true) {
     f.doc.createElement = tag => { const n = create(tag); n.replaceChildren = () => { for(const child of [...n.children]) child.remove(); }; n.classList = {add(){}}; return n; };
     let token = 'first';
     const api = {getCurrentUser:async()=>({Name:'Me',Policy:{IsAdministrator:admin}}),getCurrentUserId:()=>me,accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/image',
-        ajax:o=>new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
+        ajax:o=>o.url==='WatchGuard/Users'?Promise.resolve(overviewItems[0].Users):new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
     const abort = new AbortController();
     const navigation=[];
     const page = watchlistsPage(f.doc,api,abort.signal,'all',(...args)=>{navigation.push(args);page.updateFilters(...args);});
@@ -269,9 +269,9 @@ test('Progressive memberships render before automatic discovery; filters and car
     f.calls[1].resolve(automaticResult);await turn();
     assert.equal(grid.children[0],card); assert.match(card.children[1].children[0].title,/Watchlist · Watching · Currently Playing/);
     assert.match(f.page.children[3].textContent,/limit reached/);
-    f.page.updateFilters('mine','all','title'); assert.equal(grid.children[0],card);assert.equal(f.calls.length,2);
+    f.page.updateFilters('all','all','title'); assert.equal(grid.children[0],card);assert.equal(f.calls.length,2);
     const removal=card.children.at(-1).onclick(); assert.equal(f.calls[2].o.type,'DELETE');f.calls[2].resolve();await removal;
-    assert.equal(grid.children.length,0);assert.equal(f.calls.length,3);
+    assert.equal(grid.children.length,1);assert.equal(f.calls.length,3);
     f.page.updateFilters('all','all','title');assert.equal(grid.children[0],card); // Another user's automatic interest survives.
 });
 test('Late automatic results are ignored after navigation and account change',async()=>{
@@ -368,4 +368,24 @@ test('Checkboxes serialize all selections, reset defaults and reflect history wi
     assert.deepEqual(panel.children.slice(0,4).map(l=>l.children[0].checked),[true,true,true,false]);
     filter.open=true;filter.events.keydown({key:'Escape',preventDefault(){}});assert.equal(filter.open,false);assert.equal(filter.children[0].focused,true);
     assert.equal(f.calls.length,2);
+});
+
+
+test('Owner changes request scoped sources; status changes stay local',async()=>{
+    const f=progressiveFixture();await turn();f.calls[0].resolve([overviewItems[0]]);await turn();f.calls[1].resolve(automaticResult);await turn();
+    f.page.updateFilters('mine',null,'title');await turn();assert.equal(f.calls[2].o.url,'WatchGuard/Watchlist');
+    f.calls[2].resolve([{ItemId:overviewItems[0].ItemId,Name:'Alpha'}]);await turn();assert.equal(f.calls[3].o.url,'WatchGuard/ActivityOverview/Me');
+    f.calls[3].resolve({...automaticResult,Items:[]});await turn();
+    f.page.updateFilters(other,null,'title');await turn();assert.equal(f.calls[4].o.url,'WatchGuard/Watchlists/'+other);
+    f.calls[4].resolve([]);await turn();assert.equal(f.calls[5].o.url,'WatchGuard/ActivityOverview/Users/'+other);
+});
+test('Shared personal membership helper coalesces reads and rejects stale accounts and failed writes',async()=>{
+    const {createMembership}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    let token='first', resolve, calls=[],changes=[];
+    const api={getCurrentUserId:()=>me,accessToken:()=>token,getUrl:p=>p,ajax:o=>{calls.push(o);return new Promise(r=>{resolve=r;});}};
+    const helper=createMembership(api,new AbortController().signal,(...a)=>changes.push(a));
+    const a=helper.read(),b=helper.read();assert.equal(calls.length,1);resolve([{ItemId:other}]);await Promise.all([a,b]);
+    const write=helper.set(other,true);resolve();await write;assert.deepEqual(changes,[[other,true]]);
+    const stale=helper.read();token='second';resolve([]);await assert.rejects(stale);
+    await assert.rejects(helper.set(other,false));assert.equal(calls.length,3);
 });

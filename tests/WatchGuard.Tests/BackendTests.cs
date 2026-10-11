@@ -56,6 +56,28 @@ public sealed class BackendTests : IDisposable
     private WatchGuardController Controller() => new(auth.Object, users.Object, library.Object, store, service,
         NullLogger<WatchGuardController>.Instance, new(store, library.Object, users.Object, sessions.Object, service)) { ControllerContext = new() { HttpContext = new DefaultHttpContext() } };
     private ProtectionStatus Status(BaseItem? item = null) => service.Get(item ?? movie, alice.Id);
+    [Fact]
+    public async Task ScopedActivityAndMembershipRequireAdminAndKeepUserIsolation()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        store.Set(alice.Id, movie.Id, true); store.Set(bob.Id, movie.Id, true);
+        states[(bob.Id, movie.Id)] = new UserItemData { Key = "test", PlaybackPositionTicks = 10 };
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns(new BaseItem[] { movie });
+        var result = Assert.IsType<InterestOverview>(Assert.IsType<OkObjectResult>(await Controller().UserActivity(bob.Id)).Value);
+        Assert.All(result.Items.SelectMany(i => i.Users), u => Assert.Equal(bob.Id, u.UserId));
+        Assert.Single(result.Items);
+        var lists = Assert.IsType<SharedWatchlistItem[]>(Assert.IsType<OkObjectResult>(await Controller().UserWatchlist(bob.Id)).Value);
+        Assert.Equal(bob.Id, Assert.Single(Assert.Single(lists).Users).UserId);
+        var missing = Assert.IsType<InterestOverview>(Assert.IsType<OkObjectResult>(await Controller().UserActivity(Guid.NewGuid())).Value);
+        Assert.Empty(missing.Items);
+        SignIn(bob);
+        Assert.IsType<ForbidResult>(await Controller().UserActivity(alice.Id));
+        Assert.IsType<ForbidResult>(await Controller().UserWatchlist(alice.Id));
+        Assert.IsType<ForbidResult>(await Controller().OverviewUsers());
+        var own = Assert.IsType<InterestOverview>(Assert.IsType<OkObjectResult>(await Controller().OwnActivity()).Value);
+        Assert.All(own.Items.SelectMany(i => i.Users), u => Assert.Equal(bob.Id, u.UserId));
+    }
+
     public void Dispose() { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
 
     [Fact]
@@ -271,7 +293,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 2, 4, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 3, 0, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
     }

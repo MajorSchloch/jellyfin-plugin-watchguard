@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {execFileSync} = require('node:child_process');
 const {chromium} = require('./browser/node_modules/playwright');
 const fixture = JSON.parse(fs.readFileSync(process.argv[2]));
-const label = process.argv[3]; assert.ok(['before', 'after', 'activity'].includes(label));
+const label = process.argv[3]; assert.ok(['before', 'after', 'activity', 'v030-before', 'v030-after'].includes(label));
 assert.match(fixture.base, /^http:\/\/127\.0\.0\.1:\d+$/); assert.equal(fixture.username, 'WatchGuardPoCTest');
 const container = execFileSync('docker', ['ps','--format','{{.Names}}'],{encoding:'utf8'}).trim().split('\n').filter(n=>n.startsWith('watchguard-poc-'));
 assert.equal(container.length,1, 'Only one disposable fixture may be running');
@@ -25,19 +25,22 @@ async function call(route, method='GET', body, token=fixture.token) {
    const episode=episodes.find(e=>e.SeriesId===fixture.items[series]); assert.ok(episode);
    await call('/UserItems/'+episode.Id+'/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:'2026-10-11T10:00:00Z'},auth.AccessToken);
   }
-  if(label==='activity') {
+  if((label==='activity'||label.startsWith('v030'))) {
    const date=new Date(Date.now()-86400000).toISOString();
    for(const id of [fixture.items['PoC Context Movie'],...episodes.filter(e=>e.SeriesId===fixture.items['PoC Parent Interested']).map(e=>e.Id)])
     await call('/UserItems/'+id+'/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:date},auth.AccessToken);
   }
   await call('/UserItems/'+fixture.items['PoC Movie Detail']+'/UserData','POST',{Played:false,PlaybackPositionTicks:10000000,LastPlayedDate:'2026-10-11T09:00:00Z'},auth.AccessToken);
  }
- const routes=label==='activity' ? ['Watchlists','InterestOverview?automaticOnly=true','ActivityOverview'] : ['Watchlists','InterestOverview'+(label==='after'?'?automaticOnly=true':'')];
- const results={label, fixture:{users:4,movies:10,series:3,episodes:10,memberships:39,completedMoviesPerUser:label==='activity'?1:0,completedSeriesPerUser:label==='activity'?1:0}, http:{}, client:[]};
+ if(label.startsWith('v030')) await call('/WatchGuard/Watchlist/'+fixture.items['PoC Movie Detail'],'PUT');
+ const routes=(label==='activity'||label.startsWith('v030')) ? ['Watchlists','Watchlist','ActivityOverview/Me','InterestOverview?automaticOnly=true','ActivityOverview'] : ['Watchlists','InterestOverview'+(label==='after'?'?automaticOnly=true':'')];
+ if(label==='v030-after') routes.push('ActivityOverview/Users/selected');
+ const results={label, fixture:{users:4,movies:10,series:3,episodes:10,memberships:label.startsWith('v030')?40:39,completedMoviesPerUser:(label==='activity'||label.startsWith('v030'))?1:0,completedSeriesPerUser:(label==='activity'||label.startsWith('v030'))?1:0}, http:{}, client:[]};
  for(const route of routes) {
-  await call('/WatchGuard/'+route); // warm-up
+  const endpoint=route.replace('/selected','/'+accounts[0].User.Id);
+  await call('/WatchGuard/'+endpoint); // warm-up
   const start=new Date().toISOString(); const times=[];
-  for(let i=0;i<7;i++) {const t=performance.now();await call('/WatchGuard/'+route);times.push(performance.now()-t);}
+  for(let i=0;i<7;i++) {const t=performance.now();await call('/WatchGuard/'+endpoint);times.push(performance.now()-t);}
   const log=execFileSync('docker',['logs','--since',start,container[0]],{encoding:'utf8',stdio:['ignore','pipe','ignore']});
   const stages={}; for(const match of log.matchAll(/WatchGuard timing (\w+): ([\d.]+) ms/g)) (stages[match[1]]??=[]).push(Number(match[2]));
   results.http[route]={roundTripMs:times, stagesMeanPerRequestMs:Object.fromEntries(Object.entries(stages).map(([k,v])=>[k,v.reduce((a,b)=>a+b,0)/7]))};
@@ -49,18 +52,18 @@ async function call(route, method='GET', body, token=fixture.token) {
   await page.locator('#txtManualName').fill(fixture.username); await page.locator('#txtManualPassword').fill(fixture.password);
   await page.getByRole('button',{name:'Sign In',exact:true}).click();
   await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
-  for(let i=0;i<5;i++) {
+  for(let i=0;i<(label.startsWith('v030')?10:5);i++) {
    await page.goto(fixture.base+'/web/#/home'); await page.locator('.watchguard-page').waitFor({state:'detached'});
    // Observer is test-only; measures first card insertion after network completion, not production lifecycle.
-   await page.evaluate(()=>{
+   await page.evaluate(owner=>{
     window.wgTiming={start:performance.now(), responses:[]};
     const observer=new PerformanceObserver(list=>{for(const e of list.getEntries())if(e.name.includes('/WatchGuard/'))window.wgTiming.responses.push({route:new URL(e.name).pathname,responseEnd:e.responseEnd});}); observer.observe({type:'resource',buffered:false}); window.wgTimingObserver=observer;
     window.wgCardsObserver=new MutationObserver(()=>{if(document.querySelector('.watchguard-card')&&!window.wgTiming.firstCard)window.wgTiming.firstCard=performance.now();});window.wgCardsObserver.observe(document.body,{subtree:true,childList:true});
-    location.hash='/home?watchguard=watchlists&owner=all';
-   });
+    location.hash='/home?watchguard=watchlists&owner='+owner;
+   }, i<5?'all':'mine');
    await page.locator('.watchguard-card').first().waitFor();
    await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.disabled===false);
-   results.client.push(await page.evaluate(()=>{window.wgTimingObserver.disconnect();window.wgCardsObserver.disconnect();const t=window.wgTiming;return {completeMs:performance.now()-t.start,firstCardMs:t.firstCard-t.start,clientInsertionAfterResponseMs:t.firstCard-Math.min(...t.responses.map(r=>r.responseEnd)),responses:t.responses.map(r=>r.route)};}));
+   results.client.push({owner:i<5?'all':'mine',...await page.evaluate(()=>{window.wgTimingObserver.disconnect();window.wgCardsObserver.disconnect();const t=window.wgTiming;return {completeMs:performance.now()-t.start,firstCardMs:t.firstCard-t.start,clientInsertionAfterResponseMs:t.firstCard-Math.min(...t.responses.filter(r=>/\/Watchlists?$/.test(r.route)).map(r=>r.responseEnd)),responses:t.responses.map(r=>r.route)};})});
   }
  } finally {await browser.close();}
  fs.mkdirSync('artifacts/performance',{recursive:true});fs.writeFileSync('artifacts/performance/'+label+'.json',JSON.stringify(results,null,2));

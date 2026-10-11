@@ -1,0 +1,231 @@
+{
+  "label": "v030-after",
+  "fixture": {
+    "users": 4,
+    "movies": 10,
+    "series": 3,
+    "episodes": 10,
+    "memberships": 40,
+    "completedMoviesPerUser": 1,
+    "completedSeriesPerUser": 1
+  },
+  "http": {
+    "Watchlists": {
+      "roundTripMs": [
+        77.11812499999996,
+        77.72687500000006,
+        78.57966599999986,
+        81.1388330000002,
+        79.26516700000002,
+        78.30562499999996,
+        79.752209
+      ],
+      "stagesMeanPerRequestMs": {
+        "ExplicitMemberships": 68.81657142857144,
+        "SerializationAndWrite": 0.19942857142857143
+      }
+    },
+    "Watchlist": {
+      "roundTripMs": [
+        8.755958000000192,
+        9.299625000000106,
+        7.961459000000104,
+        9.596999999999753,
+        8.728708000000097,
+        10.14770899999985,
+        9.65695900000037
+      ],
+      "stagesMeanPerRequestMs": {
+        "ExplicitMemberships": 0.3538571428571429,
+        "SerializationAndWrite": 0.1462857142857143
+      }
+    },
+    "ActivityOverview/Me": {
+      "roundTripMs": [
+        23.851540999999997,
+        25.5481249999998,
+        23.91608300000007,
+        23.857750000000124,
+        25.075374999999894,
+        24.33050000000003,
+        24.55475000000024
+      ],
+      "stagesMeanPerRequestMs": {
+        "StoreRead": 0,
+        "ResumeDiscovery": 5.799857142857142,
+        "PlayedDiscovery": 3.585,
+        "CompletedMovieDiscovery": 3.6875714285714283,
+        "Verification": 0.007142857142857143,
+        "SerializationAndWrite": 0.1455714285714286
+      }
+    },
+    "InterestOverview?automaticOnly=true": {
+      "roundTripMs": [
+        101.775083,
+        103.66683399999965,
+        100.73787500000026,
+        110.03999999999996,
+        104.93679199999997,
+        102.32458300000008,
+        103.61087499999985
+      ],
+      "stagesMeanPerRequestMs": {
+        "StoreRead": 0,
+        "ResumeDiscovery": 22.61814285714286,
+        "PlayedDiscovery": 17.780428571428573,
+        "Verification": 40.38471428571429,
+        "SerializationAndWrite": 0.18414285714285714
+      }
+    },
+    "ActivityOverview": {
+      "roundTripMs": [
+        125.65274999999974,
+        124.84533299999975,
+        124.44758299999967,
+        125.69337500000029,
+        126.64829199999986,
+        128.8869169999998,
+        121.86512500000026
+      ],
+      "stagesMeanPerRequestMs": {
+        "StoreRead": 0,
+        "ResumeDiscovery": 23.064857142857143,
+        "PlayedDiscovery": 17.74542857142857,
+        "CompletedMovieDiscovery": 14.68842857142857,
+        "Verification": 46.684285714285714,
+        "SerializationAndWrite": 0.22514285714285714
+      }
+    },
+    "ActivityOverview/Users/selected": {
+      "roundTripMs": [
+        40.93445799999972,
+        38.478124999999636,
+        38.15991699999995,
+        40.005458000000544,
+        38.162208000000646,
+        38.11779100000058,
+        38.97291700000005
+      ],
+      "stagesMeanPerRequestMs": {
+        "StoreRead": 0,
+        "ResumeDiscovery": 5.9468571428571435,
+        "PlayedDiscovery": 4.583285714285714,
+        "CompletedMovieDiscovery": 3.779,
+        "Verification": 11.69,
+        "SerializationAndWrite": 0.15814285714285714
+      }
+    }
+  },
+  "client": [
+    {
+      "owner": "all",
+      "completeMs": 344.5,
+      "firstCardMs": 127.5,
+      "clientInsertionAfterResponseMs": 5.299999952316284,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/ActivityOverview"
+      ]
+    },
+    {
+      "owner": "all",
+      "completeMs": 261.80000001192093,
+      "firstCardMs": 121.30000001192093,
+      "clientInsertionAfterResponseMs": 1.5,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/ActivityOverview"
+      ]
+    },
+    {
+      "owner": "all",
+      "completeMs": 244.89999997615814,
+      "firstCardMs": 108.69999998807907,
+      "clientInsertionAfterResponseMs": 1.699999988079071,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/ActivityOverview"
+      ]
+    },
+    {
+      "owner": "all",
+      "completeMs": 247.89999997615814,
+      "firstCardMs": 107.10000002384186,
+      "clientInsertionAfterResponseMs": 1.5,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/ActivityOverview"
+      ]
+    },
+    {
+      "owner": "all",
+      "completeMs": 236.30000001192093,
+      "firstCardMs": 100.30000001192093,
+      "clientInsertionAfterResponseMs": 2.900000035762787,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlists",
+        "/WatchGuard/ActivityOverview"
+      ]
+    },
+    {
+      "owner": "mine",
+      "completeMs": 82.30000001192093,
+      "firstCardMs": 32.39999997615814,
+      "clientInsertionAfterResponseMs": 1,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlist",
+        "/WatchGuard/ActivityOverview/Me"
+      ]
+    },
+    {
+      "owner": "mine",
+      "completeMs": 82.39999997615814,
+      "firstCardMs": 30.80000001192093,
+      "clientInsertionAfterResponseMs": 0.6000000238418579,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlist",
+        "/WatchGuard/ActivityOverview/Me"
+      ]
+    },
+    {
+      "owner": "mine",
+      "completeMs": 86.60000002384186,
+      "firstCardMs": 35.69999998807907,
+      "clientInsertionAfterResponseMs": 0.699999988079071,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlist",
+        "/WatchGuard/ActivityOverview/Me"
+      ]
+    },
+    {
+      "owner": "mine",
+      "completeMs": 81.59999996423721,
+      "firstCardMs": 32.89999997615814,
+      "clientInsertionAfterResponseMs": 0.8999999761581421,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlist",
+        "/WatchGuard/ActivityOverview/Me"
+      ]
+    },
+    {
+      "owner": "mine",
+      "completeMs": 83.10000002384186,
+      "firstCardMs": 31.600000023841858,
+      "clientInsertionAfterResponseMs": 0.699999988079071,
+      "responses": [
+        "/WatchGuard/Users",
+        "/WatchGuard/Watchlist",
+        "/WatchGuard/ActivityOverview/Me"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+"""Called only by docker-smoke.py against its disposable config and synthetic library."""
+import functools
+import hashlib
+import http.server
+import importlib.util
+import json
+from pathlib import Path
+import shutil
+import threading
+import time
+from urllib.parse import urlencode
+import zipfile
+
+ROOT=Path(__file__).resolve().parents[1]
+spec=importlib.util.spec_from_file_location('catalog',ROOT/'scripts/catalog.py')
+catalog=importlib.util.module_from_spec(spec);spec.loader.exec_module(catalog)
+GUID=catalog.GUID
+INJECTOR='f5a34f7b-2e8a-4e6a-a722-3a216a81b374'
+
+
+def run(call, restart, docker, name, root, plugins, token, movie):
+    assert name.startswith('watchguard-poc-') and 'watchguard-poc-' in str(root)
+    public=root/'catalog';public.mkdir()
+    backup=root/'retired-plugins';backup.mkdir()
+    archive=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip'
+    shutil.copyfile(archive,public/archive.name)
+    requests=[]
+    class Handler(http.server.SimpleHTTPRequestHandler):
+        def do_GET(self):
+            requests.append(self.path);super().do_GET()
+        def log_message(self,*args):pass
+        def list_directory(self,path):self.send_error(404)
+    # Only release ZIPs/manifests are served, never fixture config, tokens or media.
+    server=http.server.ThreadingHTTPServer(('0.0.0.0',0),functools.partial(Handler,directory=str(public)))
+    thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+    base='http://host.docker.internal:'+str(server.server_port)
+    version=catalog.entry(archive,base+'/'+archive.name,'2026-10-11T00:00:00Z')
+    manifest=[catalog.package([version])];catalog.validate(manifest,True)
+    (public/'manifest.json').write_text(json.dumps(manifest))
+    bad=json.loads(json.dumps(manifest));bad[0]['versions'][0]['checksum']='0'*32
+    (public/'bad.json').write_text(json.dumps(bad))
+    def repo(file):
+        call('/Repositories','POST',[{'Name':'WatchGuard disposable catalog','Url':base+'/'+file,'Enabled':True}],token,expected=204)
+    def install(file='manifest.json',expected=204):
+        repo(file)
+        packages=call('/Packages',token=token)
+        assert any(p['guid'].replace('-','')==GUID.replace('-','') for p in packages), ('Catalog not found',requests, [line for line in docker('logs',name).splitlines() if 'repository' in line.lower() or 'host.docker.internal' in line][-8:])
+        call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':GUID,'version':'0.3.0.0','repositoryUrl':base+'/'+file}),'POST',token=token,expected=expected,raw=True)
+    def verify():
+        found=[p for p in call('/Plugins',token=token) if p['Id'].replace('-','')==GUID.replace('-','')]
+        assert len(found)==1 and found[0]['Version']=='0.3.0.0'
+        assert (plugins/'Jellyfin.Plugin.WatchGuard/watchlists.json').read_bytes()==saved
+        assert call('/WatchGuard/Watchlist',token=token)[0]['ItemId'].replace('-','')==movie.replace('-','')
+        registered=call('/Plugins/'+INJECTOR+'/Configuration',token=token)['PluginJavaScripts']
+        rows=[r for r in registered if r['Id']=='watchguard-v1']
+        assert len(rows)==1 and rows[0]['PluginVersion']=='0.3.0'
+    try:
+        call('/WatchGuard/Watchlist/'+movie,'PUT',token=token,expected=204)
+        saved=(plugins/'Jellyfin.Plugin.WatchGuard/watchlists.json').read_bytes()
+        settings=(plugins/'configurations/Jellyfin.Plugin.WatchGuard.xml').read_bytes()
+        # First prove an installation with no WatchGuard assembly in discovery.
+        shutil.move(str(plugins/'WatchGuard'),str(backup/'initial'))
+        restart()
+        call('/WatchGuard/Watchlist',token=token,expected=404)
+        install('bad.json',500)
+        assert not (plugins/'WatchGuard_0.3.0.0').exists()
+        install()
+        folder=plugins/'WatchGuard_0.3.0.0'
+        assert (folder/'meta.json').exists()
+        with zipfile.ZipFile(archive) as z:assert (folder/catalog.DLL).read_bytes()==z.read(catalog.DLL)
+        restart();verify()
+        # Simulate the actual prior manual package, including its generated meta.json.
+        shutil.move(str(folder),str(backup/'clean-install'))
+        old=plugins/'ManualWatchGuard';old.mkdir()
+        with zipfile.ZipFile(ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.2.4.zip') as z:(old/catalog.DLL).write_bytes(z.read(catalog.DLL))
+        restart()
+        assert (old/'meta.json').exists()
+        assert any(p['Id'].replace('-','')==GUID.replace('-','') and p['Version']=='0.2.4.0' for p in call('/Plugins',token=token))
+        assert (plugins/'Jellyfin.Plugin.WatchGuard/watchlists.json').read_bytes()==saved
+        shutil.move(str(old),str(backup/'manual-v024-with-meta'))
+        restart();install();restart();verify()
+        assert len(list(plugins.rglob(catalog.DLL)))==1
+        assert (plugins/'configurations/Jellyfin.Plugin.WatchGuard.xml').read_bytes()==settings
+        # An absent dependency must not be reported as successful registration.
+        shutil.move(str(plugins/'JavaScriptInjector'),str(backup/'injector'))
+        since=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
+        restart();call('/WatchGuard/Watchlist',token=token)
+        call('/JavaScriptInjector/private.js',token=token,expected=404)
+        for _ in range(75):
+            logs=docker('logs','--since',since,name)
+            if 'WatchGuard web script was not registered. No deletion confirmation is active.' in logs:break
+            time.sleep(1)
+        else:raise AssertionError('Missing Injector diagnostic was not emitted')
+        assert 'WatchGuard web script registered with JavaScript Injector.' not in logs
+        shutil.move(str(backup/'injector'),str(plugins/'JavaScriptInjector'))
+        restart();verify()
+        report={'result':'PASS','catalogInstaller':'native Packages API','checksumMismatch':'rejected before extraction','cleanInstall':True,'manualUpgrade':'0.2.4 -> 0.3.0','watchlistsBytesPreserved':True,'configurationBytesPreserved':True,'duplicateAssemblies':False,'injectorRegistrations':1,'missingInjectorDiagnostic':True,'productionTouched':False}
+        (ROOT/'artifacts/catalog-validation.json').write_text(json.dumps(report,indent=2)+'\n')
+        print('Catalog checks passed: native checksum rejection, clean install, manual upgrade, preserved data/config, unique registration, missing Injector.',flush=True)
+    finally:
+        server.shutdown();server.server_close();thread.join()
