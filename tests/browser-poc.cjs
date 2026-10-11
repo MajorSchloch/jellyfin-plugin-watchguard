@@ -11,7 +11,7 @@ const errorText = 'There was an error deleting the item from the server. Please 
 const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [], orderingViolations: 0 };
 (async () => {
     const browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: 'en-US' });
     const page = await context.newPage();
     // Capture native Jellyfin exceptions that can prevent getCommands() from revealing More.
     const nativeErrors = [];
