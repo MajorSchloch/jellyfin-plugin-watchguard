@@ -55,6 +55,21 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             try {
                 await more.waitFor({ state: 'visible', timeout: 10000 });
             } catch (retryError) {
+                const diagnostics = await page.evaluate(async () => {
+                    const params = new URLSearchParams(location.hash.split('?')[1] || '');
+                    const itemId = params.get('id');
+                    const client = window.ApiClient;
+                    let dto = null;
+                    try {
+                        if (client && itemId) {
+                            const item = await client.getItem(client.getCurrentUserId(), itemId);
+                            dto = { type: item.Type, canDelete: item.CanDelete, pathPresent: Boolean(item.Path) };
+                        }
+                    } catch (err) { dto = { lookupFailed: true }; }
+                    const more = document.querySelector('#itemDetailPage:not(.hide) .btnMoreCommands');
+                    return { dto, nativeMoreClass: more?.className, currentHash: location.hash.split('?')[0] };
+                });
+                console.error('Hidden native More diagnostic:', JSON.stringify(diagnostics));
                 await page.screenshot({ path: path.join(output, 'hidden-native-more.png') });
                 throw retryError;
             }
