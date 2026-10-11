@@ -2,6 +2,7 @@
 Default runs browser-poc.cjs and cleans up. --serve keeps the fixture alive until Ctrl+C.
 """
 import argparse
+import os
 import runpy
 import http.client
 import json
@@ -45,7 +46,8 @@ def main():
         (plugins / 'configurations/Jellyfin.Plugin.WatchGuard.xml').write_text(
             '<?xml version="1.0"?><Configuration><DiagnosticMode>true</DiagnosticMode></Configuration>')
         try:
-            docker('run', '-d', '--rm', '--name', name, '-p', '127.0.0.1::8096',
+            docker('run', '-d', '--rm', '--name', name, '--user', f'{os.getuid()}:{os.getgid()}',
+                   '-p', '127.0.0.1::8096',
                    '--add-host', 'host.docker.internal:host-gateway', '-v', f'{root}/config:/config', IMAGE)
             port = docker('port', name, '8096/tcp').split(':')[-1]
             base = 'http://127.0.0.1:' + port
