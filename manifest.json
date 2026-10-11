@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "guid": "a3c6bc84-783d-4ba8-a0db-89bfb83ab486",
+    "name": "WatchGuard",
+    "overview": "Personal watchlists and advisory Web deletion warnings.",
+    "description": "Requires a compatible JavaScript Injector installed separately. Native clients and direct API deletion are not protected.",
+    "owner": "MajorSchloch",
+    "category": "General",
+    "versions": [
+      {
+        "version": "0.3.0.0",
+        "changelog": "See the matching release notes.",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.3.0/Jellyfin.Plugin.WatchGuard-v0.3.0.zip",
+        "checksum": "1cc2343cf4f536252b80ec727e9075af",
+        "timestamp": "2026-10-11T14:02:34Z"
+      }
+    ]
+  }
+]
