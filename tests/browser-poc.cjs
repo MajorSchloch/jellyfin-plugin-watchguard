@@ -44,11 +44,15 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.goto('about:blank');
         await page.goto(fixture.base + '/web/#/details?id=' + fixture.items[title] + '&serverId=' + fixture.serverId);
         await page.locator('#itemDetailPage').getByText(title, {exact:true}).first().waitFor();
-        await page.locator('#itemDetailPage .btnMoreCommands').waitFor();
+        await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
         await page.waitForFunction(() => window.WatchGuardPoc?.isInstalled());
     }
+    async function openInterest() {
+        await page.getByRole('button',{name:/^Show interested users/}).click();
+        await page.getByRole('dialog',{name:'Title interest',exact:true}).waitFor();
+    }
     async function nativeDelete() {
-        await page.locator('#itemDetailPage .btnMoreCommands').click();
+        await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').click();
         await page.getByText(/^Delete (?:media|series|episode|season)$/i).click();
     }
     async function nativeConfirm() {
@@ -105,7 +109,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await detail('PoC Movie Detail');
         const myList = () => page.getByRole('region',{name:'Watchlists',exact:true});
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
-        await myList().getByText('Your watchlist is empty.',{exact:true}).waitFor();
+        await myList().getByText('No matching interest in this overview.',{exact:true}).waitFor();
         for (const title of ['PoC Movie Detail','PoC Series Detail']) await api('/WatchGuard/Watchlist/' + fixture.items[title],'PUT');
         await myList().getByRole('button',{name:'Refresh',exact:true}).click();
         await myList().getByRole('link',{name:'PoC Series Detail',exact:true}).waitFor();
@@ -137,31 +141,77 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.locator('#itemDetailPage').getByText('PoC Series Detail',{exact:true}).first().waitFor();
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
         await myList().getByRole('button',{name:'Remove PoC Series Detail from Watchlist',exact:true}).click();
-        await myList().getByText('Your watchlist is empty.',{exact:true}).waitFor();
-        await page.route('**/WatchGuard/Watchlists', route => route.fulfill({status:503,body:'unavailable'}));
+        await myList().getByText('No matching interest in this overview.',{exact:true}).waitFor();
+        await page.route('**/WatchGuard/InterestOverview', route => route.fulfill({status:503,body:'unavailable'}));
         await myList().getByRole('button',{name:'Refresh',exact:true}).click();
         await myList().getByRole('alert').filter({hasText:'Could not load'}).waitFor();
-        await page.unroute('**/WatchGuard/Watchlists');
+        await page.unroute('**/WatchGuard/InterestOverview');
         await myList().getByRole('button',{name:'Refresh',exact:true}).click();
-        await myList().getByText('Your watchlist is empty.',{exact:true}).waitFor();
+        await myList().getByText('No matching interest in this overview.',{exact:true}).waitFor();
         await page.goBack();
         report.paths.push({path:'My Watchlist',result:'empty/list, movie and series links, removal, failed removal/load and refresh recovery passed'});
+        report.phase = 'Playback-only series overview';
+        const automaticId = fixture.items['PoC Parent Clear'];
+        const episode = (await api('/Shows/' + automaticId + '/Episodes')).Items[0];
+        await api('/UserItems/' + episode.Id + '/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:'2026-10-11T10:00:00Z'},member.AccessToken);
+        await api('/UserItems/' + fixture.items['PoC Movie Detail'] + '/UserData','POST',{Played:false,PlaybackPositionTicks:1000000,LastPlayedDate:'2026-10-10T10:00:00Z'},member.AccessToken);
+        await page.getByRole('link',{name:'Watchlists',exact:true}).click();
+        await myList().getByRole('combobox',{name:'Watchlist owner'}).selectOption('all');
+        await myList().getByRole('combobox',{name:'Interest filter'}).selectOption('watching');
+        await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).waitFor();
+        assert.equal(await myList().locator('.watchguard-card').count(),2);
+        await myList().getByRole('combobox',{name:'Sort by'}).selectOption('recent');
+        await page.waitForFunction(()=>document.querySelector('.watchguard-card .cardText')?.textContent==='PoC Parent Clear');
+        await myList().getByRole('combobox',{name:'Sort by'}).selectOption('title');
+        await page.waitForFunction(()=>document.querySelector('.watchguard-card .cardText')?.textContent==='PoC Movie Detail');
+        await myList().getByRole('combobox',{name:'Watchlist owner'}).selectOption('mine');
+        await myList().getByText('No matching interest in this overview.',{exact:true}).waitFor();
+        await myList().getByRole('combobox',{name:'Watchlist owner'}).selectOption(member.User.Id.replaceAll('-',''));
+        await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).waitFor();
+        assert.equal(await myList().getByRole('button',{name:'Remove PoC Parent Clear from Watchlist',exact:true}).count(),0);
+        assert.match(await myList().innerText(),/BrowserMember — Watchlist · Watching/);
+        assert.ok(!(await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===automaticId.replaceAll('-','')));
+        await page.screenshot({path:path.join(output,'interest-overview.png')});
+        await page.setViewportSize({width:390,height:844});
+        await page.waitForFunction(()=>{const e=document.querySelector('.watchguard-page');return e && e.scrollWidth<=e.clientWidth;});
+        const cardsAtNarrow = await myList().locator('.watchguard-card').evaluateAll(cards=>cards.map(c=>{const b=c.getBoundingClientRect();return {left:b.left,right:b.right,width:b.width};}));
+        assert.ok(cardsAtNarrow.every(c=>c.left>=0 && c.right<=390 && c.width>100));
+        await page.screenshot({path:path.join(output,'interest-overview-narrow.png')});
+        await page.setViewportSize({width:1280,height:900});
+        await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).click();
+        await page.locator('#itemDetailPage:not(.hide)').getByText('PoC Parent Clear',{exact:true}).first().waitFor();
+        await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
+        await openInterest();
+        await page.getByRole('dialog',{name:'Title interest',exact:true}).getByText('BrowserMember — Watching',{exact:true}).waitFor();
+        await page.keyboard.press('Escape');
+        const beforeAuto = report.deletes.length;
+        await nativeDelete(); await nativeConfirm();
+        await dialog().getByText(/BrowserMember — Watching/).waitFor();
+        await dialog().getByRole('button',{name:'Cancel',exact:true}).click();
+        await page.getByRole('button',{name:'Got It',exact:true}).click();
+        assert.equal(report.deletes.length,beforeAuto); await exists(automaticId);
+        // Reset only disposable native fixture state so the existing clear-parent deletion regression is unchanged.
+        await api('/UserItems/' + episode.Id + '/UserData','POST',{Played:false,PlaybackPositionTicks:0},member.AccessToken);
+        await api('/UserItems/' + fixture.items['PoC Movie Detail'] + '/UserData','POST',{Played:false,PlaybackPositionTicks:0},member.AccessToken);
+        assert.ok(!(await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===automaticId.replaceAll('-','')));
+        report.paths.push({path:'Playback-only series',result:'no membership, appears under Watching, user/reason filters and recency/title sorting pass; popover and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created'});
         report.paths.push({path:'Modern compatibility',result:'12.2 modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source'});
         report.phase = 'Watchlist UI';
         await detail('PoC Movie Detail');
         await page.getByRole('button', { name:'Add to Watchlist', exact:true }).click();
         await page.getByRole('button', { name:'Remove from Watchlist', exact:true }).waitFor();
-        assert.equal(await page.locator('.mainDetailButtons > .watchguard-toggle').count(),1);
-        assert.equal(await page.locator('.mainDetailButtons + .watchguard-controls').count(),1);
+        assert.equal(await page.locator('.mainDetailButtons .watchguard-toggle').count(),1);
+        assert.equal(await page.locator('.mainDetailButtons > .watchguard-controls').count(),1);
         await page.reload();
         await page.getByRole('button', { name:'Remove from Watchlist', exact:true }).waitFor();
+        await openInterest();
         await page.locator('.watchguard-interest').filter({hasText:'BrowserMember — Watchlist'}).waitFor();
         const nativeState = await api('/UserItems/' + fixture.items['PoC Movie Detail'] + '/UserData');
         assert.equal(nativeState.IsFavorite,false,'Watchlist must not change Favorites');
-        const actionsBox = await page.locator('.mainDetailButtons').boundingBox();
-        const interestBox = await page.locator('.watchguard-interest').boundingBox();
-        assert.ok(interestBox.y >= actionsBox.y + actionsBox.height,'interest must be below action row');
+        assert.equal(await page.locator('.watchguard-controls').evaluate(e=>e.parentElement.classList.contains('mainDetailButtons')),true);
+        assert.equal((await api('/WatchGuard/Watchlist')).length,1,'opening interest must not toggle membership');
         await page.screenshot({path:path.join(output,'watchlist-detail.png')});
+        await page.keyboard.press('Escape');
         await page.getByRole('button', { name:'Remove from Watchlist', exact:true }).click();
         await page.getByRole('button', { name:'Add to Watchlist', exact:true }).waitFor();
         // Failed mutation leaves the existing state intact and surfaces a useful error.
@@ -186,7 +236,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         // A normal user gets their own controls but no cross-user protection requests.
         const memberContext = await browser.newContext(); const memberPage = await memberContext.newPage();
         let protectionRequests = 0;
-        memberPage.on('request', r => { if (/\/WatchGuard\/(?:Protection\/|Watchlists(?:\?|$))/.test(r.url())) protectionRequests++; });
+        memberPage.on('request', r => { if (/\/WatchGuard\/(?:Protection\/|InterestOverview(?:\?|$))/.test(r.url())) protectionRequests++; });
         await memberPage.goto(fixture.base + '/web/');
         await memberPage.locator('#txtManualName').fill('BrowserMember');
         await memberPage.locator('#txtManualPassword').fill(memberPassword);
@@ -235,7 +285,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             await detail(title);
             assert.equal(await page.locator('.skinHeader').isVisible(),layout==='desktop-legacy');
             await page.getByRole('button',{name:'Add to Watchlist',exact:true}).waitFor();
-            assert.equal(await page.locator('.mainDetailButtons > .watchguard-toggle').count(),1);
+            assert.equal(await page.locator('.mainDetailButtons .watchguard-toggle').count(),1);
             await page.getByRole('button',{name:'Add to Watchlist',exact:true}).click();
             await page.getByRole('button',{name:'Remove from Watchlist',exact:true}).waitFor();
             await page.getByRole('link',{name:'Watchlists',exact:true}).click();
@@ -262,11 +312,13 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
                 report.phase = label;
                 await page.goto('about:blank');
                 await page.goto(fixture.base + '/web/#/details?id=' + target.Id + '&serverId=' + fixture.serverId);
-                await page.locator('#itemDetailPage .btnMoreCommands').waitFor();
+                await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
                 await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
                 await page.getByRole('button',{name:'Add to Watchlist',exact:true}).waitFor();
+                await openInterest();
                 await page.locator('.watchguard-interest').filter({hasText:'Series: ' + parentTitle}).waitFor();
                 if (interested) await page.locator('.watchguard-interest').filter({hasText:'BrowserMember — Watchlist'}).waitFor();
+                await page.keyboard.press('Escape');
                 await page.getByRole('button',{name:'Add to Watchlist',exact:true}).click();
                 await page.getByRole('button',{name:'Remove from Watchlist',exact:true}).waitFor();
                 const own = await api('/WatchGuard/Watchlist');
@@ -372,11 +424,11 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await myList().getByRole('link',{name:'PoC Parent Interested',exact:true}).waitFor();
         assert.equal(await myList().getByRole('link',{name:'PoC Self',exact:true}).count(),0);
         assert.equal(await myList().locator('.watchguard-owners').count(),0);
-        assert.equal(await myList().getByRole('combobox').isVisible(),false);
+        assert.equal(await myList().getByRole('combobox',{name:'Watchlist owner'}).isVisible(),false);
         await page.goBack();
         const policy = {...member.User.Policy, EnableContentDeletion:true};
         await api('/Users/' + member.User.Id + '/Policy','POST',policy);
-        await page.reload(); await page.locator('#itemDetailPage .btnMoreCommands').waitFor();
+        await page.reload(); await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
         report.phase = 'Non-admin deletion permission';
         const beforeDenied = report.deletes.length;
         await nativeDelete(); await nativeConfirm();

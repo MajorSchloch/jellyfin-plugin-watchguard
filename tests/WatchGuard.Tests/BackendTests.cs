@@ -46,13 +46,14 @@ public sealed class BackendTests : IDisposable
         data.Setup(d => d.GetResumeUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(), It.IsAny<User>()))
             .Returns(new Dictionary<Guid, VersionResumeData>());
         sessions.Setup(s => s.Sessions).Returns(Array.Empty<SessionInfo>());
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns(Array.Empty<BaseItem>());
         SignIn(alice);
     }
 
     private void SignIn(User? user, bool apiKey = false) => auth.Setup(a => a.GetAuthorizationInfo(It.IsAny<HttpContext>()))
         .ReturnsAsync(new AuthorizationInfo { User = user, IsAuthenticated = user is not null, IsApiKey = apiKey });
     private WatchGuardController Controller() => new(auth.Object, users.Object, library.Object, store, service,
-        NullLogger<WatchGuardController>.Instance) { ControllerContext = new() { HttpContext = new DefaultHttpContext() } };
+        NullLogger<WatchGuardController>.Instance, new(store, library.Object, users.Object, sessions.Object, service)) { ControllerContext = new() { HttpContext = new DefaultHttpContext() } };
     private ProtectionStatus Status(BaseItem? item = null) => service.Get(item ?? movie, alice.Id);
     public void Dispose() { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
 
@@ -269,7 +270,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 2, 0, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 2, 1, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
     }
@@ -322,6 +323,96 @@ public sealed class BackendTests : IDisposable
         Assert.Equal(503, Assert.IsType<ObjectResult>(await Controller().AllWatchlists()).StatusCode);
         await File.WriteAllTextAsync(Path.Combine(directory, "watchlists.json"), "corrupt");
         Assert.Equal(503, Assert.IsType<ObjectResult>(await Controller().AllWatchlists()).StatusCode);
+    }
+
+    private async Task<InterestOverview> Overview(bool own = false) => Assert.IsType<InterestOverview>(
+        Assert.IsType<OkObjectResult>(await (own ? Controller().OwnOverview() : Controller().Overview())).Value);
+
+    [Fact]
+    public async Task OverviewFindsUnlistedPartialSeriesThroughNativePlayedCandidates()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var series = new Series { Id = Guid.NewGuid(), Name = "Started series" };
+        var first = new Episode { Id = Guid.NewGuid(), SeriesId = series.Id };
+        var next = new Episode { Id = Guid.NewGuid(), SeriesId = series.Id };
+        foreach (var item in new BaseItem[] { series, first, next })
+            library.Setup(l => l.GetItemById<BaseItem>(item.Id, It.IsAny<User>())).Returns(item);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) =>
+            q.AncestorIds.Contains(series.Id) ? new BaseItem[] {first, next} : q.IsPlayed == true ? new BaseItem[] {first} : []);
+        states[(bob.Id, first.Id)] = new() { Key = "test", Played = true, LastPlayedDate = new DateTime(2026, 10, 10, 0, 0, 0, DateTimeKind.Utc) };
+        var overview = await Overview();
+        var found = Assert.Single(overview.Items);
+        Assert.Equal(series.Id, found.ItemId);
+        Assert.Equal(new[] { "InProgress" }, Assert.Single(found.Users).Reasons);
+        Assert.NotNull(found.Users[0].LastPlayedDate);
+        Assert.False(overview.IsComplete);
+        Assert.Empty(store.Read());
+        Assert.True(Status(series).HasOtherInterestedUsers);
+        states[(bob.Id, next.Id)] = new() { Key = "test", Played = true };
+        Assert.Empty((await Overview()).Items);
+    }
+
+    [Fact]
+    public async Task OverviewMergesExplicitResumeAndSessionCandidatesWithoutWriting()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        store.Set(bob.Id, movie.Id, true);
+        states[(bob.Id, movie.Id)] = new() { Key = "test", PlaybackPositionTicks = 200 };
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([movie]);
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = bob.Id, NowPlayingItem = new BaseItemDto { Id = movie.Id } }]);
+        var owner = Assert.Single(Assert.Single((await Overview()).Items).Users);
+        Assert.Equal(new[] { "Watchlisted", "InProgress", "CurrentlyPlaying" }, owner.Reasons);
+        Assert.Single(store.Read());
+        store.Set(bob.Id, movie.Id, false);
+        Assert.Equal(new[] { "InProgress", "CurrentlyPlaying" }, Assert.Single(Assert.Single((await Overview()).Items).Users).Reasons);
+        Assert.Empty(store.Read());
+    }
+
+    [Fact]
+    public async Task OverviewAuthorizationOwnScopeAndDeletedUsers()
+    {
+        store.Set(alice.Id, movie.Id, true);
+        store.Set(bob.Id, movie.Id, true);
+        Assert.IsType<ForbidResult>(await Controller().Overview());
+        Assert.Equal(alice.Id, Assert.Single(Assert.Single((await Overview(own: true)).Items).Users).UserId);
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        users.Setup(u => u.GetUserById(bob.Id)).Returns((User?)null);
+        Assert.Single(Assert.Single((await Overview()).Items).Users);
+        library.Setup(l => l.GetItemById<BaseItem>(movie.Id, alice)).Returns((BaseItem?)null);
+        Assert.Empty((await Overview()).Items);
+        SignIn(null);
+        Assert.IsType<UnauthorizedResult>(await Controller().Overview());
+        Assert.IsType<UnauthorizedResult>(await Controller().OwnOverview());
+    }
+
+    [Fact]
+    public async Task OverviewMarksDiscoveryLimitsAndFailsOnLookupErrors()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        states[(bob.Id, movie.Id)] = new() { Key = "test", PlaybackPositionTicks = 100 };
+        library.Setup(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.Limit == InterestOverviewService.DiscoveryLimit + 1)))
+            .Returns(Enumerable.Repeat<BaseItem>(movie, InterestOverviewService.DiscoveryLimit + 1).ToArray());
+        Assert.True((await Overview()).LimitReached);
+        Assert.Single((await Overview()).Items);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Throws(new IOException("private"));
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await Controller().Overview()).StatusCode);
+    }
+
+    [Fact]
+    public async Task OverviewEpisodeBudgetDoesNotLimitDeletionProtection()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var series = new Series { Id = Guid.NewGuid() };
+        store.Set(bob.Id, series.Id, true);
+        library.Setup(l => l.GetItemById<BaseItem>(series.Id, It.IsAny<User>())).Returns(series);
+        var episodes = Enumerable.Range(0, InterestOverviewService.EpisodeLimit + 1)
+            .Select(_ => (BaseItem)new Episode { Id = Guid.NewGuid() }).ToArray();
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) => q.AncestorIds.Contains(series.Id) ? episodes : []);
+        var result = await Overview();
+        Assert.True(result.LimitReached); Assert.Empty(result.Items);
+        Assert.True(Status(series).HasOtherInterestedUsers);
+        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id) && q.Limit == null)), Times.AtLeastOnce);
     }
 
 }

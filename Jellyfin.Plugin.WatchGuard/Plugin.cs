@@ -29,6 +29,7 @@ public sealed class ServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddSingleton(_ => new WatchlistStore(Plugin.Instance?.DataFolderPath
             ?? throw new InvalidOperationException("WatchGuard plugin is unavailable.")));
         serviceCollection.AddSingleton<InterestService>();
+        serviceCollection.AddSingleton<InterestOverviewService>();
         serviceCollection.AddHostedService<InjectorRegistration>();
     }
 }

@@ -99,7 +99,7 @@ def main():
                      'POST', library, token, expected=204)
             for _ in range(60):
                 items = call('/Items?Recursive=true&IncludeItemTypes=Movie,Series', token=token)['Items']
-                if len(items) == 13: break
+                if len(items) == 13 and len(call('/Items?Recursive=true&IncludeItemTypes=Episode', token=token)['Items']) == 10: break
                 time.sleep(1)
             else: raise RuntimeError('Synthetic media was not scanned.')
             assert 'WatchGuard: This item may still be in use.' in call('/JavaScriptInjector/private.js', token=token, raw=True)
@@ -110,7 +110,7 @@ def main():
             assert len(registrations) == 1
             registration = registrations[0]
             assert registration['Enabled'] and registration['RequiresAuthentication']
-            assert registration['PluginVersion'] == '0.2.0' and registration['Name'] == 'WatchGuard'
+            assert registration['PluginVersion'] == '0.2.1' and registration['Name'] == 'WatchGuard'
             # Restart with the persisted registration: upsert must retain exactly one script.
             docker('restart', name)
             # Docker Desktop can allocate a different ephemeral host port on restart.
@@ -119,7 +119,7 @@ def main():
                 try:
                     current = call('/Plugins/' + injector_id + '/Configuration', token=token)
                     registered = [s for s in current['PluginJavaScripts'] if s['Id'] == 'watchguard-v1']
-                    assert len(registered) == 1 and registered[0]['PluginVersion'] == '0.2.0'
+                    assert len(registered) == 1 and registered[0]['PluginVersion'] == '0.2.1'
                     break
                 except (urllib.error.URLError, http.client.HTTPException, ConnectionError, AssertionError):
                     if attempt == 59: raise
@@ -142,7 +142,7 @@ def main():
                 call('/Plugins/' + injector_id + '/Configuration', 'POST', injector_config, token, expected=204)
                 assert 'WatchGuard: This item may still be in use.' not in call('/JavaScriptInjector/private.js', token=token, raw=True)
                 assert docker('exec', name, 'sha256sum', '/jellyfin/jellyfin-web/index.html').split()[0] == pristine_web_hash
-                print('Deployment checks passed: v0.2.0 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
+                print('Deployment checks passed: v0.2.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
 
         finally:
             subprocess.run(['docker', 'rm', '-f', name], stdout=subprocess.DEVNULL, check=False)

@@ -181,61 +181,65 @@ test('missing, wrong-type, mismatched and failed parent resolution never deletes
     }
 });
 
-test('Watchlists page discards late responses after navigation or credential changes', async () => {
+test('Overview discards late responses after navigation or credential changes', async () => {
     const {watchlistsPage} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
     for (const action of ['abort','token']) {
-        const f = documentFixture();
-        const create = f.doc.createElement;
+        const f = documentFixture(), create = f.doc.createElement;
         f.doc.createElement = tag => { const node = create(tag); node.replaceChildren = () => { node.children = []; }; return node; };
         let complete, token = 'original';
-        const api = {getCurrentUser:async()=>({Policy:{IsAdministrator:false}}),getCurrentUserId:()=> 'self',accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',ajax:()=>new Promise(resolve=>{complete=resolve;})};
+        const api = {getCurrentUser:async()=>({Policy:{IsAdministrator:false}}),getCurrentUserId:()=> 'a'.repeat(32),accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',ajax:()=>new Promise(resolve=>{complete=resolve;})};
         const abort = new AbortController();
         const page = watchlistsPage(f.doc,api,abort.signal,'mine',()=>{});
         await new Promise(resolve=>setImmediate(resolve));
         assert.equal(page.children[2].textContent,'Loading watchlists…');
         if(action==='abort') abort.abort(); else token='another-account';
-        complete([{ItemId:'a'.repeat(32),Name:'Private title'}]);
+        complete({Items:[],IsComplete:false,LimitReached:false,Notice:'Not exhaustive'});
         await new Promise(resolve=>setImmediate(resolve));
-        assert.equal(page.children[4].children.length,0);
+        assert.equal(page.children[5].children.length,0);
         if(action==='abort') assert.equal(page.removed,true);
     }
 });
-test('Watchlist filters preserve one card per item and normal-user isolation', () => {
-    const {selectWatchlists} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
-    const user='a'.repeat(32), other='b'.repeat(32);
-    const entries=[{ItemId:'c'.repeat(32),Name:'Shared',Users:[{UserId:user,DisplayName:'Me'},{UserId:other,DisplayName:'Other'}]},
-        {ItemId:'d'.repeat(32),Name:'Other only',Users:[{UserId:other,DisplayName:'Other'}]}];
-    assert.equal(selectWatchlists(entries,'all',user,true).length,2);
-    assert.equal(selectWatchlists(entries,'mine',user,true).length,1);
-    assert.equal(selectWatchlists(entries,other,user,true).length,2);
-    assert.equal(selectWatchlists(entries,'missing',user,true).length,0);
-    const own=[{ItemId:'c'.repeat(32),Name:'Mine'}];
-    assert.equal(selectWatchlists(own,other,user,false),own);
-    assert.throws(()=>selectWatchlists([...entries,entries[0]],'all',user,true));
-    assert.throws(()=>selectWatchlists(own,'all',user,true));
+const {selectInterest,watchlistsPage}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+const me='a'.repeat(32), other='b'.repeat(32);
+const overviewItems=[{ItemId:'c'.repeat(32),Name:'Alpha',Users:[
+    {UserId:me,DisplayName:'Me',Reasons:['Watchlisted'],LastPlayedDate:null},
+    {UserId:other,DisplayName:'Other',Reasons:['Watchlisted','InProgress'],LastPlayedDate:'2026-10-01T00:00:00Z'}]},
+    {ItemId:'d'.repeat(32),Name:'Beta',Users:[{UserId:me,DisplayName:'Me',Reasons:['CurrentlyPlaying'],LastPlayedDate:'2026-10-10T00:00:00Z'}]}];
+test('Overview filters user and interest together, preserves reasons and sorts known playback dates',()=>{
+    assert.equal(selectInterest(overviewItems,'all',me).length,2);
+    assert.equal(selectInterest(overviewItems,'mine',me,'watching')[0].Name,'Beta');
+    assert.deepEqual(selectInterest(overviewItems,other,me,'watching')[0].Users[0].Reasons,['Watchlisted','InProgress']);
+    assert.equal(selectInterest(overviewItems,'all',me,'watchlisted').length,1);
+    assert.equal(selectInterest(overviewItems,'all',me,'all','recent')[0].Name,'Beta');
+    assert.equal(selectInterest(overviewItems,'all',me,'all','title')[0].Name,'Alpha');
+    assert.equal(selectInterest(overviewItems,'mine',me,'watching')[0].IsWatchlistedByMe,false);
+    assert.throws(()=>selectInterest([...overviewItems,overviewItems[0]],'all',me));
+    assert.throws(()=>selectInterest([{...overviewItems[0],Users:[{UserId:me,DisplayName:'Me',Reasons:['Unknown']}]}],'all',me));
 });
-
-test('Poster grid treats owner/title text literally and offers removal only for the caller', async () => {
-    const {watchlistsPage} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
-    const f = documentFixture(), user = 'a'.repeat(32), other = 'b'.repeat(32);
-    const create = f.doc.createElement;
-    f.doc.createElement = tag => {
-        const node = create(tag); node.replaceChildren = () => { node.children = []; };
-        Object.defineProperty(node, 'innerHTML', {set() { assert.fail('Untrusted HTML insertion'); }});
-        return node;
-    };
-    const malicious = '<img src=x onerror=alert(1)>';
-    const entries = [{ItemId:'c'.repeat(32),Name:malicious,Users:[{UserId:other,DisplayName:malicious}]},
-        {ItemId:'d'.repeat(32),Name:'Mine',Users:[{UserId:user,DisplayName:'Me'}]}];
-    const api = {getCurrentUser:async()=>({Policy:{IsAdministrator:true}}),getCurrentUserId:()=>user,
-        accessToken:()=> 'token',getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/native-image',
-        ajax:async options=>{assert.equal(options.url,'WatchGuard/Watchlists');return entries;}};
-    const page = watchlistsPage(f.doc,api,new AbortController().signal,'all',()=>{});
+test('Overview renders text literally, distinguishes reasons and offers only explicit own removal',async()=>{
+    const f=documentFixture(),create=f.doc.createElement;
+    f.doc.createElement=tag=>{const n=create(tag);n.replaceChildren=()=>{n.children=[];};n.classList={add(){}};
+        Object.defineProperty(n,'innerHTML',{set(){assert.fail('Untrusted HTML');}});return n;};
+    const text='<img src=x onerror=alert(1)>';
+    const items=structuredClone(overviewItems);items[0].Name=text;items[0].Users[1].DisplayName=text;
+    const api={getCurrentUser:async()=>({Policy:{IsAdministrator:true}}),getCurrentUserId:()=>me,accessToken:()=> 'token',getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/image',
+        ajax:async o=>{assert.equal(o.url,'WatchGuard/InterestOverview');return {Items:items,IsComplete:false,LimitReached:false,Notice:'Not exhaustive'};}};
+    const page=watchlistsPage(f.doc,api,new AbortController().signal,'all',()=>{});
     await new Promise(resolve=>setImmediate(resolve));
-    const cards = page.children[4].children;
+    const cards=page.children[5].children;
     assert.equal(cards.length,2);
-    assert.equal(cards[0].children[0].children[1].textContent,malicious);
-    assert.equal(cards[0].children[1].textContent,malicious);
-    assert.equal(cards[0].children.length,2);
-    assert.equal(cards[1].children[2].textContent,'Remove');
+    assert.equal(cards[0].children[0].children[1].textContent,text);
+    assert.equal(cards[0].children[1].children[1].textContent,text+' — Watchlist · Watching');
+    assert.equal(cards[0].children.length,3);
+    assert.equal(cards[1].children.length,2);
+});
+test('Personal overview rejects cross-user payloads even with forged owner filter',async()=>{
+    const f=documentFixture(),create=f.doc.createElement;
+    f.doc.createElement=tag=>{const n=create(tag);n.replaceChildren=()=>{n.children=[];};return n;};
+    const api={getCurrentUser:async()=>({Policy:{IsAdministrator:false}}),getCurrentUserId:()=>me,accessToken:()=> 'token',getUrl:p=>p,
+        ajax:async o=>{assert.equal(o.url,'WatchGuard/InterestOverview/Me');return {Items:overviewItems,IsComplete:false,LimitReached:false,Notice:'Not exhaustive'};}};
+    const page=watchlistsPage(f.doc,api,new AbortController().signal,'all',()=>{});
+    await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(page.children[5].children.length,0);
+    assert.match(page.children[4].textContent,/Could not load/);
 });

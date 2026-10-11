@@ -18,15 +18,20 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
 {
     public static bool Supported(BaseItem? item) => item is Movie or Series;
 
-    public ProtectionStatus Get(BaseItem item, Guid requester)
+    public ProtectionStatus Get(BaseItem item, Guid requester) => GetCore(item, requester, null);
+
+    internal ProtectionStatus GetForOverview(BaseItem item, Guid requester, OverviewBudget budget) => GetCore(item, requester, budget);
+
+    private ProtectionStatus GetCore(BaseItem item, Guid requester, OverviewBudget? budget)
     {
-        var entries = store.Read().ToHashSet();
+        var entries = budget?.Entries ?? store.Read().ToHashSet();
         var playing = sessions.Sessions.Where(s => s.IsActive && s.NowPlayingItem is not null)
             .Select(s => (ItemId: s.NowPlayingItem.Id,
                 Users: s.AdditionalUsers.Select(u => u.UserId).Append(s.UserId).ToHashSet())).ToArray();
         var result = new List<InterestedUser>();
-        foreach (var candidate in users.GetUsers())
+        foreach (var candidate in budget?.Accounts ?? users.GetUsers())
         {
+            budget?.Consume(1);
             var user = users.GetUserById(candidate.Id);
             if (user is null || user.HasPermission(PermissionKind.IsDisabled)) continue;
             var visible = library.GetItemById<BaseItem>(item.Id, user);
@@ -37,9 +42,11 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
                 ? library.GetItemList(new InternalItemsQuery(user)
                 {
                     AncestorIds = [item.Id], Recursive = true, IncludeItemTypes = [BaseItemKind.Episode],
-                    IsVirtualItem = false, IsMissing = false
+                    IsVirtualItem = false, IsMissing = false, Limit = budget is null ? null : InterestOverviewService.EpisodeLimit + 1
                 })
                 : [visible!];
+            if (budget is not null && items.Count > InterestOverviewService.EpisodeLimit) throw new OverviewLimitException();
+            budget?.Consume(items.Count);
             var states = data.GetUserDataBatch(items, user);
             var resumes = data.GetResumeUserDataBatch(items, user);
             var effective = items.Select(i =>
@@ -58,6 +65,9 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
             if (item is Movie && effective.Any(s => !s.Played && s.PlaybackPositionTicks > 0)) reasons.Add("InProgress");
             if (item is Series && effective.Any(s => s.Played || s.PlaybackPositionTicks > 0) && effective.Any(s => !s.Played))
                 reasons.Add("InProgress");
+            if (budget is not null)
+                budget.PlaybackDates[user.Id] = states.Values.Select(s => s.LastPlayedDate)
+                    .Concat(resumes.Values.Select(r => r.UserData.LastPlayedDate)).Max();
             var ids = items.Select(i => i.Id).ToHashSet();
             if (playing.Any(s => s.Users.Contains(user.Id) &&
                 (ids.Contains(s.ItemId) || library.GetItemById<BaseItem>(s.ItemId, user) is Video

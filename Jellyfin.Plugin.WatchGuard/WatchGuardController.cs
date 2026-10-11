@@ -14,7 +14,7 @@ namespace Jellyfin.Plugin.WatchGuard;
 [Route("WatchGuard")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public sealed class WatchGuardController(IAuthorizationContext authorization, IUserManager users,
-    ILibraryManager library, WatchlistStore store, InterestService interest, ILogger<WatchGuardController> logger) : ControllerBase
+    ILibraryManager library, WatchlistStore store, InterestService interest, ILogger<WatchGuardController> logger, InterestOverviewService overview) : ControllerBase
 {
     private async Task<Jellyfin.Database.Implementations.Entities.User?> CurrentUser()
     {
@@ -86,6 +86,22 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         // Removing one's own stale/inaccessible ID reveals nothing about the library.
         store.Set(user.Id, itemId, present);
         return NoContent();
+    });
+
+    [HttpGet("InterestOverview/Me")]
+    public Task<IActionResult> OwnOverview() => Execute(async () =>
+    {
+        var user = await CurrentUser();
+        return user is null ? Unauthorized() : Ok(overview.Get(user, ownOnly: true));
+    });
+
+    [HttpGet("InterestOverview")]
+    public Task<IActionResult> Overview() => Execute(async () =>
+    {
+        var user = await CurrentUser();
+        if (user is null) return Unauthorized();
+        if (!user.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
+        return Ok(overview.Get(user));
     });
 
     [HttpGet("Protection/{itemId:guid}")]

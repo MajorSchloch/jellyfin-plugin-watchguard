@@ -1,5 +1,7 @@
 # WatchGuard v0.2.0 navigation and detail UI
 
+See [v0.2.1 interest overview and UI refinement](interest-overview.md) for the new playback-aware overview and count popover. Existing explicit-list API contracts and navigation anchors below remain unchanged.
+
 Target: Jellyfin Server/Web **12.2**, .NET 10. No new runtime dependency. JavaScript Injector registration, watchlist schema 1 and deletion policies remain compatible with v0.1.0.
 
 ## Source-verified integration decisions
