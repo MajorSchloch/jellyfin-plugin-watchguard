@@ -13,6 +13,17 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     const page = await context.newPage();
+    // Capture native Jellyfin exceptions that can prevent getCommands() from revealing More.
+    const nativeErrors = [];
+    page.on('pageerror', err => {
+        const message = String(err.message || err).slice(0, 600);
+        nativeErrors.push('pageerror: ' + message);
+    });
+    page.on('console', message => {
+        if (message.type() === 'error') {
+            nativeErrors.push('console: ' + message.text().slice(0, 600));
+        }
+    });
     page.setDefaultTimeout(10000);
     let nativeCalls = 0;
     page.on('console', message => {
@@ -70,6 +81,8 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
                     return { dto, nativeMoreClass: more?.className, currentHash: location.hash.split('?')[0] };
                 });
                 console.error('Hidden native More diagnostic:', JSON.stringify(diagnostics));
+                console.error('Native Jellyfin browser errors:', JSON.stringify(nativeErrors.slice(-20)));
+
                 await page.screenshot({ path: path.join(output, 'hidden-native-more.png') });
                 throw retryError;
             }
