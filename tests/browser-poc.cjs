@@ -44,7 +44,21 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.goto('about:blank');
         await page.goto(fixture.base + '/web/#/details?id=' + fixture.items[title] + '&serverId=' + fixture.serverId);
         await page.locator('#itemDetailPage').getByText(title, {exact:true}).first().waitFor();
-        await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
+        const more = page.locator('#itemDetailPage:not(.hide) .btnMoreCommands');
+        // Native detail actions can still be initializing after the title becomes visible.
+        // Retry a single full page load; do not bypass the native More-menu assertion.
+        try {
+            await more.waitFor({ state: 'visible', timeout: 5000 });
+        } catch (error) {
+            await page.reload();
+            await page.locator('#itemDetailPage').getByText(title, {exact:true}).first().waitFor();
+            try {
+                await more.waitFor({ state: 'visible', timeout: 10000 });
+            } catch (retryError) {
+                await page.screenshot({ path: path.join(output, 'hidden-native-more.png') });
+                throw retryError;
+            }
+        }
         await page.waitForFunction(() => window.WatchGuardPoc?.isInstalled());
     }
     async function openInterest() {
