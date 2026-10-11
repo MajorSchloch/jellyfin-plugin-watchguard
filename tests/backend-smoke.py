@@ -13,6 +13,8 @@ def run(call, admin_token, items, plugins):
     token = signed['AccessToken']
     route = '/WatchGuard/Watchlist/' + movie
     call('/WatchGuard/Watchlist', expected=401)
+    call('/WatchGuard/Watchlists', expected=401)
+    call('/WatchGuard/Watchlists', token=token, expected=403)
     call('/WatchGuard/Protection/' + movie, token=token, expected=403)
     call('/WatchGuard/Protection/' + str(uuid.uuid4()), token=admin_token, expected=404)
     call('/WatchGuard/Watchlist/' + str(uuid.uuid4()), 'PUT', token=token, expected=404)
@@ -20,6 +22,10 @@ def run(call, admin_token, items, plugins):
         list(pool.map(lambda _: call(route, 'PUT', token=token, expected=204), range(16)))
     assert len(call('/WatchGuard/Watchlist', token=token)) == 1
     assert call('/WatchGuard/Watchlist', token=admin_token) == []
+    call(route, 'PUT', token=admin_token, expected=204)
+    shared = call('/WatchGuard/Watchlists', token=admin_token)
+    assert len(shared) == 1 and len(shared[0]['Users']) == 2
+    assert {owner['DisplayName'] for owner in shared[0]['Users']} == {'BackendMember', 'WatchGuardPoCTest'}
     call(route, 'DELETE', token=admin_token, expected=204)
     state = call('/WatchGuard/Protection/' + movie, token=admin_token)
     assert state['HasOtherInterestedUsers'] and state['Users'][0]['DisplayName'] == 'BackendMember'
@@ -50,6 +56,7 @@ def run(call, admin_token, items, plugins):
     call('/WatchGuard/Watchlist', token=token, expected=503)
     call(route, 'PUT', token=token, expected=503)
     call('/WatchGuard/Protection/' + movie, token=admin_token, expected=503)
+    call('/WatchGuard/Watchlists', token=admin_token, expected=503)
     assert path.read_text() == '{broken'
     restored = path.with_suffix('.restore')
     restored.write_bytes(good)
@@ -64,4 +71,5 @@ def run(call, admin_token, items, plugins):
             time.sleep(0.25)
     call('/Users/' + member['Id'], 'DELETE', token=admin_token, expected=204)
     assert not call('/WatchGuard/Protection/' + movie, token=admin_token)['HasInterest']
+    assert call('/WatchGuard/Watchlists', token=admin_token) == []
     print('Backend HTTP checks passed: CRUD, isolation, concurrency, playback, series, sessions, corruption, removed user.', flush=True)

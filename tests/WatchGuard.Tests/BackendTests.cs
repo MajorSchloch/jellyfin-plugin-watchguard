@@ -269,9 +269,59 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 1, 0, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 2, 0, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
+    }
+
+    [Fact]
+    public async Task SharedWatchlistsRequireCurrentAdministratorAndDoNotWrite()
+    {
+        store.Set(alice.Id, movie.Id, true);
+        store.Set(bob.Id, movie.Id, true);
+        Assert.IsType<ForbidResult>(await Controller().AllWatchlists());
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var item = Assert.Single(Assert.IsType<SharedWatchlistItem[]>(Assert.IsType<OkObjectResult>(await Controller().AllWatchlists()).Value));
+        Assert.Equal(movie.Id, item.ItemId);
+        Assert.Equal(new[] { "Alice", "Bob" }, item.Users.Select(u => u.DisplayName));
+        Assert.Equal(2, store.Read().Length);
+        alice.SetPermission(PermissionKind.IsAdministrator, false);
+        Assert.IsType<ForbidResult>(await Controller().AllWatchlists());
+        SignIn(alice, apiKey: true);
+        Assert.IsType<UnauthorizedResult>(await Controller().AllWatchlists());
+        SignIn(null);
+        Assert.IsType<UnauthorizedResult>(await Controller().AllWatchlists());
+    }
+
+    [Fact]
+    public async Task SharedWatchlistsOmitMissingHiddenDisabledAndDeletedEntries()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        store.Set(bob.Id, movie.Id, true);
+        store.Set(Guid.NewGuid(), movie.Id, true);
+        store.Set(alice.Id, Guid.NewGuid(), true);
+        async Task<SharedWatchlistItem[]> Read() => Assert.IsType<SharedWatchlistItem[]>(Assert.IsType<OkObjectResult>(await Controller().AllWatchlists()).Value);
+        Assert.Single(Assert.Single(await Read()).Users);
+        library.Setup(l => l.GetItemById<BaseItem>(movie.Id, bob)).Returns((BaseItem?)null);
+        Assert.Empty(await Read());
+        library.Setup(l => l.GetItemById<BaseItem>(movie.Id, bob)).Returns(movie);
+        bob.SetPermission(PermissionKind.IsDisabled, true);
+        Assert.Empty(await Read());
+        bob.SetPermission(PermissionKind.IsDisabled, false);
+        library.Setup(l => l.GetItemById<BaseItem>(movie.Id, alice)).Returns((BaseItem?)null);
+        Assert.Empty(await Read());
+        Assert.Equal(3, store.Read().Length);
+    }
+
+    [Fact]
+    public async Task SharedWatchlistFailureNeverReturnsPartialResults()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        store.Set(bob.Id, movie.Id, true);
+        users.Setup(u => u.GetUserById(bob.Id)).Throws(new IOException("private"));
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await Controller().AllWatchlists()).StatusCode);
+        await File.WriteAllTextAsync(Path.Combine(directory, "watchlists.json"), "corrupt");
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await Controller().AllWatchlists()).StatusCode);
     }
 
 }

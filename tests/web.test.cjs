@@ -181,22 +181,61 @@ test('missing, wrong-type, mismatched and failed parent resolution never deletes
     }
 });
 
-test('My Watchlist discards late responses after closing or account credential changes', async () => {
-    const {openWatchlist} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+test('Watchlists page discards late responses after navigation or credential changes', async () => {
+    const {watchlistsPage} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
     for (const action of ['abort','token']) {
         const f = documentFixture();
-        f.doc.querySelector = () => null;
         const create = f.doc.createElement;
         f.doc.createElement = tag => { const node = create(tag); node.replaceChildren = () => { node.children = []; }; return node; };
-        let complete, token = 'original', closeCallbacks = 0;
-        const api = {getCurrentUserId:()=> 'self',accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',ajax:()=>new Promise(resolve=>{complete=resolve;})};
+        let complete, token = 'original';
+        const api = {getCurrentUser:async()=>({Policy:{IsAdministrator:false}}),getCurrentUserId:()=> 'self',accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',ajax:()=>new Promise(resolve=>{complete=resolve;})};
         const abort = new AbortController();
-        openWatchlist(f.doc,api,abort.signal,()=>{closeCallbacks++;});
-        assert.equal(f.nodes[0].children[1].textContent,'Loading your watchlist…');
+        const page = watchlistsPage(f.doc,api,abort.signal,'mine',()=>{});
+        await new Promise(resolve=>setImmediate(resolve));
+        assert.equal(page.children[2].textContent,'Loading watchlists…');
         if(action==='abort') abort.abort(); else token='another-account';
         complete([{ItemId:'a'.repeat(32),Name:'Private title'}]);
         await new Promise(resolve=>setImmediate(resolve));
-        assert.equal(f.nodes[0].children[3].children.length,0);
-        if(action==='abort') { assert.equal(f.nodes[0].removed,true); assert.equal(closeCallbacks,0); }
+        assert.equal(page.children[4].children.length,0);
+        if(action==='abort') assert.equal(page.removed,true);
     }
+});
+test('Watchlist filters preserve one card per item and normal-user isolation', () => {
+    const {selectWatchlists} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const user='a'.repeat(32), other='b'.repeat(32);
+    const entries=[{ItemId:'c'.repeat(32),Name:'Shared',Users:[{UserId:user,DisplayName:'Me'},{UserId:other,DisplayName:'Other'}]},
+        {ItemId:'d'.repeat(32),Name:'Other only',Users:[{UserId:other,DisplayName:'Other'}]}];
+    assert.equal(selectWatchlists(entries,'all',user,true).length,2);
+    assert.equal(selectWatchlists(entries,'mine',user,true).length,1);
+    assert.equal(selectWatchlists(entries,other,user,true).length,2);
+    assert.equal(selectWatchlists(entries,'missing',user,true).length,0);
+    const own=[{ItemId:'c'.repeat(32),Name:'Mine'}];
+    assert.equal(selectWatchlists(own,other,user,false),own);
+    assert.throws(()=>selectWatchlists([...entries,entries[0]],'all',user,true));
+    assert.throws(()=>selectWatchlists(own,'all',user,true));
+});
+
+test('Poster grid treats owner/title text literally and offers removal only for the caller', async () => {
+    const {watchlistsPage} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const f = documentFixture(), user = 'a'.repeat(32), other = 'b'.repeat(32);
+    const create = f.doc.createElement;
+    f.doc.createElement = tag => {
+        const node = create(tag); node.replaceChildren = () => { node.children = []; };
+        Object.defineProperty(node, 'innerHTML', {set() { assert.fail('Untrusted HTML insertion'); }});
+        return node;
+    };
+    const malicious = '<img src=x onerror=alert(1)>';
+    const entries = [{ItemId:'c'.repeat(32),Name:malicious,Users:[{UserId:other,DisplayName:malicious}]},
+        {ItemId:'d'.repeat(32),Name:'Mine',Users:[{UserId:user,DisplayName:'Me'}]}];
+    const api = {getCurrentUser:async()=>({Policy:{IsAdministrator:true}}),getCurrentUserId:()=>user,
+        accessToken:()=> 'token',getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/native-image',
+        ajax:async options=>{assert.equal(options.url,'WatchGuard/Watchlists');return entries;}};
+    const page = watchlistsPage(f.doc,api,new AbortController().signal,'all',()=>{});
+    await new Promise(resolve=>setImmediate(resolve));
+    const cards = page.children[4].children;
+    assert.equal(cards.length,2);
+    assert.equal(cards[0].children[0].children[1].textContent,malicious);
+    assert.equal(cards[0].children[1].textContent,malicious);
+    assert.equal(cards[0].children.length,2);
+    assert.equal(cards[1].children[2].textContent,'Remove');
 });

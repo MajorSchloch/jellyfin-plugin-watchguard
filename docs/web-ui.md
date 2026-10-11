@@ -1,5 +1,7 @@
 # Phase 3: Jellyfin Web integration
 
+For v0.2.0 navigation, toolbar placement and series-scope detail controls, see [navigation.md](navigation.md). The Phase 3/4 observations below describe the original UI; deletion policies remain unchanged.
+
 Target: Jellyfin Server and bundled Web **12.2**, .NET 10. This records Phase 3; [Phase 4](hardening.md) extends episode/season handling, verifies both application shells and adds My Watchlist. The [backend](backend.md) remains unchanged. This phase adds plain JavaScript detail controls and connects the previously validated [instance deletion adapter](deletion-poc.md) to fresh protection checks. No framework, dependency, Jellyfin source modification, metadata tag or Favorites integration was added.
 
 ## Detail controls

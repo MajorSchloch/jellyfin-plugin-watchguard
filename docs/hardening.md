@@ -1,5 +1,7 @@
 # Phase 4: compatibility and UX hardening
 
+For v0.2.0 navigation, toolbar placement and series-scope detail controls, see [navigation.md](navigation.md). The Phase 3/4 observations below describe the original UI; deletion policies remain unchanged.
+
 Target: **Jellyfin Server/Web 12.2, .NET 10**. This extends [Phase 3](web-ui.md), using the unchanged [backend](backend.md) and the validated instance-method deletion boundary. No new runtime dependencies, persistence, media automation or server deletion endpoint were added.
 
 ## Deletion scope

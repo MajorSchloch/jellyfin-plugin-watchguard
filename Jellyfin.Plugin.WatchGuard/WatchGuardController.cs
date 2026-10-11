@@ -52,6 +52,31 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
     [HttpDelete("Watchlist/{itemId:guid}")]
     public Task<IActionResult> Remove(Guid itemId) => Change(itemId, false);
 
+    [HttpGet("Watchlists")]
+    public Task<IActionResult> AllWatchlists() => Execute(async () =>
+    {
+        var caller = await CurrentUser();
+        if (caller is null) return Unauthorized();
+        if (!caller.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
+        var result = new List<SharedWatchlistItem>();
+        foreach (var group in store.Read().GroupBy(e => e.ItemId))
+        {
+            var item = library.GetItemById<BaseItem>(group.Key, caller);
+            if (!InterestService.Supported(item)) continue;
+            var owners = new List<WatchlistOwner>();
+            foreach (var entry in group)
+            {
+                var owner = users.GetUserById(entry.UserId);
+                if (owner is null || owner.HasPermission(PermissionKind.IsDisabled)) continue;
+                if (!InterestService.Supported(library.GetItemById<BaseItem>(entry.ItemId, owner))) continue;
+                owners.Add(new(owner.Id, owner.Username));
+            }
+            if (owners.Count > 0) result.Add(new(item!.Id, item.Name,
+                owners.OrderBy(o => o.DisplayName, StringComparer.OrdinalIgnoreCase).ThenBy(o => o.UserId).ToArray()));
+        }
+        return Ok(result.OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase).ThenBy(i => i.ItemId).ToArray());
+    });
+
     private Task<IActionResult> Change(Guid itemId, bool present) => Execute(async () =>
     {
         var user = await CurrentUser();
@@ -74,3 +99,6 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         return Ok(interest.Get(item!, user.Id));
     });
 }
+
+public sealed record WatchlistOwner(Guid UserId, string DisplayName);
+public sealed record SharedWatchlistItem(Guid ItemId, string Name, WatchlistOwner[] Users);

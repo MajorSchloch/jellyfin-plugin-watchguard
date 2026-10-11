@@ -129,3 +129,7 @@ This backend answers interest queries; it does not bind the answer atomically to
 Visibility and playback results follow Jellyfin's native services. Available means present in the native library query, not that WatchGuard probes files or remote streams. Paused and stale-but-still-active native sessions can count; no arbitrary timeout is added. Alternate matching follows native resume selection and `PrimaryVersionId`; independently imported copies are separate IDs, and alternate deletion scope is not verified here. Multi-version behavior is unit-tested, not covered by a multi-version live media fixture.
 
 Aggregation is proportional to users and available episodes, with batched native data calls but no large-library performance benchmark. There is no pagination, automatic stale-entry cleanup, playlist synchronization, external database or production UI. The Phase 3 web integration retains the advisory web-only limitations documented in Phase 1. Nothing was deployed to production.
+
+## v0.2.0 addition
+
+The existing endpoints and schema are unchanged. Administrator-only `GET /WatchGuard/Watchlists` provides deduplicated explicit memberships with native owner display names; it is read-only and returns 503 on lookup/storage failure. See [route contract, authorization and example](navigation.md#read-only-administrator-api).

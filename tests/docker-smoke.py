@@ -77,9 +77,12 @@ def main():
             docker('exec', name, 'mkdir', '-p', '/tmp/poc-movies', '/tmp/poc-tv/PoC Series Detail/Season 01')
             docker('exec', name, '/usr/lib/jellyfin-ffmpeg/ffmpeg', '-hide_banner', '-loglevel', 'error',
                    '-f', 'lavfi', '-i', 'color=c=black:s=64x64:d=2', '-c:v', 'libx264', '-y', '/tmp/fixture.mp4')
+            docker('exec', name, '/usr/lib/jellyfin-ffmpeg/ffmpeg', '-hide_banner', '-loglevel', 'error',
+                   '-f', 'lavfi', '-i', 'color=c=steelblue:s=240x360', '-frames:v', '1', '-y', '/tmp/poster.jpg')
             for title in movies:
                 docker('exec', name, 'mkdir', '-p', '/tmp/poc-movies/' + title)
                 docker('exec', name, 'cp', '/tmp/fixture.mp4', f'/tmp/poc-movies/{title}/{title}.mp4')
+                docker('exec', name, 'cp', '/tmp/poster.jpg', f'/tmp/poc-movies/{title}/poster.jpg')
             for number in (1, 2):
                 docker('exec', name, 'cp', '/tmp/fixture.mp4', f'/tmp/poc-tv/PoC Series Detail/Season 01/PoC Series Detail S01E0{number}.mp4')
             for title in ('PoC Parent Interested', 'PoC Parent Clear'):
@@ -107,7 +110,20 @@ def main():
             assert len(registrations) == 1
             registration = registrations[0]
             assert registration['Enabled'] and registration['RequiresAuthentication']
-            assert registration['PluginVersion'] == '0.1.0' and registration['Name'] == 'WatchGuard'
+            assert registration['PluginVersion'] == '0.2.0' and registration['Name'] == 'WatchGuard'
+            # Restart with the persisted registration: upsert must retain exactly one script.
+            docker('restart', name)
+            # Docker Desktop can allocate a different ephemeral host port on restart.
+            base = 'http://127.0.0.1:' + docker('port', name, '8096/tcp').split(':')[-1]
+            for attempt in range(60):
+                try:
+                    current = call('/Plugins/' + injector_id + '/Configuration', token=token)
+                    registered = [s for s in current['PluginJavaScripts'] if s['Id'] == 'watchguard-v1']
+                    assert len(registered) == 1 and registered[0]['PluginVersion'] == '0.2.0'
+                    break
+                except (urllib.error.URLError, http.client.HTTPException, ConnectionError, AssertionError):
+                    if attempt == 59: raise
+                    time.sleep(1)
             assert 'WatchGuard web script registered with JavaScript Injector.' in docker('logs', name)
             assert call('/WatchGuard/Watchlist', token=token) == []
             runpy.run_path(str(ROOT / 'tests/backend-smoke.py'))['run'](
@@ -126,7 +142,7 @@ def main():
                 call('/Plugins/' + injector_id + '/Configuration', 'POST', injector_config, token, expected=204)
                 assert 'WatchGuard: This item may still be in use.' not in call('/JavaScriptInjector/private.js', token=token, raw=True)
                 assert docker('exec', name, 'sha256sum', '/jellyfin/jellyfin-web/index.html').split()[0] == pristine_web_hash
-                print('Deployment checks passed: v0.1.0 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
+                print('Deployment checks passed: v0.2.0 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
 
         finally:
             subprocess.run(['docker', 'rm', '-f', name], stdout=subprocess.DEVNULL, check=False)
