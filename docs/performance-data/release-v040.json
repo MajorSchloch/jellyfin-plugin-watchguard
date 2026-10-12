@@ -1,0 +1,110 @@
+{
+  "version": "0.4.0.0",
+  "status": "release candidate, not published",
+  "date": "2026-10-12",
+  "targetAbi": "12.2.0.0",
+  "standaloneDefault": true,
+  "runtimeInjectorDependency": false,
+  "runtimeModeFlagsRequired": false,
+  "guid": "a3c6bc84-783d-4ba8-a0db-89bfb83ab486",
+  "sha256": "439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d",
+  "catalogMd5": "83025bb9b85dfc03d91a1875aabc9926",
+  "reproducibleBuild": "two forced normal builds, identical ZIP SHA-256",
+  "zipMembers": [
+    "Jellyfin.Plugin.WatchGuard.dll",
+    "LICENSE"
+  ],
+  "tests": {
+    "backendAndLoader": 74,
+    "javascriptAndBootstrap": 44,
+    "catalogUnit": 4,
+    "browsers": {
+      "linuxserverCatalogNoInjectorCaddy": {
+        "result": "PASS",
+        "deletes": 13,
+        "orderingViolations": 0,
+        "loginToAdapterMs": 712,
+        "report": "artifacts/v040/linuxserver/caddy/standalone/report.json"
+      },
+      "publishedV031Migration": {
+        "result": "PASS",
+        "deletes": 13,
+        "orderingViolations": 0,
+        "loginToAdapterMs": 721,
+        "report": "artifacts/v040/linuxserver/direct/migration/report.json"
+      },
+      "officialBasePath": {
+        "result": "PASS",
+        "deletes": 13,
+        "orderingViolations": 0,
+        "loginToAdapterMs": 663,
+        "report": "artifacts/v040/official/basepath/standalone/report.json"
+      },
+      "publishedV031Browser": {
+        "result": "PASS",
+        "deletes": 13,
+        "orderingViolations": 0,
+        "loginToAdapterMs": 243,
+        "report": "artifacts/v040/official/direct/injector/report.json"
+      }
+    },
+    "publishedLegacyCatalog": "PASS",
+    "nativeUninstall": "PASS; routes/loader absent after restart, JSON retained, Web hash unchanged",
+    "migration": {
+      "result": "PASS",
+      "publishedBaselineSha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+      "upgrade": "0.3.1 -> 0.4.0",
+      "rollback": "0.4.0 -> 0.3.1 -> 0.4.0",
+      "checksumRejection": true,
+      "conflictBlocked": true,
+      "noAutomaticInjectorWrites": true,
+      "otherScriptsPreserved": true,
+      "dataAndConfigBytesPreserved": true,
+      "duplicateActivePlugins": false
+    },
+    "caddyHttp": {
+      "image": "caddy:2@sha256:f2a1290d0463aad60660d4ec134943f183ee2a5f6c3eb7bf32dd984f2f020772",
+      "httpsTrustedTestCA": true,
+      "rootPath": true,
+      "compression": [
+        "identity",
+        "gzip",
+        "zstd"
+      ],
+      "authenticatedWebSocketUpgradeAndPing": true,
+      "conditionalHtml": "200 fresh/no-store",
+      "head": true,
+      "authenticatedScriptNoStore": true
+    },
+    "nativeWebSocket": {
+      "mode": "standalone",
+      "https": true,
+      "nativeWebSocketOpen": false,
+      "handshakeStatusCodes": [
+        101
+      ],
+      "connectionsRemaining": 1,
+      "closed": 2,
+      "framesReceived": 2,
+      "frameErrors": 2
+    },
+    "cspRestriction": "Expected Blob-blocked failure, no bypass or installed adapter",
+    "auth": "anonymous, invalid, API-key, disabled, removed users rejected; valid own-user requests accepted"
+  },
+  "linuxserverImage": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+  "productionLocalImageId": "sha256:fbd967af0187a569b0c18d2db6cb311fdf0df4aeb520102c63f19320aadf964d",
+  "productionImageIdUsedAsRegistryDigest": false,
+  "productionBrowserVerified": false,
+  "workflow": "prepared and YAML syntax checked; not dispatched",
+  "unchanged": [
+    "public manifest",
+    "published v0.3.1 archive",
+    "watchlists schema 1",
+    "preferences schema 1",
+    "deletion adapter",
+    "protection controller",
+    "native interest/playback/activity logic"
+  ],
+  "productionTouched": false,
+  "published": false
+}

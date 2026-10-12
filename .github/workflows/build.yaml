@@ -16,13 +16,13 @@ jobs:
       - run: dotnet restore Jellyfin.Plugin.WatchGuard.slnx --locked-mode
       - run: dotnet build Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
       - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-build --no-restore
-      - run: node --test tests/web.test.cjs
+      - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs
       - run: python3 scripts/build-release.py
       - run: python3 tests/catalog_test.py
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: WatchGuard-v0.3.1
+          name: WatchGuard-v0.4.0
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip.sha256

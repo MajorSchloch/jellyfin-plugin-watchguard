@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish v0.3.1 and update the public catalog (requires release environment approval)
+        description: Publish v0.4.0 and update the public catalog (requires release environment approval)
         type: boolean
         default: false
 permissions:
@@ -26,48 +26,62 @@ jobs:
           node-version: '24'
       - run: python3 scripts/build-release.py
       - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
-      - run: node --test tests/web.test.cjs
+      - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs
       - run: python3 tests/catalog_test.py
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
       - name: Rebuild and verify determinism
         run: |
-          cp artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip.sha256 /tmp/first.sha256
+          cp artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip.sha256 /tmp/first.sha256
           python3 scripts/build-release.py
-          cmp /tmp/first.sha256 artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip.sha256
-      - name: Build pinned test dependency
+          cmp /tmp/first.sha256 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip.sha256
+      - name: Build pinned rollback-only Injector fixture (not a runtime dependency)
         run: |
           git clone https://github.com/n00bcodr/Jellyfin-JavaScript-Injector.git /tmp/watchguard-injector
           git -C /tmp/watchguard-injector checkout --detach 2758804c987d490ef32fc2fbdb8a73a44facdf2c
           dotnet build /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/Jellyfin.Plugin.JavaScriptInjector.csproj -c Release -p:JellyfinTarget=jf12 -p:JellyfinVersion=12.2.0
       - run: npm ci --prefix tests/browser
       - run: cd tests/browser && npx playwright install --with-deps chromium
-      - name: Disposable browser regressions
-        run: python3 tests/docker-smoke.py --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
+      - name: Test-only compression decoder
+        run: sudo apt-get update && sudo apt-get install -y zstd
+      - name: Download verified published rollback fixtures
+        run: |
+          curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.3.1/Jellyfin.Plugin.WatchGuard-v0.3.1.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
+          echo 'c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2  artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip' | sha256sum -c -
+          curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.3.0/Jellyfin.Plugin.WatchGuard-v0.3.0.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip
+          echo '4ce9f89924391e9842ba444b7dd0d2fcf509a23845497b45f601c2f3c18339a6  artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip' | sha256sum -c -
+          mkdir -p artifacts/RollbackV031
+          unzip -p artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip Jellyfin.Plugin.WatchGuard.dll > artifacts/RollbackV031/Jellyfin.Plugin.WatchGuard.dll
+      - name: No-dependency native catalog, Caddy HTTPS and full Web/deletion suite
+        run: python3 tests/docker-smoke.py --linuxserver --catalog --caddy
+      - name: Published v0.3.1 migration, conflict refusal, rollback and full Web suite
+        run: python3 tests/docker-smoke.py --linuxserver --migration --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
+      - name: Official-image base-path regression
+        run: python3 tests/docker-smoke.py --base-path /jellyfin --proxy
+      - name: Retained legacy catalog and browser regressions
+        run: |
+          python3 tests/docker-smoke.py --legacy-injector --catalog --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
+          python3 tests/docker-smoke.py --legacy-injector --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
+      - name: Native WebSocket and header probes
+        run: python3 tests/docker-smoke.py --linuxserver --caddy --measure
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: WatchGuard-browser-failure
-          path: |
-            artifacts/poc/hidden-native-more.png
-            artifacts/settings-failure.png
-            artifacts/poc/report.json
+          path: artifacts/v040/
           if-no-files-found: warn
-      - name: Download verified published v0.3.0 rollback fixture
-        run: |
-          curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.3.0/Jellyfin.Plugin.WatchGuard-v0.3.0.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip
-          echo '4ce9f89924391e9842ba444b7dd0d2fcf509a23845497b45f601c2f3c18339a6  artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip' | sha256sum -c -
-      - name: Native catalog installation and migration
-        run: python3 tests/docker-smoke.py --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll --catalog
       - uses: actions/upload-artifact@v4
         with:
-          name: WatchGuard-v0.3.1-validated
+          name: WatchGuard-v0.4.0-validated
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip.sha256
             artifacts/settings-validation.json
             artifacts/catalog-validation.json
-            artifacts/poc/report.json
+            artifacts/v040/
+            artifacts/standalone/caddy-http.json
+            artifacts/standalone/socket-standalone.json
+            artifacts/migration-v040.json
   publish:
     if: inputs.publish && github.ref_name == github.event.repository.default_branch
     needs: validate
@@ -79,24 +93,24 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: WatchGuard-v0.3.1-validated
+          name: WatchGuard-v0.4.0-validated
           path: artifacts
       - name: Publish only after explicit workflow request and environment approval
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           test "$(gh repo view "$GITHUB_REPOSITORY" --json isPrivate --jq .isPrivate)" = false
-          python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
+          python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
           # No replacement of existing immutable release assets.
-          gh release create v0.3.1 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title 'WatchGuard v0.3.1' --notes-file docs/release-v031.md
-          gh release upload v0.3.1 artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip.sha256 --repo "$GITHUB_REPOSITORY"
-          gh release edit v0.3.1 --draft=false --repo "$GITHUB_REPOSITORY"
+          gh release create v0.4.0 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title 'WatchGuard v0.4.0' --notes-file docs/standalone-release.md
+          gh release upload v0.4.0 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip.sha256 --repo "$GITHUB_REPOSITORY"
+          gh release edit v0.4.0 --draft=false --repo "$GITHUB_REPOSITORY"
       - name: Verify public assets and update version history
-        run: python3 scripts/catalog.py --from-release "$GITHUB_REPOSITORY" v0.3.1 --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
+        run: python3 scripts/catalog.py --from-release "$GITHUB_REPOSITORY" v0.4.0 --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
       - name: Commit verified manifest to the source branch
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add manifest.json
-          git commit -m 'Update WatchGuard catalog for v0.3.1'
+          git commit -m 'Update WatchGuard catalog for v0.4.0'
           git push origin "HEAD:$GITHUB_REF_NAME"

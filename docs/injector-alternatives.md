@@ -1,3 +1,5 @@
+> Historical research/PoC record. The normal v0.4.0 release candidate now uses standalone loading without flags. See [current release](standalone-release.md) and [migration](migration-v040.md); old mode-switch/build commands below are historical.
+
 # Future single-plugin installation: research only
 
 v0.3.1 **retains JavaScript Injector**. No alternative loader, middleware, Web-file rewrite or File Transformation dependency is implemented. Research targets the pinned Jellyfin Server/Web 12.2 sources used throughout this repository.

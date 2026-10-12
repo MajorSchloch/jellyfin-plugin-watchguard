@@ -24,7 +24,7 @@ def inspect_zip(path):
     return hashlib.md5(content).hexdigest(), hashlib.sha256(content).hexdigest()
 
 
-def entry(path, url, timestamp, version='0.3.1.0'):
+def entry(path, url, timestamp, version='0.4.0.0'):
     md5, _ = inspect_zip(path)
     return {'version': version, 'changelog': 'See the matching release notes.', 'targetAbi': ABI,
             'sourceUrl': url, 'checksum': md5, 'timestamp': timestamp}
@@ -32,7 +32,7 @@ def entry(path, url, timestamp, version='0.3.1.0'):
 
 def package(versions):
     return {'guid': GUID, 'name': 'WatchGuard', 'overview': 'Personal watchlists and advisory Web deletion warnings.',
-            'description': 'Requires a compatible JavaScript Injector installed separately. Native clients and direct API deletion are not protected.',
+            'description': 'Standalone Web loader; migrate by removing only the old WatchGuard Injector registration. Native clients and direct API deletion are not protected.',
             'owner': 'MajorSchloch', 'category': 'General', 'versions': versions}
 
 

@@ -27,16 +27,36 @@
             const result = await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/IntegrationStatus'), dataType:'json'});
             if (!valid(who, revision)) return;
             const target = field('#wgIntegration'); target.replaceChildren();
-            for (const text of [ 'WatchGuard ' + result.PluginVersion + ' · Jellyfin ' + result.JellyfinVersion,
+            const standalone = result.Standalone?.Enabled === true;
+            const lines = [ 'Plugin loaded: true · WatchGuard ' + result.PluginVersion + ' · Jellyfin ' + result.JellyfinVersion,
                 result.TestedCompatibility + (result.ServerMatchesTestedVersion ? ' — server version matches' : ' — server version not validated'),
-                'Injector discovered: ' + result.Registration.InjectorDiscovered + ' · Interface compatible: ' + result.Registration.InterfaceCompatible,
-                result.Registration.State + ' · Script version: ' + (result.Registration.ScriptVersion || 'not registered'), result.Instructions ]) {
+                ...(standalone ? [
+                    'Standalone loader active: ' + result.Standalone.LoaderActive + ' · ' + result.Standalone.State,
+                    'Injector detected: ' + result.Standalone.Injector.Discovered + ' · Configuration interface understood: ' + result.Standalone.Injector.InterfaceCompatible + ' · Conflicting WatchGuard registration: ' + result.Standalone.Injector.WatchGuardRegistration,
+                    'Bootstrap responses completed since restart: ' + result.Standalone.BootstrapResponsesCompleted,
+                    'Authenticated script responses completed since restart: ' + result.Standalone.AuthenticatedScriptResponsesCompleted,
+                    'Server script version: ' + result.Standalone.ScriptVersion + ' · Response delivery does not prove browser execution.'
+                ] : [ 'Injector discovered: ' + result.Registration?.InjectorDiscovered + ' · Interface compatible: ' + result.Registration?.InterfaceCompatible,
+                    result.Registration?.State + ' · Script version: ' + (result.Registration?.ScriptVersion || 'not registered') ]), result.Instructions ];
+            for (const text of lines) {
                 const p = document.createElement('p'); p.textContent = text; target.append(p);
+            }
+            let available = true;
+            if (standalone) {
+                try { await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/Standalone/script.js'), dataType:'text', cache:false}); }
+                catch { available = false; }
+                if (!valid(who, revision)) return;
+                const p = document.createElement('p'); p.textContent = 'Authenticated script available to this browser now: ' + available; target.append(p);
+                if (window.WatchGuardStandalone?.buildId !== result.Standalone.BuildId || !result.Standalone.LoaderActive || !available) {
+                    field('#wgBrowser').textContent = 'This browser: standalone build is stale, blocked or unavailable. Fully reload this tab; do not infer protection from a retained adapter.'; return;
+                }
+            } else if (window.WatchGuardStandalone) {
+                field('#wgBrowser').textContent = 'This browser: retained standalone loader after a mode change. Fully reload this tab before verifying integration.'; return;
             }
             field('#wgBrowser').textContent = window.WatchGuardPoc?.isInstalled() === true
                 ? 'This browser: adapter installed on its current ApiClient. This does not verify every deletion path; test Cancel on disposable media.'
-                : 'This browser: adapter not detected. Check Injector registration, then fully reload this tab.';
-        } catch { if (valid(who, revision)) field('#wgIntegration').textContent = 'Integration status unavailable. Administrator access is required.'; }
+                : 'This browser: adapter not detected. Check the selected loader, authentication and CSP, then fully reload this tab.';
+        } catch { if (valid(who, revision)) { field('#wgIntegration').textContent = 'Integration status unavailable. Administrator access is required.'; field('#wgBrowser').textContent = 'Browser verification unavailable. A retained adapter is not evidence of a working installation.'; } }
     }
     page.addEventListener('pageshow', async function () {
         const revision = ++epoch, who = identity();

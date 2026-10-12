@@ -1,0 +1,40 @@
+{
+  "phase": "v0.4.0 standalone proof only",
+  "target": "Jellyfin 12.2 / .NET 10",
+  "date": "2026-10-12",
+  "defaultBackendTests": 53,
+  "experimentalBackendTests": 61,
+  "javascriptTests": 44,
+  "standaloneNativeCatalog": "PASS",
+  "standaloneBrowser": "PASS",
+  "injectorBrowser": "PASS",
+  "basePathProxyBrowser": "PASS",
+  "compressedProxyHtmlResponses": 33,
+  "migrationAtoBtoA": "PASS",
+  "restrictiveCsp": "expected Blob blocking verified",
+  "linuxServerImage": "12.2.0 manifest unknown; unverified",
+  "mediaDeletes": 13,
+  "orderingViolations": 0,
+  "loginToAdapterMs": 729,
+  "indexTimings": [
+    {
+      "mode": "injector",
+      "samples": 10,
+      "medianIndexMs": 1.147,
+      "maxIndexMs": 12.355,
+      "indexBytes": 7437
+    },
+    {
+      "mode": "standalone",
+      "samples": 10,
+      "medianIndexMs": 1.333,
+      "maxIndexMs": 3.106,
+      "indexBytes": 5540
+    }
+  ],
+  "experimentalDllSha256": "53a96803f9cddf8c8d2b3928a6c2365ed84f1e60defcd3c61d7b2433da0c12a0",
+  "published": false,
+  "catalogModified": false,
+  "productionTouched": false,
+  "recommendation": "Retain Injector for production; prototype successful on tested official-image deployments."
+}

@@ -56,7 +56,7 @@ public sealed class BackendTests : IDisposable
     private WatchGuardController Controller() => new(auth.Object, users.Object, library.Object, store, service,
         NullLogger<WatchGuardController>.Instance, new(store, library.Object, users.Object, sessions.Object, service)) { ControllerContext = new() { HttpContext = new DefaultHttpContext() } };
     private PreferencesController Preferences(PreferenceStore? preferences = null) => new(auth.Object, users.Object,
-        preferences ?? new PreferenceStore(directory), new IntegrationStatus(), Mock.Of<MediaBrowser.Controller.IServerApplicationHost>(),
+        preferences ?? new PreferenceStore(directory), new Jellyfin.Plugin.WatchGuard.Standalone.StandaloneMode(), Mock.Of<MediaBrowser.Controller.IServerApplicationHost>(),
         NullLogger<PreferencesController>.Instance) { ControllerContext = new() { HttpContext = new DefaultHttpContext() } };
 
     [Fact]
@@ -128,15 +128,6 @@ public sealed class BackendTests : IDisposable
         var old = Assert.IsType<Configuration>(serializer.Deserialize(legacy));
         Assert.Equal(30, old.ActivityWindowDays); Assert.Equal(100, old.ActivityLimit);
     }
-    [Fact]
-    public void MissingOrIncompatibleInjectorIsNotSuccessfulRegistration()
-    {
-        var integration = new IntegrationStatus(); Assert.False(integration.Snapshot.RegistrationSucceeded);
-        Assert.Null(IntegrationStatus.RegistrationMethod(null));
-        Assert.Null(IntegrationStatus.RegistrationMethod(typeof(InvalidInjector)));
-    }
-    private static class InvalidInjector { public static bool RegisterScript(string payload) => true; }
-
     private ProtectionStatus Status(BaseItem? item = null) => service.Get(item ?? movie, alice.Id);
     [Fact]
     public async Task ScopedActivityAndMembershipRequireAdminAndKeepUserIsolation()
@@ -375,7 +366,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 3, 1, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 4, 0, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
     }

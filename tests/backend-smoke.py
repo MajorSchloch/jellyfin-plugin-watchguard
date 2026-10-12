@@ -4,7 +4,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 
 
-def run(call, admin_token, items, plugins):
+def run(call, admin_token, items, plugins, standalone=True):
     movie = items['PoC Modern Movie']
     series = items['PoC Series Detail']
     guid = 'a3c6bc84-783d-4ba8-a0db-89bfb83ab486'
@@ -16,14 +16,18 @@ def run(call, admin_token, items, plugins):
     for enabled in [False, True]:
         call('/Plugins/'+guid+'/Configuration', 'POST', dict(changed, DiagnosticMode=enabled), admin_token, expected=204)
         for _ in range(30):
-            script = call('/JavaScriptInjector/private.js', token=admin_token, raw=True)
+            script = call('/WatchGuard/Standalone/script.js' if standalone else '/JavaScriptInjector/private.js', token=admin_token, raw=True)
             if ('let diagnostic = '+str(enabled).lower()+';') in script: break
             time.sleep(.1)
         else: raise AssertionError('Diagnostic script did not update live')
     call('/Plugins/'+guid+'/Configuration', 'POST', config, admin_token, expected=204)
     assert 'WatchGuardSettings' in call('/web/ConfigurationPage?name=WatchGuard', token=admin_token, raw=True)
     status = call('/WatchGuard/IntegrationStatus', token=admin_token)
-    assert status['PluginVersion'] == '0.3.1' and status['BrowserExecutionVerified'] is False
+    assert status['PluginVersion'] == ('0.4.0' if standalone else '0.3.1') and status['BrowserExecutionVerified'] is False
+    if standalone:
+        assert status['PluginLoaded'] and status['Standalone']['Enabled'] and status['Standalone']['LoaderActive']
+        assert status['Standalone']['AuthenticatedScriptResponsesCompleted'] >= 1
+        assert status['Standalone']['BrowserExecutionVerified'] is False
     defaults = call('/WatchGuard/Preferences', token=admin_token)
     assert defaults == {'Owner':'mine', 'Statuses':['watchlisted','watching','playing'], 'Sort':'title'}
     call('/WatchGuard/Preferences','PUT',{'Owner':'all','Statuses':['watched'],'Sort':'recent'},admin_token)
@@ -133,7 +137,19 @@ def run(call, admin_token, items, plugins):
         except AssertionError:
             if attempt == 19: raise
             time.sleep(0.25)
+    if standalone:
+        call('/WatchGuard/Standalone/script.js',token=token,raw=True)
+        policy=call('/Users/'+member['Id'],token=admin_token)['Policy']
+        call('/Users/'+member['Id']+'/Policy','POST',dict(policy,IsDisabled=True),admin_token,expected=204)
+        call('/WatchGuard/Standalone/script.js',token=token,expected=401)
+        call('/Users/'+member['Id']+'/Policy','POST',policy,admin_token,expected=204)
+        call('/Auth/Keys?app=WatchGuardQualification','POST',token=admin_token,expected=204)
+        keys=call('/Auth/Keys',token=admin_token)['Items']
+        key=next(k['AccessToken'] for k in keys if k['AppName']=='WatchGuardQualification')
+        call('/WatchGuard/Standalone/script.js',token=key,expected=401)
+        # The fixture removes this key with its entire disposable configuration; never logs it.
     call('/Users/' + member['Id'], 'DELETE', token=admin_token, expected=204)
+    if standalone: call('/WatchGuard/Standalone/script.js',token=token,expected=401)
     assert not call('/WatchGuard/Protection/' + movie, token=admin_token)['HasInterest']
     assert call('/WatchGuard/Watchlists', token=admin_token) == []
     assert call('/WatchGuard/ActivityOverview', token=admin_token)['Items'] == []

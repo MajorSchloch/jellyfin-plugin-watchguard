@@ -4,14 +4,14 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const fixture = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
-assert.match(fixture.base, /^http:\/\/127\.0\.0\.1:\d+$/);
+assert.match(fixture.base, /^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyfin)?$/);
 assert.equal(fixture.username, 'WatchGuardPoCTest');
-const output = path.resolve('artifacts/poc'); fs.mkdirSync(output, { recursive: true });
+const output = path.resolve(fixture.reportDirectory || 'artifacts/poc'); fs.mkdirSync(output, { recursive: true });
 const errorText = 'There was an error deleting the item from the server. Please check that Jellyfin has write access to the media folder and try again.';
 const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [], orderingViolations: 0 };
 (async () => {
     const browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: 'en-US' });
+    const context = await browser.newContext({ ignoreHTTPSErrors: fixture.tls === true, viewport: { width: 1280, height: 900 }, locale: 'en-US' });
     const page = await context.newPage();
     // Capture native Jellyfin exceptions that can prevent getCommands() from revealing More.
     const nativeErrors = [];
@@ -28,7 +28,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
     let nativeCalls = 0;
     page.on('console', message => {
         const text = message.text();
-        if (/^\[WatchGuard PoC\] [a-z-]+ \d+$/.test(text)) {
+        if (/^\[WatchGuard PoC\] [a-z-]+ \d+(?:\/jellyfin)?$/.test(text)) {
             report.diagnostics.push(text);
             if (text.includes(' native-called ')) nativeCalls++;
         }
@@ -157,8 +157,10 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.goto(fixture.base + '/web/');
         await page.locator('#txtManualName').fill(fixture.username);
         await page.locator('#txtManualPassword').fill(fixture.password);
+        const loginStarted = Date.now();
         await page.getByRole('button', { name: 'Sign In', exact: true }).click();
         await page.waitForFunction(() => window.WatchGuardPoc?.isInstalled());
+        report.loginToAdapterMs = Date.now() - loginStarted;
         await page.getByText('My Media', {exact:true}).waitFor();
         report.phase = 'Watchlist UI';
         const memberPassword = require('node:crypto').randomUUID();
@@ -366,7 +368,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.goForward(); await page.getByRole('button', {name:'Add to Watchlist',exact:true}).waitFor();
         assert.equal(await page.locator('.watchguard-controls').count(),1);
         // A normal user gets their own controls but no cross-user protection requests.
-        const memberContext = await browser.newContext(); const memberPage = await memberContext.newPage();
+        const memberContext = await browser.newContext({ignoreHTTPSErrors:fixture.tls === true}); const memberPage = await memberContext.newPage();
         let protectionRequests = 0;
         memberPage.on('request', r => { if (/\/WatchGuard\/(?:Protection\/|ActivityOverview(?:\?|$))/.test(r.url())) protectionRequests++; });
         await memberPage.goto(fixture.base + '/web/');
@@ -654,6 +656,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
     } catch (error) {
         console.log('Failed phase:', report.phase);
+        if (fixture.standalone) console.log('Standalone diagnostic:',await page.evaluate(()=>({state:window.WatchGuardStandalone?.status(),adapter:!!window.WatchGuardPoc,script:!!document.querySelector('#watchguard-standalone-loader')})),nativeErrors.slice(-5));
         console.log(await page.locator('body').innerText());
         fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
         await page.screenshot({path:path.join(output,'failure.png')});

@@ -1,0 +1,124 @@
+{
+  "phase": "v0.4.0 standalone qualification, experimental only",
+  "date": "2026-10-12",
+  "target": "Jellyfin Server/Web 12.2 / .NET 10",
+  "recommendation": "Conditional GO for tested configuration; NO-GO for unconditional production/vm622 qualification without exact image/Caddy/CSP verification",
+  "linuxserverImage": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+  "reportedServerVersion": "12.2.0",
+  "pluginPath": "/config/data/plugins",
+  "nativeStartup": "s6 and abc PUID/PGID preserved",
+  "tests": {
+    "defaultBackend": 53,
+    "experimentalBackend": 73,
+    "javascript": 44,
+    "catalogUnit": 3,
+    "browsers": {
+      "linuxserverCaddy": {
+        "result": "PASS",
+        "deleteRequests": 13,
+        "orderingViolations": 0,
+        "loginToAdapterMs": 722,
+        "localReport": "artifacts/standalone/linuxserver/caddy/standalone/report.json"
+      },
+      "linuxserverDirect": {
+        "result": "PASS",
+        "deleteRequests": 13,
+        "orderingViolations": 0,
+        "loginToAdapterMs": 716,
+        "localReport": "artifacts/standalone/linuxserver/direct/standalone/report.json"
+      },
+      "officialBasePath": {
+        "result": "PASS",
+        "deleteRequests": 13,
+        "orderingViolations": 0,
+        "loginToAdapterMs": 718,
+        "localReport": "artifacts/standalone/official/basepath/standalone/report.json"
+      },
+      "injectorOfficial": {
+        "result": "PASS",
+        "deleteRequests": 13,
+        "orderingViolations": 0,
+        "loginToAdapterMs": 179,
+        "localReport": "artifacts/standalone/official/direct/injector/report.json"
+      }
+    },
+    "catalogUpgradeAndRollback": "PASS; watchlists/preferences/XML byte equality",
+    "existingCatalogSuite": "PASS",
+    "injectorMigration": "PASS; only watchguard-v1 removed; unrelated registration preserved",
+    "authentication": "PASS; anonymous, invalid, disabled, removed and API-key callers rejected",
+    "restrictiveCsp": "Expected Blob failure verified; policy unchanged",
+    "unrelatedStaticAssets": "Native ETag/304 and 206 range preserved"
+  },
+  "caddy": {
+    "image": "caddy:2@sha256:f2a1290d0463aad60660d4ec134943f183ee2a5f6c3eb7bf32dd984f2f020772",
+    "httpsTrustedTestCA": true,
+    "rootPath": true,
+    "compression": [
+      "identity",
+      "gzip",
+      "zstd"
+    ],
+    "authenticatedWebSocketUpgradeAndPing": true,
+    "conditionalHtml": "200 fresh/no-store",
+    "head": true,
+    "authenticatedScriptNoStore": true
+  },
+  "nativeWebSockets": {
+    "standalone": {
+      "mode": "standalone",
+      "https": true,
+      "nativeWebSocketOpen": false,
+      "handshakeStatusCodes": [
+        101
+      ],
+      "connectionsRemaining": 1,
+      "closed": 2,
+      "framesReceived": 2,
+      "frameErrors": 2
+    },
+    "injector": {
+      "mode": "injector",
+      "https": false,
+      "nativeWebSocketOpen": false,
+      "handshakeStatusCodes": [
+        101
+      ],
+      "connectionsRemaining": 1,
+      "closed": 2,
+      "framesReceived": 2,
+      "frameErrors": 2
+    }
+  },
+  "directWarmIndexTimings": {
+    "standalone": {
+      "mode": "standalone",
+      "samples": 10,
+      "medianIndexMs": 1.056,
+      "maxIndexMs": 2.435,
+      "indexBytes": 5540
+    },
+    "injector": {
+      "mode": "injector",
+      "samples": 10,
+      "medianIndexMs": 1.072,
+      "maxIndexMs": 4.127,
+      "indexBytes": 7437
+    }
+  },
+  "artifacts": {
+    "publishedV031Sha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+    "experimentalDllSha256": "2ab51f495139e9cafe37ddf04ff7028fd14614f8f4a72aef0edd8383c849c080",
+    "localUpgradeFixtureSha256": "9b3b3d93074aeaf7e94be87dca647d1200df884cdcf235d1ed5a708f58be358e"
+  },
+  "productionTouched": false,
+  "releasePublished": false,
+  "publicCatalogChanged": false,
+  "knownLimitations": [
+    "vm622 exact image digest/Caddy/CSP not provided",
+    "Blob CSP required; blocked loader cannot protect deletion",
+    "Global ApiClient socket helper false in both modes despite live CDP connection; baseline failed socket attempts retained in observations",
+    "Only canonical entry paths, native 12.2 Web and tested pipeline ordering qualified",
+    "Old tabs require full reload; settings freshness is on-demand",
+    "No native-client/direct-API/filesystem deletion protection"
+  ]
+}

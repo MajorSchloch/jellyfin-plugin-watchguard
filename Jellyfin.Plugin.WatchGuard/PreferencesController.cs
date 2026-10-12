@@ -11,7 +11,7 @@ namespace Jellyfin.Plugin.WatchGuard;
 
 [ApiController, Authorize, Route("WatchGuard"), ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public sealed class PreferencesController(IAuthorizationContext authorization, IUserManager users, PreferenceStore store,
-    IntegrationStatus integration, IServerApplicationHost host, ILogger<PreferencesController> logger) : ControllerBase
+    Standalone.StandaloneMode standalone, IServerApplicationHost host, ILogger<PreferencesController> logger) : ControllerBase
 {
     private async Task<IActionResult> Execute(Func<Jellyfin.Database.Implementations.Entities.User, IActionResult> action)
     {
@@ -55,8 +55,9 @@ public sealed class PreferencesController(IAuthorizationContext authorization, I
         return Ok(new { PluginVersion = typeof(Plugin).Assembly.GetName().Version!.ToString(3),
             JellyfinVersion = host.ApplicationVersionString, TestedCompatibility = "Jellyfin Server/Web 12.2 / .NET 10",
             ServerMatchesTestedVersion = host.ApplicationVersion.Major == 12 && host.ApplicationVersion.Minor == 2,
-            Registration = integration.Snapshot,
+            PluginLoaded = true,
+            Standalone = standalone.Snapshot,
             BrowserExecutionVerified = false,
-            Instructions = "Install/enable JavaScript Injector 4.0.0.0 jf12 separately; keep DisableScriptInjectionMiddleware=false. Verify one enabled/authenticated watchguard-v1 in Injector Plugin Scripts, reload Web clients, and run the browser check. Server registration does not verify browser execution." });
+            Instructions = "Standalone loading. No Injector dependency. Completed responses do not verify browser execution. Fully reload clients and check this browser; CSP must permit Blob scripts. If Injector conflicts, remove only its watchguard-v1 entry; preserve other scripts and settings." });
     });
 }

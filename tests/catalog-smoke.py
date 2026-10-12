@@ -36,7 +36,7 @@ def run(call, restart, docker, name, root, plugins, token, movie):
     server=http.server.ThreadingHTTPServer(('0.0.0.0',0),functools.partial(Handler,directory=str(public)))
     thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
     base='http://host.docker.internal:'+str(server.server_port)
-    version=catalog.entry(archive,base+'/'+archive.name,'2026-10-11T00:00:00Z')
+    version=catalog.entry(archive,base+'/'+archive.name,'2026-10-11T00:00:00Z','0.3.1.0')
     old_version=catalog.entry(rollback,base+'/'+rollback.name,'2026-10-11T14:02:34Z','0.3.0.0')
     manifest=[catalog.package([version,old_version])];catalog.validate(manifest,True)
     (public/'manifest.json').write_text(json.dumps(manifest))

@@ -1,3 +1,5 @@
+> v0.3.1 reference. v0.4.0 keeps these settings and native persistence; standalone integration diagnostics replace registration diagnostics. See [current deployment checks](deployment.md#verify-loading-and-operation).
+
 # WatchGuard v0.3.1 settings and diagnostics
 
 Target: Jellyfin Server/Web 12.2, .NET 10. Dashboard → Plugins → WatchGuard opens the embedded native configuration page. It implements `IHasWebPages`, follows the template's `pluginConfigurationPage` lifecycle, and uses Jellyfin's existing `getPluginConfiguration` / `updatePluginConfiguration` API. There is no separate settings store or framework.

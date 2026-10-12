@@ -1,53 +1,44 @@
-> **v0.3.1 update:** v0.3.0 is now published and installed successfully. The private/empty-catalog statements below describe the historical preparation stage. Current [catalog installation/upgrade instructions](deployment.md#native-catalog-installation-and-upgrades) supersede them. The release workflow now prepares v0.3.1, verifies the published v0.3.0 rollback ZIP, exercises normal catalog upgrade/rollback and preserves the existing manifest entry. No v0.3.1 asset URL is generated before publication.
+# WatchGuard v0.4.0 catalog preparation
 
-# WatchGuard v0.3.0 — plugin repository preparation
+**Release candidate only.** Neither the public manifest nor any published v0.3.1 asset is changed. The catalog currently serves existing releases. No v0.4.0 public source URL or publication timestamp is invented during preparation.
 
-## Publication status
+## Native contract and package
 
-**Nothing is published by this task.** The configured source repository is `MajorSchloch/jellyfin-plugin-watchguard`. Authenticated GitHub inspection on 2026-10-11 confirmed it is **private and has no releases**; anonymous release lookup returns 404. Jellyfin's ordinary catalog downloader cannot use the maintainer's GitHub credentials. Therefore checked-in `manifest.json` is the valid empty repository array `[]`. It deliberately advertises no nonexistent or private download. A first-class public catalog becomes usable only after the owner authorizes public distribution and a public release asset actually exists.
+- Stable GUID `a3c6bc84-783d-4ba8-a0db-89bfb83ab486`, package name `WatchGuard`.
+- Assembly/package version `0.4.0.0`; product version `0.4.0`.
+- Jellyfin target ABI `12.2.0.0`. This is the installer's minimum, not a tested upper bound. Only Server/Web 12.2 is qualified.
+- Archive root contains exactly `Jellyfin.Plugin.WatchGuard.dll` and `LICENSE`; embedded Web/settings/bootstrap resources ship in the DLL. No Injector, Jellyfin assemblies, data, XML, PDB or installer metadata is bundled.
+- Native catalog checksum is **MD5 of the ZIP**. SHA-256 is a separate verification artifact; it cannot replace the native checksum field.
+- Manifest is an array of packages with `guid`, `name`, `overview`, `description`, `owner`, `category`, and `versions`. Versions carry four-part version, changelog, ABI, real ZIP URL, checksum and timezone-qualified timestamp.
+- `scripts/catalog.py --from-release` anonymously retrieves an already-public stable release, verifies exact downloaded ZIP bytes and SHA-256 sidecar, uses its actual asset URL and `published_at`, and appends the new version while preserving previous version objects. Existing version metadata is immutable. Unit tests explicitly check v0.3.1 history preservation and rejected mutation.
 
-The release ZIP and SHA-256 are prepared locally. A separate fixture manifest containing an actual local ZIP URL is generated and consumed by the real Jellyfin installer during tests. This proves the package/catalog contract without pretending a public release has been published.
+After publication, package-level description changes to standalone loading and migration guidance. Prior per-version URLs, timestamps, checksums and metadata stay untouched. Until then the checked-in manifest remains byte-for-byte unchanged.
 
-## Jellyfin 12.2 contract
-
-Pinned sources: [PackageInfo](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/MediaBrowser.Model/Updates/PackageInfo.cs), [VersionInfo](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/MediaBrowser.Model/Updates/VersionInfo.cs), [InstallationManager](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/Emby.Server.Implementations/Updates/InstallationManager.cs), [PackageController](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/Jellyfin.Api/Controllers/PackageController.cs).
-
-A repository is an array of package objects (`guid`, `name`, `description`, `overview`, `owner`, `category`, `versions`). Each version supplies `version`, `changelog`, `targetAbi`, `sourceUrl`, `checksum` and `timestamp`.
-
-- Plugin GUID: `a3c6bc84-783d-4ba8-a0db-89bfb83ab486`, unchanged.
-- Package name: `WatchGuard`; assembly version `0.3.0.0`, product/script version `0.3.0`.
-- `targetAbi`: `12.2.0.0`. Jellyfin treats it as a **minimum**, not an upper compatibility bound. Only 12.2 is validated; pin the server and revalidate before upgrading.
-- Native catalog `checksum` is **MD5 of the exact downloaded ZIP**, compared case-insensitively. SHA-256 is an additional downloadable verification sidecar, not a substitute in this field. MD5 is used for contract compatibility, not as a signature/authenticity claim; use trusted HTTPS distribution.
-- `sourceUrl` must end in `.zip`. The generator uses the actual public GitHub asset URL returned for an existing release, never a predicted URL.
-- `timestamp` is the real release's `published_at` in UTC; no future release timestamp is invented. Package history is sorted newest first and previous versions remain. Existing version metadata/assets are treated as immutable.
-- Installer checks compatibility/checksum, extracts into `PluginsPath/WatchGuard_0.3.0.0`, writes native `meta.json` and requires restart for loaded code/services. `meta.json` is installer-owned and is not shipped in the ZIP.
-
-ZIP contents remain exactly `Jellyfin.Plugin.WatchGuard.dll` and `LICENSE`. No Injector DLL, Jellyfin/runtime dependencies, PDB, loose script, configuration, metadata manifest or private data is included.
-
-## Build, validate and later publish
+## Reproducible validation
 
 ```sh
 python3 scripts/build-release.py
 python3 tests/catalog_test.py
-python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip
+python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
 ```
 
-Builds use pinned SDK 10.0.302, locked dependencies, forced deterministic compilation, normalized paths and fixed ZIP metadata. The additional release workflow builds/tests twice, compares SHA-256, runs backend/JavaScript/catalog tests, builds the pinned Injector, runs browser regressions, rebuilds the verified v0.2.4 rollback fixture from commit `37e2c0f16a1da1d1495ce1a4ae3b8438aea2fdc7`, then exercises native catalog installation/migration. A rollback hash mismatch fails rather than silently skipping migration.
+The packager requires SDK 10.0.302, locked restoration, forced compilation, normalized source paths, deterministic compilation, fixed ZIP metadata and an allowlist. Build twice and compare `.zip.sha256`. Native local-catalog tests install the **exact generated ZIP**, verify native metadata/restart, and run the full browser/deletion suite with no Injector. Migration tests install the actual published v0.3.1 baseline and then the RC through the same native package APIs. Incorrect MD5 is rejected before extraction.
 
-`.github/workflows/release.yaml` is manual-only. `publish=false` is the default and uploads Actions artifacts only. Before later publication, the owner must configure the GitHub **release** environment with required reviewers, make the distribution repository public, review this release, and run the workflow from the default branch with `publish=true`. These repository settings are not changed by this task. A boolean alone is not an enforced reviewer policy; configure the environment accordingly.
+The temporary test catalog has a real, fixture-only HTTP ZIP URL and timestamp; it is not the public repository. Tests bind disposable configuration/media and close/delete their containers and local catalogs afterward.
 
-The publish job checks public visibility, creates a draft release at the validated commit, uploads the ZIP/SHA-256, then publishes it. It refuses to replace an existing release. Only afterward does `scripts/catalog.py --from-release "$GITHUB_REPOSITORY" v0.3.0 --zip ...` anonymously retrieve the real release metadata, download both assets, verify exact ZIP bytes and SHA-256, compute MD5, preserve history, and update `manifest.json`. It commits the verified manifest back to the source branch. Branch protection may require manually committing/merging that generated manifest instead; a failed manifest update does not justify editing unverified URLs into it. No tag, release, repository visibility or remote branch has been changed here.
+## GitHub Actions
 
-After publication and manifest merge, obtain and anonymously verify the actual raw manifest URL from GitHub; add that verified URL under Dashboard → Plugins → Repositories. Refresh Catalog, install WatchGuard, restart and verify registration and browser operation. There is intentionally no advertised installation URL while the repository is private/empty.
+`build.yaml` builds/tests the normal assembly, JavaScript/bootstrap, allowlisted ZIP and catalog validation for push/PR/manual runs. `release.yaml` is manually dispatched, defaults to `publish=false`, and performs:
 
-## JavaScript Injector dependency
+1. Normal release build, all backend/JavaScript/catalog unit checks, a forced second build and checksum comparison.
+2. Pinned LinuxServer/Caddy native catalog install with **no Injector**, full browser/deletion/auth/CSP/settings tests, base-path regression and WebSocket/header probes.
+3. Verified published v0.3.1 rollback download, catalog upgrade/rollback with preserved JSON/XML, conflict refusal and explicit single-entry cleanup. Injector is built only for these retained legacy/migration fixtures, never packaged or required by the RC.
+4. Retained v0.3.0 → v0.3.1 catalog and published v0.3.1 browser regressions, plus diagnostic/test artifacts upload.
 
-The real published **4.0.0.0** release provides a jf12 artifact named `Jellyfin.Plugin.JavaScriptInjector_12.0.0.zip` (its native target ABI is 12.0.0.0). See the [actual release](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/releases/tag/4.0.0.0) and the upstream [Jellyfin 12 catalog](https://raw.githubusercontent.com/n00bcodr/jellyfin-plugins/main/12/manifest.json). Its catalog MD5 is `E9B247E1CBD473B02CC71BD6E3DAE369`; the package contains only its DLL. The released jf12 artifact and the pinned 12.2 source build are tested separately against Jellyfin 12.2. Do not install its 10.11/.NET 9 variant.
+Publishing is a separate job gated by successful validation, explicit `publish=true`, the repository default branch and the `release` environment. Configure that environment's required reviewers in GitHub; this workflow file alone cannot enforce repository approval settings. No workflow was dispatched by this task.
 
-Install/enable Injector separately; Jellyfin's catalog contract does not automatically resolve this dependency. Preserve response-time middleware (`DisableScriptInjectionMiddleware=false`). WatchGuard validates the public static `RegisterScript(JObject)` boolean interface, retries startup ordering, and emits an actionable warning if registration fails. Missing Injector is explicitly tested; WatchGuard APIs can work while **no Web deletion confirmation is active**. Even a successful registration log is not proof of browser execution: check exactly one authenticated/enabled `watchguard-v1` at version `0.3.0`, reload clients, and verify `window.WatchGuardPoc?.isInstalled()`. Full checks remain in [deployment.md](deployment.md#verify-registration-and-operation).
+On a later authorized publish run, the job verifies public repository visibility, creates a new draft `v0.4.0` release at the validated commit, uploads ZIP/SHA-256, then publishes it. It never uses asset replacement/clobber flags. Only afterward does the manifest generator verify anonymous public assets and append the entry. The verified manifest is committed back to the source branch; branch protection may require a reviewed manual merge instead. Existing v0.3.1 release/manifest entries must remain unchanged.
 
-## Installation evidence and rollback
+Catalog-managed users then install/update normally and restart; no DLL copying is needed. Existing Injector users must follow [migration-v040.md](migration-v040.md). Native clients/direct API/filesystem deletion remain outside Web warning coverage.
 
-`tests/docker-smoke.py --catalog --injector-dll /path/to/Injector.dll` uses the actual `/Repositories`, `/Packages` and `/Packages/Installed/WatchGuard` APIs, a temporary release-only HTTP server, and disposable Jellyfin config/media. It checks rejected bad MD5 before extraction, clean discovery with no WatchGuard DLL, native versioned folder/meta generation, exact packaged DLL, restart loading, a real v0.2.4 manual-to-catalog transition, byte-preserved memberships/settings, one discoverable WatchGuard assembly, one Injector registration, and missing-Injector diagnostics. The temporary HTTP server binds a random host port and serves only test ZIP/manifests; never point this harness at production. It closes and the container is removed afterward.
-
-See [manual migration and rollback](manual-to-catalog.md), including the LinuxServer.io `/config/data/plugins` layout. These tests use the pinned official Jellyfin image; LinuxServer.io paths are documented from the supplied production layout/native path rules, not claimed as a live production migration.
+Contract source: pinned Jellyfin [PackageInfo](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/MediaBrowser.Model/Updates/PackageInfo.cs), [VersionInfo](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/MediaBrowser.Model/Updates/VersionInfo.cs), and [InstallationManager](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/Emby.Server.Implementations/Updates/InstallationManager.cs). See [release results](standalone-release.md) and [deployment](deployment.md).

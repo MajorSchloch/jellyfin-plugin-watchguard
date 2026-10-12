@@ -2,10 +2,10 @@
 const {chromium} = require('./browser/node_modules/playwright');
 const fs = require('node:fs'), assert = require('node:assert/strict');
 const fixture = JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
-assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/); assert.equal(fixture.username,'WatchGuardPoCTest');
+assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyfin)?$/); assert.equal(fixture.username,'WatchGuardPoCTest');
 (async () => {
     const browser = await chromium.launch({headless:true});
-    const page = await browser.newPage(); page.setDefaultTimeout(12000);
+    const page = await browser.newPage({ignoreHTTPSErrors:fixture.tls === true}); page.setDefaultTimeout(12000);
     try {
         await page.goto(fixture.base+'/web/');
         await page.locator('#txtManualName').fill(fixture.username); await page.locator('#txtManualPassword').fill(fixture.password);
@@ -22,8 +22,21 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/); assert.equal(fixture.u
         assert.equal(await page.locator('#wgLimit').inputValue(),'31');
         await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
         await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
-        await page.getByText(/Server registration succeeded; browser unverified/).waitFor();
+        await page.getByText(fixture.standalone ? /Standalone loader active: true/ : /Server registration succeeded; browser unverified/).waitFor();
         await page.getByText(/This browser: adapter installed/).waitFor();
+        if (fixture.standalone) {
+            await page.getByText('Authenticated script available to this browser now: true').waitFor();
+            await page.route('**/WatchGuard/IntegrationStatus', async route => {
+                const response=await route.fetch(), result=await response.json();
+                result.Standalone.BuildId='different-server-build';
+                await route.fulfill({response,json:result});
+            });
+            await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
+            await page.getByText(/standalone build is stale, blocked or unavailable/).waitFor();
+            await page.unroute('**/WatchGuard/IntegrationStatus');
+            await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
+            await page.getByText(/This browser: adapter installed/).waitFor();
+        }
         await page.locator('#wgDays').fill('30'); await page.locator('#wgLimit').fill('100');
         await page.getByRole('button',{name:'Save',exact:true}).click(); await page.getByText(/^Saved\. Activity settings/).waitFor();
         await page.goto(fixture.base+'/web/#/home?watchguard=watchlists&owner=all&interest=watched&sort=recent');

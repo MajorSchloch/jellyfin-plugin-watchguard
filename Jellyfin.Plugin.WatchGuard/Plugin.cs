@@ -1,3 +1,5 @@
+using Jellyfin.Plugin.WatchGuard.Standalone;
+using Microsoft.AspNetCore.Hosting;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Controller;
@@ -34,9 +36,9 @@ public sealed class ServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddSingleton(_ => new WatchlistStore(Plugin.Instance?.DataFolderPath
             ?? throw new InvalidOperationException("WatchGuard plugin is unavailable.")));
         serviceCollection.AddSingleton(_ => new PreferenceStore(Plugin.Instance!.DataFolderPath));
-        serviceCollection.AddSingleton<IntegrationStatus>();
         serviceCollection.AddSingleton<InterestService>();
         serviceCollection.AddSingleton<InterestOverviewService>();
-        serviceCollection.AddHostedService<InjectorRegistration>();
+        serviceCollection.AddSingleton<StandaloneMode>();
+        serviceCollection.AddSingleton<IStartupFilter, StandaloneStartupFilter>();
     }
 }
