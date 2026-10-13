@@ -50,7 +50,19 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
         injector_xml=plugins/'configurations/Jellyfin.Plugin.JavaScriptInjector.xml'
         prior=injector_xml.read_bytes()
         install('0.4.0','bad.json',500)
-        assert not (plugins/'WatchGuard_0.4.0.0').exists()
+        # The native installer can leave a staged folder after returning HTTP 500.
+        # A checksum failure must not activate the candidate; never reuse staged
+        # bytes when exercising the subsequent valid catalog installation.
+        active_before_restart = [p for p in call('/Plugins',token=token)
+                                 if p['Id'].replace('-','')==GUID.replace('-','') and p['Status']=='Active']
+        assert len(active_before_restart)==1 and active_before_restart[0]['Version']=='0.3.1.0'
+        failed_stage = plugins/'WatchGuard_0.4.0.0'
+        if failed_stage.exists():
+            docker('stop',name)
+            shutil.move(str(failed_stage),str(root/'rejected-checksum-stage'))
+            restart()
+            baseline = call('/WatchGuard/IntegrationStatus',token=token)
+            assert baseline['PluginVersion']=='0.3.1'
         install('0.4.0');restart()
         status=call('/WatchGuard/IntegrationStatus',token=token)
         assert status['PluginVersion']=='0.4.0' and not status['Standalone']['LoaderActive']
