@@ -27,9 +27,26 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
         try:
             call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':GUID,'version':version+'.0','repositoryUrl':base+'/'+file}),'POST',token=token,expected=expected,raw=True)
         except AssertionError:
-            # Disposable fixture diagnostics only; never print response bodies or authorization.
+            # Diagnose native catalog state without exposing credentials,
+            # response bodies, filesystem contents, or private WatchGuard data.
+            packages=call('/Packages',token=token)
+            matching=[{
+                'guid':p.get('guid',p.get('Guid')),
+                'name':p.get('name',p.get('Name')),
+                'versions':[v.get('version',v.get('Version')) for v in
+                            (p.get('versions',p.get('Versions')) or [])]
+            } for p in packages if str(p.get('guid',p.get('Guid',''))).replace('-','').lower()==GUID.replace('-','')]
+            rows=[{'version':p.get('Version'),'status':p.get('Status')} for p in call('/Plugins',token=token)
+                  if str(p.get('Id','')).replace('-','').lower()==GUID.replace('-','')]
+            print('Native install failure diagnostic:',json.dumps({
+                'requestedVersion':version+'.0','repositoryFile':file,
+                'repositoryPackages':matching,'installedPlugins':rows,
+                'candidateFolder':(plugins/'WatchGuard_0.4.1.0').exists(),
+                'candidateDll':(plugins/'WatchGuard_0.4.1.0'/'Jellyfin.Plugin.WatchGuard.dll').exists(),
+                'candidateMetadata':(plugins/'WatchGuard_0.4.1.0'/'meta.json').exists()
+            }),flush=True)
             errors=[line for line in docker('logs',name).splitlines() if 'Exception:' in line or 'Package installation failed' in line]
-            for line in errors[-4:]: print(line.replace(token,'[redacted]'),flush=True)
+            for line in errors[-6:]: print(line.replace(token,'[redacted]'),flush=True)
             raise
     def config():return call('/Plugins/'+INJECTOR+'/Configuration',token=token)
     def remove_registration():
