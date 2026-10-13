@@ -51,7 +51,18 @@ def run(call,restart,root,plugins,token,artifact):
             assert all(p.read_bytes()==content for p,content in saved.items())
             assert call('/WatchGuard/Preferences',token=token)==prefs
             assert len(call('/WatchGuard/Watchlist',token=token))==1
-            active=[p for p in call('/Plugins',token=token) if p['Id'].replace('-','')==guid.replace('-','') and p['Status']=='Active']
+            plugin_rows=[p for p in call('/Plugins',token=token) if p['Id'].replace('-','')==guid.replace('-','')]
+            active=[p for p in plugin_rows if p['Status']=='Active']
+            if len(active)!=1 or active[0]['Version']!=version:
+                # Native install metadata can lag or be marked Restart/Superseded.
+                # Keep the assertion strict until the actual state is observed.
+                print('Catalog round-trip plugin diagnostic:',json.dumps({
+                    'expected':version,
+                    'executing':status['PluginVersion'],
+                    'plugins':[{'Version':p.get('Version'),'Status':p.get('Status')} for p in plugin_rows],
+                    'versionFolders':sorted(p.name for p in plugins.glob('WatchGuard_*')),
+                    'metaPresent':(plugins/('WatchGuard_'+version)/'meta.json').exists()
+                }),flush=True)
             assert len(active)==1 and active[0]['Version']==version
         call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
         call('/WatchGuard/Preferences','DELETE',token=token)
