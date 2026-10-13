@@ -12,7 +12,7 @@ concurrency:
   group: watchguard-release
   cancel-in-progress: false
 jobs:
-  validate:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -34,16 +36,60 @@ jobs:
           cp artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip.sha256 /tmp/first.sha256
           python3 scripts/build-release.py
           cmp /tmp/first.sha256 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip.sha256
-      - name: Build pinned rollback-only Injector fixture (not a runtime dependency)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WatchGuard-v0.4.1-validated
+          if-no-files-found: error
+          path: |
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip.sha256
+
+  integration:
+    name: Integration / ${{ matrix.suite }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [standalone-caddy, migration, basepath, legacy, websocket]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tests/browser/package-lock.json
+      - uses: actions/download-artifact@v4
+        with:
+          name: WatchGuard-v0.4.1-validated
+          path: artifacts
+      - name: Extract verified release candidate for Docker fixture
+        run: |
+          cd artifacts
+          sha256sum -c Jellyfin.Plugin.WatchGuard-v0.4.1.zip.sha256
+          mkdir -p WatchGuard
+          unzip -p Jellyfin.Plugin.WatchGuard-v0.4.1.zip Jellyfin.Plugin.WatchGuard.dll > WatchGuard/Jellyfin.Plugin.WatchGuard.dll
+      - name: Build Injector fixture (rollback/legacy only)
+        if: matrix.suite == 'migration' || matrix.suite == 'legacy'
         run: |
           git clone https://github.com/n00bcodr/Jellyfin-JavaScript-Injector.git /tmp/watchguard-injector
           git -C /tmp/watchguard-injector checkout --detach 2758804c987d490ef32fc2fbdb8a73a44facdf2c
           dotnet build /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/Jellyfin.Plugin.JavaScriptInjector.csproj -c Release -p:JellyfinTarget=jf12 -p:JellyfinVersion=12.2.0
       - run: npm ci --prefix tests/browser
       - run: cd tests/browser && npx playwright install --with-deps chromium
-      - name: Test-only compression decoder
+      - name: Install zstd decoder where tested
+        if: matrix.suite == 'standalone-caddy' || matrix.suite == 'websocket'
         run: sudo apt-get update && sudo apt-get install -y zstd
-      - name: Download verified published rollback fixtures
+      - name: Download and verify standalone rollback fixture
+        if: matrix.suite == 'standalone-caddy'
+        run: |
+          curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.0/Jellyfin.Plugin.WatchGuard-v0.4.0.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
+          echo '439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip' | sha256sum -c -
+      - name: Download and verify published legacy fixtures where needed
+        if: matrix.suite == 'migration' || matrix.suite == 'legacy'
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.3.1/Jellyfin.Plugin.WatchGuard-v0.3.1.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
           echo 'c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2  artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip' | sha256sum -c -
@@ -53,57 +99,50 @@ jobs:
           echo '439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip' | sha256sum -c -
           mkdir -p artifacts/RollbackV031
           unzip -p artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip Jellyfin.Plugin.WatchGuard.dll > artifacts/RollbackV031/Jellyfin.Plugin.WatchGuard.dll
-      - name: Pull pinned Jellyfin test images with registry backoff
+      - name: Pull pinned test image with registry backoff
         run: |
           set -euo pipefail
-          for image in \
-            'lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b' \
-            'jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037'; do
-            for attempt in 1 2 3 4 5; do
-              if docker pull "$image"; then
-                break
-              fi
-              if [ "$attempt" -eq 5 ]; then
-                echo "::error::Could not pull pinned image after five attempts: $image"
-                exit 1
-              fi
-              delay=$((attempt * 20))
-              echo "::warning::Registry pull attempt $attempt failed; retrying in ${delay}s: $image"
-              sleep "$delay"
-            done
-          done
-      - name: No-dependency native catalog, Caddy HTTPS and full Web/deletion suite
-        run: python3 tests/docker-smoke.py --linuxserver --catalog --caddy
-      - name: Published v0.3.1 migration, conflict refusal, rollback and full Web suite
-        run: python3 tests/docker-smoke.py --linuxserver --migration --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
-      - name: Official-image base-path regression
-        run: |
-          # Isolated proxy/Chromium lifecycle can intermittently drop client connections.
-          # Retry once with an entirely new disposable Jellyfin fixture, not the same
-          # browser or mutated media. All assertions run unchanged on both attempts.
-          if ! python3 tests/docker-smoke.py --base-path /jellyfin --proxy; then
-            echo "::warning::Base-path browser fixture failed; rerunning the complete regression once with a fresh container"
-            python3 tests/docker-smoke.py --base-path /jellyfin --proxy
+          if [[ "${{ matrix.suite }}" == 'basepath' || "${{ matrix.suite }}" == 'legacy' ]]; then
+            image='jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037'
+          else
+            image='lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b'
           fi
-      - name: Retained legacy catalog and browser regressions
+          for attempt in 1 2 3 4 5; do
+            if docker pull "$image"; then break; fi
+            if [ "$attempt" -eq 5 ]; then exit 1; fi
+            sleep "$((attempt * 20))"
+          done
+      - name: Complete disposable regression suite
         run: |
-          python3 tests/docker-smoke.py --legacy-injector --catalog --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
-          python3 tests/docker-smoke.py --legacy-injector --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
-      - name: Native WebSocket and header probes
-        run: python3 tests/docker-smoke.py --linuxserver --caddy --measure
+          case "${{ matrix.suite }}" in
+            standalone-caddy)
+              python3 tests/docker-smoke.py --linuxserver --catalog --caddy ;;
+            migration)
+              python3 tests/docker-smoke.py --linuxserver --migration --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll ;;
+            basepath)
+              if ! python3 tests/docker-smoke.py --base-path /jellyfin --proxy; then
+                echo "::warning::Base-path browser fixture failed; rerunning complete regression once with a fresh container"
+                python3 tests/docker-smoke.py --base-path /jellyfin --proxy
+              fi ;;
+            legacy)
+              python3 tests/docker-smoke.py --legacy-injector --catalog --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
+              python3 tests/docker-smoke.py --legacy-injector --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll ;;
+            websocket)
+              python3 tests/docker-smoke.py --linuxserver --caddy --measure ;;
+          esac
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: WatchGuard-browser-failure
+          name: WatchGuard-browser-failure-${{ matrix.suite }}
           path: artifacts/v041/
           if-no-files-found: warn
-      - uses: actions/upload-artifact@v4
+      - name: Upload suite evidence
+        if: success()
+        uses: actions/upload-artifact@v4
         with:
-          name: WatchGuard-v0.4.1-validated
+          name: WatchGuard-evidence-${{ matrix.suite }}
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip.sha256
             artifacts/settings-validation.json
             artifacts/catalog-validation.json
             artifacts/v041/
@@ -111,9 +150,11 @@ jobs:
             artifacts/standalone/socket-standalone.json
             artifacts/migration-v041.json
             artifacts/catalog-upgrade-v041.json
+          if-no-files-found: warn
+
   publish:
     if: inputs.publish && github.ref_name == github.event.repository.default_branch
-    needs: validate
+    needs: [build, integration]
     environment: release
     runs-on: ubuntu-latest
     permissions:

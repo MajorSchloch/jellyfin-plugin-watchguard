@@ -729,10 +729,16 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
     } catch (error) {
         console.log('Failed phase:', report.phase);
-        if (fixture.standalone) console.log('Standalone diagnostic:',await page.evaluate(()=>({state:window.WatchGuardStandalone?.status(),adapter:!!window.WatchGuardPoc,script:!!document.querySelector('#watchguard-standalone-loader')})),nativeErrors.slice(-5));
-        console.log(await page.locator('body').innerText());
+        // Navigations can invalidate the page execution context while gathering
+        // diagnostics. Never replace the original test failure with a diagnostic error.
+        console.error('Original browser regression failure:',error.stack || String(error));
+        if (fixture.standalone) {
+            const standaloneState=await page.evaluate(()=>({state:window.WatchGuardStandalone?.status(),adapter:!!window.WatchGuardPoc,script:!!document.querySelector('#watchguard-standalone-loader')})).catch(err=>({diagnosticUnavailable:String(err)}));
+            console.log('Standalone diagnostic:',standaloneState,nativeErrors.slice(-5));
+        }
+        console.log(await page.locator('body').innerText().catch(err=>'Body diagnostic unavailable: '+String(err)));
         fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
-        await page.screenshot({path:path.join(output,'failure.png')});
+        await page.screenshot({path:path.join(output,'failure.png')}).catch(err=>console.warn('Failure screenshot unavailable:',String(err)));
         throw error;
     } finally { await browser.close(); }
 })().catch(error => { console.error(error.stack); process.exitCode = 1; });
