@@ -3,7 +3,7 @@ import functools,http.server,threading,shutil,json,hashlib,zipfile,time
 from urllib.parse import urlencode
 from pathlib import Path
 
-def run(call,restart,root,plugins,token,artifact):
+def run(call,restart,docker,name,root,plugins,token,artifact):
     assert 'watchguard-poc-' in str(root)
     public=root/'experimental-catalog';public.mkdir()
     archive=public/'Jellyfin.Plugin.WatchGuard-v0.4.1.zip'
@@ -43,7 +43,16 @@ def run(call,restart,root,plugins,token,artifact):
         paths=[plugins/'Jellyfin.Plugin.WatchGuard'/f for f in ['watchlists.json','preferences.json']]+[plugins/'configurations/Jellyfin.Plugin.WatchGuard.xml']
         saved={p:p.read_bytes() for p in paths}
         for previous,version in [('0.4.1.0','0.4.0.0'),('0.4.0.0','0.4.1.0')]:
-            call('/Plugins/'+guid+'/'+previous,'DELETE',token=token,expected=204);restart()
+            call('/Plugins/'+guid+'/'+previous,'DELETE',token=token,expected=204)
+            # Native uninstall may leave a versioned folder still discoverable.
+            # Enforce a clean fixture boundary while the container is stopped,
+            # without touching the separate WatchGuard JSON/preferences folder.
+            docker('stop',name)
+            previous_folder=plugins/('WatchGuard_'+previous)
+            if previous_folder.exists():
+                shutil.move(str(previous_folder),str(root/('retired-version-'+previous)))
+            restart()
+            call('/WatchGuard/Watchlist',token=token,expected=404)
             query=urlencode({'assemblyGuid':guid,'version':version,'repositoryUrl':base+'/manifest.json'})
             call('/Packages/Installed/WatchGuard?'+query,'POST',token=token,expected=204,raw=True);restart()
             status=call('/WatchGuard/IntegrationStatus',token=token)

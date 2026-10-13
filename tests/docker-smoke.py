@@ -153,7 +153,7 @@ def main():
             installed_folder = plugins/'WatchGuard'
             if options.standalone_catalog:
                 assert options.standalone and not options.injector_dll
-                installed_folder = runpy.run_path(str(ROOT/'tests/standalone-catalog.py'))['run'](call,restart,root,plugins,token,artifact)
+                installed_folder = runpy.run_path(str(ROOT/'tests/standalone-catalog.py'))['run'](call,restart,docker,name,root,plugins,token,artifact)
             if not options.standalone:
                 assert 'WatchGuard: This item may still be in use.' in call('/JavaScriptInjector/private.js', token=token, raw=True)
                 injector_id = 'f5a34f7b-2e8a-4e6a-a722-3a216a81b374'
