@@ -217,11 +217,30 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.waitForFunction(()=>document.querySelectorAll('.watchguard-card').length===2);
         await page.reload(); await myList().getByRole('link',{name:'PoC Series Detail',exact:true}).waitFor();
         await page.screenshot({path:path.join(output,'my-watchlist.png')});
-        await page.route('**/WatchGuard/Watchlist/*', route => route.fulfill({status:503,body:'unavailable'}));
+        const failedRemovalRequests = [];
+        const removalMock = async route => {
+            const request = route.request();
+            failedRemovalRequests.push({method:request.method(),urlPath:new URL(request.url()).pathname});
+            await route.fulfill({status:503,body:'unavailable'});
+        };
+        await page.route('**/WatchGuard/Watchlist/*', removalMock);
         await myList().getByRole('button',{name:'Remove PoC Movie Detail from Watchlist',exact:true}).click();
-        await myList().getByRole('alert').filter({hasText:'Could not remove'}).waitFor();
+        try {
+            await myList().getByRole('alert').filter({hasText:'Could not remove'}).waitFor();
+        } catch (error) {
+            console.error('Failed removal diagnostic:',JSON.stringify({
+                intercepted:failedRemovalRequests,
+                alerts:await myList().getByRole('alert').allTextContents().catch(()=>[]),
+                cards:await myList().locator('.watchguard-card').count().catch(()=>-1),
+                pageUrl:page.url(),
+                adapter:await page.evaluate(()=>Boolean(window.WatchGuardPoc?.isInstalled())).catch(()=>false)
+            }));
+            throw error;
+        }
+        assert.equal(failedRemovalRequests.length,1,'Exactly one failed removal should be intercepted');
+        assert.equal(failedRemovalRequests[0].method,'DELETE','The failed removal should use DELETE');
         assert.equal(await myList().getByRole('link').count(),2);
-        await page.unroute('**/WatchGuard/Watchlist/*');
+        await page.unroute('**/WatchGuard/Watchlist/*',removalMock);
         await myList().getByRole('button',{name:'Remove PoC Movie Detail from Watchlist',exact:true}).click();
         await myList().getByRole('link',{name:'PoC Movie Detail',exact:true}).waitFor({state:'hidden'});
         await myList().getByRole('link',{name:'PoC Series Detail',exact:true}).click();
