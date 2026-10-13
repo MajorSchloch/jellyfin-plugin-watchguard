@@ -83,6 +83,11 @@ jobs:
       - name: Install zstd decoder where tested
         if: matrix.suite == 'standalone-caddy' || matrix.suite == 'websocket'
         run: sudo apt-get update && sudo apt-get install -y zstd
+      - name: Download and verify standalone rollback fixture
+        if: matrix.suite == 'standalone-caddy'
+        run: |
+          curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.0/Jellyfin.Plugin.WatchGuard-v0.4.0.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
+          echo '439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip' | sha256sum -c -
       - name: Download and verify published legacy fixtures where needed
         if: matrix.suite == 'migration' || matrix.suite == 'legacy'
         run: |
