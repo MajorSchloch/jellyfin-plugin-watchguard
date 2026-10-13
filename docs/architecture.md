@@ -1,5 +1,8 @@
 # WatchGuard architecture proposal — Jellyfin 12
 
+> **v0.4.1:** [Self-protection and Caught Up](release-v041.md) supersede historical self-only deletion exclusions and add an activity-only series status. Protection API shape, permissions, storage and standalone loading are retained. Historical validation results below describe their original release.
+
+
 Research date: **2026-10-10**. Status: **research and proposed design; deletion-warning approach awaits browser validation and approval before implementation proceeds**. This review changes documentation only. Existing prototype code and previous 12.0 test results are not evidence that the proposed integration works in every current 12.x client.
 
 ## Recommendation and decision gate

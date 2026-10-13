@@ -15,12 +15,17 @@ public sealed record OverviewUser(Guid UserId, string DisplayName, string[] Reas
 public sealed record OverviewItem(Guid ItemId, string Name, OverviewUser[] Users);
 public sealed record InterestOverview(OverviewItem[] Items, bool IsComplete, bool LimitReached, string Notice);
 
-internal sealed record OverviewPlayback(string DisplayName, DateTime? LastPlayedDate, bool Completed, int? AvailableEpisodes, int? WatchedEpisodes);
+internal sealed record OverviewPlayback(string DisplayName, DateTime? LastPlayedDate, bool Completed, int? AvailableEpisodes, int? WatchedEpisodes)
+{
+    public bool CaughtUp { get; init; }
+}
 
 // Request-local safety budget, never used by deletion/protection checks.
 internal sealed class OverviewBudget(WatchlistEntry[] entries, User[] accounts)
 {
     public User[] Accounts { get; } = accounts;
+    public bool IncludeActivity { get; init; }
+    public bool IncompleteCoverage { get; set; }
     public HashSet<WatchlistEntry> Entries { get; } = entries.ToHashSet();
     public Dictionary<Guid, DateTime?> PlaybackDates { get; } = new();
     public Dictionary<Guid, OverviewPlayback> Playback { get; } = new();
@@ -53,7 +58,7 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
         if (enabled.Length > UserLimit) throw new InvalidOperationException("Overview user budget exceeded.");
         WatchlistEntry[] entries;
         using (OverviewTiming.Begin("StoreRead", logger)) entries = automaticOnly ? [] : store.Read().Where(e => !ownOnly || e.UserId == caller.Id).ToArray();
-        var budget = new OverviewBudget(entries, enabled);
+        var budget = new OverviewBudget(entries, enabled) { IncludeActivity = activityDays.HasValue };
         var candidates = new Dictionary<Guid, BaseItem>();
         var limited = false;
         void Add(Guid id, User owner)
@@ -120,10 +125,11 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
                 var owners = status.Users.ToDictionary(u => u.UserId, u => u);
                 if (activityDays.HasValue)
                     foreach (var (id, playback) in budget.Playback)
-                        if (playback.Completed && playback.LastPlayedDate >= cutoff && playback.LastPlayedDate <= now)
+                        if (playback.CaughtUp || (playback.Completed && playback.LastPlayedDate >= cutoff && playback.LastPlayedDate <= now))
                         {
-                            if (owners.TryGetValue(id, out var owner)) owners[id] = owner with { Reasons = [.. owner.Reasons, "Watched"] };
-                            else owners[id] = new(id, playback.DisplayName, ["Watched"]);
+                            var reason = playback.CaughtUp ? "CaughtUp" : "Watched";
+                            if (owners.TryGetValue(id, out var owner)) owners[id] = owner with { Reasons = [.. owner.Reasons, reason] };
+                            else owners[id] = new(id, playback.DisplayName, [reason]);
                         }
                 if (owners.Count > 0) result.Add(new(item.Id, item.Name, owners.Values.Select(u =>
                 {
@@ -137,6 +143,7 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
         // Candidate discovery is deliberately bounded. Even below the caps it is not an exhaustive audit.
         return new(result.OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase).ThenBy(i => i.ItemId).ToArray(), false, limited,
             (activityDays.HasValue ? $"Recent viewing activity: completed titles with a native playback date in the last {activityDays} days, plus current viewing interest; not an exhaustive library audit." : automaticOnly ? "Recent viewing interest; not an exhaustive library audit." : "Recent viewing interest and explicit watchlists; not an exhaustive library audit.")
+            + (budget.IncompleteCoverage ? " Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them." : string.Empty)
             + (limited ? " A safety limit was reached; some items are omitted." : string.Empty));
     }
 }

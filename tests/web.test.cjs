@@ -120,10 +120,27 @@ function backendFixture(users = []) {
     createAdapter(async () => { prompts++; return true; }, undefined, protectionCheck).install(api);
     return { api, counts: () => [native, prompts] };
 }
-test('confirmed empty and self-only status skip the extra warning', async () => {
-    for (const users of [[], [{ UserId: 'self', DisplayName: 'Me', Reasons: ['Watchlisted'] }]]) {
-        const f = backendFixture(users); await f.api.deleteItem('movie'); assert.deepEqual(f.counts(), [1, 0]);
+test('confirmed empty status skips the extra warning', async () => {
+    const f = backendFixture(); await f.api.deleteItem('movie'); assert.deepEqual(f.counts(), [1, 0]);
+});
+test('self-only and combined interest warn for every supported target without extra checks', async () => {
+    for (const type of ['Movie','Series','Season','Episode']) for (const reason of ['Watchlisted','InProgress','CurrentlyPlaying']) {
+        for (const approved of [false,true]) {
+            let calls=0, checks=0, lookups=0;
+            const api={getCurrentUserId:()=> 'self',accessToken:()=> 'token',getUrl:p=>p,
+                getItem:async(u,id)=>{lookups++;return id==='parent'?{Id:id,Type:'Series',Name:'Parent'}:{Id:id,Type:type,SeriesId:'parent'};},
+                ajax:async()=>{checks++;return {ItemId:['Season','Episode'].includes(type)?'parent':'target',HasInterest:true,HasOtherInterestedUsers:false,Users:[{UserId:'self',DisplayName:'Me',Reasons:[reason]}]};},
+                deleteItem:async(...args)=>{calls++;assert.deepEqual(args,['target',42]);return 'native-result';}};
+            createAdapter(async text=>{assert.ok(text.includes({Watchlisted:'This title is on your watchlist.',InProgress:"You haven't finished watching this title.",CurrentlyPlaying:'You are currently playing this title.'}[reason]));return approved;},undefined,protectionCheck).install(api);
+            if(approved)assert.equal(await api.deleteItem('target',42),'native-result');else await assert.rejects(api.deleteItem('target',42),{name:'AbortError'});
+            assert.equal(calls,approved?1:0);assert.equal(checks,1);assert.equal(lookups,['Season','Episode'].includes(type)?2:1);
+        }
     }
+});
+test('self and other users keep distinct wording and multiple reasons',async()=>{
+    const f=backendFixture([{UserId:'self',DisplayName:'Me',Reasons:['Watchlisted','InProgress']},{UserId:'other',DisplayName:'Other',Reasons:['Watchlisted','CurrentlyPlaying']}]);
+    const text=await protectionCheck(f.api,'movie','self');
+    assert.match(text,/This title is on your watchlist/);assert.match(text,/You haven't finished watching/);assert.match(text,/Other — Watchlist, Currently Playing/);
 });
 test('other user multiple reasons needs one warning and one native call', async () => {
     const f = backendFixture([{ UserId: 'other', DisplayName: '<img onerror=evil()>', Reasons: ['Watchlisted', 'CurrentlyPlaying'] }]);
@@ -423,4 +440,17 @@ test('Failed preferences retain a visible error and use defaults without writing
     assert.equal(f.calls[1].o.url,'WatchGuard/Watchlist');
     assert.match(f.page.children[6].textContent,/stored data was not changed/);
     assert.ok(f.calls.every(c=>c.o.type==='GET'));
+});
+
+test('Caught Up belongs to Watching, renders its own icon/date and is forbidden in protection',()=>{
+    const {activityText,userLine}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const owner={UserId:me,DisplayName:'Me',Reasons:['CaughtUp'],LastPlayedDate:'2026-10-01T12:00:00Z',AvailableEpisodes:12,WatchedEpisodes:12};
+    const item={...overviewItems[0],Users:[owner]};
+    assert.equal(selectInterest([item],'mine',me,null).length,1);
+    assert.equal(selectInterest([item],'mine',me,'watching').length,1);
+    assert.equal(selectInterest([item],'all',me,'watched').length,0);
+    assert.equal(selectInterest([item],other,me,'watching').length,0);
+    assert.match(activityText(owner,true),/Caught Up · 12\/12 episodes · Last played/);
+    assert.equal(userLine(documentFixture().doc,owner).children[0].children[0].attributes['aria-label'],'Caught Up');
+    assert.throws(()=>validateStatus({ItemId:item.ItemId,HasInterest:true,HasOtherInterestedUsers:false,Users:[owner]},item.ItemId,me));
 });

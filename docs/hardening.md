@@ -1,5 +1,8 @@
 # Phase 4: compatibility and UX hardening
 
+> **v0.4.1:** [Self-protection and Caught Up](release-v041.md) supersede historical self-only deletion exclusions and add an activity-only series status. Protection API shape, permissions, storage and standalone loading are retained. Historical validation results below describe their original release.
+
+
 For v0.2.0 navigation, toolbar placement and series-scope detail controls, see [navigation.md](navigation.md). The Phase 3/4 observations below describe the original UI; deletion policies remain unchanged.
 
 Target: **Jellyfin Server/Web 12.2, .NET 10**. This extends [Phase 3](web-ui.md), using the unchanged [backend](backend.md) and the validated instance-method deletion boundary. No new runtime dependencies, persistence, media automation or server deletion endpoint were added.

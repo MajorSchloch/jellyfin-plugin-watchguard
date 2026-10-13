@@ -120,3 +120,10 @@ python3 tests/docker-smoke.py --injector-dll /path/to/Jellyfin.Plugin.JavaScript
 ```
 
 The runner writes `artifacts/performance/activity.json`, verifies registration/restart/cleanup and removes the fixture. Use the normal runner without `--profile` for the destructive disposable browser regression suite. Diagnostic mode is enabled only inside the fixture; the release default remains false.
+
+
+## v0.4.1 scope and release regression
+
+Caught Up reuses the existing bounded series query and batch playback/resume reads. Only Continuing-series activity verification includes virtual/missing rows to assess coverage, then restricts completion/counts to available aired episodes. The 1,000-row probe and 20,000-unit request budget remain; virtual rows can now hit a series cap sooner. Unit tests verify one episode query per verified series/user, with no extra per-poster request. Fresh protection keeps its original query, no cache and no additional network calls. No activity performance improvement is claimed from this classification change.
+
+The final release's local direct-index probe measured 0.913 ms median / 1.908 ms maximum over 10 samples (5,540 bytes) on the pinned LinuxServer image; Caddy HTTPS gzip/zstd and native WebSocket checks passed separately. This is a loader regression measurement, not an activity benchmark or production capacity estimate. See [release-v041.json](performance-data/release-v041.json) and [qualification details](release-v041.md). Historical activity measurements above are retained unchanged.

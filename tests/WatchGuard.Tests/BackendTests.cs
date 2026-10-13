@@ -366,7 +366,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 4, 0, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 4, 1, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
     }
@@ -651,6 +651,68 @@ public sealed class BackendTests : IDisposable
         var result = new InterestOverviewService(store, library.Object, users.Object, sessions.Object, service).GetActivity(alice, limit: 1);
         Assert.True(result.LimitReached); Assert.False(result.IsComplete); Assert.Single(result.Items);
         library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.IncludeItemTypes.SequenceEqual(new[] { BaseItemKind.Movie }) && q.Limit == 2)), Times.Exactly(2));
+    }
+
+    [Theory]
+    [InlineData("Continuing", "CaughtUp")]
+    [InlineData("Ended", "Watched")]
+    [InlineData(null, "Watched")]
+    [InlineData("Unreleased", "Watched")]
+    public async Task NativeSeriesStatusClassifiesOnlyActivity(string? nativeStatus, string expected)
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var series = new Series { Id = Guid.NewGuid(), Name = "Series", Status = nativeStatus is null ? null : Enum.Parse<MediaBrowser.Model.Entities.SeriesStatus>(nativeStatus) };
+        var date = DateTime.UtcNow.AddDays(-2);
+        var episode = new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id, PremiereDate = date };
+        foreach (var item in new BaseItem[] { series, episode }) library.Setup(l => l.GetItemById<BaseItem>(item.Id, It.IsAny<User>())).Returns(item);
+        IReadOnlyList<BaseItem> available = [episode];
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) => q.AncestorIds.Contains(series.Id) ? available : [episode]);
+        states[(bob.Id, episode.Id)] = new() { Key = "test", Played = true, LastPlayedDate = date };
+        states[(alice.Id, episode.Id)] = new() { Key = "test", PlaybackPositionTicks = 42, LastPlayedDate = date };
+        var activity = Assert.Single((await Activity()).Items);
+        Assert.Equal(new[] { expected }, activity.Users.Single(u => u.UserId == bob.Id).Reasons);
+        Assert.Equal(new[] { "InProgress" }, activity.Users.Single(u => u.UserId == alice.Id).Reasons);
+        Assert.DoesNotContain(Status(series).Users, u => u.UserId == bob.Id);
+        Assert.Equal(new[] { "InProgress" }, Assert.Single(Status(series).Users).Reasons);
+        store.Set(bob.Id, series.Id, true);
+        Assert.Contains("Watchlisted", Status(series).Users.Single(u => u.UserId == bob.Id).Reasons);
+        Assert.Single(store.Read());
+        available = [episode, new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id, PremiereDate = date }];
+        Assert.Equal(new[] { "InProgress" }, Assert.Single((await Activity()).Items).Users.Single(u => u.UserId == bob.Id).Reasons);
+        Assert.Contains("Watchlisted", Status(series).Users.Single(u => u.UserId == bob.Id).Reasons);
+    }
+
+    [Theory]
+    [InlineData("future", true)]
+    [InlineData("futureAvailable", true)]
+    [InlineData("missing", false)]
+    [InlineData("undated", false)]
+    [InlineData("unknownDateAvailable", false)]
+    public async Task CaughtUpRequiresAiredEpisodeCoverage(string kind, bool expected)
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var series = new Series { Id = Guid.NewGuid(), Status = MediaBrowser.Model.Entities.SeriesStatus.Continuing };
+        var aired = new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id, PremiereDate = DateTime.UtcNow.AddDays(-5) };
+        Episode extra = kind.EndsWith("Available", StringComparison.Ordinal) ? new AvailableEpisode() : new Episode();
+        extra.Id = Guid.NewGuid(); extra.SeriesId = series.Id; extra.IsVirtualItem = !kind.EndsWith("Available", StringComparison.Ordinal);
+        extra.PremiereDate = kind.StartsWith("future", StringComparison.Ordinal) ? DateTime.UtcNow.AddDays(5) : kind == "missing" ? DateTime.UtcNow.AddDays(-1) : null;
+        foreach (var item in new BaseItem[] { series, aired, extra }) library.Setup(l => l.GetItemById<BaseItem>(item.Id, It.IsAny<User>())).Returns(item);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) => q.AncestorIds.Contains(series.Id) ? [aired, extra] : [aired]);
+        states[(bob.Id, aired.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-1) };
+        states[(bob.Id, extra.Id)] = new() { Key = "test", Played = true };
+        if (kind == "futureAvailable") sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = bob.Id, NowPlayingItem = new BaseItemDto { Id = extra.Id } }]);
+        var result = await Activity();
+        Assert.Equal(expected, result.Items.SelectMany(i => i.Users).Any(u => u.Reasons.Contains("CaughtUp")));
+        if (expected) { var owner = Assert.Single(Assert.Single(result.Items).Users); Assert.Equal(1, owner.AvailableEpisodes); Assert.Equal(1, owner.WatchedEpisodes); }
+        else Assert.Contains("coverage", result.Notice, StringComparison.Ordinal);
+        if (kind == "futureAvailable") Assert.Contains("CurrentlyPlaying", Assert.Single(Assert.Single(result.Items).Users).Reasons);
+        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id))), Times.Exactly(2));
+    }
+
+    private sealed class AvailableEpisode : Episode
+    {
+        public override MediaBrowser.Model.Entities.LocationType LocationType => MediaBrowser.Model.Entities.LocationType.FileSystem;
     }
 
 }

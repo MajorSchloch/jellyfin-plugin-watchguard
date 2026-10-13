@@ -124,9 +124,10 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         const count = report.deletes.length;
         await dialog().waitFor();
         assert.equal(report.deletes.length, count);
-        assert.match(await dialog().locator('p').innerText(), /BrowserMember — Watchlist/);
+        assert.match(await dialog().locator('p').innerText(), title === 'PoC Self' && fixture.standalone ? /This title is on your watchlist|You haven't finished watching this title|You are currently playing this title/ : /BrowserMember — Watchlist/);
         await exists(fixture.items[title]);
-        if (escape) await page.keyboard.press('Escape');
+        if (escape === 'close') await dialog().evaluate(node=>node.close());
+        else if (escape) await page.keyboard.press('Escape');
         else await dialog().getByRole('button', { name: 'Cancel', exact: true }).click();
         await page.getByText(errorText, { exact: true }).waitFor();
         assert.equal(report.deletes.length, count);
@@ -465,6 +466,40 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await api('/UserItems/'+historyMovie+'/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:activityDate},member.AccessToken);
         assert.equal((await api('/WatchGuard/Protection/'+historyMovie)).HasInterest,false);
         report.paths.push({path:'Recent viewing activity',result:'completed movie and whole series, exact native date, 4/4 progress, explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false'});
+        if (fixture.standalone) {
+            report.phase = 'Caught Up';
+            const originalSeries=await api('/Items/'+historySeries);
+            const originals=[];
+            for(const episode of historyEpisodes) {
+                const dto=await api('/Items/'+episode.Id); originals.push(dto);
+                await api('/Items/'+episode.Id,'POST',{...dto,PremiereDate:activityDate});
+            }
+            await api('/Items/'+historySeries,'POST',{...originalSeries,Status:'Continuing'});
+            const activity=()=>api('/WatchGuard/ActivityOverview');
+            const owner=result=>result.Items.find(i=>i.ItemId.replaceAll('-','')===historySeries.replaceAll('-','')).Users.find(u=>u.UserId.replaceAll('-','')===member.User.Id.replaceAll('-',''));
+            assert.deepEqual(owner(await activity()).Reasons,['CaughtUp']);
+            assert.equal((await api('/WatchGuard/Protection/'+historySeries)).HasInterest,false);
+            await myList().getByRole('button',{name:'Refresh',exact:true}).click(); await setStatuses('watching');
+            const caught=myList().locator('.watchguard-card').filter({hasText:'PoC Parent Clear'});
+            await caught.getByRole('img',{name:'Caught Up',exact:true}).waitFor();assert.match(await caught.innerText(),/4\/4/);
+            await page.screenshot({path:path.join(output,'caught-up.png')});
+            const latest=historyEpisodes.at(-1).Id;
+            await api('/UserItems/'+latest+'/UserData','POST',{Played:false,PlaybackPositionTicks:0},member.AccessToken);
+            assert.deepEqual(owner(await activity()).Reasons,['InProgress']);
+            assert.equal((await api('/WatchGuard/Protection/'+historySeries)).HasInterest,true);
+            await api('/Items/'+latest,'POST',{...originals.at(-1),PremiereDate:new Date(Date.now()+7*86400000).toISOString()});
+            assert.deepEqual(owner(await activity()).Reasons,['CaughtUp']);
+            assert.equal(owner(await activity()).AvailableEpisodes,3);
+            // Fresh deletion protection deliberately keeps its original all-available episode policy.
+            assert.equal((await api('/WatchGuard/Protection/'+historySeries)).HasInterest,true);
+            await api('/UserItems/'+latest+'/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:activityDate},member.AccessToken);
+            for(const dto of originals)await api('/Items/'+dto.Id,'POST',dto);
+            await api('/Items/'+historySeries,'POST',{...originalSeries,Status:'Ended'});
+            assert.deepEqual(owner(await activity()).Reasons,['Watched']);
+            await api('/Items/'+historySeries,'POST',originalSeries);
+            assert.equal((await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===historySeries.replaceAll('-','')),false);
+            report.paths.push({path:'Caught Up',result:'native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, unchanged fresh protection and no permanent membership'});
+        }
         report.phase = 'Failed protection';
         await detail('PoC Modern Movie');
         await page.route('**/WatchGuard/Protection/*', route => route.fulfill({status:503,body:'unavailable'}));
@@ -481,6 +516,25 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             if (title === 'PoC Self') {
                 await page.getByRole('button',{name:'Add to Watchlist',exact:true}).click();
                 await page.getByRole('button',{name:'Remove from Watchlist',exact:true}).waitFor();
+            }
+            if (title === 'PoC Self' && fixture.standalone) {
+                await nativeDelete(); await nativeConfirm();
+                await dialog().getByText(/This title is on your watchlist/).waitFor(); await cancel(title);
+                for(const dismissal of [true,'close']) { await nativeDelete(); await nativeConfirm(); await cancel(title,dismissal); }
+                // Same disposable title: verify native self resume and active playback independently.
+                await api('/WatchGuard/Watchlist/' + fixture.items[title],'DELETE');
+                await api('/UserItems/' + fixture.items[title] + '/UserData','POST',{Played:false,PlaybackPositionTicks:10000000});
+                await nativeDelete(); await nativeConfirm();
+                await dialog().getByText(/You haven't finished watching this title/).waitFor(); await cancel(title);
+                await api('/UserItems/' + fixture.items[title] + '/UserData','POST',{Played:false,PlaybackPositionTicks:0});
+                await api('/Sessions/Playing','POST',{ItemId:fixture.items[title],PlayMethod:'DirectPlay',PositionTicks:0});
+                await nativeDelete(); await nativeConfirm();
+                await dialog().getByText(/You are currently playing this title/).waitFor(); await cancel(title);
+                await api('/Sessions/Playing/Stopped','POST',{ItemId:fixture.items[title],PositionTicks:0});
+                await api('/WatchGuard/Watchlist/' + fixture.items[title],'PUT');
+                await nativeDelete(); await nativeConfirm(); await approve(title);
+                report.paths.push({path:'Self-only protection',result:'watchlist, native resume and session each Cancel with zero DELETE; override exactly once'});
+                continue;
             }
             const response = page.waitForResponse(r => r.request().method()==='DELETE' && new URL(r.url()).pathname.endsWith('/Items/' + fixture.items[title]));
             await nativeDelete(); await nativeConfirm(); assert.equal((await response).status(),204);

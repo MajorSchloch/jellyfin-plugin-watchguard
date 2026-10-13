@@ -115,7 +115,7 @@
         }
         const others = status.Users.filter(u => key(u.UserId) !== key(user));
         if (status.HasInterest !== (status.Users.length > 0) || status.HasOtherInterestedUsers !== (others.length > 0)) throw new Error('Inconsistent status');
-        return others;
+        return status.Users;
     }
     function request(api, route, type = 'GET') {
         if (!api.getCurrentUserId() || !api.accessToken()) return Promise.reject(new Error('Not signed in'));
@@ -136,14 +136,21 @@
     async function protectionCheck(api, id, user) {
         const { item, scope } = await resolveScope(api, id, user);
         const status = await request(api, 'Protection/' + encodeURIComponent(scope.Id));
-        const others = validateStatus(status, scope.Id, user);
+        const interested = validateStatus(status, scope.Id, user);
         const target = scope === item ? '' : '\n\nDeleting ' + item.Type.toLowerCase() + ': ' + (item.Name || item.Id) +
             '\nThese users are interested in the parent series: ' + (scope.Name || scope.Id) + '. Interest is series-wide.';
-        return others.length ? message + target + '\n\n' + describe(others) : null;
+        return interested.length ? message + target + '\n\n' + interested.map(entry => {
+            if (key(entry.UserId) !== key(user)) return describe([entry]);
+            return entry.Reasons.map(reason => ({
+                Watchlisted: 'This title is on your watchlist.',
+                InProgress: "You haven't finished watching this title.",
+                CurrentlyPlaying: 'You are currently playing this title.'
+            })[reason]).join('\n');
+        }).join('\n') : null;
     }
 
     // History is an overview-only status. Never add it to protection's reason allowlist.
-    const activityReasons = { ...reasons, Watched: 'Watched' };
+    const activityReasons = { ...reasons, Watched: 'Watched', CaughtUp: 'Caught Up' };
     const activityFilters = { watchlisted: 'Watchlisted', watching: 'InProgress', playing: 'CurrentlyPlaying', watched: 'Watched' };
     const defaultFilters = ['watchlisted', 'watching', 'playing'];
     function selectedStatuses(value) {
@@ -154,12 +161,12 @@
         const selected = Object.keys(activityFilters).filter(k => requested.includes(k));
         return selected.length || !requested.length ? selected : [...defaultFilters];
     }
-    const statusIcons = { Watchlisted: 'bookmark', InProgress: 'play_circle', CurrentlyPlaying: 'sensors', Watched: 'check_circle' };
+    const statusIcons = { Watchlisted: 'bookmark', InProgress: 'play_circle', CurrentlyPlaying: 'sensors', Watched: 'check_circle', CaughtUp: 'task_alt' };
     function userLine(document, owner) {
         const line = document.createElement('span'); line.className = 'watchguard-user-line';
         line.title = activityText(owner, true);
         const icons = document.createElement('span'); icons.className = 'watchguard-status-icons';
-        for (const reason of Object.values(activityFilters).filter(r => owner.Reasons.includes(r))) {
+        for (const reason of Object.keys(activityReasons).filter(r => owner.Reasons.includes(r))) {
             const icon = document.createElement('span'); icon.className = 'material-icons'; icon.textContent = statusIcons[reason];
             icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', activityReasons[reason]); icon.title = activityReasons[reason]; icons.append(icon);
         }
@@ -170,7 +177,7 @@
             progress.textContent = ' · ' + owner.WatchedEpisodes + '/' + owner.AvailableEpisodes;
             progress.title = owner.WatchedEpisodes + ' of ' + owner.AvailableEpisodes + ' episodes'; line.append(progress);
         }
-        if (owner.LastPlayedDate && owner.Reasons.some(r => r === 'InProgress' || r === 'Watched')) {
+        if (owner.LastPlayedDate && owner.Reasons.some(r => r === 'InProgress' || r === 'Watched' || r === 'CaughtUp')) {
             const date = document.createElement('time'); date.dateTime = owner.LastPlayedDate; date.tabIndex = 0;
             date.textContent = new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(new Date(owner.LastPlayedDate));
             date.title = 'Last played: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(owner.LastPlayedDate));
@@ -181,7 +188,7 @@
     function activityText(owner, showName) {
         let text = (showName ? owner.DisplayName + ' — ' : '') + owner.Reasons.map(r => activityReasons[r] + (r === 'CurrentlyPlaying' ? ' ●' : '')).join(' · ');
         if (owner.AvailableEpisodes != null) text += ' · ' + owner.WatchedEpisodes + '/' + owner.AvailableEpisodes + ' episodes';
-        if (owner.LastPlayedDate && owner.Reasons.some(r => r === 'InProgress' || r === 'Watched'))
+        if (owner.LastPlayedDate && owner.Reasons.some(r => r === 'InProgress' || r === 'Watched' || r === 'CaughtUp'))
             text += ' · Last played: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'medium', timeStyle: 'short'}).format(new Date(owner.LastPlayedDate));
         return text;
     }
@@ -204,7 +211,7 @@
                 owners.add(key(u.UserId));
             }
             const matches = entry.Users.filter(u => (owner === 'all' || key(u.UserId) === key(owner === 'mine' ? user : owner)) &&
-                statuses.some(status => u.Reasons.includes(activityFilters[status])));
+                statuses.some(status => u.Reasons.includes(activityFilters[status]) || (status === 'watching' && u.Reasons.includes('CaughtUp'))));
             if (matches.length) selected.push({ ...entry, Users: matches,
                 IsWatchlistedByMe: entry.Users.some(u => key(u.UserId) === key(user) && u.Reasons.includes('Watchlisted')) });
         }

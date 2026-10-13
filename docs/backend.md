@@ -1,5 +1,8 @@
 # Phase 2: watchlists and interest detection
 
+> **v0.4.1:** [Self-protection and Caught Up](release-v041.md) supersede historical self-only deletion exclusions and add an activity-only series status. Protection API shape, permissions, storage and standalone loading are retained. Historical validation results below describe their original release.
+
+
 See [v0.2.1 interest overview and UI refinement](interest-overview.md) for the new playback-aware overview and count popover. Existing explicit-list API contracts and navigation anchors below remain unchanged.
 
 Target and validation baseline: **Jellyfin Server 12.2, .NET 10**, Controller/Model packages **12.2.0**. This backend implements the design in [architecture.md](architecture.md). The backend contract below remains stable. [Phase 3](web-ui.md) now consumes it for detail controls and conditional warnings; there is still no server deletion gate.
