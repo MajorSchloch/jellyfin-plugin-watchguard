@@ -72,6 +72,21 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
                     'versionFolders':sorted(p.name for p in plugins.glob('WatchGuard_*')),
                     'metaPresent':(plugins/('WatchGuard_'+version)/'meta.json').exists()
                 }),flush=True)
+            if len(active)!=1 or active[0]['Version']!=version:
+                # Jellyfin can finish loading the expected binary while its
+                # native plugin registry still advertises a pending restart.
+                # Give native plugin metadata one additional clean server start,
+                # then require the same strict single-active-version invariant.
+                restart()
+                reloaded=call('/WatchGuard/IntegrationStatus',token=token)
+                assert reloaded['PluginVersion']==version[:-2] and reloaded['Standalone']['LoaderActive']
+                plugin_rows=[p for p in call('/Plugins',token=token) if p['Id'].replace('-','')==guid.replace('-','')]
+                active=[p for p in plugin_rows if p['Status']=='Active']
+                print('Catalog round-trip post-restart state:',json.dumps({
+                    'expected':version,
+                    'plugins':[{'Version':p.get('Version'),'Status':p.get('Status')} for p in plugin_rows],
+                    'versionFolders':sorted(p.name for p in plugins.glob('WatchGuard_*'))
+                }),flush=True)
             assert len(active)==1 and active[0]['Version']==version
         call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
         call('/WatchGuard/Preferences','DELETE',token=token)
