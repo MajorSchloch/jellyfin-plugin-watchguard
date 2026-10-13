@@ -7,7 +7,11 @@ assert.match(fixture.base,/^https?:\/\/(?:localhost|127\.0\.0\.1):\d+(?:\/jellyf
 (async()=>{
  const browser=await chromium.launch({headless:true});
  try {
-  const page=await browser.newPage({ignoreHTTPSErrors:fixture.tls===true});
+  const context=await browser.newContext({ignoreHTTPSErrors:fixture.tls===true,locale:'en-US'});
+  const page=await context.newPage();
+  const browserErrors=[];
+  page.on('pageerror',error=>browserErrors.push('pageerror: '+String(error.message||error).slice(0,350)));
+  page.on('console',message=>{if(message.type()==='error')browserErrors.push('console: '+message.text().slice(0,350));});
   const cdp=await page.context().newCDPSession(page), statuses=[], connected=new Set();let closed=0,frames=0,errors=0;
   await cdp.send('Network.enable');
   cdp.on('Network.webSocketHandshakeResponseReceived',event=>{statuses.push(event.response.status);if(event.response.status===101)connected.add(event.requestId);});
@@ -15,6 +19,24 @@ assert.match(fixture.base,/^https?:\/\/(?:localhost|127\.0\.0\.1):\d+(?:\/jellyf
   cdp.on('Network.webSocketFrameReceived',()=>frames++);
   cdp.on('Network.webSocketFrameError',()=>errors++);
   await page.goto(fixture.base+'/web/');
+  try {
+   await page.locator('#txtManualName').waitFor({state:'visible',timeout:15000});
+  } catch (error) {
+   const networkChanged=browserErrors.some(entry=>entry.includes('net::ERR_NETWORK_CHANGED'));
+   if (networkChanged) {
+    console.warn('Chromium network changed during native Jellyfin login bootstrap; retrying navigation once');
+    browserErrors.length=0;
+    await page.goto('about:blank');
+    await page.goto(fixture.base+'/web/');
+   }
+   try {
+    await page.locator('#txtManualName').waitFor({state:'visible',timeout:15000});
+   } catch (retryError) {
+    const state=await page.evaluate(()=>({title:document.title,ready:document.readyState,loginPresent:Boolean(document.querySelector('#txtManualName')),scriptCount:document.scripts.length})).catch(e=>({evaluationError:String(e)}));
+    console.error('Socket probe native login diagnostic:',JSON.stringify({networkChanged,state,browserErrors:browserErrors.slice(-15)}));
+    throw retryError;
+   }
+  }
   await page.locator('#txtManualName').fill(fixture.username);await page.locator('#txtManualPassword').fill(fixture.password);
   await page.getByRole('button',{name:'Sign In',exact:true}).click();
   await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
