@@ -74,14 +74,21 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
             'stagedMetadataPresent': stage_meta.exists()
         }), flush=True)
         assert running_version=='0.3.1', 'Rejected checksum changed running plugin assembly'
-        assert len(active_before_restart)==1 and active_before_restart[0]['Version']=='0.3.1.0'
-
+        # Jellyfin 12.2 may mark v0.3.1 Superseded and v0.4.0 Restart
+        # *before* a restart, even when the install HTTP request returned 500.
+        # The /Plugins status is therefore not a reliable assertion about the
+        # assembly executing in this process. Never restart with rejected bytes.
+        assert all(p['Version'] in ('0.3.1.0','0.4.0.0') for p in matching_plugins)
         if failed_stage.exists():
             docker('stop',name)
             shutil.move(str(failed_stage),str(root/'rejected-checksum-stage'))
             restart()
             baseline = call('/WatchGuard/IntegrationStatus',token=token)
-            assert baseline['PluginVersion']=='0.3.1'
+            assert baseline['PluginVersion']=='0.3.1', 'Rejected install persisted an unexpected running version'
+        # A failed install must not have altered watchlist, preferences or Injector configuration.
+        verify_data(saved,prefs)
+        assert injector_xml.read_bytes()==prior
+        assert not failed_stage.exists(), 'Rejected candidate must be absent before valid install'
         install('0.4.0');restart()
         status=call('/WatchGuard/IntegrationStatus',token=token)
         assert status['PluginVersion']=='0.4.0' and not status['Standalone']['LoaderActive']
