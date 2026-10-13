@@ -51,6 +51,25 @@ jobs:
           echo '4ce9f89924391e9842ba444b7dd0d2fcf509a23845497b45f601c2f3c18339a6  artifacts/Jellyfin.Plugin.WatchGuard-v0.3.0.zip' | sha256sum -c -
           mkdir -p artifacts/RollbackV031
           unzip -p artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip Jellyfin.Plugin.WatchGuard.dll > artifacts/RollbackV031/Jellyfin.Plugin.WatchGuard.dll
+      - name: Pull pinned Jellyfin test images with registry backoff
+        run: |
+          set -euo pipefail
+          for image in \
+            'lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b' \
+            'jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037'; do
+            for attempt in 1 2 3 4 5; do
+              if docker pull "$image"; then
+                break
+              fi
+              if [ "$attempt" -eq 5 ]; then
+                echo "::error::Could not pull pinned image after five attempts: $image"
+                exit 1
+              fi
+              delay=$((attempt * 20))
+              echo "::warning::Registry pull attempt $attempt failed; retrying in ${delay}s: $image"
+              sleep "$delay"
+            done
+          done
       - name: No-dependency native catalog, Caddy HTTPS and full Web/deletion suite
         run: python3 tests/docker-smoke.py --linuxserver --catalog --caddy
       - name: Published v0.3.1 migration, conflict refusal, rollback and full Web suite
