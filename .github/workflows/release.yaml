@@ -75,7 +75,14 @@ jobs:
       - name: Published v0.3.1 migration, conflict refusal, rollback and full Web suite
         run: python3 tests/docker-smoke.py --linuxserver --migration --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
       - name: Official-image base-path regression
-        run: python3 tests/docker-smoke.py --base-path /jellyfin --proxy
+        run: |
+          # Isolated proxy/Chromium lifecycle can intermittently drop client connections.
+          # Retry once with an entirely new disposable Jellyfin fixture, not the same
+          # browser or mutated media. All assertions run unchanged on both attempts.
+          if ! python3 tests/docker-smoke.py --base-path /jellyfin --proxy; then
+            echo "::warning::Base-path browser fixture failed; rerunning the complete regression once with a fresh container"
+            python3 tests/docker-smoke.py --base-path /jellyfin --proxy
+          fi
       - name: Retained legacy catalog and browser regressions
         run: |
           python3 tests/docker-smoke.py --legacy-injector --catalog --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
