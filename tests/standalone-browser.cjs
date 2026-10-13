@@ -25,11 +25,28 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
             try {
                 await page.locator('#txtManualName').waitFor();
             } catch (error) {
-                // Capture first-load failures without skipping the login assertion.
-                const state=await page.evaluate(()=>({url:location.href,title:document.title,ready:document.readyState,body:document.body?.innerText?.slice(0,500),scripts:[...document.scripts].length})).catch(err=>({evaluationError:String(err)}));
-                console.error('Standalone login diagnostic:',JSON.stringify({restricted,state,responses:responses.slice(-15),browserErrors:browserErrors.slice(-15)}));
-                await page.screenshot({path:path.join(output,restricted?'standalone-login-csp.png':'standalone-login.png'),fullPage:true}).catch(()=>{});
-                throw error;
+                // Docker network setup occasionally makes Chromium invalidate all
+                // in-flight resource requests (net::ERR_NETWORK_CHANGED). Reload
+                // the native login page only for this recognized transport fault;
+                // all assertions, including anonymous idle and CSP checks, remain.
+                const networkChanged=browserErrors.some(message=>message.includes('net::ERR_NETWORK_CHANGED'));
+                if (networkChanged) {
+                    console.warn('Chromium network changed during Jellyfin Web bootstrap; retrying native login navigation once');
+                    browserErrors.length=0;
+                    await page.goto('about:blank');
+                    await page.goto(fixture.base+'/web/');
+                    try {
+                        await page.locator('#txtManualName').waitFor();
+                    } catch (retryError) {
+                        error=retryError;
+                    }
+                }
+                if (!await page.locator('#txtManualName').isVisible()) {
+                    const state=await page.evaluate(()=>({url:location.href,title:document.title,ready:document.readyState,body:document.body?.innerText?.slice(0,500),scripts:[...document.scripts].length})).catch(err=>({evaluationError:String(err)}));
+                    console.error('Standalone login diagnostic:',JSON.stringify({restricted,networkChanged,state,responses:responses.slice(-15),browserErrors:browserErrors.slice(-15)}));
+                    await page.screenshot({path:path.join(output,restricted?'standalone-login-csp.png':'standalone-login.png'),fullPage:true}).catch(()=>{});
+                    throw error;
+                }
             }
             assert.equal(privateRequests,0);
             await page.locator('#txtManualName').fill(fixture.username);await page.locator('#txtManualPassword').fill(fixture.password);
