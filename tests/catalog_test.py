@@ -37,7 +37,13 @@ class CatalogTests(unittest.TestCase):
 
     def test_published_history_is_preserved_and_versions_are_immutable(self):
         archive=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip')
-        original=json.loads(Path('manifest.json').read_text())
+        published=json.loads(Path('manifest.json').read_text())
+        self.assertTrue(any(v['version']=='0.4.1.0' for v in published[0]['versions']))
+        # Model the manifest immediately before v0.4.1 publication. The actual
+        # manifest already contains that immutable version; re-adding it with a
+        # synthetic Fixture URL/timestamp must not be treated as a first release.
+        original=json.loads(json.dumps(published))
+        original[0]['versions']=[v for v in original[0]['versions'] if v['version']!='0.4.1.0']
         self.assertTrue(any(v['version']=='0.3.1.0' for v in original[0]['versions']))
         self.assertTrue(any(v['version']=='0.4.0.0' for v in original[0]['versions']))
         base='https://github.com/Fixture/WatchGuard/releases/download/v0.4.1/'
