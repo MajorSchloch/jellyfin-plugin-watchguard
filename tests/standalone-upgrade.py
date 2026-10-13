@@ -55,8 +55,27 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
         # bytes when exercising the subsequent valid catalog installation.
         active_before_restart = [p for p in call('/Plugins',token=token)
                                  if p['Id'].replace('-','')==GUID.replace('-','') and p['Status']=='Active']
-        assert len(active_before_restart)==1 and active_before_restart[0]['Version']=='0.3.1.0'
+        # Capture native installer state before asserting anything about checksum
+        # rejection. Jellyfin can report pending/staged versions separately from
+        # the currently executing assembly; these must not be conflated.
+        matching_plugins = [
+            {'Version': p.get('Version'), 'Status': p.get('Status'), 'Name': p.get('Name')}
+            for p in call('/Plugins',token=token)
+            if p['Id'].replace('-','')==GUID.replace('-','')
+        ]
+        running_version = call('/WatchGuard/IntegrationStatus',token=token)['PluginVersion']
         failed_stage = plugins/'WatchGuard_0.4.0.0'
+        stage_meta = (failed_stage/'meta.json')
+        print('Rejected checksum diagnostic:', json.dumps({
+            'active': [{'Version':p.get('Version'),'Status':p.get('Status')} for p in active_before_restart],
+            'allVersions': matching_plugins,
+            'runningVersion': running_version,
+            'stagedDirectoryPresent': failed_stage.exists(),
+            'stagedMetadataPresent': stage_meta.exists()
+        }), flush=True)
+        assert running_version=='0.3.1', 'Rejected checksum changed running plugin assembly'
+        assert len(active_before_restart)==1 and active_before_restart[0]['Version']=='0.3.1.0'
+
         if failed_stage.exists():
             docker('stop',name)
             shutil.move(str(failed_stage),str(root/'rejected-checksum-stage'))
