@@ -137,7 +137,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         if (user is null) return Unauthorized();
         if (!ownOnly && !user.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         var config = Plugin.Instance?.Configuration;
-        return Ok(overview.GetActivity(user, ownOnly, config?.ActivityWindowDays ?? 30, config?.ActivityLimit ?? 100, userId));
+        return Ok(overview.GetActivity(user, ownOnly, config?.ActivityWindowDays ?? 30, config?.ActivityLimit ?? 100, userId, HttpContext.RequestAborted));
     });
 
     [HttpGet("SeriesActivity/{itemId:guid}")]

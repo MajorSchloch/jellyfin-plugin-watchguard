@@ -6,7 +6,7 @@ from pathlib import Path
 def run(call,restart,docker,name,root,plugins,token,artifact):
     assert 'watchguard-poc-' in str(root)
     public=root/'experimental-catalog';public.mkdir()
-    archive=public/'Jellyfin.Plugin.WatchGuard-v0.4.5.zip'
+    archive=public/'Jellyfin.Plugin.WatchGuard-v0.4.6.zip'
     shutil.copyfile(Path(__file__).resolve().parents[1]/'artifacts'/archive.name,archive)
     with zipfile.ZipFile(archive) as z:
         assert z.namelist()==['Jellyfin.Plugin.WatchGuard.dll','LICENSE']
@@ -19,7 +19,7 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
     base='http://host.docker.internal:'+str(server.server_port)
     guid='a3c6bc84-783d-4ba8-a0db-89bfb83ab486'
     manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable PoC','category':'General','description':'Release candidate, local only','overview':'Fixture',
-        'versions':[{'version':'0.4.5.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive.read_bytes()).hexdigest(),'sourceUrl':base+'/'+archive.name,'timestamp':'2026-10-12T00:00:00Z','changelog':'Local release candidate, not published'}]}]
+        'versions':[{'version':'0.4.6.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive.read_bytes()).hexdigest(),'sourceUrl':base+'/'+archive.name,'timestamp':'2026-10-12T00:00:00Z','changelog':'Local release candidate, not published'}]}]
     baseline=Path(__file__).resolve().parents[1]/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip'
     assert hashlib.sha256(baseline.read_bytes()).hexdigest()=='439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d'
     shutil.copyfile(baseline,public/baseline.name)
@@ -40,17 +40,21 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
     assert hashlib.sha256(baseline044.read_bytes()).hexdigest()=='516f29160d4e6efb7296867d7a00848124306af804586dedceea9e6828d2e679'
     shutil.copyfile(baseline044,public/baseline044.name)
     manifest[0]['versions'].append({**manifest[0]['versions'][0],'version':'0.4.4.0','sourceUrl':base+'/'+baseline044.name,'checksum':hashlib.md5(baseline044.read_bytes()).hexdigest()})
+    baseline045=Path(__file__).resolve().parents[1]/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.5.zip'
+    assert hashlib.sha256(baseline045.read_bytes()).hexdigest()=='ebe3827470e439bd0a15f7fb65edfa330c6ecf2d1f8ec4112402680f109f709f'
+    shutil.copyfile(baseline045,public/baseline045.name)
+    manifest[0]['versions'].append({**manifest[0]['versions'][0],'version':'0.4.5.0','sourceUrl':base+'/'+baseline045.name,'checksum':hashlib.md5(baseline045.read_bytes()).hexdigest()})
     (public/'manifest.json').write_text(json.dumps(manifest))
     try:
         shutil.move(str(plugins/'WatchGuard'),str(root/'retired-preinstall'))
         restart();call('/WatchGuard/Watchlist',token=token,expected=404)
         call('/Repositories','POST',[{'Name':'Standalone disposable fixture','Url':base+'/manifest.json','Enabled':True}],token,expected=204)
-        query=urlencode({'assemblyGuid':guid,'version':'0.4.5.0','repositoryUrl':base+'/manifest.json'})
+        query=urlencode({'assemblyGuid':guid,'version':'0.4.6.0','repositoryUrl':base+'/manifest.json'})
         call('/Packages/Installed/WatchGuard?'+query,'POST',token=token,expected=204,raw=True)
         restart()
         assert 'watchguard-standalone-loader' in call('/web/index.html',raw=True)
         assert not any('JavaScriptInjector' in p.name for p in plugins.rglob('*.dll'))
-        assert (plugins/'WatchGuard_0.4.5.0/meta.json').exists()
+        assert (plugins/'WatchGuard_0.4.6.0/meta.json').exists()
         # Seed both schema-1 stores, then use native uninstall/install for rollback and upgrade.
         movie=call('/Items?Recursive=true&IncludeItemTypes=Movie&Limit=1',token=token)['Items'][0]['Id']
         call('/WatchGuard/Watchlist/'+movie,'PUT',token=token,expected=204)
@@ -58,7 +62,7 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
         call('/WatchGuard/Preferences','PUT',prefs,token)
         paths=[plugins/'Jellyfin.Plugin.WatchGuard'/f for f in ['watchlists.json','preferences.json']]+[plugins/'configurations/Jellyfin.Plugin.WatchGuard.xml']
         saved={p:p.read_bytes() for p in paths}
-        for previous,version in [('0.4.5.0','0.4.0.0'),('0.4.0.0','0.4.1.0'),('0.4.1.0','0.4.2.0'),('0.4.2.0','0.4.3.0'),('0.4.3.0','0.4.4.0'),('0.4.4.0','0.4.5.0')]:
+        for previous,version in [('0.4.6.0','0.4.0.0'),('0.4.0.0','0.4.1.0'),('0.4.1.0','0.4.2.0'),('0.4.2.0','0.4.3.0'),('0.4.3.0','0.4.4.0'),('0.4.4.0','0.4.5.0'),('0.4.5.0','0.4.6.0')]:
             call('/Plugins/'+guid+'/'+previous,'DELETE',token=token,expected=204)
             # Native uninstall may leave a versioned folder still discoverable.
             # Enforce a clean fixture boundary while the container is stopped,
@@ -99,7 +103,7 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
                 assert unexpected, 'Native status mismatched without an identifiable stale version folder'
                 docker('stop',name)
                 for stale in unexpected:
-                    assert stale.name in ('WatchGuard_0.4.0.0','WatchGuard_0.4.1.0','WatchGuard_0.4.2.0','WatchGuard_0.4.3.0','WatchGuard_0.4.4.0','WatchGuard_0.4.5.0')
+                    assert stale.name in ('WatchGuard_0.4.0.0','WatchGuard_0.4.1.0','WatchGuard_0.4.2.0','WatchGuard_0.4.3.0','WatchGuard_0.4.4.0','WatchGuard_0.4.5.0','WatchGuard_0.4.6.0')
                     destination=root/('retired-stale-'+stale.name)
                     assert not destination.exists()
                     shutil.move(str(stale),str(destination))
@@ -118,9 +122,9 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
             assert len(active)==1 and active[0]['Version']==version
         call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
         call('/WatchGuard/Preferences','DELETE',token=token)
-        report={'result':'PASS','baselineSha256':hashlib.sha256(baseline.read_bytes()).hexdigest(),'roundTrip':'0.4.5 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5','storesAndConfigBytesPreserved':True,'noInjector':True,'singleActiveAssembly':True}
-        (Path(__file__).resolve().parents[1]/'artifacts/catalog-upgrade-v045.json').write_text(json.dumps(report,indent=2)+'\n')
+        report={'result':'PASS','baselineSha256':hashlib.sha256(baseline.read_bytes()).hexdigest(),'roundTrip':'0.4.6 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5 -> 0.4.6','storesAndConfigBytesPreserved':True,'noInjector':True,'singleActiveAssembly':True}
+        (Path(__file__).resolve().parents[1]/'artifacts/catalog-upgrade-v046.json').write_text(json.dumps(report,indent=2)+'\n')
         print('v0.4.0 standalone catalog rollback/upgrade preserves both stores and configuration.',flush=True)
         print('Standalone native catalog install: fresh discovery, WatchGuard DLL only, restart loaded loader without Injector.',flush=True)
-        return plugins/'WatchGuard_0.4.5.0'
+        return plugins/'WatchGuard_0.4.6.0'
     finally:server.shutdown();server.server_close();thread.join()

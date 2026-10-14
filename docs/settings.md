@@ -9,7 +9,7 @@ Target: Jellyfin Server/Web 12.2, .NET 10. Dashboard → Plugins → WatchGuard 
 | Setting | Default | Effective range / behavior |
 | --- | --- | --- |
 | ActivityWindowDays | 30 | Integer, 1–90 days |
-| ActivityLimit | 100 | Integer, 1–100 automatic candidates |
+| ActivityLimit | 100 | Integer, 1–100 returned activity titles and completed-movie candidates per user (v0.4.6; other safety budgets remain) |
 | ProtectCaughtUpSeries | true | Warn for verified Caught Up continuing series; current protection remains fresh |
 | DiagnosticMode | false | Optional server timings and token-free browser adapter events |
 

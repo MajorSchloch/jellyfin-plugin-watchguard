@@ -546,3 +546,12 @@ test('Coverage disclosure keeps exact server notes and exposes safety and unknow
         assert.match(disclosure.children[0].textContent,/not exhaustive/);
     }
 });
+
+test('Structured activity coverage retains material warnings and old-server fallback',()=>{
+ const {coveragePresentation}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+ const info={Version:1,ActivityWindowDays:17,Warnings:['Episode metadata is incomplete.','Some results were omitted.']};
+ assert.deepEqual(coveragePresentation('Full server explanation',true,info),{summary:'Completed activity: last 17 days · current interest · not exhaustive',warning:info.Warnings.join(' ')});
+ assert.match(coveragePresentation('Unknown <text>',false,{...info,Version:2}).warning,/Unknown <text>/);
+ assert.match(coveragePresentation('Unknown',true,{...info,Warnings:[]}).warning,/safety limit/);
+ assert.match(coveragePresentation('Unknown',false,{...info,ActivityWindowDays:999}).warning,/Unknown/);
+});

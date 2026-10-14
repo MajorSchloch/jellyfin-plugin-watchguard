@@ -65,16 +65,20 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
 
     internal ProtectionStatus GetForOverview(BaseItem item, Guid requester, OverviewBudget budget) => GetCore(item, requester, budget);
 
+    internal void PrepareOverviewMovies(BaseItem[] candidates, OverviewBudget budget) =>
+        budget.MovieReads = new(candidates, library, data);
+
     private ProtectionStatus GetCore(BaseItem item, Guid requester, OverviewBudget? budget)
     {
         var entries = budget?.Entries ?? store.Read().ToHashSet();
-        var playing = sessions.Sessions.Where(s => s.IsActive && s.NowPlayingItem is not null)
+        var playing = (budget?.SessionSnapshot ?? sessions.Sessions).Where(s => s.IsActive && s.NowPlayingItem is not null)
             .Select(s => (ItemId: s.NowPlayingItem.Id,
                 Users: s.AdditionalUsers.Select(u => u.UserId).Append(s.UserId).ToHashSet())).ToArray();
         var result = new List<InterestedUser>();
         foreach (var candidate in budget?.Accounts ?? users.GetUsers())
         {
             budget?.Consume(1);
+            if (budget is not null) budget.Diagnostics.UsersEvaluated++;
             var user = users.GetUserById(candidate.Id);
             if (user is null || user.HasPermission(PermissionKind.IsDisabled)) continue;
             var visible = library.GetItemById<BaseItem>(item.Id, user);
@@ -91,6 +95,7 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
                     IsVirtualItem = inspectCoverage ? null : false, IsMissing = inspectCoverage ? null : false, Limit = budget is null ? null : InterestOverviewService.EpisodeLimit + 1
                 })
                 : [visible!];
+            if (budget is not null && item is Series) budget.Diagnostics.EpisodeRowsProcessed += items.Count;
             if (budget is not null && items.Count > InterestOverviewService.EpisodeLimit) throw new OverviewLimitException();
             budget?.Consume(items.Count);
             // Active playback still covers available future episodes; only completion/progress
@@ -106,8 +111,12 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
                 if (!coverageComplete) budget!.IncompleteCoverage = true;
                 items = items.Where(i => (budget?.TargetedSeries == true || !i.IsUnaired) && !i.IsVirtualItem && i is Episode { IsMissingEpisode: false }).ToArray();
             }
-            var states = data.GetUserDataBatch(items, user);
-            var resumes = data.GetResumeUserDataBatch(items, user);
+            // Only the overview populates MovieReads; fresh protection and all episode
+            // paths keep their original native read sequence and authorization checks.
+            var (states, resumes) = item is Movie && budget?.MovieReads is { } movieReads
+                ? movieReads.Read(item, user)
+                : (data.GetUserDataBatch(items, user), data.GetResumeUserDataBatch(items, user));
+            if (budget is not null && !(item is Movie && budget.MovieReads is not null)) budget.Diagnostics.NativePlaybackBatches += 2;
             var effective = items.Select(i =>
             {
                 if (!states.TryGetValue(i.Id, out var state))

@@ -1,0 +1,52 @@
+{
+  "version": "0.4.6.0",
+  "targetAbi": "12.2.0.0",
+  "result": "PASS",
+  "backendTests": 95,
+  "javascriptTests": 53,
+  "catalogTests": 4,
+  "parallelCiJobsLocallyPassed": [
+    "standalone-caddy",
+    "migration",
+    "basepath",
+    "legacy",
+    "websocket",
+    "discovery"
+  ],
+  "browserRuns": [
+    {
+      "fixture": "linuxserver/direct/migration",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "fixture": "linuxserver/caddy/standalone",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "fixture": "official/direct/injector",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "fixture": "official/basepath/standalone",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    }
+  ],
+  "deletionAdapterFunctionsUnchanged": true,
+  "standaloneLoaderUnchanged": true,
+  "reproducibleBuild": true,
+  "sha256": "e083f873d76a2cd62005e1093f30ecfde3201409fa9caa45948433372bba87e1",
+  "md5": "022545349f97aa852701d2d09380f59c",
+  "publishedV045Sha256": "ebe3827470e439bd0a15f7fb65edfa330c6ecf2d1f8ec4112402680f109f709f",
+  "unchangedManifestSha256": "5e31e04dc3ab825ded8755adedd1791dfd06f4185ef178a62bd03ec70cce2101",
+  "catalogRoundTrip": "0.4.6 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5 -> 0.4.6",
+  "published": false,
+  "deployed": false
+}

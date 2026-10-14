@@ -146,3 +146,7 @@ Both `GET /WatchGuard/InterestOverview?automaticOnly=true` (administrator only) 
 ## v0.2.3 activity projection
 
 `GET /WatchGuard/ActivityOverview` is administrator-only; `GET /WatchGuard/ActivityOverview/Me` returns only the authenticated account. They use the overview response envelope with native `LastPlayedDate`, nullable `AvailableEpisodes`/`WatchedEpisodes`, and an overview-only `Watched` status. The existing InterestOverview routes retain their interest-only reason contract. Neither history nor counts alter protection responses. Read [activity.md](activity.md) for exact dates, budgets, completion rules and examples.
+
+## v0.4.6 activity discovery
+
+ActivityOverview adds structured `Coverage` and aggregate `Diagnostics`; existing fields and authorization remain. See [API field definitions, bounds, failure/cancellation semantics and benchmarks](activity-discovery-v046.md). No continuation cursor is offered. The protection endpoint, schemas and policies remain unchanged.

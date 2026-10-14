@@ -368,7 +368,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 4, 5, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 4, 6, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.True(new Configuration().ProtectCaughtUpSeries);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
@@ -515,6 +515,112 @@ public sealed class BackendTests : IDisposable
         var targeted = service.GetSeriesActivity(series, alice.Id);
         Assert.False(targeted.IsComplete); Assert.True(targeted.LimitReached);
         library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id) && q.Limit == InterestOverviewService.EpisodeLimit + 1)), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public void OversizedOverviewSeriesMustNotStarveLaterMovieOrWeakenProtection()
+    {
+        var series = new Series { Id = Guid.NewGuid(), Name = "Oversized" };
+        var episodes = Enumerable.Range(0, 1501).Select(_ => (BaseItem)new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id }).ToArray();
+        library.Setup(l => l.GetItemById<BaseItem>(series.Id, It.IsAny<User>())).Returns(series);
+        library.Setup(l => l.GetItemById<BaseItem>(episodes[0].Id, It.IsAny<User>())).Returns(episodes[0]);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) =>
+            q.AncestorIds.Contains(series.Id) ? episodes.Take(q.Limit ?? episodes.Length).ToArray() :
+            q.IsResumable == true ? [episodes[0]] : q.IncludeItemTypes.SequenceEqual(new[] { BaseItemKind.Movie }) ? [movie] : []);
+        states[(bob.Id, movie.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-1) };
+        var overview = new InterestOverviewService(store, library.Object, users.Object, sessions.Object, service).GetActivity(alice);
+        Assert.True(overview.LimitReached); Assert.False(overview.IsComplete);
+        Assert.Equal(movie.Id, Assert.Single(overview.Items).ItemId);
+        Assert.Throws<InvalidDataException>(() => service.Get(series, alice.Id));
+    }
+
+    [Fact]
+    public void OverviewMovieBatchesAreAccountIsolatedAndNeverReusedByProtection()
+    {
+        var second = new Movie { Id = Guid.NewGuid(), Name = "Second" };
+        library.Setup(l => l.GetItemById<BaseItem>(second.Id, It.IsAny<User>())).Returns(second);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([movie, second]);
+        states[(bob.Id, movie.Id)] = new() { Key = "test", PlaybackPositionTicks = 100 };
+        states[(alice.Id, second.Id)] = new() { Key = "test", PlaybackPositionTicks = 100 };
+        var result = new InterestOverviewService(store, library.Object, users.Object, sessions.Object, service).GetActivity(alice);
+        Assert.Equal(bob.Id, Assert.Single(result.Items.Single(i => i.ItemId == movie.Id).Users).UserId);
+        Assert.Equal(alice.Id, Assert.Single(result.Items.Single(i => i.ItemId == second.Id).Users).UserId);
+        data.Verify(d => d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(), It.IsAny<User>()), Times.Exactly(2));
+        data.Verify(d => d.GetResumeUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(), It.IsAny<User>()), Times.Exactly(2));
+        data.Invocations.Clear(); states.Clear();
+        Assert.False(service.Get(movie, alice.Id).HasInterest);
+        data.Verify(d => d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(), It.IsAny<User>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public void GroupedEpisodeDiscoveryReachesSeriesBeyondTheRawEpisodeCap()
+    {
+        var series = new[] { new Series { Id = Guid.NewGuid() }, new Series { Id = Guid.NewGuid() } };
+        var episodes = series.Select(s => new[] { new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = s.Id }, new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = s.Id } }).ToArray();
+        foreach (var item in series.Cast<BaseItem>().Concat(episodes.SelectMany(e => e)))
+            library.Setup(l => l.GetItemById<BaseItem>(item.Id, It.IsAny<User>())).Returns(item);
+        foreach (var pair in episodes) states[(bob.Id, pair[0].Id)] = new() { Key = "test", Played = true };
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) =>
+            q.AncestorIds.Contains(series[0].Id) ? episodes[0] : q.AncestorIds.Contains(series[1].Id) ? episodes[1] :
+            q.GroupBySeriesPresentationUniqueKey ? [episodes[0][0], episodes[1][0]] :
+            q.IsPlayed == true && q.IncludeItemTypes.SequenceEqual(new[] { BaseItemKind.Episode }) ? Enumerable.Repeat<BaseItem>(episodes[0][0],101).ToArray() : []);
+        var result = new InterestOverviewService(store, library.Object, users.Object, sessions.Object, service).GetActivity(alice);
+        Assert.Equal(2, result.Items.Length); Assert.All(result.Items, i => Assert.Equal("InProgress", Assert.Single(Assert.Single(i.Users).Reasons)));
+        Assert.Contains("RawEpisodeDiscoveryLimit", result.Coverage!.Causes);
+        Assert.False(result.Coverage.AdditionalPagesAvailable); Assert.False(result.IsComplete);
+        Assert.Equal(2, result.Diagnostics!.CandidatesVerified);
+    }
+
+    [Fact]
+    public void ResultAllowanceIsNotConsumedByTheFirstHundredIrrelevantCandidates()
+    {
+        var old = Enumerable.Range(0,100).Select(_ => new Movie {Id=Guid.NewGuid()}).ToArray();
+        foreach (var item in old) library.Setup(l=>l.GetItemById<BaseItem>(item.Id,It.IsAny<User>())).Returns(item);
+        library.Setup(l=>l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q)=>q.IsResumable==true?old:q.IncludeItemTypes.SequenceEqual(new[]{BaseItemKind.Movie})?[movie]:[]);
+        states[(bob.Id,movie.Id)]=new(){Key="test",Played=true,LastPlayedDate=DateTime.UtcNow.AddDays(-1)};
+        var result=new InterestOverviewService(store,library.Object,users.Object,sessions.Object,service).GetActivity(alice);
+        Assert.Equal(movie.Id,Assert.Single(result.Items).ItemId);
+        Assert.Equal(101,result.Diagnostics!.UniqueCandidates);Assert.Equal(101,result.Diagnostics.CandidatesVerified);
+    }
+
+    [Fact]
+    public void OverviewCancellationStopsBeforeNativeQueries()
+    {
+        using var cancelled=new CancellationTokenSource();cancelled.Cancel();
+        Assert.Throws<OperationCanceledException>(()=>new InterestOverviewService(store,library.Object,users.Object,sessions.Object,service).GetActivity(alice,cancellation:cancelled.Token));
+        library.Verify(l=>l.GetItemList(It.IsAny<InternalItemsQuery>()),Times.Never);
+    }
+
+    [Fact]
+    public void ResumeDiscoveryInterleavesUsersBeforeApplyingResultLimit()
+    {
+        var second=new Movie{Id=Guid.NewGuid()}; var third=new Movie{Id=Guid.NewGuid()};
+        foreach(var item in new[]{second,third})library.Setup(l=>l.GetItemById<BaseItem>(item.Id,It.IsAny<User>())).Returns(item);
+        states[(alice.Id,movie.Id)]=new(){Key="test",PlaybackPositionTicks=10};
+        states[(alice.Id,second.Id)]=new(){Key="test",PlaybackPositionTicks=10};
+        states[(bob.Id,third.Id)]=new(){Key="test",PlaybackPositionTicks=10};
+        library.Setup(l=>l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q)=>q.IsResumable==true?(q.User==alice?[movie,second]:[third]):[]);
+        var result=new InterestOverviewService(store,library.Object,users.Object,sessions.Object,service).GetActivity(alice,limit:2);
+        Assert.Equal(2,result.Items.Length);Assert.Contains(result.Items,i=>i.ItemId==third.Id);
+        Assert.True(result.Coverage!.ResultLimitReached);Assert.Contains("ResultLimit",result.Coverage.Causes);
+    }
+
+    [Fact]
+    public void MovieBatchDatesVersionsVisibilityAndFailuresRemainNative()
+    {
+        var second=new Movie{Id=Guid.NewGuid()};
+        library.Setup(l=>l.GetItemById<BaseItem>(second.Id,alice)).Returns(second);
+        library.Setup(l=>l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([movie,second]);
+        var date=DateTime.UtcNow.AddDays(-2);
+        data.Setup(d=>d.GetResumeUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),bob)).Returns(new Dictionary<Guid,VersionResumeData>{[movie.Id]=new(Guid.NewGuid(),new UserItemData{Key="test",Played=true,LastPlayedDate=date})});
+        states[(alice.Id,second.Id)]=new(){Key="test",Played=true,LastPlayedDate=DateTime.UtcNow};
+        var overview=new InterestOverviewService(store,library.Object,users.Object,sessions.Object,service);
+        var result=overview.GetActivity(alice);
+        Assert.Equal(date,Assert.Single(result.Items.Single(i=>i.ItemId==movie.Id).Users).LastPlayedDate);
+        Assert.Equal(alice.Id,Assert.Single(result.Items.Single(i=>i.ItemId==second.Id).Users).UserId);
+        data.Verify(d=>d.GetUserDataBatch(It.Is<IReadOnlyList<BaseItem>>(items=>items.Any(i=>i.Id==second.Id)),bob),Times.Never);
+        data.Setup(d=>d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),bob)).Returns(new Dictionary<Guid,UserItemData>());
+        Assert.Throws<InvalidDataException>(()=>overview.GetActivity(alice));
     }
 
     [Fact]

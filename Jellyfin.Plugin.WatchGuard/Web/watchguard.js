@@ -413,7 +413,14 @@
 
     // The existing API has no separate window/episode-coverage fields. Recognize only
     // its exact routine preamble; unfamiliar notices remain visible, never hidden.
-    function coveragePresentation(notice, limited) {
+    function coveragePresentation(notice, limited, coverage) {
+        if (coverage?.Version === 1 && Number.isInteger(coverage.ActivityWindowDays) && coverage.ActivityWindowDays >= 1 && coverage.ActivityWindowDays <= 90 &&
+            Array.isArray(coverage.Warnings) && coverage.Warnings.every(w => typeof w === 'string')) {
+            // Additive v0.4.6 fields; retain the full Notice in the disclosure and
+            // retain text fallback for older servers or unfamiliar schema versions.
+            return {summary: 'Completed activity: last ' + coverage.ActivityWindowDays + ' days · current interest · not exhaustive',
+                warning: coverage.Warnings.join(' ') || (limited ? 'A safety limit was reached; some items are omitted.' : '')};
+        }
         const routine = /^Recent viewing activity: completed titles with a native playback date in the last ([1-9][0-9]?) days, plus current viewing interest; not an exhaustive library audit\./.exec(notice);
         const remainder = routine ? notice.slice(routine[0].length).trim() : notice;
         return {
@@ -504,7 +511,7 @@
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
         let directory = [], loadedScope;
-        let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, failures = [];
+        let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, coverageInfo = null, failures = [];
         const cards = new Map();
         signal.addEventListener('abort', () => { generation++; cards.clear(); page.remove(); }, { once: true });
         function render() {
@@ -531,7 +538,7 @@
             summary.title = 'Status filters (' + kind.length + ' selected)'; summary.setAttribute('aria-label', summary.title); order.value = sort;
             status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : 'No matching activity in this overview.';
             spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
-            const info = coveragePresentation(coverage, coverageLimited);
+            const info = coveragePresentation(coverage, coverageLimited, coverageInfo);
             notice.hidden = !coverage && !coverageLimited;
             coverageSummary.textContent = info.summary;
             coverageText.textContent = coverage; // Keep the complete server explanation verbatim.
@@ -587,7 +594,7 @@
             if (!active()) return;
             const revision = ++generation;
             const current = () => active() && revision === generation;
-            pending = true; failures = []; coverage = ''; coverageLimited = false; notice.hidden = true; refresh.disabled = true;
+            pending = true; failures = []; coverage = ''; coverageLimited = false; coverageInfo = null; notice.hidden = true; refresh.disabled = true;
             status.textContent = 'Loading watchlists…'; spinner.hidden = false; status.append(spinner); page.setAttribute('aria-busy', 'true'); error.textContent = '';
             try {
                 const account = await api.getCurrentUser();
@@ -627,7 +634,7 @@
                     if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
                     selectInterest(result.Items, 'all', user);
                     if (result.Items.some(e => e.Users.some(u => (scope !== 'all' && key(u.UserId) !== key(scope === 'mine' ? user : scope)) || u.Reasons.includes('Watchlisted')))) throw new Error('Invalid automatic scope');
-                    automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached;
+                    automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
                 } catch { if (!current()) return; automatic = []; failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.'); }
                 pending = false; render();
             } catch { if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; render(); } }

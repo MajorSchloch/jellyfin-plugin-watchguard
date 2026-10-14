@@ -1,0 +1,144 @@
+{
+  "kind": "native-disposable-official-image",
+  "seriesEpisodeCounts": [
+    300,
+    1000,
+    1501
+  ],
+  "seriesPlaybackUsers": 3,
+  "movieOnlyUsers": 1,
+  "completedMovies": 140,
+  "untouchedMovies": 200,
+  "results": [
+    {
+      "version": "published-v045",
+      "scope": "movies-only",
+      "requestMs": [
+        274.1126660257578,
+        299.5905840070918,
+        286.2171250162646
+      ],
+      "medianMs": 286.2171250162646,
+      "returned": [
+        100,
+        100,
+        100
+      ],
+      "truncationFrequency": 1.0,
+      "diagnostics": []
+    },
+    {
+      "version": "published-v045",
+      "scope": "mixed-all-users",
+      "requestMs": [
+        561.3895420101471,
+        547.9759580339305,
+        557.6489579980262
+      ],
+      "medianMs": 557.6489579980262,
+      "returned": [
+        0,
+        0,
+        0
+      ],
+      "truncationFrequency": 1.0,
+      "diagnostics": []
+    },
+    {
+      "version": "candidate-v046",
+      "scope": "movies-only",
+      "requestMs": [
+        318.9364169957116,
+        300.75833399314433,
+        317.0777500490658
+      ],
+      "medianMs": 317.0777500490658,
+      "returned": [
+        100,
+        100,
+        100
+      ],
+      "truncationFrequency": 1.0,
+      "diagnostics": [
+        {
+          "CandidatesDiscovered": 100,
+          "UniqueCandidates": 100,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 100,
+          "EpisodeRowsProcessed": 0,
+          "NativePlaybackBatches": 2,
+          "NativeDiscoveryQueries": 4,
+          "QueryDurationMs": 304.298
+        },
+        {
+          "CandidatesDiscovered": 100,
+          "UniqueCandidates": 100,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 100,
+          "EpisodeRowsProcessed": 0,
+          "NativePlaybackBatches": 2,
+          "NativeDiscoveryQueries": 4,
+          "QueryDurationMs": 288.0675
+        },
+        {
+          "CandidatesDiscovered": 100,
+          "UniqueCandidates": 100,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 100,
+          "EpisodeRowsProcessed": 0,
+          "NativePlaybackBatches": 2,
+          "NativeDiscoveryQueries": 4,
+          "QueryDurationMs": 303.0813
+        }
+      ]
+    },
+    {
+      "version": "candidate-v046",
+      "scope": "mixed-all-users",
+      "requestMs": [
+        2152.241167030297,
+        2112.996125011705,
+        2133.233249944169
+      ],
+      "medianMs": 2133.233249944169,
+      "returned": [
+        100,
+        100,
+        100
+      ],
+      "truncationFrequency": 1.0,
+      "diagnostics": [
+        {
+          "CandidatesDiscovered": 712,
+          "UniqueCandidates": 103,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 501,
+          "EpisodeRowsProcessed": 7501,
+          "NativePlaybackBatches": 40,
+          "NativeDiscoveryQueries": 20,
+          "QueryDurationMs": 2141.5521
+        },
+        {
+          "CandidatesDiscovered": 712,
+          "UniqueCandidates": 103,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 501,
+          "EpisodeRowsProcessed": 7501,
+          "NativePlaybackBatches": 40,
+          "NativeDiscoveryQueries": 20,
+          "QueryDurationMs": 2102.6499
+        },
+        {
+          "CandidatesDiscovered": 712,
+          "UniqueCandidates": 103,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 501,
+          "EpisodeRowsProcessed": 7501,
+          "NativePlaybackBatches": 40,
+          "NativeDiscoveryQueries": 20,
+          "QueryDurationMs": 2121.5837
+        }
+      ]
+    }
+  ]
+}

@@ -8,7 +8,7 @@ INJECTOR='f5a34f7b-2e8a-4e6a-a722-3a216a81b374'
 def run(call,restart,docker,name,root,plugins,token,movie,installed):
     assert name.startswith('watchguard-poc-')
     public=root/'upgrade-catalog';public.mkdir()
-    archives={v:ROOT/'artifacts'/f'Jellyfin.Plugin.WatchGuard-v{v}.zip' for v in ['0.3.1','0.4.5']}
+    archives={v:ROOT/'artifacts'/f'Jellyfin.Plugin.WatchGuard-v{v}.zip' for v in ['0.3.1','0.4.6']}
     assert hashlib.sha256(archives['0.3.1'].read_bytes()).hexdigest()=='c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2'
     for archive in archives.values():shutil.copyfile(archive,public/archive.name)
     class Handler(http.server.SimpleHTTPRequestHandler):
@@ -41,9 +41,9 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
             print('Native install failure diagnostic:',json.dumps({
                 'requestedVersion':version+'.0','repositoryFile':file,
                 'repositoryPackages':matching,'installedPlugins':rows,
-                'candidateFolder':(plugins/'WatchGuard_0.4.5.0').exists(),
-                'candidateDll':(plugins/'WatchGuard_0.4.5.0'/'Jellyfin.Plugin.WatchGuard.dll').exists(),
-                'candidateMetadata':(plugins/'WatchGuard_0.4.5.0'/'meta.json').exists()
+                'candidateFolder':(plugins/'WatchGuard_0.4.6.0').exists(),
+                'candidateDll':(plugins/'WatchGuard_0.4.6.0'/'Jellyfin.Plugin.WatchGuard.dll').exists(),
+                'candidateMetadata':(plugins/'WatchGuard_0.4.6.0'/'meta.json').exists()
             }),flush=True)
             errors=[line for line in docker('logs',name).splitlines() if 'Exception:' in line or 'Package installation failed' in line]
             for line in errors[-6:]: print(line.replace(token,'[redacted]'),flush=True)
@@ -72,16 +72,16 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
         saved={p:p.read_bytes() for p in paths}
         injector_xml=plugins/'configurations/Jellyfin.Plugin.JavaScriptInjector.xml'
         prior=injector_xml.read_bytes()
-        # This fixture must test the real v0.3.1 -> v0.4.5 migration
+        # This fixture must test the real v0.3.1 -> v0.4.6 migration
         # without first poisoning Jellyfin's native installer state. A failed
         # checksum installation may asynchronously stage/lock the same target
         # DLL despite returning HTTP 500. The isolated legacy catalog fixture
         # exercises checksum rejection in a fresh disposable installation.
         verify_data(saved,prefs)
         assert injector_xml.read_bytes() == prior
-        install('0.4.5');restart()
+        install('0.4.6');restart()
         status=call('/WatchGuard/IntegrationStatus',token=token)
-        assert status['PluginVersion']=='0.4.5' and not status['Standalone']['LoaderActive']
+        assert status['PluginVersion']=='0.4.6' and not status['Standalone']['LoaderActive']
         assert status['Standalone']['Injector']['WatchGuardRegistration']
         assert injector_xml.read_bytes()==prior # RC never edits old persisted registrations.
         assert 'watchguard-standalone-loader' not in call('/web/index.html',raw=True)
@@ -93,10 +93,10 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
         assert call('/WatchGuard/IntegrationStatus',token=token)['Standalone']['LoaderActive']
         assert 'watchguard-standalone-loader' in call('/web/index.html',raw=True)
         verify_data(saved,prefs)
-        folder=plugins/'WatchGuard_0.4.5.0'
+        folder=plugins/'WatchGuard_0.4.6.0'
         assert (folder/'meta.json').exists()
         active=[p for p in call('/Plugins',token=token) if p['Id'].replace('-','')==GUID.replace('-','') and p['Status']=='Active']
-        assert len(active)==1 and active[0]['Version']=='0.4.5.0'
+        assert len(active)==1 and active[0]['Version']=='0.4.6.0'
         docker('stop',name);shutil.move(str(folder),str(root/'retired-rc'))
         restart();install('0.3.1');restart()
         assert call('/WatchGuard/IntegrationStatus',token=token)['PluginVersion']=='0.3.1'
@@ -105,15 +105,15 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
         assert next(r for r in rows if r['Id']=='watchguard-fixture-other')==sentinel
         call('/WatchGuard/Standalone/bootstrap.js',expected=404)
         verify_data(saved,prefs)
-        install('0.4.5');restart()
+        install('0.4.6');restart()
         assert not call('/WatchGuard/IntegrationStatus',token=token)['Standalone']['LoaderActive']
         remove_registration();restart();verify_data(saved,prefs)
         assert call('/WatchGuard/IntegrationStatus',token=token)['Standalone']['LoaderActive']
         assert next(r for r in config()['PluginJavaScripts'] if r['Id']=='watchguard-fixture-other')==sentinel
         call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
         call('/WatchGuard/Preferences','DELETE',token=token)
-        report={'result':'PASS','publishedBaselineSha256':hashlib.sha256(archives['0.3.1'].read_bytes()).hexdigest(),'upgrade':'0.3.1 -> 0.4.5','rollback':'0.4.5 -> 0.3.1 -> 0.4.5','checksumRejection':'tested separately by legacy catalog fixture','conflictBlocked':True,'noAutomaticInjectorWrites':True,'otherScriptsPreserved':True,'dataAndConfigBytesPreserved':True,'duplicateActivePlugins':False}
-        (ROOT/'artifacts/migration-v045.json').write_text(json.dumps(report,indent=2)+'\n')
+        report={'result':'PASS','publishedBaselineSha256':hashlib.sha256(archives['0.3.1'].read_bytes()).hexdigest(),'upgrade':'0.3.1 -> 0.4.6','rollback':'0.4.6 -> 0.3.1 -> 0.4.6','checksumRejection':'tested separately by legacy catalog fixture','conflictBlocked':True,'noAutomaticInjectorWrites':True,'otherScriptsPreserved':True,'dataAndConfigBytesPreserved':True,'duplicateActivePlugins':False}
+        (ROOT/'artifacts/migration-v046.json').write_text(json.dumps(report,indent=2)+'\n')
         print('RC catalog migration/rollback passed: published v0.3.1, conflict refusal, explicit cleanup, unchanged stores/config and unrelated scripts.',flush=True)
         return folder
     finally:server.shutdown();server.server_close();thread.join()

@@ -345,6 +345,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             await page.route(endpoint,async route=>{
                 const response=await route.fetch();const data=await response.json();
                 data.Notice+=warning;data.LimitReached=true;
+                if(data.Coverage) {data.Coverage.Warnings=[warning.trim()];data.Coverage.EpisodeMetadataIncomplete=true;data.Coverage.VerificationLimited=true;}
                 data.Items.forEach(item=>item.Users.forEach(user=>user.DisplayName='<img src=x onerror=alert(1)> '+ 'Long username '.repeat(12)));
                 await route.fulfill({response,json:data});
             });

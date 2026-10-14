@@ -1,0 +1,44 @@
+[
+  {
+    "episodeCount": 300,
+    "users": 4,
+    "untouched": 10000,
+    "completedMovies": 140,
+    "returned": 100,
+    "LimitReached": true,
+    "episodeRows": 1200,
+    "nativePlaybackBatches": 16,
+    "nativeQueries": 20,
+    "nativeLookups": 1701,
+    "elapsedMs": 12.4879,
+    "allocatedBytes": 2934504
+  },
+  {
+    "episodeCount": 1000,
+    "users": 4,
+    "untouched": 10000,
+    "completedMovies": 140,
+    "returned": 100,
+    "LimitReached": true,
+    "episodeRows": 4000,
+    "nativePlaybackBatches": 16,
+    "nativeQueries": 20,
+    "nativeLookups": 1701,
+    "elapsedMs": 15.2119,
+    "allocatedBytes": 3707016
+  },
+  {
+    "episodeCount": 1501,
+    "users": 4,
+    "untouched": 10000,
+    "completedMovies": 140,
+    "returned": 100,
+    "LimitReached": true,
+    "episodeRows": 1001,
+    "nativePlaybackBatches": 16,
+    "nativeQueries": 17,
+    "nativeLookups": 1706,
+    "elapsedMs": 4.3424,
+    "allocatedBytes": 2769816
+  }
+]
