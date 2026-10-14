@@ -44,14 +44,27 @@ done
 '''
     docker('exec', name, 'sh', '-c', script)
     call('/Library/Refresh', 'POST', token=token, expected=204)
-    for _ in range(360):
-        episodes = call('/Items?Recursive=true&IncludeItemTypes=Episode&Fields=PremiereDate', token=token)['Items']
-        if len(episodes) >= 2811: break
+    # Jellyfin indexes movies, series and episodes asynchronously. An episode
+    # threshold alone does not prove that the movie library has finished scanning.
+    # Keep the exact fixture cardinality assertions; wait for both collections.
+    for attempt in range(360):
+        episode_response = call('/Items?Recursive=true&IncludeItemTypes=Episode&Fields=PremiereDate&Limit=10000', token=token)
+        episodes = episode_response['Items']
+        titles_response = call('/Items?Recursive=true&IncludeItemTypes=Movie,Series&Limit=10000', token=token)
+        titles = titles_response['Items']
+        series = [i for i in titles if i['Type'] == 'Series' and i['Name'].startswith('Benchmark ')]
+        movies = [i for i in titles if i['Type'] == 'Movie' and i['Name'].startswith('Benchmark Movie')]
+        if len(episodes) >= 2801 and len(series) == 3 and len(movies) == 340:
+            break
+        if attempt % 30 == 0:
+            print(f'Waiting for benchmark indexing: episodes={len(episodes)}/2801 '
+                  f'series={len(series)}/3 movies={len(movies)}/340 '
+                  f'episodeTotal={episode_response.get("TotalRecordCount")} '
+                  f'titleTotal={titles_response.get("TotalRecordCount")}', flush=True)
         time.sleep(1)
-    else: raise AssertionError('Synthetic scan did not complete')
-    titles = call('/Items?Recursive=true&IncludeItemTypes=Movie,Series', token=token)['Items']
-    series = [i for i in titles if i['Type'] == 'Series' and i['Name'].startswith('Benchmark ')]
-    movies = [i for i in titles if i['Type'] == 'Movie' and i['Name'].startswith('Benchmark Movie')]
+    else:
+        raise AssertionError(f'Synthetic scan incomplete: episodes={len(episodes)}/2801 '
+                             f'series={len(series)}/3 movies={len(movies)}/340')
     assert len(series) == 3 and len(movies) == 340
     for item in series:
         full = call('/Items/'+item['Id'], token=token)
