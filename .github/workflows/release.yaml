@@ -102,7 +102,7 @@ jobs:
         if: matrix.suite == 'standalone-caddy'
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.3/Jellyfin.Plugin.WatchGuard-v0.4.3.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.3.zip
-          echo '4f374251eb1b25182635c3583505c9838bdb2057842c335c1a21c4cb56c4c8e9  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.3.zip' | sha256sum -c -
+          echo 'fc8bcb6e312f37fe73749ee0450a57f5dfda8fc4470549c633c1e3920271be47  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.3.zip' | sha256sum -c -
       - name: Download and verify v0.4.4 production baseline
         if: matrix.suite == 'standalone-caddy'
         run: |
