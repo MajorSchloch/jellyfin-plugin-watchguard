@@ -6,11 +6,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '24'
       - run: dotnet restore Jellyfin.Plugin.WatchGuard.slnx --locked-mode
@@ -20,7 +20,7 @@ jobs:
       - run: python3 scripts/build-release.py
       - run: python3 tests/catalog_test.py
       - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-v0.4.1
           path: |

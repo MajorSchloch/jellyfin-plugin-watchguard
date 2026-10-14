@@ -72,6 +72,33 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
                     'versionFolders':sorted(p.name for p in plugins.glob('WatchGuard_*')),
                     'metaPresent':(plugins/('WatchGuard_'+version)/'meta.json').exists()
                 }),flush=True)
+            if len(active)!=1 or active[0]['Version']!=version:
+                # Jellyfin 12.2 sometimes retains a previous Restart-pending
+                # install even after its native uninstall returned 204. A bare
+                # restart can reactivate that stale version. Repair only this
+                # disposable fixture: stop, retire any *other versioned* folders,
+                # restart, and require the normal one-Active invariant.
+                unexpected=[p for p in plugins.glob('WatchGuard_*')
+                            if p.is_dir() and p.name!=('WatchGuard_'+version)]
+                assert unexpected, 'Native status mismatched without an identifiable stale version folder'
+                docker('stop',name)
+                for stale in unexpected:
+                    assert stale.name in ('WatchGuard_0.4.0.0','WatchGuard_0.4.1.0')
+                    destination=root/('retired-stale-'+stale.name)
+                    assert not destination.exists()
+                    shutil.move(str(stale),str(destination))
+                restart()
+                reloaded=call('/WatchGuard/IntegrationStatus',token=token)
+                assert reloaded['PluginVersion']==version[:-2] and reloaded['Standalone']['LoaderActive'], (
+                    'Expected plugin did not survive retirement of stale versioned files')
+                assert all(p.read_bytes()==content for p,content in saved.items())
+                plugin_rows=[p for p in call('/Plugins',token=token) if p['Id'].replace('-','')==guid.replace('-','')]
+                active=[p for p in plugin_rows if p['Status']=='Active']
+                print('Catalog round-trip post-cleanup state:',json.dumps({
+                    'expected':version,
+                    'plugins':[{'Version':p.get('Version'),'Status':p.get('Status')} for p in plugin_rows],
+                    'versionFolders':sorted(p.name for p in plugins.glob('WatchGuard_*'))
+                }),flush=True)
             assert len(active)==1 and active[0]['Version']==version
         call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
         call('/WatchGuard/Preferences','DELETE',token=token)

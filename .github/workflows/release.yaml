@@ -15,15 +15,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
           cache-dependency-path: '**/packages.lock.json'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '24'
       - run: python3 scripts/build-release.py
@@ -36,7 +36,7 @@ jobs:
           cp artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip.sha256 /tmp/first.sha256
           python3 scripts/build-release.py
           cmp /tmp/first.sha256 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip.sha256
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-v0.4.1-validated
           if-no-files-found: error
@@ -53,16 +53,16 @@ jobs:
       matrix:
         suite: [standalone-caddy, migration, basepath, legacy, websocket]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '24'
           cache: npm
           cache-dependency-path: tests/browser/package-lock.json
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           name: WatchGuard-v0.4.1-validated
           path: artifacts
@@ -132,14 +132,14 @@ jobs:
           esac
       - name: Upload browser diagnostics on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-browser-failure-${{ matrix.suite }}
           path: artifacts/v041/
           if-no-files-found: warn
       - name: Upload suite evidence
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-evidence-${{ matrix.suite }}
           path: |
@@ -160,8 +160,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v6
         with:
           name: WatchGuard-v0.4.1-validated
           path: artifacts

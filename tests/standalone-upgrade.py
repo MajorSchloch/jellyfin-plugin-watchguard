@@ -27,9 +27,26 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
         try:
             call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':GUID,'version':version+'.0','repositoryUrl':base+'/'+file}),'POST',token=token,expected=expected,raw=True)
         except AssertionError:
-            # Disposable fixture diagnostics only; never print response bodies or authorization.
+            # Diagnose native catalog state without exposing credentials,
+            # response bodies, filesystem contents, or private WatchGuard data.
+            packages=call('/Packages',token=token)
+            matching=[{
+                'guid':p.get('guid',p.get('Guid')),
+                'name':p.get('name',p.get('Name')),
+                'versions':[v.get('version',v.get('Version')) for v in
+                            (p.get('versions',p.get('Versions')) or [])]
+            } for p in packages if str(p.get('guid',p.get('Guid',''))).replace('-','').lower()==GUID.replace('-','')]
+            rows=[{'version':p.get('Version'),'status':p.get('Status')} for p in call('/Plugins',token=token)
+                  if str(p.get('Id','')).replace('-','').lower()==GUID.replace('-','')]
+            print('Native install failure diagnostic:',json.dumps({
+                'requestedVersion':version+'.0','repositoryFile':file,
+                'repositoryPackages':matching,'installedPlugins':rows,
+                'candidateFolder':(plugins/'WatchGuard_0.4.1.0').exists(),
+                'candidateDll':(plugins/'WatchGuard_0.4.1.0'/'Jellyfin.Plugin.WatchGuard.dll').exists(),
+                'candidateMetadata':(plugins/'WatchGuard_0.4.1.0'/'meta.json').exists()
+            }),flush=True)
             errors=[line for line in docker('logs',name).splitlines() if 'Exception:' in line or 'Package installation failed' in line]
-            for line in errors[-4:]: print(line.replace(token,'[redacted]'),flush=True)
+            for line in errors[-6:]: print(line.replace(token,'[redacted]'),flush=True)
             raise
     def config():return call('/Plugins/'+INJECTOR+'/Configuration',token=token)
     def remove_registration():
@@ -55,20 +72,11 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
         saved={p:p.read_bytes() for p in paths}
         injector_xml=plugins/'configurations/Jellyfin.Plugin.JavaScriptInjector.xml'
         prior=injector_xml.read_bytes()
-        install('0.4.1','bad.json',500)
-        # Jellyfin's native installer can stage a Restart-pending candidate even
-        # after returning HTTP 500 for a deliberately invalid checksum.
-        # Verify the running assembly is unchanged, then remove rejected staging
-        # while stopped instead of restarting with those bytes discoverable.
-        running_version = call('/WatchGuard/IntegrationStatus', token=token)['PluginVersion']
-        assert running_version == '0.3.1', 'Rejected checksum changed executing plugin version'
-        failed_stage = plugins/'WatchGuard_0.4.1.0'
-        if failed_stage.exists():
-            docker('stop', name)
-            shutil.move(str(failed_stage), str(root/'rejected-checksum-stage'))
-            restart()
-            assert call('/WatchGuard/IntegrationStatus', token=token)['PluginVersion'] == '0.3.1'
-        assert not failed_stage.exists(), 'Rejected stage must be removed before valid install'
+        # This fixture must test the real v0.3.1 -> v0.4.1 migration
+        # without first poisoning Jellyfin's native installer state. A failed
+        # checksum installation may asynchronously stage/lock the same target
+        # DLL despite returning HTTP 500. The isolated legacy catalog fixture
+        # exercises checksum rejection in a fresh disposable installation.
         verify_data(saved,prefs)
         assert injector_xml.read_bytes() == prior
         install('0.4.1');restart()
@@ -104,8 +112,8 @@ def run(call,restart,docker,name,root,plugins,token,movie,installed):
         assert next(r for r in config()['PluginJavaScripts'] if r['Id']=='watchguard-fixture-other')==sentinel
         call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
         call('/WatchGuard/Preferences','DELETE',token=token)
-        report={'result':'PASS','publishedBaselineSha256':hashlib.sha256(archives['0.3.1'].read_bytes()).hexdigest(),'upgrade':'0.3.1 -> 0.4.1','rollback':'0.4.1 -> 0.3.1 -> 0.4.1','checksumRejection':True,'conflictBlocked':True,'noAutomaticInjectorWrites':True,'otherScriptsPreserved':True,'dataAndConfigBytesPreserved':True,'duplicateActivePlugins':False}
+        report={'result':'PASS','publishedBaselineSha256':hashlib.sha256(archives['0.3.1'].read_bytes()).hexdigest(),'upgrade':'0.3.1 -> 0.4.1','rollback':'0.4.1 -> 0.3.1 -> 0.4.1','checksumRejection':'tested separately by legacy catalog fixture','conflictBlocked':True,'noAutomaticInjectorWrites':True,'otherScriptsPreserved':True,'dataAndConfigBytesPreserved':True,'duplicateActivePlugins':False}
         (ROOT/'artifacts/migration-v041.json').write_text(json.dumps(report,indent=2)+'\n')
-        print('RC catalog migration/rollback passed: published v0.3.1, checksum rejection, conflict refusal, explicit cleanup, unchanged stores/config and unrelated scripts.',flush=True)
+        print('RC catalog migration/rollback passed: published v0.3.1, conflict refusal, explicit cleanup, unchanged stores/config and unrelated scripts.',flush=True)
         return folder
     finally:server.shutdown();server.server_close();thread.join()
