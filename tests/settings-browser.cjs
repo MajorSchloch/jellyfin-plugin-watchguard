@@ -27,17 +27,18 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         await page.getByText(fixture.standalone ? /Standalone loader active: true/ : /Server registration succeeded; browser unverified/).waitFor();
         await page.getByText(/This browser: adapter installed/).waitFor();
         if (fixture.standalone) {
-            await page.getByText('Authenticated script available to this browser now: true').waitFor();
+            await page.locator('#wgIntegration').getByText('Authenticated script available to this browser now: true').waitFor();
+            assert.equal(await page.locator('#wgIntegration').getByText('Authenticated script available to this browser now: true').count(),1,'status refresh must not duplicate availability lines');
             await page.route('**/WatchGuard/IntegrationStatus', async route => {
                 const response=await route.fetch(), result=await response.json();
                 result.Standalone.BuildId='different-server-build';
                 await route.fulfill({response,json:result});
             });
             await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
-            await page.getByText(/standalone build is stale, blocked or unavailable/).waitFor();
+            await page.locator('#wgBrowser').getByText(/standalone build is stale, blocked or unavailable/).waitFor();
             await page.unroute('**/WatchGuard/IntegrationStatus');
             await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
-            await page.getByText(/This browser: adapter installed/).waitFor();
+            await page.locator('#wgBrowser').getByText(/This browser: adapter installed/).waitFor();
         }
         await page.locator('#wgDays').fill('30'); await page.locator('#wgLimit').fill('100');
         await page.getByRole('button',{name:'Save',exact:true}).click(); await page.getByText(/^Saved\. Activity settings/).waitFor();
