@@ -504,7 +504,23 @@ test('targeted series panel safely renders deduplicated users, coverage and nati
     assert.match(textOf(target),/You · <img onerror=evil\(\)>/);
     assert.match(textOf(target),/7\/12 episodes \(incomplete coverage\)/);
     const list=descendants(target).find(n=>n.tag==='ul');assert.equal(list.children.length,2);assert.equal(list.children[0].children[0].textContent,'Other');
-    assert.equal(descendants(target).some(n=>n.tag==='img'||n.tag==='script'||n.tag==='progress'),false);
+    assert.equal(descendants(target).some(n=>n.tag==='img'||n.tag==='script'),false);
+    const bars=descendants(target).filter(n=>n.tag==='progress');assert.equal(bars.length,1);assert.equal(bars[0].max,12);assert.equal(bars[0].value,12);
+    assert.match(bars[0].attributes['aria-label'],/12\/12 episodes/);
+    assert.ok(descendants(target).some(n=>n.className==='watchguard-chip watchguard-state-CaughtUp' && n.textContent==='Caught Up'));
     assert.throws(()=>renderSeriesActivity(doc,target,{...status,Users:[status.Users[0],status.Users[0]]},me,me));
     assert.throws(()=>renderSeriesActivity(doc,target,{...status,Users:[{...status.Users[0],Reasons:['__proto__']}]},me,me));
+});
+
+test('series activity presents every status as labelled chips and never invents unknown progress',()=>{
+    const {renderSeriesActivity}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const {doc}=documentFixture(), target=doc.createElement('div');target.replaceChildren=()=>{target.children=[];};
+    const reasons=['Watchlisted','InProgress','CurrentlyPlaying','CaughtUp','Watched','Unknown'];
+    const payload={ItemId:me,IsComplete:false,Notice:'Partial episode coverage',Users:[{UserId:me,DisplayName:'You <script>'.repeat(25),Reasons:reasons,AvailableEpisodes:0,WatchedEpisodes:0,CoverageComplete:false,LastPlayedDate:null}]};
+    renderSeriesActivity(doc,target,payload,me,me);
+    const nodes=descendants(target);assert.equal(nodes.filter(n=>n.tag==='progress').length,0);
+    assert.equal(nodes.filter(n=>n.tag==='li').length,1);
+    for(const reason of reasons) assert.equal(nodes.filter(n=>n.className==='watchguard-chip watchguard-state-'+reason).length,2);
+    const notice=nodes.find(n=>n.tag==='small');assert.equal(notice.attributes['aria-label'],payload.Notice);assert.equal(notice.tabIndex,0);
+    assert.ok(nodes.some(n=>n.tag==='summary'));assert.ok(nodes.every(n=>n.innerHTML===undefined));
 });

@@ -110,11 +110,11 @@
                     heading.style.cssText = 'font-size:1em;margin:1.2rem 0 .5rem;';
                     const list = node('ul', '', 'watchguard-dialog-people'); list.style.cssText = 'list-style:none;margin:0;padding:0;';
                     for (const person of people) {
-                        const row = node('li', '', 'watchguard-dialog-person'); row.style.cssText = 'padding:.75rem 0;border-top:1px solid #444;line-height:1.5;';
+                        const row = node('li', '', 'watchguard-dialog-person'); row.style.cssText = 'padding:.85rem;margin:.5rem 0;border:1px solid #444;border-radius:.65rem;line-height:1.5;background:#ffffff04;';
                         const name = node('strong', self ? 'You · ' + person.DisplayName : person.DisplayName); name.style.display = 'block'; row.append(name);
                         const statuses = node('div', '', 'watchguard-dialog-reasons'); statuses.style.cssText = 'display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.35rem;';
                         for (const reason of new Set(person.Reasons)) {
-                            const badge = node('span', labels[reason]); badge.style.cssText = 'font-size:.85em;padding:.15rem .5rem;border:1px solid #666;border-radius:1rem;'; statuses.append(badge);
+                            const badge = node('span', labels[reason], 'watchguard-chip watchguard-state-' + reason); statuses.append(badge);
                         }
                         row.append(statuses);
                         if (self) {
@@ -189,21 +189,41 @@
         target.replaceChildren();
         const panel = document.createElement('details'); panel.className = 'watchguard-series-activity';
         const summary = document.createElement('summary');
-        const counts = Object.entries(labels).map(([reason, label]) => {
+        const heading = document.createElement('span'); heading.className = 'watchguard-activity-heading';
+        heading.textContent = seriesLabel || 'Series viewing'; summary.append(heading);
+        let hasCounts = false;
+        for (const [reason, label] of Object.entries(labels)) {
             const count = status.Users.filter(u => u.Reasons.includes(reason)).length;
-            return count ? count + ' ' + label : null;
-        }).filter(Boolean);
-        summary.textContent = (seriesLabel || 'Series viewing · ') + (counts.join(' · ') || 'No recorded activity') + (status.IsComplete ? '' : ' · Incomplete');
+            if (!count) continue;
+            const chip = document.createElement('span'); chip.className = 'watchguard-chip watchguard-state-' + reason;
+            chip.textContent = count + ' ' + label; summary.append(chip); hasCounts = true;
+        }
+        if (!hasCounts || !status.IsComplete) {
+            const note = document.createElement('span'); note.className = 'watchguard-coverage';
+            note.textContent = status.IsComplete ? 'No recorded activity' : 'Incomplete'; summary.append(note);
+        }
         panel.append(summary);
         const list = document.createElement('ul'); list.className = 'watchguard-series-viewers';
         const active = owner => owner.Reasons.includes('CurrentlyPlaying') ? 3 : owner.Reasons.some(r => ['InProgress', 'CaughtUp'].includes(r)) ? 2 : owner.Reasons.includes('Watchlisted') ? 1 : 0;
         for (const owner of [...status.Users].sort((a,b) => active(b) - active(a) || (Date.parse(b.LastPlayedDate) || 0) - (Date.parse(a.LastPlayedDate) || 0) || a.DisplayName.localeCompare(b.DisplayName))) {
             const row = document.createElement('li');
             const name = document.createElement('strong'); name.textContent = (key(owner.UserId) === key(user) ? 'You · ' : '') + owner.DisplayName;
-            const detail = document.createElement('span');
-            const count = owner.WatchedEpisodes + '/' + owner.AvailableEpisodes + ' episodes';
-            detail.textContent = owner.Reasons.map(r => labels[r]).join(' · ') + ' · ' + count + (owner.CoverageComplete ? '' : ' (incomplete coverage)');
-            row.append(name, detail);
+            name.className = 'watchguard-viewer-name';
+            const detail = document.createElement('div'); detail.className = 'watchguard-viewer-states';
+            for (const reason of new Set(owner.Reasons)) {
+                const chip = document.createElement('span'); chip.className = 'watchguard-chip watchguard-state-' + reason;
+                chip.textContent = labels[reason]; detail.append(chip);
+            }
+            const metrics = document.createElement('div'); metrics.className = 'watchguard-viewer-metrics';
+            const count = document.createElement('span');
+            count.textContent = owner.WatchedEpisodes + '/' + owner.AvailableEpisodes + ' episodes' + (owner.CoverageComplete ? '' : ' (incomplete coverage)');
+            metrics.append(count);
+            if (owner.CoverageComplete && owner.AvailableEpisodes > 0) {
+                const progress = document.createElement('progress'); progress.max = owner.AvailableEpisodes; progress.value = owner.WatchedEpisodes;
+                progress.className = 'watchguard-viewer-progress watchguard-state-' + (owner.Reasons.includes('CaughtUp') ? 'CaughtUp' : owner.Reasons.includes('Watched') ? 'Watched' : 'InProgress');
+                progress.setAttribute('aria-label', owner.DisplayName + ': ' + count.textContent); metrics.append(progress);
+            }
+            row.append(name, detail, metrics);
             const date = new Date(owner.LastPlayedDate);
             if (owner.LastPlayedDate && !Number.isNaN(date.getTime())) {
                 const time = document.createElement('time'); time.dateTime = date.toISOString(); time.title = date.toLocaleString();
@@ -212,7 +232,9 @@
             list.append(row);
         }
         panel.append(list);
-        const notice = document.createElement('small'); notice.textContent = status.Notice; panel.append(notice);
+        const notice = document.createElement('small'); notice.className = 'watchguard-coverage';
+        notice.textContent = !status.IsComplete ? 'Some activity could not be evaluated.' : status.Users.some(u => !u.CoverageComplete) ? 'Some episode coverage is incomplete.' : 'Based on episodes known to Jellyfin.';
+        notice.title = status.Notice; notice.setAttribute('aria-label', status.Notice); notice.tabIndex = 0; panel.append(notice);
         target.append(panel);
     }
 
@@ -277,7 +299,7 @@
         line.title = activityText(owner, true);
         const icons = document.createElement('span'); icons.className = 'watchguard-status-icons';
         for (const reason of Object.keys(activityReasons).filter(r => owner.Reasons.includes(r))) {
-            const icon = document.createElement('span'); icon.className = 'material-icons'; icon.textContent = statusIcons[reason];
+            const icon = document.createElement('span'); icon.className = 'material-icons watchguard-state-' + reason; icon.textContent = statusIcons[reason];
             icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', activityReasons[reason]); icon.title = activityReasons[reason]; icons.append(icon);
         }
         const name = document.createElement('span'); name.className = 'watchguard-user'; name.textContent = owner.DisplayName; name.title = owner.DisplayName;
@@ -684,21 +706,47 @@
         .watchguard-user-line time {grid-column:1/-1;font-size:.9em;opacity:.85}
         .watchguard-status {font-size:.8em;line-height:1.5}
         .watchguard-controls {display:inline-flex;align-items:center}
-        .detailRibbon:has(.watchguard-series-activity[open]) {height:auto}
-        .watchguard-series-activity {width:100%;font-size:1em}
-        .watchguard-series-activity summary {cursor:pointer;overflow-wrap:anywhere}
-        .watchguard-series-viewers {list-style:none;padding:0;margin:.5em 0;max-height:12em;overflow:auto}
-        .watchguard-series-viewers li {display:flex;flex-wrap:wrap;gap:.25em .65em;margin:.35em 0;overflow-wrap:anywhere}
-        .watchguard-series-viewers strong {max-width:100%;overflow-wrap:anywhere}
-        .watchguard-series-viewers time {opacity:.75}
-        .watchguard-interest:has(.watchguard-series-activity) {display:block;max-height:18em}
+        .watchguard-state-Watchlisted {--wg-accent:#f3c66c}
+        .watchguard-state-InProgress {--wg-accent:#82c4ff}
+        .watchguard-state-CaughtUp {--wg-accent:#6edbd0}
+        .watchguard-state-Watched {--wg-accent:#93d6a2}
+        .watchguard-state-CurrentlyPlaying {--wg-accent:#c9a3f7}
+        .watchguard-state-Unknown {--wg-accent:#bac0ca}
+        .watchguard-chip {display:inline-flex;align-items:center;color:var(--wg-accent,#ccc);background:color-mix(in srgb,var(--wg-accent,#ccc) 10%,transparent);border:1px solid color-mix(in srgb,var(--wg-accent,#ccc) 30%,transparent);border-radius:1em;padding:.15em .65em;font-size:.85em;line-height:1.5;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
+        .watchguard-status-icons [class*="watchguard-state-"] {color:var(--wg-accent)}
+        .watchguard-series-activity {width:100%;box-sizing:border-box;border:1px solid #ffffff24;border-radius:.7rem;background:#ffffff03;overflow:hidden}
+        .watchguard-series-activity summary {cursor:pointer;padding:.8rem 1rem;min-height:2.75rem;box-sizing:border-box;line-height:1.7;overflow-wrap:anywhere}
+        .watchguard-series-activity summary::marker {color:#aab4bf}
+        .watchguard-series-activity summary:focus-visible {outline:2px solid #82c4ff;outline-offset:-3px}
+        .watchguard-series-activity summary>* {margin-inline-end:.5rem}
+        .watchguard-activity-heading {font-weight:600;color:var(--jf-palette-text-primary,#eee)}
+        .watchguard-series-viewers {list-style:none;padding:0 1rem;margin:0;max-height:28rem;overflow:auto}
+        .watchguard-series-viewers li {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);gap:.4rem .8rem;padding:.9rem 0;border-top:1px solid #ffffff1c;align-items:center;overflow-wrap:anywhere}
+        .watchguard-viewer-name {color:var(--jf-palette-text-primary,#eee);min-width:0}
+        .watchguard-viewer-states {display:flex;flex-wrap:wrap;gap:.3rem}
+        .watchguard-viewer-metrics {display:grid;gap:.4rem;font-size:.85em}
+        .watchguard-viewer-progress {width:100%;height:.35rem;border:0;border-radius:1rem;overflow:hidden;appearance:none;background:#ffffff20;accent-color:var(--wg-accent)}
+        .watchguard-viewer-progress::-webkit-progress-bar {background:#ffffff20}
+        .watchguard-viewer-progress::-webkit-progress-value {background:var(--wg-accent)}
+        .watchguard-viewer-progress::-moz-progress-bar {background:var(--wg-accent)}
+        .watchguard-series-viewers time {grid-column:1/-1;color:#b7bdc5;font-size:.8em}
+        .watchguard-coverage {color:#b7bdc5;font-size:.8em}
+        .watchguard-series-activity>small {display:block;padding:.6rem 1rem .85rem;line-height:1.5}
+        .watchguard-header.watchguard-series-section {font-size:1em;margin:0 0 1.25rem}
+        .watchguard-series-section .watchguard-interest {display:block;max-height:none}
+        @media(max-width:50em) {
+            .detailPagePrimaryContent:has(>.watchguard-series-section) {padding-inline:5%}
+            .watchguard-series-viewers li {grid-template-columns:minmax(0,1fr)}
+            .watchguard-series-activity summary {padding:.7rem .8rem}
+            .watchguard-series-viewers {padding:0 .8rem}
+        }
         .watchguard-header {min-width:0;max-width:100%;margin:.4em 0;font-size:.8em;line-height:1.5;overflow-wrap:anywhere}
         .watchguard-header [hidden] {display:none!important}
         .watchguard-interest {display:flex;flex-wrap:wrap;gap:.15em 1em;max-height:4.5em;overflow:auto;color:var(--jf-palette-text-secondary,#aaa)}
         .watchguard-interest>span {display:inline-flex;align-items:baseline;gap:.35em;min-width:0;max-width:100%}
         .watchguard-user {flex-shrink:0;max-width:min(20ch,40vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         @media(max-width:50em) {
-            .detailRibbon:has(.watchguard-header) {display:block;width:100%;box-sizing:border-box;height:auto;min-height:7.2em}
+            .detailRibbon:has(.watchguard-header), .detailPagePrimaryContainer:has(.watchguard-series-section)>.detailRibbon {display:block;width:100%;box-sizing:border-box;height:auto;min-height:7.2em}
         }
         .watchguard-error {color:#ffb4ab}
         .watchguard-error:empty,.watchguard-interest:empty {display:none}
@@ -780,7 +828,13 @@
             // Shared 12.2 template: infoWrapper contains title/metadata, before the sibling action row.
             const info = anchor.parentElement?.querySelector('.infoWrapper');
             if (!info) return;
-            info.append(header);
+            if (scope.Type === 'Series') {
+                // Shared native legacy/modern detail template: content is outside the fixed header ribbon.
+                const primaryContent = anchor.parentElement?.parentElement?.querySelector('.detailPagePrimaryContent');
+                if (!primaryContent) return;
+                header.className += ' watchguard-series-section';
+                primaryContent.insertBefore(header, primaryContent.firstChild);
+            } else info.append(header);
             container.append(toggle); anchor.insertBefore(container, anchor.querySelector('.btnMoreCommands')); panel = header; detailButton = container;
             let member;
             const render = () => {

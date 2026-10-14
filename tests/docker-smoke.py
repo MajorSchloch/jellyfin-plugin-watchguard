@@ -206,7 +206,7 @@ def main():
                 caddy.verify(token)
             fixture = root / 'fixture.json'
             fixture.write_text(json.dumps({'base': browser_base, 'username': username, 'password': password,
-                'standalone':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v043'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')), 'token': token, 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
+                'standalone':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v044'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')), 'token': token, 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
             fixture.chmod(0o600)
             if caddy: os.environ['NODE_EXTRA_CA_CERTS'] = str(caddy.ca)
             print('READY fixture=' + str(fixture), flush=True)
@@ -232,7 +232,7 @@ def main():
                     print('Deployment checks passed: v0.3.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
             if options.standalone:
                 saved = {p:p.read_bytes() for p in (plugins/'Jellyfin.Plugin.WatchGuard').glob('*.json')}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.4.3.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.4.4.0','DELETE',token=token,expected=204)
                 restart()
                 assert 'watchguard-standalone-loader' not in call('/web/index.html',raw=True)
                 call('/WatchGuard/Standalone/bootstrap.js',expected=404)

@@ -516,14 +516,43 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             await page.locator('.watchguard-series-viewers').getByText('BrowserMember',{exact:true}).waitFor();
             for (const width of [1280,390]) {
                 await page.setViewportSize({width,height:900});
-                const bounds=await page.locator('.watchguard-series-activity').boundingBox();
+                const activityPanel=page.locator('.watchguard-series-activity'), summary=activityPanel.locator('summary');
+                if(await activityPanel.getAttribute('open') !== null) await summary.press('Enter');
+                const geometry=()=>page.locator('#itemDetailPage:not(.hide)').evaluate(view=>Object.fromEntries(
+                    ['.nameContainer','.itemMiscInfo-primary','.mainDetailButtons','.detailRibbon'].map(selector=>{
+                        const b=view.querySelector(selector).getBoundingClientRect();return [selector,{x:b.x+scrollX,y:b.y+scrollY,width:b.width,height:b.height}];
+                    })));
+                const collapsed=await geometry();
+                assert.ok(collapsed['.nameContainer'].width>100 && collapsed['.nameContainer'].height>0,'native title remains visible');
+                assert.equal(await activityPanel.evaluate(p=>!!p.closest('.detailPagePrimaryContent') && !p.closest('.detailRibbon')),true);
+                await page.screenshot({path:path.join(output,'series-activity-collapsed-'+width+'.png')});
+                await summary.press('Enter'); assert.notEqual(await activityPanel.getAttribute('open'),null);
+                const expanded=await geometry();
+                for(const selector of Object.keys(collapsed)) for(const coordinate of ['x','y','width','height'])
+                    assert.ok(Math.abs(collapsed[selector][coordinate]-expanded[selector][coordinate])<1,selector+' shifted on expansion: '+coordinate+' '+collapsed[selector][coordinate]+' -> '+expanded[selector][coordinate]);
+                const bounds=await activityPanel.boundingBox();
                 assert.ok(bounds.x>=0 && bounds.x+bounds.width<=width+1);
-                await page.screenshot({path:path.join(output,'series-activity-'+width+'.png')});
+                assert.equal(await activityPanel.evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+                const accents=await activityPanel.locator('.watchguard-chip').evaluateAll(nodes=>nodes.map(n=>({text:n.textContent,color:getComputedStyle(n).color})));
+                assert.ok(accents.some(c=>c.text.includes('Caught Up') && c.color==='rgb(110, 219, 208)'));
+                assert.ok(accents.some(c=>c.text.includes('Watching') && c.color==='rgb(130, 196, 255)'));
+                assert.ok(accents.some(c=>c.text.includes('Watchlisted') && c.color==='rgb(243, 198, 108)'));
+                await page.screenshot({path:path.join(output,'series-activity-expanded-'+width+'.png')});
+                await summary.press('Enter');assert.equal(await activityPanel.getAttribute('open'),null);
+                const recollapsed=await geometry();
+                for(const selector of Object.keys(collapsed)) for(const coordinate of ['x','y','width','height'])
+                    assert.ok(Math.abs(collapsed[selector][coordinate]-recollapsed[selector][coordinate])<1,selector+' shifted on collapse: '+coordinate);
+                await summary.press('Enter');
             }
             await page.setViewportSize({width:1280,height:900});
             const beforeCaught=report.deletes.length;
             await nativeDelete(); await nativeConfirm();
             await dialog().getByText('Caught Up',{exact:true}).waitFor();
+            await page.screenshot({path:path.join(output,'deletion-polish-desktop.png')});
+            await page.setViewportSize({width:390,height:844});
+            assert.equal(await dialog().evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+            await page.screenshot({path:path.join(output,'deletion-polish-mobile.png')});
+            await page.setViewportSize({width:1280,height:900});
             await page.keyboard.press('Escape'); await page.getByRole('button',{name:'Got It',exact:true}).click();
             assert.equal(report.deletes.length,beforeCaught);
             await api('/WatchGuard/Watchlist/'+historySeries,'DELETE');

@@ -1,0 +1,77 @@
+{
+  "version": "0.4.4.0",
+  "targetAbi": "12.2.0.0",
+  "result": "PASS",
+  "backendTests": 87,
+  "javascriptTests": 51,
+  "catalogTests": 4,
+  "parallelCiJobsLocallyPassed": [
+    "standalone-caddy",
+    "migration",
+    "basepath",
+    "legacy",
+    "websocket"
+  ],
+  "browserRuns": [
+    {
+      "fixture": "linuxserver/caddy/standalone",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "fixture": "linuxserver/direct/migration",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "fixture": "official/basepath/standalone",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "fixture": "official/direct/injector",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    }
+  ],
+  "headerGeometry": {
+    "viewports": [
+      1280,
+      390
+    ],
+    "states": [
+      "collapsed",
+      "expanded",
+      "recollapsed"
+    ],
+    "elements": [
+      "title",
+      "metadata",
+      "actions",
+      "ribbon"
+    ],
+    "maximumAllowedDifferencePx": 1,
+    "passed": true
+  },
+  "backendAndLoaderUnchanged": true,
+  "deletionAdapterFunctionsUnchanged": true,
+  "reproducibleBuild": true,
+  "sha256": "516f29160d4e6efb7296867d7a00848124306af804586dedceea9e6828d2e679",
+  "md5": "a2958238a470c618a0a0ca4f8c4d1855",
+  "publishedV043Sha256": "4f374251eb1b25182635c3583505c9838bdb2057842c335c1a21c4cb56c4c8e9",
+  "unchangedManifestSha256": "00f400616eb45a5ea0ae37e502f2ab312efa3142972ba790e1d78b4f4339ad45",
+  "catalogRoundTrip": {
+    "result": "PASS",
+    "baselineSha256": "439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d",
+    "roundTrip": "0.4.4 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4",
+    "storesAndConfigBytesPreserved": true,
+    "noInjector": true,
+    "singleActiveAssembly": true
+  },
+  "published": false,
+  "deployed": false
+}
