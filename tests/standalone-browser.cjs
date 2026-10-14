@@ -21,7 +21,17 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
             if(restricted) await context.route('**/web/',async route=>{
                 const response=await route.fetch();await route.fulfill({response,headers:{...response.headers(),'content-security-policy':"script-src 'self' 'unsafe-inline' 'unsafe-eval'"}});
             });
-            await page.goto(fixture.base+'/web/');
+            try {
+                await page.goto(fixture.base+'/web/');
+            } catch (error) {
+                // A freshly started Docker/Caddy network can briefly change while
+                // Chromium is navigating. Retry only this transient transport error.
+                if (!String(error).includes('net::ERR_NETWORK_CHANGED')) throw error;
+                console.warn('Chromium network changed on initial navigation; retrying once');
+                browserErrors.length=0;
+                await page.goto('about:blank');
+                await page.goto(fixture.base+'/web/');
+            }
             try {
                 await page.locator('#txtManualName').waitFor();
             } catch (error) {
