@@ -1,0 +1,68 @@
+{
+  "version": "0.4.3.0",
+  "targetAbi": "12.2.0.0",
+  "validationDate": "2026-10-14",
+  "result": "PASS",
+  "backendTests": 87,
+  "javascriptTests": 50,
+  "catalogTests": 4,
+  "parallelCiJobsLocallyPassed": [
+    "standalone-caddy",
+    "migration",
+    "basepath",
+    "legacy",
+    "websocket"
+  ],
+  "browserRuns": [
+    {
+      "fixture": "linuxserver/caddy/standalone",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0,
+      "seriesActivityMs": 21
+    },
+    {
+      "fixture": "linuxserver/direct/migration",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0,
+      "seriesActivityMs": 19
+    },
+    {
+      "fixture": "official/basepath/standalone",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0,
+      "seriesActivityMs": 22
+    },
+    {
+      "fixture": "official/direct/injector",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0,
+      "seriesActivityMs": null
+    }
+  ],
+  "sha256": "4f374251eb1b25182635c3583505c9838bdb2057842c335c1a21c4cb56c4c8e9",
+  "md5": "a55ef923ff48214afc29312713b50d20",
+  "reproducibleBuild": true,
+  "runtimeFiles": [
+    "Jellyfin.Plugin.WatchGuard.dll"
+  ],
+  "archiveOtherFiles": [
+    "LICENSE"
+  ],
+  "catalogRoundTrip": {
+    "result": "PASS",
+    "baselineSha256": "439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d",
+    "roundTrip": "0.4.3 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3",
+    "storesAndConfigBytesPreserved": true,
+    "noInjector": true,
+    "singleActiveAssembly": true
+  },
+  "publishedV042Sha256": "c4902b23a1125fe3db26ffe77520a0a14eeca54bff946879cc4a3a73044858a5",
+  "unchangedManifestSha256": "bdd2135818368daaff59522f0c8b54275bd87cce9e577338e2996dbbb3f99b82",
+  "standaloneLoaderChanged": false,
+  "published": false,
+  "deployed": false
+}

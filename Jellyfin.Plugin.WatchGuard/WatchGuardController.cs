@@ -140,6 +140,16 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         return Ok(overview.GetActivity(user, ownOnly, config?.ActivityWindowDays ?? 30, config?.ActivityLimit ?? 100, userId));
     });
 
+    [HttpGet("SeriesActivity/{itemId:guid}")]
+    public Task<IActionResult> SeriesActivity(Guid itemId) => Execute(async () =>
+    {
+        var user = await CurrentUser();
+        if (user is null) return Unauthorized();
+        if (!user.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
+        if (library.GetItemById<BaseItem>(itemId, user) is not MediaBrowser.Controller.Entities.TV.Series series) return NotFound();
+        return Ok(interest.GetSeriesActivity(series, user.Id));
+    });
+
     [HttpGet("Protection/{itemId:guid}")]
     public Task<IActionResult> Protection(Guid itemId) => Execute(async () =>
     {

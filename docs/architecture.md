@@ -1,5 +1,7 @@
 # WatchGuard architecture proposal — Jellyfin 12
 
+> **v0.4.3:** See [targeted series activity](series-viewing-activity.md) and [configurable Caught Up protection](caught-up-protection.md). These supersede the historical activity-only Caught Up policy; standalone loading remains unchanged.
+
 > **v0.4.1:** [Self-protection and Caught Up](release-v041.md) supersede historical self-only deletion exclusions and add an activity-only series status. Protection API shape, permissions, storage and standalone loading are retained. Historical validation results below describe their original release.
 
 

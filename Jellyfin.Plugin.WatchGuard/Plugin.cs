@@ -16,6 +16,7 @@ public sealed class Configuration : BasePluginConfiguration
     public int ActivityWindowDays { get => activityWindowDays; set => activityWindowDays = Math.Clamp(value, 1, 90); }
     private int activityLimit = 100;
     public int ActivityLimit { get => activityLimit; set => activityLimit = Math.Clamp(value, 1, 100); }
+    public bool ProtectCaughtUpSeries { get; set; } = true;
     public bool DiagnosticMode { get; set; } = false;
 }
 

@@ -94,6 +94,8 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             const node = document.querySelector('#itemDetailPage:not(.hide) .watchguard-interest');
             return node && node.getAttribute('aria-busy') === 'false';
         });
+        const panel=page.locator('#itemDetailPage:not(.hide) .watchguard-series-activity');
+        if(await panel.count() && !(await panel.getAttribute('open') !== null)) await panel.locator('summary').click();
     }
     async function selectOwner(owner) {
         await page.getByRole('combobox',{name:'Watchlist owner'}).selectOption(owner);
@@ -301,7 +303,8 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.locator('#itemDetailPage:not(.hide)').getByText('PoC Parent Clear',{exact:true}).first().waitFor();
         await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
         await openInterest();
-        await page.getByRole('status',{name:'Title interest',exact:true}).getByRole('img',{name:'Watching',exact:true}).waitFor();
+        if (fixture.standalone) await page.locator('.watchguard-series-activity summary').filter({hasText:'Watching'}).waitFor();
+        else await page.getByRole('status',{name:'Title interest',exact:true}).getByRole('img',{name:'Watching',exact:true}).waitFor();
         await page.keyboard.press('Escape');
         const beforeAuto = report.deletes.length;
         await nativeDelete(); await nativeConfirm();
@@ -396,7 +399,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         // A normal user gets their own controls but no cross-user protection requests.
         const memberContext = await browser.newContext({ignoreHTTPSErrors:fixture.tls === true}); const memberPage = await memberContext.newPage();
         let protectionRequests = 0;
-        memberPage.on('request', r => { if (/\/WatchGuard\/(?:Protection\/|ActivityOverview(?:\?|$))/.test(r.url())) protectionRequests++; });
+        memberPage.on('request', r => { if (/\/WatchGuard\/(?:SeriesActivity\/|Protection\/|ActivityOverview(?:\?|$))/.test(r.url())) protectionRequests++; });
         await memberPage.goto(fixture.base + '/web/');
         await memberPage.locator('#txtManualName').fill('BrowserMember');
         await memberPage.locator('#txtManualPassword').fill(memberPassword);
@@ -484,11 +487,49 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             const activity=()=>api('/WatchGuard/ActivityOverview');
             const owner=result=>result.Items.find(i=>i.ItemId.replaceAll('-','')===historySeries.replaceAll('-','')).Users.find(u=>u.UserId.replaceAll('-','')===member.User.Id.replaceAll('-',''));
             assert.deepEqual(owner(await activity()).Reasons,['CaughtUp']);
-            assert.equal((await api('/WatchGuard/Protection/'+historySeries)).HasInterest,false);
+            assert.equal((await api('/WatchGuard/Protection/'+historySeries)).HasInterest,true);
             await myList().getByRole('button',{name:'Refresh',exact:true}).click(); await setStatuses('watching');
             const caught=myList().locator('.watchguard-card').filter({hasText:'PoC Parent Clear'});
             await caught.getByRole('img',{name:'Caught Up',exact:true}).waitFor();assert.match(await caught.innerText(),/4\/4/);
             await page.screenshot({path:path.join(output,'caught-up.png')});
+            const viewingStarted=Date.now();
+            const viewing = await api('/WatchGuard/SeriesActivity/'+historySeries);
+            report.seriesActivityMs=Date.now()-viewingStarted;
+            assert.equal(viewing.IsComplete,true); assert.equal(viewing.SeriesStatus,'Continuing');
+            const viewer=viewing.Users.find(u=>u.UserId.replaceAll('-','')===member.User.Id.replaceAll('-',''));
+            assert.deepEqual(viewer.Reasons,['CaughtUp']); assert.equal(viewer.Watchlisted,false); assert.equal(viewer.WatchedEpisodes,4); assert.equal(viewer.CoverageComplete,true);
+            const configId='a3c6bc84-783d-4ba8-a0db-89bfb83ab486';
+            const config=await api('/Plugins/'+configId+'/Configuration');
+            assert.equal(config.ProtectCaughtUpSeries,true);
+            await api('/Items/'+historyEpisodes[0].Id,'POST',{...originals[0],PremiereDate:null});
+            await assert.rejects(api('/WatchGuard/Protection/'+historySeries));
+            const uncertain=await api('/WatchGuard/SeriesActivity/'+historySeries);
+            assert.equal(uncertain.Users.find(u=>u.UserId.replaceAll('-','')===member.User.Id.replaceAll('-','')).CoverageComplete,false);
+            await api('/Plugins/'+configId+'/Configuration','POST',{...config,ProtectCaughtUpSeries:false});
+            assert.equal((await api('/WatchGuard/Protection/'+historySeries)).HasInterest,false);
+            await api('/Items/'+historyEpisodes[0].Id,'POST',{...originals[0],PremiereDate:activityDate});
+            await api('/Plugins/'+configId+'/Configuration','POST',config);
+            await api('/WatchGuard/Watchlist/'+historySeries,'PUT');
+            await api('/UserItems/'+historyEpisodes[0].Id+'/UserData','POST',{Played:false,PlaybackPositionTicks:1000000,LastPlayedDate:activityDate});
+            await page.goto(fixture.base+'/web/#/details?id='+historySeries+'&serverId='+fixture.serverId);
+            await page.locator('.watchguard-series-activity summary').filter({hasText:'Caught Up'}).click();
+            await page.locator('.watchguard-series-viewers').getByText('BrowserMember',{exact:true}).waitFor();
+            for (const width of [1280,390]) {
+                await page.setViewportSize({width,height:900});
+                const bounds=await page.locator('.watchguard-series-activity').boundingBox();
+                assert.ok(bounds.x>=0 && bounds.x+bounds.width<=width+1);
+                await page.screenshot({path:path.join(output,'series-activity-'+width+'.png')});
+            }
+            await page.setViewportSize({width:1280,height:900});
+            const beforeCaught=report.deletes.length;
+            await nativeDelete(); await nativeConfirm();
+            await dialog().getByText('Caught Up',{exact:true}).waitFor();
+            await page.keyboard.press('Escape'); await page.getByRole('button',{name:'Got It',exact:true}).click();
+            assert.equal(report.deletes.length,beforeCaught);
+            await api('/WatchGuard/Watchlist/'+historySeries,'DELETE');
+            await api('/UserItems/'+historyEpisodes[0].Id+'/UserData','POST',{Played:false,PlaybackPositionTicks:0});
+            await page.goto(fixture.base+'/web/#/home?watchguard=watchlists&owner=all');
+            await myList().waitFor();
             const latest=historyEpisodes.at(-1).Id;
             await api('/UserItems/'+latest+'/UserData','POST',{Played:false,PlaybackPositionTicks:0},member.AccessToken);
             assert.deepEqual(owner(await activity()).Reasons,['InProgress']);
@@ -504,7 +545,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             assert.deepEqual(owner(await activity()).Reasons,['Watched']);
             await api('/Items/'+historySeries,'POST',originalSeries);
             assert.equal((await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===historySeries.replaceAll('-','')),false);
-            report.paths.push({path:'Caught Up',result:'native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, unchanged fresh protection and no permanent membership'});
+            report.paths.push({path:'Caught Up',result:'native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, configurable fresh Caught Up protection, targeted viewers, Escape zero DELETE and no permanent membership'});
         }
         report.phase = 'Failed protection';
         await detail('PoC Modern Movie');

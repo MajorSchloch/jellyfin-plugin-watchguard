@@ -126,7 +126,9 @@ public sealed class BackendTests : IDisposable
         Assert.True(config.DiagnosticMode); Assert.Equal(90, config.ActivityWindowDays); Assert.Equal(1, config.ActivityLimit);
         using var legacy = new StringReader("<Configuration><DiagnosticMode>false</DiagnosticMode></Configuration>");
         var old = Assert.IsType<Configuration>(serializer.Deserialize(legacy));
-        Assert.Equal(30, old.ActivityWindowDays); Assert.Equal(100, old.ActivityLimit);
+        Assert.Equal(30, old.ActivityWindowDays); Assert.Equal(100, old.ActivityLimit); Assert.True(old.ProtectCaughtUpSeries);
+        using var disabled = new StringReader("<Configuration><ProtectCaughtUpSeries>false</ProtectCaughtUpSeries></Configuration>");
+        Assert.False(Assert.IsType<Configuration>(serializer.Deserialize(disabled)).ProtectCaughtUpSeries);
     }
     private ProtectionStatus Status(BaseItem? item = null) => service.Get(item ?? movie, alice.Id);
     [Fact]
@@ -233,10 +235,10 @@ public sealed class BackendTests : IDisposable
     public void SeriesUsesOnlyAvailableEpisodes(int available, int completed, bool expected)
     {
         var series = new Series { Id = Guid.NewGuid() };
-        var episodes = Enumerable.Range(0, available).Select(_ => (BaseItem)new Episode { Id = Guid.NewGuid() }).ToArray();
+        var episodes = Enumerable.Range(0, available).Select(_ => (BaseItem)new AvailableEpisode { Id = Guid.NewGuid() }).ToArray();
         library.Setup(l => l.GetItemById<BaseItem>(series.Id, It.IsAny<User>())).Returns(series);
         library.Setup(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id)
-            && q.IsVirtualItem == false && q.IsMissing == false && q.Recursive))).Returns(episodes);
+            && q.IsVirtualItem == null && q.IsMissing == null && q.Recursive))).Returns(episodes);
         foreach (var ep in episodes.Take(completed)) states[(bob.Id, ep.Id)] = new() { Key = "test", Played = true };
         // Historical data for a removed episode must not start an empty/unstarted series.
         states[(bob.Id, Guid.NewGuid())] = new() { Key = "test", Played = true };
@@ -247,7 +249,7 @@ public sealed class BackendTests : IDisposable
     public void StartedEpisodeAndActiveAdditionalSessionUserCount()
     {
         var series = new Series { Id = Guid.NewGuid() };
-        var episode = new Episode { Id = Guid.NewGuid() };
+        var episode = new AvailableEpisode { Id = Guid.NewGuid() };
         library.Setup(l => l.GetItemById<BaseItem>(series.Id, It.IsAny<User>())).Returns(series);
         library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([episode]);
         states[(bob.Id, episode.Id)] = new() { Key = "test", PlaybackPositionTicks = 123 };
@@ -366,8 +368,9 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 4, 2, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 4, 3, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
+        Assert.True(new Configuration().ProtectCaughtUpSeries);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
     }
 
@@ -429,8 +432,8 @@ public sealed class BackendTests : IDisposable
     {
         alice.SetPermission(PermissionKind.IsAdministrator, true);
         var series = new Series { Id = Guid.NewGuid(), Name = "Started series" };
-        var first = new Episode { Id = Guid.NewGuid(), SeriesId = series.Id };
-        var next = new Episode { Id = Guid.NewGuid(), SeriesId = series.Id };
+        var first = new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id };
+        var next = new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id };
         foreach (var item in new BaseItem[] { series, first, next })
             library.Setup(l => l.GetItemById<BaseItem>(item.Id, It.IsAny<User>())).Returns(item);
         library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) =>
@@ -496,19 +499,22 @@ public sealed class BackendTests : IDisposable
     }
 
     [Fact]
-    public async Task OverviewEpisodeBudgetDoesNotLimitDeletionProtection()
+    public async Task TargetedEpisodeBudgetFailsClosedForDeletionProtection()
     {
         alice.SetPermission(PermissionKind.IsAdministrator, true);
         var series = new Series { Id = Guid.NewGuid() };
         store.Set(bob.Id, series.Id, true);
         library.Setup(l => l.GetItemById<BaseItem>(series.Id, It.IsAny<User>())).Returns(series);
         var episodes = Enumerable.Range(0, InterestOverviewService.EpisodeLimit + 1)
-            .Select(_ => (BaseItem)new Episode { Id = Guid.NewGuid() }).ToArray();
+            .Select(_ => (BaseItem)new AvailableEpisode { Id = Guid.NewGuid() }).ToArray();
         library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) => q.AncestorIds.Contains(series.Id) ? episodes : []);
         var result = await Overview();
         Assert.True(result.LimitReached); Assert.Empty(result.Items);
-        Assert.True(Status(series).HasOtherInterestedUsers);
-        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id) && q.Limit == null)), Times.AtLeastOnce);
+        Assert.Throws<InvalidDataException>(() => Status(series));
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await Controller().Protection(series.Id)).StatusCode);
+        var targeted = service.GetSeriesActivity(series, alice.Id);
+        Assert.False(targeted.IsComplete); Assert.True(targeted.LimitReached);
+        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id) && q.Limit == InterestOverviewService.EpisodeLimit + 1)), Times.AtLeastOnce);
     }
 
     [Fact]
@@ -567,7 +573,7 @@ public sealed class BackendTests : IDisposable
     {
         alice.SetPermission(PermissionKind.IsAdministrator, true);
         var series = new Series { Id = Guid.NewGuid(), Name = "Series" };
-        var episodes = new[] { new Episode { Id = Guid.NewGuid(), SeriesId = series.Id }, new Episode { Id = Guid.NewGuid(), SeriesId = series.Id } };
+        var episodes = new[] { new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id }, new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id } };
         foreach (var item in new BaseItem[] { series, episodes[0], episodes[1] })
             library.Setup(l => l.GetItemById<BaseItem>(item.Id, It.IsAny<User>())).Returns(item);
         IReadOnlyList<BaseItem> available = episodes;
@@ -580,7 +586,7 @@ public sealed class BackendTests : IDisposable
         Assert.Equal(2, owner.AvailableEpisodes); Assert.Equal(2, owner.WatchedEpisodes);
         library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id) && q.IsMissing == false && q.IsVirtualItem == false)), Times.Exactly(2));
         Assert.False(Status(series).HasInterest);
-        available = [.. episodes, new Episode { Id = Guid.NewGuid(), SeriesId = series.Id }];
+        available = [.. episodes, new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id }];
         owner = Assert.Single(Assert.Single((await Activity()).Items).Users);
         Assert.Equal(new[] { "InProgress" }, owner.Reasons); Assert.Equal(3, owner.AvailableEpisodes); Assert.Equal(2, owner.WatchedEpisodes);
         Assert.True(Status(series).HasOtherInterestedUsers);
@@ -643,6 +649,7 @@ public sealed class BackendTests : IDisposable
         Assert.Equal(30, new Configuration().ActivityWindowDays);
         Assert.Equal(100, new Configuration().ActivityLimit);
         Assert.False(new Configuration().DiagnosticMode);
+        Assert.True(new Configuration().ProtectCaughtUpSeries);
         var second = new Movie { Id = Guid.NewGuid(), Name = "Second" };
         library.Setup(l => l.GetItemById<BaseItem>(second.Id, It.IsAny<User>())).Returns(second);
         library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q) =>
@@ -672,8 +679,9 @@ public sealed class BackendTests : IDisposable
         var activity = Assert.Single((await Activity()).Items);
         Assert.Equal(new[] { expected }, activity.Users.Single(u => u.UserId == bob.Id).Reasons);
         Assert.Equal(new[] { "InProgress" }, activity.Users.Single(u => u.UserId == alice.Id).Reasons);
-        Assert.DoesNotContain(Status(series).Users, u => u.UserId == bob.Id);
-        Assert.Equal(new[] { "InProgress" }, Assert.Single(Status(series).Users).Reasons);
+        if (nativeStatus == "Continuing") Assert.Contains("CaughtUp", Status(series).Users.Single(u => u.UserId == bob.Id).Reasons);
+        else Assert.DoesNotContain(Status(series).Users, u => u.UserId == bob.Id);
+        Assert.Equal(new[] { "InProgress" }, Status(series).Users.Single(u => u.UserId == alice.Id).Reasons);
         store.Set(bob.Id, series.Id, true);
         Assert.Contains("Watchlisted", Status(series).Users.Single(u => u.UserId == bob.Id).Reasons);
         Assert.Single(store.Read());
@@ -693,7 +701,7 @@ public sealed class BackendTests : IDisposable
         alice.SetPermission(PermissionKind.IsAdministrator, true);
         var series = new Series { Id = Guid.NewGuid(), Status = MediaBrowser.Model.Entities.SeriesStatus.Continuing };
         var aired = new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id, PremiereDate = DateTime.UtcNow.AddDays(-5) };
-        Episode extra = kind.EndsWith("Available", StringComparison.Ordinal) ? new AvailableEpisode() : new Episode();
+        Episode extra = kind.EndsWith("Available", StringComparison.Ordinal) ? new AvailableEpisode() : new AvailableEpisode();
         extra.Id = Guid.NewGuid(); extra.SeriesId = series.Id; extra.IsVirtualItem = !kind.EndsWith("Available", StringComparison.Ordinal);
         extra.PremiereDate = kind.StartsWith("future", StringComparison.Ordinal) ? DateTime.UtcNow.AddDays(5) : kind == "missing" ? DateTime.UtcNow.AddDays(-1) : null;
         foreach (var item in new BaseItem[] { series, aired, extra }) library.Setup(l => l.GetItemById<BaseItem>(item.Id, It.IsAny<User>())).Returns(item);
@@ -707,7 +715,90 @@ public sealed class BackendTests : IDisposable
         if (expected) { var owner = Assert.Single(Assert.Single(result.Items).Users); Assert.Equal(1, owner.AvailableEpisodes); Assert.Equal(1, owner.WatchedEpisodes); }
         else Assert.Contains("coverage", result.Notice, StringComparison.Ordinal);
         if (kind == "futureAvailable") Assert.Contains("CurrentlyPlaying", Assert.Single(Assert.Single(result.Items).Users).Reasons);
-        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id))), Times.Exactly(2));
+        var targeted = service.GetSeriesActivity(series, alice.Id);
+        Assert.Equal(expected, targeted.Users.Any(u => u.Reasons.Contains("CaughtUp")));
+        if (expected) Assert.Contains("CaughtUp", Status(series).Users.Single(u => u.UserId == bob.Id).Reasons);
+        else Assert.Throws<InvalidDataException>(() => Status(series));
+        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Contains(series.Id))), Times.Exactly(6));
+    }
+
+
+    [Fact]
+    public async Task TargetedSeriesActivityIsPrivateFreshAndIndependentOfWatchlists()
+    {
+        var series = new Series { Id = Guid.NewGuid(), Name = "Series", Status = MediaBrowser.Model.Entities.SeriesStatus.Continuing };
+        var first = new AvailableEpisode { Id = Guid.NewGuid(), PremiereDate = DateTime.UtcNow.AddDays(-5) };
+        var second = new AvailableEpisode { Id = Guid.NewGuid(), PremiereDate = DateTime.UtcNow.AddDays(-4) };
+        library.Setup(l => l.GetItemById<BaseItem>(series.Id, It.IsAny<User>())).Returns(series);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([first, second]);
+        states[(bob.Id, first.Id)] = new() { Key = "first", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-1) };
+        Assert.IsType<ForbidResult>(await Controller().SeriesActivity(series.Id));
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var result = Assert.IsType<SeriesActivity>(Assert.IsType<OkObjectResult>(await Controller().SeriesActivity(series.Id)).Value);
+        var viewer = Assert.Single(result.Users);
+        Assert.Equal(bob.Id, viewer.UserId); Assert.Equal(1, viewer.WatchedEpisodes); Assert.Equal(2, viewer.AvailableEpisodes);
+        Assert.True(viewer.CoverageComplete); Assert.Equal(new[] { "InProgress" }, viewer.Reasons);
+        Assert.NotNull(viewer.LastPlayedDate); Assert.False(viewer.Watchlisted); Assert.Empty(store.Read());
+        states[(bob.Id, second.Id)] = new() { Key = "second", Played = true };
+        Assert.Contains("CaughtUp", Assert.Single(service.GetSeriesActivity(series, alice.Id).Users).Reasons);
+        Assert.Contains("CaughtUp", Assert.Single(Status(series).Users).Reasons);
+        second.PremiereDate = null;
+        viewer = Assert.Single(service.GetSeriesActivity(series, alice.Id).Users);
+        Assert.False(viewer.CoverageComplete); Assert.Contains("Unknown", viewer.Reasons); Assert.Throws<InvalidDataException>(() => Status(series));
+        bob.SetPermission(PermissionKind.IsDisabled, true);
+        Assert.Empty(service.GetSeriesActivity(series, alice.Id).Users);
+        SignIn(null); Assert.IsType<UnauthorizedResult>(await Controller().SeriesActivity(series.Id));
+        library.Verify(l => l.GetItemList(It.Is<InternalItemsQuery>(q => q.AncestorIds.Length == 0)), Times.Never);
+    }
+
+    [Fact]
+    public async Task TargetedActivityRejectsMissingAndHiddenSeriesAndPlaybackFailures()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        Assert.IsType<NotFoundResult>(await Controller().SeriesActivity(movie.Id));
+        Assert.IsType<NotFoundResult>(await Controller().SeriesActivity(Guid.NewGuid()));
+        var series = new Series { Id = Guid.NewGuid() };
+        library.Setup(l => l.GetItemById<BaseItem>(series.Id, It.IsAny<User>())).Returns(series);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Throws(new IOException("private"));
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await Controller().SeriesActivity(series.Id)).StatusCode);
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await Controller().Protection(series.Id)).StatusCode);
+    }
+
+    [Fact]
+    public void TargetedSeriesUsesAlternateResumeAndSessionWithoutWritingMembership()
+    {
+        var series = new Series { Id = Guid.NewGuid(), Status = MediaBrowser.Model.Entities.SeriesStatus.Continuing };
+        var episode = new AvailableEpisode { Id = Guid.NewGuid(), PremiereDate = DateTime.UtcNow.AddDays(-5) };
+        var alternate = new AvailableEpisode { Id = Guid.NewGuid(), PrimaryVersionId = episode.Id };
+        library.Setup(l => l.GetItemById<BaseItem>(series.Id, It.IsAny<User>())).Returns(series);
+        library.Setup(l => l.GetItemById<BaseItem>(alternate.Id, bob)).Returns(alternate);
+        library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns([episode]);
+        var last = DateTime.UtcNow.AddDays(-1);
+        data.Setup(d => d.GetResumeUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(), bob))
+            .Returns(new Dictionary<Guid, VersionResumeData> { [episode.Id] = new(alternate.Id, new() { Key = "alternate", Played = true, LastPlayedDate = last }) });
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = bob.Id, NowPlayingItem = new BaseItemDto { Id = alternate.Id } }]);
+        var owner = Assert.Single(service.GetSeriesActivity(series, alice.Id).Users);
+        Assert.Equal(new[] { "CurrentlyPlaying", "CaughtUp" }, owner.Reasons);
+        Assert.Equal(last, owner.LastPlayedDate); Assert.Equal(1, owner.WatchedEpisodes); Assert.True(owner.CurrentlyPlaying);
+        Assert.Empty(store.Read()); Assert.Equal(owner.Reasons, Assert.Single(Status(series).Users).Reasons);
+        library.Setup(l => l.GetItemById<BaseItem>(series.Id, bob)).Returns((BaseItem?)null);
+        Assert.Empty(service.GetSeriesActivity(series, alice.Id).Users);
+    }
+
+    [Fact]
+    public void TargetedUserBudgetIsExplicitAndDeletionCannotUsePartialResults()
+    {
+        var accounts = Enumerable.Range(0, InterestOverviewService.UserLimit + 1)
+            .Select(i => new User("User" + i, "test", "test") { Id = Guid.NewGuid() }).ToArray();
+        users.Setup(u => u.GetUsers()).Returns(accounts);
+        foreach (var user in accounts) users.Setup(u => u.GetUserById(user.Id)).Returns(user);
+        var series = new Series { Id = Guid.NewGuid() };
+        library.Setup(l => l.GetItemById<BaseItem>(series.Id, It.IsAny<User>())).Returns(series);
+        var result = service.GetSeriesActivity(series, alice.Id);
+        Assert.False(result.IsComplete); Assert.True(result.LimitReached);
+        Assert.Throws<InvalidDataException>(() => Status(series));
+        library.Verify(l => l.GetItemList(It.IsAny<InternalItemsQuery>()), Times.Exactly(100));
     }
 
     private sealed class AvailableEpisode : Episode

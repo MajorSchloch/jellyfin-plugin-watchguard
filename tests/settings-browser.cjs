@@ -15,11 +15,13 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         await page.goto(fixture.base+'/web/#/configurationpage?name=WatchGuard');
         await page.locator('#wgDays').waitFor();
         await page.waitForFunction(()=>document.querySelector('#wgDays')?.value==='30');
+        if (fixture.standalone) { assert.equal(await page.locator('#wgCaughtUp').isChecked(),true); await page.getByText('Protect Caught Up series',{exact:true}).click(); }
         await page.locator('#wgDays').fill('17'); await page.locator('#wgLimit').fill('31');
         await page.getByRole('button',{name:'Save',exact:true}).click();
         await page.getByText(/^Saved\. Activity settings/).waitFor();
         await page.reload(); await page.waitForFunction(()=>document.querySelector('#wgDays')?.value==='17');
         assert.equal(await page.locator('#wgLimit').inputValue(),'31');
+        if (fixture.standalone) { assert.equal(await page.locator('#wgCaughtUp').isChecked(),false); await page.getByText('Protect Caught Up series',{exact:true}).click(); await page.getByRole('button',{name:'Save',exact:true}).click(); await page.getByText(/^Saved\. Activity settings/).waitFor(); }
         await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
         await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
         await page.getByText(fixture.standalone ? /Standalone loader active: true/ : /Server registration succeeded; browser unverified/).waitFor();

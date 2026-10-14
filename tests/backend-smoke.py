@@ -23,7 +23,7 @@ def run(call, admin_token, items, plugins, standalone=True):
     call('/Plugins/'+guid+'/Configuration', 'POST', config, admin_token, expected=204)
     assert 'WatchGuardSettings' in call('/web/ConfigurationPage?name=WatchGuard', token=admin_token, raw=True)
     status = call('/WatchGuard/IntegrationStatus', token=admin_token)
-    assert status['PluginVersion'] == ('0.4.2' if standalone else '0.3.1') and status['BrowserExecutionVerified'] is False
+    assert status['PluginVersion'] == ('0.4.3' if standalone else '0.3.1') and status['BrowserExecutionVerified'] is False
     if standalone:
         assert status['PluginLoaded'] and status['Standalone']['Enabled'] and status['Standalone']['LoaderActive']
         assert status['Standalone']['AuthenticatedScriptResponsesCompleted'] >= 1
@@ -40,6 +40,13 @@ def run(call, admin_token, items, plugins, standalone=True):
     call('/Plugins/'+guid+'/Configuration', token=token, expected=403)
     call('/Plugins/'+guid+'/Configuration', 'POST', changed, token, expected=403)
     call('/WatchGuard/IntegrationStatus', token=token, expected=403)
+    if standalone:
+        call('/WatchGuard/SeriesActivity/'+series,token=token,expected=403)
+        call('/WatchGuard/SeriesActivity/'+series,expected=401)
+        call('/WatchGuard/SeriesActivity/'+movie,token=admin_token,expected=404)
+        targeted=call('/WatchGuard/SeriesActivity/'+series,token=admin_token)
+        assert targeted['IsComplete'] and not targeted['LimitReached']
+
     call('/WatchGuard/Preferences','PUT',{'Owner':'all','Statuses':[],'Sort':'title'},token,expected=403)
     call('/WatchGuard/Preferences','PUT',{'Owner':'mine','Statuses':['invalid'],'Sort':'title'},token,expected=400)
     assert call('/WatchGuard/Preferences',token=token)==defaults

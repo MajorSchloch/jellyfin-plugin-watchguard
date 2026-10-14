@@ -102,7 +102,7 @@
             }
             content.append(description);
             if (typeof warning !== 'string') {
-                const labels = { Watchlisted: 'Watchlisted', InProgress: 'Watching', CurrentlyPlaying: 'Currently Playing' };
+                const labels = { Watchlisted: 'Watchlisted', InProgress: 'Watching', CurrentlyPlaying: 'Currently Playing', CaughtUp: 'Caught Up' };
                 for (const self of [true, false]) {
                     const people = warning.users.filter(u => (key(u.UserId) === key(warning.user)) === self);
                     if (!people.length) continue;
@@ -119,6 +119,7 @@
                         row.append(statuses);
                         if (self) {
                             const detail = node('p', person.Reasons.map(reason => ({
+                                CaughtUp: 'You are caught up and waiting for new episodes.',
                                 Watchlisted: 'This title is on your watchlist.',
                                 InProgress: "You haven't finished watching this title.",
                                 CurrentlyPlaying: 'You are currently playing this title.'
@@ -173,7 +174,49 @@
     }
 
     const key = id => typeof id === 'string' ? id.replaceAll('-', '').toLowerCase() : '';
-    const reasons = { Watchlisted: 'Watchlist', InProgress: 'Watching', CurrentlyPlaying: 'Currently Playing' };
+    function renderSeriesActivity(document, target, status, itemId, user, seriesLabel = '') {
+        if (!status || key(status.ItemId) !== key(itemId) || !Array.isArray(status.Users) ||
+            typeof status.IsComplete !== 'boolean' || typeof status.Notice !== 'string') throw new Error('Invalid series activity');
+        const labels = { Watchlisted: 'Watchlisted', InProgress: 'Watching', CurrentlyPlaying: 'Currently Playing', CaughtUp: 'Caught Up', Watched: 'Watched', Unknown: 'Unknown' };
+        const seen = new Set();
+        for (const owner of status.Users) {
+            if (!owner || !key(owner.UserId) || seen.has(key(owner.UserId)) || typeof owner.DisplayName !== 'string' ||
+                !Array.isArray(owner.Reasons) || !owner.Reasons.length || owner.Reasons.some(r => !Object.hasOwn(labels, r)) ||
+                typeof owner.CoverageComplete !== 'boolean' || !Number.isInteger(owner.AvailableEpisodes) || !Number.isInteger(owner.WatchedEpisodes) ||
+                owner.WatchedEpisodes < 0 || owner.AvailableEpisodes < owner.WatchedEpisodes) throw new Error('Invalid series activity user');
+            seen.add(key(owner.UserId));
+        }
+        target.replaceChildren();
+        const panel = document.createElement('details'); panel.className = 'watchguard-series-activity';
+        const summary = document.createElement('summary');
+        const counts = Object.entries(labels).map(([reason, label]) => {
+            const count = status.Users.filter(u => u.Reasons.includes(reason)).length;
+            return count ? count + ' ' + label : null;
+        }).filter(Boolean);
+        summary.textContent = (seriesLabel || 'Series viewing · ') + (counts.join(' · ') || 'No recorded activity') + (status.IsComplete ? '' : ' · Incomplete');
+        panel.append(summary);
+        const list = document.createElement('ul'); list.className = 'watchguard-series-viewers';
+        const active = owner => owner.Reasons.includes('CurrentlyPlaying') ? 3 : owner.Reasons.some(r => ['InProgress', 'CaughtUp'].includes(r)) ? 2 : owner.Reasons.includes('Watchlisted') ? 1 : 0;
+        for (const owner of [...status.Users].sort((a,b) => active(b) - active(a) || (Date.parse(b.LastPlayedDate) || 0) - (Date.parse(a.LastPlayedDate) || 0) || a.DisplayName.localeCompare(b.DisplayName))) {
+            const row = document.createElement('li');
+            const name = document.createElement('strong'); name.textContent = (key(owner.UserId) === key(user) ? 'You · ' : '') + owner.DisplayName;
+            const detail = document.createElement('span');
+            const count = owner.WatchedEpisodes + '/' + owner.AvailableEpisodes + ' episodes';
+            detail.textContent = owner.Reasons.map(r => labels[r]).join(' · ') + ' · ' + count + (owner.CoverageComplete ? '' : ' (incomplete coverage)');
+            row.append(name, detail);
+            const date = new Date(owner.LastPlayedDate);
+            if (owner.LastPlayedDate && !Number.isNaN(date.getTime())) {
+                const time = document.createElement('time'); time.dateTime = date.toISOString(); time.title = date.toLocaleString();
+                time.textContent = 'Last watched ' + date.toLocaleDateString(); row.append(time);
+            }
+            list.append(row);
+        }
+        panel.append(list);
+        const notice = document.createElement('small'); notice.textContent = status.Notice; panel.append(notice);
+        target.append(panel);
+    }
+
+    const reasons = { Watchlisted: 'Watchlist', InProgress: 'Watching', CurrentlyPlaying: 'Currently Playing', CaughtUp: 'Caught Up' };
     function describe(users) {
         return users.map(user => user.DisplayName + ' — ' + user.Reasons.map(r => reasons[r]).join(', ')).join('\n');
     }
@@ -557,7 +600,7 @@
     }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
+        module.exports = { renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -641,6 +684,14 @@
         .watchguard-user-line time {grid-column:1/-1;font-size:.9em;opacity:.85}
         .watchguard-status {font-size:.8em;line-height:1.5}
         .watchguard-controls {display:inline-flex;align-items:center}
+        .detailRibbon:has(.watchguard-series-activity[open]) {height:auto}
+        .watchguard-series-activity {width:100%;font-size:1em}
+        .watchguard-series-activity summary {cursor:pointer;overflow-wrap:anywhere}
+        .watchguard-series-viewers {list-style:none;padding:0;margin:.5em 0;max-height:12em;overflow:auto}
+        .watchguard-series-viewers li {display:flex;flex-wrap:wrap;gap:.25em .65em;margin:.35em 0;overflow-wrap:anywhere}
+        .watchguard-series-viewers strong {max-width:100%;overflow-wrap:anywhere}
+        .watchguard-series-viewers time {opacity:.75}
+        .watchguard-interest:has(.watchguard-series-activity) {display:block;max-height:18em}
         .watchguard-header {min-width:0;max-width:100%;margin:.4em 0;font-size:.8em;line-height:1.5;overflow-wrap:anywhere}
         .watchguard-header [hidden] {display:none!important}
         .watchguard-interest {display:flex;flex-wrap:wrap;gap:.15em 1em;max-height:4.5em;overflow:auto;color:var(--jf-palette-text-secondary,#aaa)}
@@ -745,12 +796,14 @@
                 if (account.Policy?.IsAdministrator !== true) return;
                 interest.textContent = 'Loading interest…'; interest.setAttribute('aria-busy', 'true');
                 try {
-                    const status = await request(api, 'Protection/' + encodeURIComponent(scopeId));
-                    validateStatus(status, scopeId, user);
+                    const series = scope.Type === 'Series';
+                    const status = await request(api, (series ? 'SeriesActivity/' : 'Protection/') + encodeURIComponent(scopeId));
+                    if (!series) validateStatus(status, scopeId, user);
                     if (current()) {
                         interest.replaceChildren();
                         if (seriesLabel && status.Users.length) { const scopeText = document.createElement('span'); scopeText.textContent = seriesLabel; interest.append(scopeText); }
-                        for (const owner of status.Users) interest.append(userLine(document, owner));
+                        if (series) renderSeriesActivity(document, interest, status, scopeId, user, seriesLabel);
+                        else for (const owner of status.Users) interest.append(userLine(document, owner));
                     }
                 } catch { if (current()) interest.textContent = 'WatchGuard: Interest status unavailable.'; }
                 finally { if (current()) interest.setAttribute('aria-busy', 'false'); }

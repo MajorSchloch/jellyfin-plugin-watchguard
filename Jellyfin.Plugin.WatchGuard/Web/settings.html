@@ -7,6 +7,7 @@
 <div class="inputContainer"><label class="inputLabel" for="wgDays">Activity window (days)</label><input is="emby-input" id="wgDays" type="number" min="1" max="90" step="1" required><div class="fieldDescription">Default 30; 1–90 days of bounded recent viewing history. Does not change deletion protection.</div></div>
 <div class="inputContainer"><label class="inputLabel" for="wgLimit">Activity candidate limit</label><input is="emby-input" id="wgLimit" type="number" min="1" max="100" step="1" required><div class="fieldDescription">Default 100; 1–100 automatic candidates. Results are bounded, not an exhaustive playback history.</div></div>
 <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input is="emby-checkbox" id="wgDiagnostics" type="checkbox"><span>Diagnostic mode</span></label><div class="fieldDescription">Default off. Logs timing and adapter events without tokens or private data. Save, then fully reload Web clients for script changes.</div></div>
+<div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input is="emby-checkbox" id="wgCaughtUp" type="checkbox"><span>Protect Caught Up series</span></label><div class="fieldDescription">Default on. Warn before deleting a continuing series, season or episode when someone has watched all known aired episodes with verified coverage. Applies immediately; ended viewing history alone remains unprotected.</div></div>
 <button is="emby-button" class="raised button-submit block" type="submit">Save</button>
 </form>
 <p id="wgSettingsMessage" role="status"></p>
@@ -65,7 +66,7 @@
             const config = await ApiClient.getPluginConfiguration(id);
             if (!valid(who, revision)) return;
             field('#wgDays').value = config.ActivityWindowDays; field('#wgLimit').value = config.ActivityLimit;
-            field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
+            field('#wgCaughtUp').checked = config.ProtectCaughtUpSeries !== false; field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
         } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not load settings. Administrator access is required.'; }
     });
     page.addEventListener('pagehide', () => { epoch++; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
@@ -81,7 +82,7 @@
         try {
             const config = await ApiClient.getPluginConfiguration(id);
             if (!valid(who, revision)) return;
-            config.ActivityWindowDays = days; config.ActivityLimit = limit; config.DiagnosticMode = diagnostic;
+            config.ProtectCaughtUpSeries = field('#wgCaughtUp').checked; config.ActivityWindowDays = days; config.ActivityLimit = limit; config.DiagnosticMode = diagnostic;
             await ApiClient.updatePluginConfiguration(id, config);
             if (valid(who, revision)) { field('#wgSettingsMessage').textContent = 'Saved. Activity settings apply to the next query. Fully reload Web clients for diagnostic script changes; no server restart needed.'; await status(); }
         } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not save settings. Please retry.'; }

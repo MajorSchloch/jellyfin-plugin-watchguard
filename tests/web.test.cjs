@@ -132,14 +132,14 @@ test('confirmed empty status skips the extra warning', async () => {
     const f = backendFixture(); await f.api.deleteItem('movie'); assert.deepEqual(f.counts(), [1, 0]);
 });
 test('self-only and combined interest warn for every supported target without extra checks', async () => {
-    for (const type of ['Movie','Series','Season','Episode']) for (const reason of ['Watchlisted','InProgress','CurrentlyPlaying']) {
+    for (const type of ['Movie','Series','Season','Episode']) for (const reason of ['Watchlisted','InProgress','CurrentlyPlaying','CaughtUp']) {
         for (const approved of [false,true]) {
             let calls=0, checks=0, lookups=0;
             const api={getCurrentUserId:()=> 'self',accessToken:()=> 'token',getUrl:p=>p,
                 getItem:async(u,id)=>{lookups++;return id==='parent'?{Id:id,Type:'Series',Name:'Parent'}:{Id:id,Type:type,SeriesId:'parent'};},
                 ajax:async()=>{checks++;return {ItemId:['Season','Episode'].includes(type)?'parent':'target',HasInterest:true,HasOtherInterestedUsers:false,Users:[{UserId:'self',DisplayName:'Me',Reasons:[reason]}]};},
                 deleteItem:async(...args)=>{calls++;assert.deepEqual(args,['target',42]);return 'native-result';}};
-            createAdapter(async text=>{assert.ok(warningText(text).includes({Watchlisted:'This title is on your watchlist.',InProgress:"You haven't finished watching this title.",CurrentlyPlaying:'You are currently playing this title.'}[reason]));return approved;},undefined,protectionCheck).install(api);
+            createAdapter(async text=>{assert.ok(warningText(text).includes({CaughtUp:'You are caught up and waiting for new episodes.',Watchlisted:'This title is on your watchlist.',InProgress:"You haven't finished watching this title.",CurrentlyPlaying:'You are currently playing this title.'}[reason]));return approved;},undefined,protectionCheck).install(api);
             if(approved)assert.equal(await api.deleteItem('target',42),'native-result');else await assert.rejects(api.deleteItem('target',42),{name:'AbortError'});
             assert.equal(calls,approved?1:0);assert.equal(checks,1);assert.equal(lookups,['Season','Episode'].includes(type)?2:1);
         }
@@ -450,7 +450,7 @@ test('Failed preferences retain a visible error and use defaults without writing
     assert.ok(f.calls.every(c=>c.o.type==='GET'));
 });
 
-test('Caught Up belongs to Watching, renders its own icon/date and is forbidden in protection',()=>{
+test('Caught Up belongs to Watching, renders its own icon/date and is accepted in fresh protection',()=>{
     const {activityText,userLine}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
     const owner={UserId:me,DisplayName:'Me',Reasons:['CaughtUp'],LastPlayedDate:'2026-10-01T12:00:00Z',AvailableEpisodes:12,WatchedEpisodes:12};
     const item={...overviewItems[0],Users:[owner]};
@@ -460,7 +460,7 @@ test('Caught Up belongs to Watching, renders its own icon/date and is forbidden 
     assert.equal(selectInterest([item],other,me,'watching').length,0);
     assert.match(activityText(owner,true),/Caught Up · 12\/12 episodes · Last played/);
     assert.equal(userLine(documentFixture().doc,owner).children[0].children[0].attributes['aria-label'],'Caught Up');
-    assert.throws(()=>validateStatus({ItemId:item.ItemId,HasInterest:true,HasOtherInterestedUsers:false,Users:[owner]},item.ItemId,me));
+    assert.deepEqual(validateStatus({ItemId:item.ItemId,HasInterest:true,HasOtherInterestedUsers:false,Users:[owner]},item.ItemId,me),[owner]);
 });
 
 test('structured dialog uses text nodes for long unsafe names and keeps separate ownership/reasons',async()=>{
@@ -490,4 +490,21 @@ test('dialog Tab and Shift+Tab cycle only actions, including error-only dialogs'
         assert.equal(prevented,2);assert.equal(stopped,2);
         cancel.onclick();assert.equal(await pending,false);
     }
+});
+
+test('targeted series panel safely renders deduplicated users, coverage and native dates',()=>{
+    const {renderSeriesActivity}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const {doc}=documentFixture();const target=doc.createElement('div');target.replaceChildren=()=>{target.children=[];};
+    const status={ItemId:me,IsComplete:false,Notice:'Partial <coverage>',Users:[
+        {UserId:me,DisplayName:'<img onerror=evil()>',Reasons:['Watchlisted','CaughtUp'],AvailableEpisodes:12,WatchedEpisodes:12,CoverageComplete:true,LastPlayedDate:'2026-10-01T10:00:00Z'},
+        {UserId:other,DisplayName:'Other',Reasons:['CurrentlyPlaying','InProgress'],AvailableEpisodes:12,WatchedEpisodes:7,CoverageComplete:false,LastPlayedDate:null}
+    ]};
+    renderSeriesActivity(doc,target,status,me,me);
+    assert.match(textOf(target),/1 Watchlisted.*1 Watching.*1 Currently Playing.*1 Caught Up.*Incomplete/);
+    assert.match(textOf(target),/You · <img onerror=evil\(\)>/);
+    assert.match(textOf(target),/7\/12 episodes \(incomplete coverage\)/);
+    const list=descendants(target).find(n=>n.tag==='ul');assert.equal(list.children.length,2);assert.equal(list.children[0].children[0].textContent,'Other');
+    assert.equal(descendants(target).some(n=>n.tag==='img'||n.tag==='script'||n.tag==='progress'),false);
+    assert.throws(()=>renderSeriesActivity(doc,target,{...status,Users:[status.Users[0],status.Users[0]]},me,me));
+    assert.throws(()=>renderSeriesActivity(doc,target,{...status,Users:[{...status.Users[0],Reasons:['__proto__']}]},me,me));
 });

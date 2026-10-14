@@ -1,3 +1,5 @@
+> **v0.4.3:** `ProtectCaughtUpSeries` defaults to true; saves apply immediately to fresh protection requests. Existing XML without the property gets true; explicit false is retained. It adds only verified continuing-series Caught Up protection. See [policy and rollback](caught-up-protection.md). Standalone integration diagnostics remain unchanged. Historical registration descriptions below apply to v0.3.1 only.
+
 > v0.3.1 reference. v0.4.0 keeps these settings and native persistence; standalone integration diagnostics replace registration diagnostics. See [current deployment checks](deployment.md#verify-loading-and-operation).
 
 # WatchGuard v0.3.1 settings and diagnostics
@@ -8,6 +10,7 @@ Target: Jellyfin Server/Web 12.2, .NET 10. Dashboard → Plugins → WatchGuard 
 | --- | --- | --- |
 | ActivityWindowDays | 30 | Integer, 1–90 days |
 | ActivityLimit | 100 | Integer, 1–100 automatic candidates |
+| ProtectCaughtUpSeries | true | Warn for verified Caught Up continuing series; current protection remains fresh |
 | DiagnosticMode | false | Optional server timings and token-free browser adapter events |
 
 The form validates integer ranges before saving. Configuration property setters also clamp numeric values from XML or direct native API updates, retaining the existing effective-range behavior. Existing property names, configuration type and XML filename are unchanged. Missing fields in old XML retain defaults. The native `/Plugins/{guid}/Configuration` endpoints require elevated administrator access; WatchGuard does not add a second writable configuration API.

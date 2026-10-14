@@ -18,13 +18,18 @@ public sealed record InterestOverview(OverviewItem[] Items, bool IsComplete, boo
 internal sealed record OverviewPlayback(string DisplayName, DateTime? LastPlayedDate, bool Completed, int? AvailableEpisodes, int? WatchedEpisodes)
 {
     public bool CaughtUp { get; init; }
+    public bool CoverageComplete { get; init; }
+    public bool Started { get; init; }
+    public bool ProtectionInProgress { get; init; }
 }
 
-// Request-local safety budget, never used by deletion/protection checks.
+// Request-local native read budget; a targeted protection request rejects incomplete results.
 internal sealed class OverviewBudget(WatchlistEntry[] entries, User[] accounts)
 {
     public User[] Accounts { get; } = accounts;
     public bool IncludeActivity { get; init; }
+    public bool TargetedSeries { get; init; }
+    public Dictionary<Guid, string[]> TargetedReasons { get; } = new();
     public bool IncompleteCoverage { get; set; }
     public HashSet<WatchlistEntry> Entries { get; } = entries.ToHashSet();
     public Dictionary<Guid, DateTime?> PlaybackDates { get; } = new();
