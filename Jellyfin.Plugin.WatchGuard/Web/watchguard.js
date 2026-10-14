@@ -64,23 +64,86 @@
         return { install, isInstalled: api => !!api && installed.get(api)?.method === api.deleteItem };
     }
 
-    function confirmDeletion(document, text, allowDelete = true, signal) {
+    const openDeletionDialogs = new WeakSet();
+    function confirmDeletion(document, warning, allowDelete = true, signal) {
+        if (openDeletionDialogs.has(document)) return Promise.reject(new Error('Confirmation already open'));
         return new Promise((resolve, reject) => {
             const previousFocus = document.activeElement;
             const dialog = document.createElement('dialog');
-            dialog.setAttribute('aria-label', 'WatchGuard deletion confirmation');
-            dialog.style.cssText = 'max-width:30rem;padding:1.5rem;border:1px solid #888;border-radius:.5rem;background:#202020;color:white;';
-            const body = document.createElement('p'); body.textContent = text; body.style.whiteSpace = 'pre-line';
-            const cancel = document.createElement('button'); cancel.textContent = 'Cancel';
-            const proceed = document.createElement('button'); proceed.textContent = 'Delete Anyway';
-            for (const button of [cancel, proceed]) {
-                button.type = 'button'; button.className = 'emby-button raised'; button.style.margin = '.3rem';
+            dialog.className = 'watchguard-deletion-dialog';
+            dialog.setAttribute('aria-labelledby', 'watchguard-delete-title');
+            dialog.setAttribute('aria-describedby', 'watchguard-delete-description');
+            dialog.style.cssText = 'box-sizing:border-box;width:calc(100% - 2rem);max-width:38rem;max-height:calc(100dvh - 2rem);padding:0;border:1px solid #555;border-radius:.5rem;background:#202020;color:#eee;font:inherit;overflow:auto;';
+            const node = (tag, text, className = '') => {
+                const element = document.createElement(tag); element.textContent = text; element.className = className; return element;
+            };
+            const content = node('div', '', 'watchguard-dialog-content');
+            content.style.cssText = 'padding:1.5rem;overflow-wrap:anywhere;';
+            const title = node('h2', 'WatchGuard deletion confirmation'); title.id = 'watchguard-delete-title';
+            title.style.cssText = 'font-size:1.35em;line-height:1.3;margin:0 0 1rem;';
+            const description = node('p', typeof warning === 'string' ? warning :
+                'Deleting removes this media from the library and deletes its files. Other people may lose access. This cannot be undone here.');
+            description.id = 'watchguard-delete-description'; description.style.cssText = 'line-height:1.5;margin:0 0 1rem;color:#ccc;white-space:pre-line;';
+            content.append(title);
+            if (typeof warning !== 'string') {
+                const target = node('section', '', 'watchguard-dialog-target');
+                const kind = node('div', 'Deleting ' + warning.item.Type.toLowerCase()); kind.style.cssText = 'font-size:.85em;color:#bbb;';
+                const name = node('div', warning.item.Name || warning.item.Id); name.style.cssText = 'font-size:1.2em;font-weight:600;line-height:1.4;margin:.3rem 0;';
+                target.append(kind, name);
+                if (warning.item.Type === 'Episode' && Number.isInteger(warning.item.IndexNumber)) {
+                    target.append(node('div', (Number.isInteger(warning.item.ParentIndexNumber) ? 'Season ' + warning.item.ParentIndexNumber + ' · ' : '') + 'Episode ' + warning.item.IndexNumber));
+                }
+                if (warning.parentName) {
+                    const parent = node('p', 'Interest is for the parent series: ' + warning.parentName + '. Protection is series-wide.');
+                    parent.style.cssText = 'color:#ccc;line-height:1.4;'; target.append(parent);
+                }
+                target.style.cssText = 'border-left:.2rem solid #f0b35a;padding:.25rem .8rem;margin-bottom:1rem;';
+                content.append(target);
             }
+            content.append(description);
+            if (typeof warning !== 'string') {
+                const labels = { Watchlisted: 'Watchlisted', InProgress: 'Watching', CurrentlyPlaying: 'Currently Playing' };
+                for (const self of [true, false]) {
+                    const people = warning.users.filter(u => (key(u.UserId) === key(warning.user)) === self);
+                    if (!people.length) continue;
+                    const heading = node('h3', self ? 'Your interest' : 'Other people’s interest');
+                    heading.style.cssText = 'font-size:1em;margin:1.2rem 0 .5rem;';
+                    const list = node('ul', '', 'watchguard-dialog-people'); list.style.cssText = 'list-style:none;margin:0;padding:0;';
+                    for (const person of people) {
+                        const row = node('li', '', 'watchguard-dialog-person'); row.style.cssText = 'padding:.75rem 0;border-top:1px solid #444;line-height:1.5;';
+                        const name = node('strong', self ? 'You · ' + person.DisplayName : person.DisplayName); name.style.display = 'block'; row.append(name);
+                        const statuses = node('div', '', 'watchguard-dialog-reasons'); statuses.style.cssText = 'display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.35rem;';
+                        for (const reason of new Set(person.Reasons)) {
+                            const badge = node('span', labels[reason]); badge.style.cssText = 'font-size:.85em;padding:.15rem .5rem;border:1px solid #666;border-radius:1rem;'; statuses.append(badge);
+                        }
+                        row.append(statuses);
+                        if (self) {
+                            const detail = node('p', person.Reasons.map(reason => ({
+                                Watchlisted: 'This title is on your watchlist.',
+                                InProgress: "You haven't finished watching this title.",
+                                CurrentlyPlaying: 'You are currently playing this title.'
+                            })[reason]).join(' ')); detail.style.cssText = 'font-size:.9em;color:#ccc;margin:.5rem 0 0;'; row.append(detail);
+                        }
+                        list.append(row);
+                    }
+                    content.append(heading, list);
+                }
+            }
+            const actions = node('div', '', 'watchguard-dialog-actions');
+            actions.style.cssText = 'display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.5rem;padding:1rem 1.5rem;border-top:1px solid #444;background:#202020;position:sticky;bottom:0;';
+            const cancel = node('button', 'Cancel');
+            const proceed = node('button', 'Delete Anyway');
+            for (const button of [cancel, proceed]) {
+                button.type = 'button'; button.className = 'emby-button raised'; button.style.cssText = 'min-height:2.75rem;margin:0;padding:.65rem 1.1rem;';
+            }
+            cancel.setAttribute('autofocus', '');
+            proceed.style.color = '#ffb4ab';
             let settled = false;
             const finish = approved => {
                 if (settled) return;
                 settled = true;
                 signal?.removeEventListener('abort', abort);
+                openDeletionDialogs.delete(document);
                 dialog.remove();
                 if (previousFocus?.isConnected) previousFocus.focus();
                 resolve(approved);
@@ -91,11 +154,21 @@
             proceed.onclick = () => finish(true);
             dialog.addEventListener('cancel', event => { event.preventDefault(); finish(false); });
             dialog.addEventListener('close', () => finish(false));
-            dialog.append(body, cancel);
-            if (allowDelete) dialog.append(proceed);
+            // Native modal inertness does not prevent Tab from reaching browser chrome.
+            // Keep keyboard traversal within this dialog's two explicit actions.
+            dialog.addEventListener('keydown', event => {
+                if (event.key !== 'Tab') return;
+                event.preventDefault(); event.stopPropagation();
+                const buttons = allowDelete ? [cancel, proceed] : [cancel];
+                const current = buttons.indexOf(document.activeElement);
+                buttons[current < 0 ? 0 : (current + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length].focus();
+            });
+            actions.append(cancel);
+            if (allowDelete) actions.append(proceed);
+            dialog.append(content, actions);
             if (signal?.aborted) { finish(false); return; }
-            try { document.body.append(dialog); dialog.showModal(); cancel.focus(); }
-            catch (error) { signal?.removeEventListener('abort', abort); dialog.remove(); reject(error); }
+            try { openDeletionDialogs.add(document); document.body.append(dialog); dialog.showModal(); cancel.focus(); }
+            catch (error) { signal?.removeEventListener('abort', abort); openDeletionDialogs.delete(document); dialog.remove(); reject(error); }
         });
     }
 
@@ -137,16 +210,10 @@
         const { item, scope } = await resolveScope(api, id, user);
         const status = await request(api, 'Protection/' + encodeURIComponent(scope.Id));
         const interested = validateStatus(status, scope.Id, user);
-        const target = scope === item ? '' : '\n\nDeleting ' + item.Type.toLowerCase() + ': ' + (item.Name || item.Id) +
-            '\nThese users are interested in the parent series: ' + (scope.Name || scope.Id) + '. Interest is series-wide.';
-        return interested.length ? message + target + '\n\n' + interested.map(entry => {
-            if (key(entry.UserId) !== key(user)) return describe([entry]);
-            return entry.Reasons.map(reason => ({
-                Watchlisted: 'This title is on your watchlist.',
-                InProgress: "You haven't finished watching this title.",
-                CurrentlyPlaying: 'You are currently playing this title.'
-            })[reason]).join('\n');
-        }).join('\n') : null;
+        // Structured, validated presentation data only; the gate and request count are unchanged.
+        return interested.length ? { item: { Id: item.Id, Name: item.Name, Type: item.Type,
+            IndexNumber: item.IndexNumber, ParentIndexNumber: item.ParentIndexNumber },
+            parentName: scope === item ? null : (scope.Name || scope.Id), users: interested, user } : null;
     }
 
     // History is an overview-only status. Never add it to protection's reason allowlist.
@@ -529,6 +596,9 @@
 
     const style = document.createElement('style');
     style.textContent = `
+        .watchguard-deletion-dialog::backdrop {background:rgba(0,0,0,.65)}
+        .watchguard-deletion-dialog button:focus-visible {outline:2px solid #fff;outline-offset:2px}
+
         .watchguard-nav {display:inline-flex;align-items:center;gap:.35em;white-space:nowrap;text-decoration:none;padding:.5em .7em;color:inherit;border-radius:4px;box-sizing:border-box}
         .watchguard-nav:hover {background:rgba(128,128,128,.2)}
         .watchguard-nav[aria-current="page"] {color:#00a4dc}

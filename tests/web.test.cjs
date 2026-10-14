@@ -94,20 +94,28 @@ function documentFixture() {
     } };
     return { doc, nodes, focus };
 }
+function descendants(node) { return [node, ...node.children.flatMap(descendants)]; }
+function button(dialog, label) { return descendants(dialog).find(n=>n.tag==='button' && n.textContent===label); }
+function textOf(node) { return descendants(node).map(n=>n.textContent || '').join(' '); }
+function warningText(warning) {
+    const f=documentFixture();const pending=confirmDeletion(f.doc,warning);const text=textOf(f.nodes[0]);button(f.nodes[0],'Cancel').onclick();return text;
+}
 test('dialog Cancel, Escape and close all cancel and restore focus', async () => {
     for (const action of ['button', 'cancel', 'close']) {
         const f = documentFixture(); const result = confirmDeletion(f.doc, message); const dialog = f.nodes[0];
-        assert.equal(dialog.children[0].textContent, message);
-        assert.equal(dialog.children[1].textContent, 'Cancel'); assert.equal(dialog.children[1].focused, true);
-        if (action === 'button') dialog.children[1].onclick();
+        assert.ok(textOf(dialog).includes(message));
+        assert.equal(dialog.attributes['aria-labelledby'],'watchguard-delete-title');
+        assert.equal(dialog.attributes['aria-describedby'],'watchguard-delete-description');
+        assert.equal(button(dialog,'Cancel').focused, true);
+        if (action === 'button') button(dialog,'Cancel').onclick();
         else dialog.events[action]({ preventDefault() {} });
         assert.equal(await result, false); assert.equal(dialog.removed, true); assert.equal(f.focus.restored, true);
     }
 });
 test('double approval settles once', async () => {
     const f = documentFixture(); const result = confirmDeletion(f.doc, message); const dialog = f.nodes[0];
-    assert.equal(dialog.children[2].textContent, 'Delete Anyway');
-    dialog.children[2].onclick(); dialog.children[2].onclick(); dialog.events.close(); assert.equal(await result, true);
+    assert.equal(button(dialog,'Delete Anyway').type, 'button');
+    button(dialog,'Delete Anyway').onclick(); button(dialog,'Delete Anyway').onclick(); dialog.events.close(); assert.equal(await result, true);
 });
 
 const { protectionCheck, validateStatus } = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
@@ -131,7 +139,7 @@ test('self-only and combined interest warn for every supported target without ex
                 getItem:async(u,id)=>{lookups++;return id==='parent'?{Id:id,Type:'Series',Name:'Parent'}:{Id:id,Type:type,SeriesId:'parent'};},
                 ajax:async()=>{checks++;return {ItemId:['Season','Episode'].includes(type)?'parent':'target',HasInterest:true,HasOtherInterestedUsers:false,Users:[{UserId:'self',DisplayName:'Me',Reasons:[reason]}]};},
                 deleteItem:async(...args)=>{calls++;assert.deepEqual(args,['target',42]);return 'native-result';}};
-            createAdapter(async text=>{assert.ok(text.includes({Watchlisted:'This title is on your watchlist.',InProgress:"You haven't finished watching this title.",CurrentlyPlaying:'You are currently playing this title.'}[reason]));return approved;},undefined,protectionCheck).install(api);
+            createAdapter(async text=>{assert.ok(warningText(text).includes({Watchlisted:'This title is on your watchlist.',InProgress:"You haven't finished watching this title.",CurrentlyPlaying:'You are currently playing this title.'}[reason]));return approved;},undefined,protectionCheck).install(api);
             if(approved)assert.equal(await api.deleteItem('target',42),'native-result');else await assert.rejects(api.deleteItem('target',42),{name:'AbortError'});
             assert.equal(calls,approved?1:0);assert.equal(checks,1);assert.equal(lookups,['Season','Episode'].includes(type)?2:1);
         }
@@ -139,8 +147,8 @@ test('self-only and combined interest warn for every supported target without ex
 });
 test('self and other users keep distinct wording and multiple reasons',async()=>{
     const f=backendFixture([{UserId:'self',DisplayName:'Me',Reasons:['Watchlisted','InProgress']},{UserId:'other',DisplayName:'Other',Reasons:['Watchlisted','CurrentlyPlaying']}]);
-    const text=await protectionCheck(f.api,'movie','self');
-    assert.match(text,/This title is on your watchlist/);assert.match(text,/You haven't finished watching/);assert.match(text,/Other — Watchlist, Currently Playing/);
+    const text=warningText(await protectionCheck(f.api,'movie','self'));
+    assert.match(text,/This title is on your watchlist/);assert.match(text,/You haven't finished watching/);assert.match(text,/Other\s+Watchlisted Currently Playing/);
 });
 test('other user multiple reasons needs one warning and one native call', async () => {
     const f = backendFixture([{ UserId: 'other', DisplayName: '<img onerror=evil()>', Reasons: ['Watchlisted', 'CurrentlyPlaying'] }]);
@@ -164,7 +172,7 @@ test('fresh lookup on every call and account change during lookup blocks native 
 test('dialog renders untrusted content as text and closes on identity abort', async () => {
     const f = documentFixture(), abort = new AbortController();
     const pending = confirmDeletion(f.doc, '<img onerror=evil()>', true, abort.signal);
-    assert.equal(f.nodes[0].children[0].textContent, '<img onerror=evil()>');
+    assert.ok(textOf(f.nodes[0]).includes('<img onerror=evil()>'));
     abort.abort(); assert.equal(await pending, false);
 });
 
@@ -175,7 +183,7 @@ test('episode and season scope uses verified parent, labels actual target and pr
             getItem: async (user, id) => { lookups.push(id); return id === 'target' ? {Id:id, Type:type, SeriesId:'parent', Name:'Target title'} : {Id:id, Type:'Series', Name:'Parent title'}; },
             ajax: async options => { assert.equal(options.url,'WatchGuard/Protection/parent'); return {ItemId:'parent',HasInterest:true,HasOtherInterestedUsers:true,Users:[{UserId:'other',DisplayName:'Other',Reasons:['Watchlisted']}]}; },
             deleteItem: async (...args) => calls.push(args) };
-        createAdapter(async text => { assert.match(text,new RegExp('Deleting ' + type.toLowerCase() + ': Target title')); assert.match(text,/parent series: Parent title/); return true; },undefined,protectionCheck).install(api);
+        createAdapter(async text => { assert.match(warningText(text),new RegExp('Deleting ' + type.toLowerCase() + ' Target title')); assert.match(warningText(text),/parent series: Parent title/); return true; },undefined,protectionCheck).install(api);
         await api.deleteItem('target'); assert.deepEqual(calls,[['target']]); assert.deepEqual(lookups,['target','parent']);
     }
 });
@@ -453,4 +461,33 @@ test('Caught Up belongs to Watching, renders its own icon/date and is forbidden 
     assert.match(activityText(owner,true),/Caught Up · 12\/12 episodes · Last played/);
     assert.equal(userLine(documentFixture().doc,owner).children[0].children[0].attributes['aria-label'],'Caught Up');
     assert.throws(()=>validateStatus({ItemId:item.ItemId,HasInterest:true,HasOtherInterestedUsers:false,Users:[owner]},item.ItemId,me));
+});
+
+test('structured dialog uses text nodes for long unsafe names and keeps separate ownership/reasons',async()=>{
+    const f=documentFixture(), unsafe='<img src=x onerror=evil()>'.repeat(30);
+    const pending=confirmDeletion(f.doc,{item:{Id:'item',Name:unsafe,Type:'Episode',IndexNumber:2,ParentIndexNumber:1},parentName:unsafe,user:'me',users:[
+        {UserId:'me',DisplayName:unsafe,Reasons:['Watchlisted','InProgress','CurrentlyPlaying']},
+        {UserId:'other',DisplayName:unsafe,Reasons:['Watchlisted','CurrentlyPlaying']} ]});
+    const dialog=f.nodes[0], nodes=descendants(dialog);
+    assert.ok(nodes.some(n=>n.textContent===unsafe));assert.ok(nodes.every(n=>n.innerHTML===undefined));
+    assert.match(textOf(dialog),/Your interest/);assert.match(textOf(dialog),/Other people’s interest/);
+    assert.match(textOf(dialog),/Season 1 · Episode 2/);assert.match(textOf(dialog),/cannot be undone/);
+    assert.equal(nodes.filter(n=>n.className==='watchguard-dialog-person').length,2);
+    assert.equal(button(dialog,'Cancel').focused,true);
+    await assert.rejects(confirmDeletion(f.doc,message),/already open/);assert.equal(f.nodes.length,1);
+    button(dialog,'Cancel').onclick();assert.equal(await pending,false);
+    const next=confirmDeletion(f.doc,message,false);assert.equal(button(f.nodes[1],'Delete Anyway'),undefined);button(f.nodes[1],'Cancel').onclick();assert.equal(await next,false);
+});
+
+test('dialog Tab and Shift+Tab cycle only actions, including error-only dialogs',async()=>{
+    for(const allowDelete of [true,false]) {
+        const f=documentFixture(), pending=confirmDeletion(f.doc,message,allowDelete), d=f.nodes[0];
+        const cancel=button(d,'Cancel'), approve=button(d,'Delete Anyway');
+        let prevented=0, stopped=0;
+        const press=shiftKey=>d.events.keydown({key:'Tab',shiftKey,preventDefault(){prevented++;},stopPropagation(){stopped++;}});
+        f.doc.activeElement=cancel;press(true);assert.equal((allowDelete?approve:cancel).focused,true);
+        f.doc.activeElement=approve || cancel;press(false);assert.equal(cancel.focused,true);
+        assert.equal(prevented,2);assert.equal(stopped,2);
+        cancel.onclick();assert.equal(await pending,false);
+    }
 });

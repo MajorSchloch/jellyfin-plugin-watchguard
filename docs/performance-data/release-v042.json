@@ -1,0 +1,578 @@
+{
+  "version": "0.4.2.0",
+  "targetAbi": "12.2.0.0",
+  "date": "2026-10-14",
+  "zipSha256": "c4902b23a1125fe3db26ffe77520a0a14eeca54bff946879cc4a3a73044858a5",
+  "zipMd5": "4f205ee6190487d41549543d955bff10",
+  "deterministicRebuild": true,
+  "unitTests": {
+    "dotnet": 83,
+    "javascript": 49,
+    "catalog": 4
+  },
+  "parallelSuites": {
+    "standalone-caddy": "PASS",
+    "migration": "PASS",
+    "basepath": "PASS",
+    "legacy": "PASS",
+    "websocket": "PASS"
+  },
+  "execution": "Local execution of all five parallel CI job commands; no GitHub workflow dispatched",
+  "browser": [
+    {
+      "fixture": "linuxserver/caddy/standalone",
+      "result": "PASS",
+      "nativeDeleteRequests": 13,
+      "orderingViolations": 0,
+      "paths": [
+        {
+          "path": "Progressive overview",
+          "result": "explicit cards rendered with discovery held; no false empty state; local filtering/sorting sent zero requests; card node preserved on completion"
+        },
+        {
+          "path": "My Watchlist",
+          "result": "empty/list, movie and series links, removal, failed removal/load and refresh recovery passed"
+        },
+        {
+          "path": "Playback-only series",
+          "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+        },
+        {
+          "path": "Modern compatibility",
+          "result": "12.2 modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+        },
+        {
+          "path": "Inline users",
+          "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+        },
+        {
+          "path": "Watchlist controls",
+          "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+        },
+        {
+          "path": "Recent viewing activity",
+          "result": "completed movie and whole series, exact native date, 4/4 progress, explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+        },
+        {
+          "path": "Caught Up",
+          "result": "native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, unchanged fresh protection and no permanent membership"
+        },
+        {
+          "path": "PoC Zero",
+          "result": "native deletion without extra WatchGuard warning"
+        },
+        {
+          "path": "Structured confirmation accessibility",
+          "result": "unsafe long title/names rendered literally; separate ownership and six reasons; modal focus cycle, Cancel Enter and focus restoration; desktop/mobile bounds and zero DELETE"
+        },
+        {
+          "path": "Self-only protection",
+          "result": "watchlist, native resume and session each Cancel with zero DELETE; override exactly once"
+        },
+        {
+          "path": "Explicit desktop-legacy",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Explicit modern",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Missing parent resolution",
+          "result": "404 blocks deletion with zero DELETE requests"
+        },
+        {
+          "path": "PoC Parent Interested Episode",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Interested Season",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Episode",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Season",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Movie Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "PoC Series Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Escape on movie detail",
+          "cancel": "zero DELETE",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native membership menus",
+          "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+        },
+        {
+          "path": "Card right-click menu",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native two-item bulk selection",
+          "cancel": "zero DELETE after cancelling both prompts",
+          "override": "one DELETE per approved item, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Account switch",
+          "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+        },
+        {
+          "path": "Account isolation and native permissions",
+          "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+        }
+      ]
+    },
+    {
+      "fixture": "linuxserver/direct/migration",
+      "result": "PASS",
+      "nativeDeleteRequests": 13,
+      "orderingViolations": 0,
+      "paths": [
+        {
+          "path": "Progressive overview",
+          "result": "explicit cards rendered with discovery held; no false empty state; local filtering/sorting sent zero requests; card node preserved on completion"
+        },
+        {
+          "path": "My Watchlist",
+          "result": "empty/list, movie and series links, removal, failed removal/load and refresh recovery passed"
+        },
+        {
+          "path": "Playback-only series",
+          "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+        },
+        {
+          "path": "Modern compatibility",
+          "result": "12.2 modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+        },
+        {
+          "path": "Inline users",
+          "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+        },
+        {
+          "path": "Watchlist controls",
+          "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+        },
+        {
+          "path": "Recent viewing activity",
+          "result": "completed movie and whole series, exact native date, 4/4 progress, explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+        },
+        {
+          "path": "Caught Up",
+          "result": "native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, unchanged fresh protection and no permanent membership"
+        },
+        {
+          "path": "PoC Zero",
+          "result": "native deletion without extra WatchGuard warning"
+        },
+        {
+          "path": "Structured confirmation accessibility",
+          "result": "unsafe long title/names rendered literally; separate ownership and six reasons; modal focus cycle, Cancel Enter and focus restoration; desktop/mobile bounds and zero DELETE"
+        },
+        {
+          "path": "Self-only protection",
+          "result": "watchlist, native resume and session each Cancel with zero DELETE; override exactly once"
+        },
+        {
+          "path": "Explicit desktop-legacy",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Explicit modern",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Missing parent resolution",
+          "result": "404 blocks deletion with zero DELETE requests"
+        },
+        {
+          "path": "PoC Parent Interested Episode",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Interested Season",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Episode",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Season",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Movie Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "PoC Series Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Escape on movie detail",
+          "cancel": "zero DELETE",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native membership menus",
+          "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+        },
+        {
+          "path": "Card right-click menu",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native two-item bulk selection",
+          "cancel": "zero DELETE after cancelling both prompts",
+          "override": "one DELETE per approved item, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Account switch",
+          "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+        },
+        {
+          "path": "Account isolation and native permissions",
+          "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+        }
+      ]
+    },
+    {
+      "fixture": "official/basepath/standalone",
+      "result": "PASS",
+      "nativeDeleteRequests": 13,
+      "orderingViolations": 0,
+      "paths": [
+        {
+          "path": "Progressive overview",
+          "result": "explicit cards rendered with discovery held; no false empty state; local filtering/sorting sent zero requests; card node preserved on completion"
+        },
+        {
+          "path": "My Watchlist",
+          "result": "empty/list, movie and series links, removal, failed removal/load and refresh recovery passed"
+        },
+        {
+          "path": "Playback-only series",
+          "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+        },
+        {
+          "path": "Modern compatibility",
+          "result": "12.2 modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+        },
+        {
+          "path": "Inline users",
+          "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+        },
+        {
+          "path": "Watchlist controls",
+          "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+        },
+        {
+          "path": "Recent viewing activity",
+          "result": "completed movie and whole series, exact native date, 4/4 progress, explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+        },
+        {
+          "path": "Caught Up",
+          "result": "native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, unchanged fresh protection and no permanent membership"
+        },
+        {
+          "path": "PoC Zero",
+          "result": "native deletion without extra WatchGuard warning"
+        },
+        {
+          "path": "Structured confirmation accessibility",
+          "result": "unsafe long title/names rendered literally; separate ownership and six reasons; modal focus cycle, Cancel Enter and focus restoration; desktop/mobile bounds and zero DELETE"
+        },
+        {
+          "path": "Identity change during confirmation",
+          "result": "native ApiClient authentication cleared while open; lifetime cancels and removes dialog with zero DELETE; restored identity loads normally"
+        },
+        {
+          "path": "Self-only protection",
+          "result": "watchlist, native resume and session each Cancel with zero DELETE; override exactly once"
+        },
+        {
+          "path": "Explicit desktop-legacy",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Explicit modern",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Missing parent resolution",
+          "result": "404 blocks deletion with zero DELETE requests"
+        },
+        {
+          "path": "PoC Parent Interested Episode",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Interested Season",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Episode",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Season",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Movie Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "PoC Series Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Escape on movie detail",
+          "cancel": "zero DELETE",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native membership menus",
+          "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+        },
+        {
+          "path": "Card right-click menu",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native two-item bulk selection",
+          "cancel": "zero DELETE after cancelling both prompts",
+          "override": "one DELETE per approved item, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Account switch",
+          "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+        },
+        {
+          "path": "Account isolation and native permissions",
+          "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+        }
+      ]
+    },
+    {
+      "fixture": "official/direct/injector",
+      "result": "PASS",
+      "nativeDeleteRequests": 13,
+      "orderingViolations": 0,
+      "paths": [
+        {
+          "path": "Progressive overview",
+          "result": "explicit cards rendered with discovery held; no false empty state; local filtering/sorting sent zero requests; card node preserved on completion"
+        },
+        {
+          "path": "My Watchlist",
+          "result": "empty/list, movie and series links, removal, failed removal/load and refresh recovery passed"
+        },
+        {
+          "path": "Playback-only series",
+          "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+        },
+        {
+          "path": "Modern compatibility",
+          "result": "12.2 modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+        },
+        {
+          "path": "Inline users",
+          "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+        },
+        {
+          "path": "Watchlist controls",
+          "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+        },
+        {
+          "path": "Recent viewing activity",
+          "result": "completed movie and whole series, exact native date, 4/4 progress, explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+        },
+        {
+          "path": "PoC Zero",
+          "result": "native deletion without extra WatchGuard warning"
+        },
+        {
+          "path": "PoC Self",
+          "result": "native deletion without extra WatchGuard warning"
+        },
+        {
+          "path": "Explicit desktop-legacy",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Explicit modern",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Missing parent resolution",
+          "result": "404 blocks deletion with zero DELETE requests"
+        },
+        {
+          "path": "PoC Parent Interested Episode",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Interested Season",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Episode",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Season",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Movie Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "PoC Series Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Escape on movie detail",
+          "cancel": "zero DELETE",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native membership menus",
+          "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+        },
+        {
+          "path": "Card right-click menu",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native two-item bulk selection",
+          "cancel": "zero DELETE after cancelling both prompts",
+          "override": "one DELETE per approved item, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Account switch",
+          "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+        },
+        {
+          "path": "Account isolation and native permissions",
+          "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+        }
+      ]
+    }
+  ],
+  "catalogRoundTrip": {
+    "result": "PASS",
+    "baselineSha256": "439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d",
+    "roundTrip": "0.4.2 -> 0.4.0 -> 0.4.1 -> 0.4.2",
+    "storesAndConfigBytesPreserved": true,
+    "noInjector": true,
+    "singleActiveAssembly": true
+  },
+  "legacyMigration": {
+    "result": "PASS",
+    "publishedBaselineSha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+    "upgrade": "0.3.1 -> 0.4.2",
+    "rollback": "0.4.2 -> 0.3.1 -> 0.4.2",
+    "checksumRejection": "tested separately by legacy catalog fixture",
+    "conflictBlocked": true,
+    "noAutomaticInjectorWrites": true,
+    "otherScriptsPreserved": true,
+    "dataAndConfigBytesPreserved": true,
+    "duplicateActivePlugins": false
+  },
+  "legacyCatalog": {
+    "result": "PASS",
+    "catalogInstaller": "native Packages API",
+    "checksumMismatch": "rejected before extraction",
+    "cleanInstall": true,
+    "catalogUpgrade": "0.3.0 -> 0.3.1",
+    "rollback": "0.3.1 -> 0.3.0 -> 0.3.1",
+    "preferencesPreserved": true,
+    "watchlistsBytesPreserved": true,
+    "configurationBytesPreserved": true,
+    "duplicateLoadedPlugins": false,
+    "injectorRegistrations": 1,
+    "missingInjectorDiagnostic": true,
+    "productionTouched": false
+  },
+  "caddy": {
+    "image": "caddy:2@sha256:f2a1290d0463aad60660d4ec134943f183ee2a5f6c3eb7bf32dd984f2f020772",
+    "httpsTrustedTestCA": true,
+    "rootPath": true,
+    "compression": [
+      "identity",
+      "gzip",
+      "zstd"
+    ],
+    "authenticatedWebSocketUpgradeAndPing": true,
+    "conditionalHtml": "200 fresh/no-store",
+    "head": true,
+    "authenticatedScriptNoStore": true
+  },
+  "webSocket": {
+    "mode": "standalone",
+    "https": true,
+    "nativeWebSocketOpen": false,
+    "handshakeStatusCodes": [
+      101
+    ],
+    "connectionsRemaining": 1,
+    "closed": 2,
+    "framesReceived": 2,
+    "frameErrors": 2
+  },
+  "sourceUnchanged": [
+    "standalone loader",
+    "backend interest/protection services",
+    "JSON schemas"
+  ],
+  "publicManifestUnchanged": true,
+  "publishedV041Unchanged": true,
+  "productionTouched": false,
+  "published": false,
+  "developmentFindings": [
+    "Native Tab navigation reached browser chrome; fixed with scoped action focus cycling and verified with real browser tests.",
+    "Literal text tests use textContent because innerText trims trailing whitespace.",
+    "Native PluginUpdates StartupTrigger raced explicit fixture package installation and locked the DLL. Disable triggers and restart only disposable fixtures before catalog operations; retain all installation assertions."
+  ]
+}

@@ -124,7 +124,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         const count = report.deletes.length;
         await dialog().waitFor();
         assert.equal(report.deletes.length, count);
-        assert.match(await dialog().locator('p').innerText(), title === 'PoC Self' && fixture.standalone ? /This title is on your watchlist|You haven't finished watching this title|You are currently playing this title/ : /BrowserMember — Watchlist/);
+        assert.match(await dialog().innerText(), title === 'PoC Self' && fixture.standalone ? /This title is on your watchlist|You haven't finished watching this title|You are currently playing this title/ : fixture.standalone ? /BrowserMember[\s\S]*Watchlisted/ : /BrowserMember — Watchlist/);
         await exists(fixture.items[title]);
         if (escape === 'close') await dialog().evaluate(node=>node.close());
         else if (escape) await page.keyboard.press('Escape');
@@ -141,7 +141,12 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await dialog().waitFor(); await exists(fixture.items[title]);
         await page.screenshot({ path: path.join(output, 'watchguard-confirmation.png') });
         const response = page.waitForResponse(r => r.request().method() === 'DELETE' && new URL(r.url()).pathname.endsWith('/Items/' + fixture.items[title]));
-        await dialog().getByRole('button', { name: 'Delete Anyway', exact: true }).click();
+        if (fixture.standalone && title === 'PoC Self') {
+            assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Cancel');
+            await page.keyboard.press('Tab');
+            assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Delete Anyway');
+            await page.keyboard.press('Enter');
+        } else await dialog().getByRole('button', { name: 'Delete Anyway', exact: true }).click();
         assert.equal((await response).status(), 204);
         assert.equal(report.deletes.length, before + 1);
         await exists(fixture.items[title], 404);
@@ -300,7 +305,8 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.keyboard.press('Escape');
         const beforeAuto = report.deletes.length;
         await nativeDelete(); await nativeConfirm();
-        await dialog().getByText(/BrowserMember — Watching/).waitFor();
+        if (fixture.standalone) { await dialog().getByText('BrowserMember',{exact:true}).waitFor(); await dialog().getByText('Watching',{exact:true}).waitFor(); }
+        else await dialog().getByText(/BrowserMember — Watching/).waitFor();
         await dialog().getByRole('button',{name:'Cancel',exact:true}).click();
         await page.getByRole('button',{name:'Got It',exact:true}).click();
         assert.equal(report.deletes.length,beforeAuto); await exists(automaticId);
@@ -518,8 +524,57 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
                 await page.getByRole('button',{name:'Remove from Watchlist',exact:true}).waitFor();
             }
             if (title === 'PoC Self' && fixture.standalone) {
+                // Synthetic hostile display data tests the actual adapter/dialog, never a replacement UI.
+                const unsafe='<img src=x onerror="window.wgUnsafe=true">'+'Very long name '.repeat(30);
+                const targetRoute=url=>/\/(?:Items|UserItems)\/[^/]+$/.test(url.pathname) && url.pathname.endsWith(fixture.items[title]);
+                await page.route(targetRoute,async route=>{const response=await route.fetch();const data=await response.json();await route.fulfill({response,json:{...data,Name:unsafe}});});
+                await page.route('**/WatchGuard/Protection/*',async route=>{
+                    const response=await route.fetch();const data=await response.json();
+                    data.Users[0].DisplayName=unsafe;data.Users[0].Reasons=['Watchlisted','InProgress','CurrentlyPlaying'];
+                    data.Users.push({UserId:member.User.Id,DisplayName:unsafe,Reasons:['Watchlisted','InProgress','CurrentlyPlaying']});data.HasOtherInterestedUsers=true;
+                    await route.fulfill({response,json:data});
+                });
+                const bookmark=page.getByRole('button',{name:'Remove from Watchlist',exact:true});await bookmark.focus();
+                const before=report.deletes.length;
+                await page.evaluate(id=>{window.wgDialogOutcome=null;window.ApiClient.deleteItem(id).then(()=>window.wgDialogOutcome='approved',e=>window.wgDialogOutcome=e.name);},fixture.items[title]);
+                await dialog().waitFor();assert.equal(await dialog().count(),1);
+                assert.equal(await dialog().locator('.watchguard-dialog-person').count(),2);
+                assert.equal(await dialog().locator('.watchguard-dialog-reasons span').count(),6);
+                assert.ok((await dialog().locator('.watchguard-dialog-target').textContent()).includes(unsafe));
+                assert.equal(await dialog().locator('img,script,iframe').count(),0);
+                assert.equal(await page.evaluate(()=>window.wgUnsafe),undefined);
+                assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Cancel');
+                await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Delete Anyway');
+                await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Cancel');
+                await page.keyboard.press('Shift+Tab');assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Delete Anyway');
+                await page.keyboard.press('Shift+Tab');
+                for(const [width,height,label] of [[1280,900,'desktop'],[390,700,'mobile']]) {
+                    await page.setViewportSize({width,height});
+                    const bounds=await dialog().boundingBox();assert.ok(bounds.x>=0 && bounds.width<=width && bounds.y>=0 && bounds.height<=height);
+                    assert.equal(await dialog().evaluate(d=>d.scrollWidth<=d.clientWidth+1),true);
+                    const actions=await dialog().getByRole('button',{name:'Cancel',exact:true}).boundingBox();assert.ok(actions.y>=0 && actions.y+actions.height<=height);
+                    await page.screenshot({path:path.join(output,'deletion-long-'+label+'.png')});
+                }
+                await page.keyboard.press('Enter'); // Initially safe action remains deliberate even after keyboard traversal.
+                await page.waitForFunction(()=>window.wgDialogOutcome==='AbortError');
+                assert.equal(report.deletes.length,before);assert.equal(await bookmark.evaluate(e=>e===document.activeElement),true);
+                await page.unroute(targetRoute);await page.unroute('**/WatchGuard/Protection/*');await page.setViewportSize({width:1280,height:900});
+                report.paths.push({path:'Structured confirmation accessibility',result:'unsafe long title/names rendered literally; separate ownership and six reasons; modal focus cycle, Cancel Enter and focus restoration; desktop/mobile bounds and zero DELETE'});
+                await page.evaluate(id=>{
+                    const client=window.ApiClient, token=client.accessToken(), user=client.getCurrentUserId();
+                    window.wgRestoreIdentity=()=>{client.setAuthenticationInfo(token,user);delete window.wgRestoreIdentity;};
+                    window.wgDialogOutcome=null;
+                    client.deleteItem(id).then(()=>window.wgDialogOutcome='approved',e=>window.wgDialogOutcome=e.name);
+                },fixture.items[title]);
+                await dialog().waitFor();await page.evaluate(()=>window.ApiClient.clearAuthenticationInfo());
+                await page.waitForFunction(()=>window.wgDialogOutcome==='AbortError' && !document.querySelector('.watchguard-deletion-dialog'));
+                assert.equal(report.deletes.length,before);
+                await page.evaluate(()=>window.wgRestoreIdentity());await detail(title);
+                report.paths.push({path:'Identity change during confirmation',result:'native ApiClient authentication cleared while open; lifetime cancels and removes dialog with zero DELETE; restored identity loads normally'});
+
+
                 await nativeDelete(); await nativeConfirm();
-                await dialog().getByText(/This title is on your watchlist/).waitFor(); await cancel(title);
+                await dialog().getByText(/This title is on your watchlist/).waitFor(); await page.screenshot({path:path.join(output,'deletion-self.png')}); await cancel(title);
                 for(const dismissal of [true,'close']) { await nativeDelete(); await nativeConfirm(); await cancel(title,dismissal); }
                 // Same disposable title: verify native self resume and active playback independently.
                 await api('/WatchGuard/Watchlist/' + fixture.items[title],'DELETE');
@@ -609,7 +664,8 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
                 if (interested) {
                     await nativeDelete(); await nativeConfirm();
                     await dialog().waitFor();
-                    assert.ok((await dialog().innerText()).includes('Deleting ' + target.Type.toLowerCase() + ': ' + target.Name));
+                    assert.ok((await dialog().innerText()).includes('Deleting ' + target.Type.toLowerCase()));
+                    assert.ok((await dialog().innerText()).includes(target.Name));
                     assert.ok((await dialog().innerText()).includes('parent series: ' + parentTitle));
                     await page.screenshot({path:path.join(output,'parent-' + target.Type + '-warning.png')});
                     await cancel(label);

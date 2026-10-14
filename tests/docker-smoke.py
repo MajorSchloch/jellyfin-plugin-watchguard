@@ -116,6 +116,15 @@ def main():
             call('/Startup/Complete', 'POST', expected=204)
             admin = call('/Users/AuthenticateByName', 'POST', {'Username': username, 'Pw': password})
             token = admin['AccessToken']
+            # Own installation order in this disposable fixture. The native StartupTrigger
+            # otherwise upgrades the rollback DLL concurrently with our Packages API call.
+            updates=next(t for t in call('/ScheduledTasks',token=token) if t['Key']=='PluginUpdates')
+            call('/ScheduledTasks/'+updates['Id']+'/Triggers','POST',[],token,expected=204)
+            restart() # Ends any already-running startup task without a cancel/idle race.
+            task=call('/ScheduledTasks/'+updates['Id'],token=token)
+            assert task['State']=='Idle' and task['Triggers']==[]
+            print('Disposable fixture: native automatic plugin update triggers disabled; explicit catalog operations remain asserted.',flush=True)
+
             movies = ['PoC Movie Detail', 'PoC Context Movie', 'PoC Bulk One', 'PoC Bulk Two', 'PoC Escape', 'PoC Modern Movie', 'PoC Zero', 'PoC Self', 'PoC Layout Legacy', 'PoC Layout Modern']
             docker('exec', name, 'mkdir', '-p', '/tmp/poc-movies', '/tmp/poc-tv/PoC Series Detail/Season 01')
             docker('exec', name, '/usr/lib/jellyfin-ffmpeg/ffmpeg', '-hide_banner', '-loglevel', 'error',
@@ -197,7 +206,7 @@ def main():
                 caddy.verify(token)
             fixture = root / 'fixture.json'
             fixture.write_text(json.dumps({'base': browser_base, 'username': username, 'password': password,
-                'standalone':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v041'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')), 'token': token, 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
+                'standalone':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v042'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')), 'token': token, 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
             fixture.chmod(0o600)
             if caddy: os.environ['NODE_EXTRA_CA_CERTS'] = str(caddy.ca)
             print('READY fixture=' + str(fixture), flush=True)
@@ -223,7 +232,7 @@ def main():
                     print('Deployment checks passed: v0.3.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
             if options.standalone:
                 saved = {p:p.read_bytes() for p in (plugins/'Jellyfin.Plugin.WatchGuard').glob('*.json')}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.4.1.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.4.2.0','DELETE',token=token,expected=204)
                 restart()
                 assert 'watchguard-standalone-loader' not in call('/web/index.html',raw=True)
                 call('/WatchGuard/Standalone/bootstrap.js',expected=404)
