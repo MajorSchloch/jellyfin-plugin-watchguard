@@ -35,10 +35,10 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
                 await route.fulfill({response,json:result});
             });
             await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
-            await page.locator('#wgBrowser').getByText(/standalone build is stale, blocked or unavailable/).waitFor();
+            await page.locator('#wgBrowser').filter({hasText:/standalone build is stale, blocked or unavailable/}).waitFor();
             await page.unroute('**/WatchGuard/IntegrationStatus');
             await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
-            await page.locator('#wgBrowser').getByText(/This browser: adapter installed/).waitFor();
+            await page.locator('#wgBrowser').filter({hasText:/This browser: adapter installed/}).waitFor();
         }
         await page.locator('#wgDays').fill('30'); await page.locator('#wgLimit').fill('100');
         await page.getByRole('button',{name:'Save',exact:true}).click(); await page.getByText(/^Saved\. Activity settings/).waitFor();
