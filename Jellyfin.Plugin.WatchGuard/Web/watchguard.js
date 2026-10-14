@@ -302,12 +302,12 @@
             const icon = document.createElement('span'); icon.className = 'material-icons watchguard-state-' + reason; icon.textContent = statusIcons[reason];
             icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', activityReasons[reason]); icon.title = activityReasons[reason]; icons.append(icon);
         }
-        const name = document.createElement('span'); name.className = 'watchguard-user'; name.textContent = owner.DisplayName; name.title = owner.DisplayName;
+        const name = document.createElement('span'); name.className = 'watchguard-user'; name.textContent = owner.DisplayName; name.title = owner.DisplayName; name.tabIndex = 0;
         line.append(icons, name);
         if (owner.AvailableEpisodes != null) {
             const progress = document.createElement('span'); progress.className = 'watchguard-progress';
             progress.textContent = ' · ' + owner.WatchedEpisodes + '/' + owner.AvailableEpisodes;
-            progress.title = owner.WatchedEpisodes + ' of ' + owner.AvailableEpisodes + ' episodes'; line.append(progress);
+            progress.title = owner.WatchedEpisodes + ' of ' + owner.AvailableEpisodes + ' episodes'; progress.setAttribute('aria-label', progress.title); line.append(progress);
         }
         if (owner.LastPlayedDate && owner.Reasons.some(r => r === 'InProgress' || r === 'Watched' || r === 'CaughtUp')) {
             const date = document.createElement('time'); date.dateTime = owner.LastPlayedDate; date.tabIndex = 0;
@@ -411,6 +411,17 @@
             ...(value ? {data: JSON.stringify(value), contentType: 'application/json'} : {})});
     }
 
+    // The existing API has no separate window/episode-coverage fields. Recognize only
+    // its exact routine preamble; unfamiliar notices remain visible, never hidden.
+    function coveragePresentation(notice, limited) {
+        const routine = /^Recent viewing activity: completed titles with a native playback date in the last ([1-9][0-9]?) days, plus current viewing interest; not an exhaustive library audit\./.exec(notice);
+        const remainder = routine ? notice.slice(routine[0].length).trim() : notice;
+        return {
+            summary: routine ? 'Completed activity: last ' + routine[1] + ' days · current interest · not exhaustive' : 'Activity coverage · not exhaustive',
+            warning: remainder || (limited ? 'A safety limit was reached; some items are omitted.' : '')
+        };
+    }
+
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
         let raw = {owner: filter, interest: options.interest, sort: options.sort};
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
@@ -471,11 +482,21 @@
         order.title = 'Playback recency uses available native dates; unknown dates sort last. Watchlist add dates are not stored.';
         const refresh = document.createElement('button'); refresh.className = 'emby-button button-flat watchguard-refresh'; refresh.type = 'button'; refresh.title = 'Refresh'; refresh.setAttribute('aria-label', 'Refresh');
         const refreshIcon = document.createElement('span'); refreshIcon.className = 'material-icons'; refreshIcon.textContent = 'refresh'; refreshIcon.setAttribute('aria-hidden', 'true'); refresh.append(refreshIcon);
-        toolbar.append(select, interestFilter, order, refresh);
+        const ownerGroup = document.createElement('label'); ownerGroup.className = 'watchguard-toolbar-field';
+        const ownerLabel = document.createElement('span'); ownerLabel.textContent = 'Owner'; ownerGroup.append(ownerLabel, select);
+        const sortGroup = document.createElement('label'); sortGroup.className = 'watchguard-toolbar-field watchguard-sort';
+        const sortLabel = document.createElement('span'); sortLabel.textContent = 'Sort by'; sortGroup.append(sortLabel, order);
+        toolbar.append(ownerGroup, interestFilter, sortGroup, refresh);
         const status = document.createElement('p'); status.setAttribute('role', 'status');
         const spinner = document.createElement('span'); spinner.className = 'material-icons watchguard-spinner'; spinner.textContent = 'sync'; spinner.setAttribute('aria-hidden', 'true');
         status.className = 'watchguard-loading-status';
-        const notice = document.createElement('p'); notice.className = 'watchguard-notice secondaryText';
+        const notice = document.createElement('div'); notice.className = 'watchguard-notice'; notice.hidden = true;
+        const coverageDetails = document.createElement('details'); coverageDetails.className = 'watchguard-coverage-details';
+        const coverageSummary = document.createElement('summary');
+        const coverageText = document.createElement('p');
+        coverageDetails.append(coverageSummary, coverageText);
+        const coverageWarning = document.createElement('p'); coverageWarning.className = 'watchguard-coverage-warning'; coverageWarning.setAttribute('role', 'status');
+        notice.append(coverageDetails, coverageWarning);
         const error = document.createElement('p'); error.setAttribute('role', 'alert');
         const grid = document.createElement('div'); grid.className = 'watchguard-grid';
         const preferenceMessage = document.createElement('p'); preferenceMessage.setAttribute('role', 'status'); preferenceMessage.className = 'watchguard-notice';
@@ -483,7 +504,7 @@
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
         let directory = [], loadedScope;
-        let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', failures = [];
+        let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, failures = [];
         const cards = new Map();
         signal.addEventListener('abort', () => { generation++; cards.clear(); page.remove(); }, { once: true });
         function render() {
@@ -499,18 +520,23 @@
             for (const [value, name] of choices) {
                 const option = document.createElement('option'); option.value = value; option.textContent = name; select.append(option);
             }
-            select.value = admin ? filter : 'mine'; select.hidden = !admin;
+            select.value = admin ? filter : 'mine'; select.hidden = !admin; ownerGroup.hidden = !admin;
             if (admin && !choices.some(([value]) => value === filter)) {
                 const option = document.createElement('option'); option.value = filter; option.textContent = 'Unavailable user'; select.append(option); select.value = filter;
             }
             for (const [id, checkbox] of checkboxes) checkbox.checked = kind.includes(id);
             summary.replaceChildren();
             const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
-            const count = document.createElement('span'); count.textContent = String(kind.length); summary.append(filterIcon, count);
+            const count = document.createElement('span'); count.textContent = 'Status · ' + kind.length; summary.append(filterIcon, count);
             summary.title = 'Status filters (' + kind.length + ' selected)'; summary.setAttribute('aria-label', summary.title); order.value = sort;
             status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : 'No matching activity in this overview.';
             spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
-            notice.textContent = coverage;
+            const info = coveragePresentation(coverage, coverageLimited);
+            notice.hidden = !coverage && !coverageLimited;
+            coverageSummary.textContent = info.summary;
+            coverageText.textContent = coverage; // Keep the complete server explanation verbatim.
+            coverageWarning.textContent = info.warning;
+            coverageWarning.hidden = !info.warning;
             error.textContent = failures.join(' ');
             const visible = new Set(selected.map(e => key(e.ItemId)));
             for (const [id, record] of cards) if (!visible.has(id)) record.card.remove();
@@ -561,7 +587,7 @@
             if (!active()) return;
             const revision = ++generation;
             const current = () => active() && revision === generation;
-            pending = true; failures = []; coverage = ''; refresh.disabled = true;
+            pending = true; failures = []; coverage = ''; coverageLimited = false; notice.hidden = true; refresh.disabled = true;
             status.textContent = 'Loading watchlists…'; spinner.hidden = false; status.append(spinner); page.setAttribute('aria-busy', 'true'); error.textContent = '';
             try {
                 const account = await api.getCurrentUser();
@@ -601,7 +627,7 @@
                     if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
                     selectInterest(result.Items, 'all', user);
                     if (result.Items.some(e => e.Users.some(u => (scope !== 'all' && key(u.UserId) !== key(scope === 'mine' ? user : scope)) || u.Reasons.includes('Watchlisted')))) throw new Error('Invalid automatic scope');
-                    automatic = result.Items; coverage = result.Notice;
+                    automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached;
                 } catch { if (!current()) return; automatic = []; failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.'); }
                 pending = false; render();
             } catch { if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; render(); } }
@@ -622,7 +648,7 @@
     }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
+        module.exports = { coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -705,6 +731,41 @@
         .watchguard-progress {white-space:nowrap}
         .watchguard-user-line time {grid-column:1/-1;font-size:.9em;opacity:.85}
         .watchguard-status {font-size:.8em;line-height:1.5}
+        .watchguard-page {color:var(--jf-palette-text-primary,#eee)}
+        .watchguard-page .watchguard-toolbar-field, .watchguard-page .watchguard-status, .watchguard-toolbar .emby-button {color:inherit}
+        .watchguard-toolbar {gap:.75rem;align-items:flex-end;margin:1rem 0}
+        .watchguard-toolbar-field {display:flex;flex-direction:column;gap:.3rem;min-width:0;flex:0 1 15rem}
+        .watchguard-toolbar-field>span {font-size:.75rem;opacity:.8;padding-inline:.2rem}
+        .watchguard-toolbar-field select {width:100%;min-height:44px;margin:0;box-sizing:border-box}
+        .watchguard-sort {margin-inline-start:auto;flex-basis:13rem}
+        .watchguard-refresh {margin:0;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+        .watchguard-filter summary {min-height:44px;margin:0}
+        .watchguard-filter-options {max-width:calc(100vw - 3rem);box-sizing:border-box;color:var(--jf-palette-text-primary,#eee)}
+        .watchguard-filter-options :is(label,button) {min-height:44px;box-sizing:border-box}
+        .watchguard-page :is(button,summary,select,input,a,[tabindex]):focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc);outline-offset:3px}
+        .watchguard-notice {font-size:.85em;line-height:1.5;margin:.6rem 0;overflow-wrap:anywhere}
+        .watchguard-coverage-details summary {cursor:pointer;padding:.5rem 0;min-height:44px;box-sizing:border-box;opacity:.85}
+        .watchguard-coverage-details p {margin:.25rem 0 .75rem;padding-inline-start:1rem;border-inline-start:2px solid #8888}
+        .watchguard-coverage-warning {margin:.3rem 0 .7rem;padding:.65rem .8rem;border-inline-start:3px solid #b28b37;background:#8881;border-radius:.2rem;font-weight:500}
+        .watchguard-card .cardText {font-weight:500;line-height:1.4;padding-top:.55rem}
+        .watchguard-card a:focus-visible .watchguard-poster {box-shadow:0 0 0 2px #00a4dc}
+        .watchguard-page .watchguard-status {max-height:10rem;overflow:auto;scrollbar-width:thin;padding:.2rem .15rem .1rem}
+        .watchguard-page .watchguard-user-line {gap:.15rem .25rem;padding:.35rem 0;margin:0;border-bottom:1px solid #8883}
+        .watchguard-page .watchguard-user-line:last-child {border-bottom:0}
+        .watchguard-page .watchguard-user {overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+        .watchguard-page .watchguard-status-icons {flex-wrap:wrap;max-width:2.8rem;border-radius:.25rem;background:#252a30;padding:.15rem}
+        .watchguard-page .watchguard-user-line time {font-size:.85em;opacity:.8;margin-inline-start:.15rem}
+        .watchguard-page .watchguard-progress {font-variant-numeric:tabular-nums;font-size:.9em}
+        .watchguard-page .watchguard-remove {width:44px;height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;border:1px solid #ffffff40}
+        .watchguard-page .watchguard-remove:hover {background:#00668b}
+        .watchguard-page .watchguard-remove:active {background:#004c68}
+        @media(max-width:600px) {
+            .watchguard-toolbar-field {flex:1 1 100%}
+            .watchguard-sort {flex:1 1 8rem;margin:0}
+            .watchguard-toolbar {gap:.6rem}
+            .watchguard-page .watchguard-user-line {grid-template-columns:auto minmax(0,1fr)}
+            .watchguard-page .watchguard-progress {grid-column:2}
+        }
         .watchguard-controls {display:inline-flex;align-items:center}
         .watchguard-state-Watchlisted {--wg-accent:#f3c66c}
         .watchguard-state-InProgress {--wg-accent:#82c4ff}

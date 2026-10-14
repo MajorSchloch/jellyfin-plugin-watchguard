@@ -293,7 +293,7 @@ test('Progressive memberships render before automatic discovery; filters and car
     assert.match(f.page.children[2].textContent,/Loading/);assert.equal(f.calls.length,2);
     f.calls[1].resolve(automaticResult);await turn();
     assert.equal(grid.children[0],card); assert.match(card.children[1].children[0].title,/Watchlist · Watching · Currently Playing/);
-    assert.match(f.page.children[3].textContent,/limit reached/);
+    assert.match(textOf(f.page.children[3]),/limit reached/);
     f.page.updateFilters('all','all','title'); assert.equal(grid.children[0],card);assert.equal(f.calls.length,2);
     const removal=card.children.at(-1).onclick(); assert.equal(f.calls[2].o.type,'DELETE');f.calls[2].resolve();await removal;
     assert.equal(grid.children.length,1);assert.equal(f.calls.length,3);
@@ -523,4 +523,26 @@ test('series activity presents every status as labelled chips and never invents 
     for(const reason of reasons) assert.equal(nodes.filter(n=>n.className==='watchguard-chip watchguard-state-'+reason).length,2);
     const notice=nodes.find(n=>n.tag==='small');assert.equal(notice.attributes['aria-label'],payload.Notice);assert.equal(notice.tabIndex,0);
     assert.ok(nodes.some(n=>n.tag==='summary'));assert.ok(nodes.every(n=>n.innerHTML===undefined));
+});
+
+test('Coverage disclosure keeps exact server notes and exposes safety and unknown coverage outside disclosure', async()=>{
+    const {coveragePresentation}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const ordinary='Recent viewing activity: completed titles with a native playback date in the last 60 days, plus current viewing interest; not an exhaustive library audit.';
+    assert.deepEqual(coveragePresentation(ordinary,false),{summary:'Completed activity: last 60 days · current interest · not exhaustive',warning:''});
+    for(const [notice,limited,warning] of [
+        [ordinary,false,''],
+        [ordinary+' Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.',false,'Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.'],
+        [ordinary+' A safety limit was reached; some items are omitted.',true,'A safety limit was reached; some items are omitted.'],
+        ['Unknown <img src=x> coverage',false,'Unknown <img src=x> coverage'],
+        ['',true,'A safety limit was reached; some items are omitted.']
+    ]) {
+        const f=progressiveFixture();await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+        f.calls[1].resolve({...automaticResult,Notice:notice,LimitReached:limited});await turn();
+        const container=f.page.children[3], disclosure=container.children[0], visible=container.children[1];
+        assert.equal(container.hidden,false);assert.equal(disclosure.tag,'details');assert.ok(!disclosure.open);
+        assert.equal(disclosure.children[1].textContent,notice);
+        assert.equal(visible.textContent,warning);assert.equal(visible.hidden,!warning);
+        assert.equal(descendants(container).filter(n=>n.tag==='img').length,0);
+        assert.match(disclosure.children[0].textContent,/not exhaustive/);
+    }
 });

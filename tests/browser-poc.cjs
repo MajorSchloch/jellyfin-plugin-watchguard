@@ -286,6 +286,17 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         assert.ok(await myList().getByRole('img',{name:'Watching',exact:true}).count());
         assert.ok(!(await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===automaticId.replaceAll('-','')));
         assert.equal(await myList().locator('.watchguard-grid').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length),8);
+        if (fixture.standalone) {
+            const coverage=page.locator('.watchguard-coverage-details');
+            assert.match(await coverage.locator('summary').innerText(),/last 30 days.*not exhaustive/);
+            assert.equal(await coverage.evaluate(e=>e.open),false);
+            await coverage.locator('summary').focus(); await page.keyboard.press('Enter');
+            assert.equal(await coverage.evaluate(e=>e.open),true);
+            assert.match(await coverage.locator('p').innerText(),/not an exhaustive library audit/);
+            await page.keyboard.press('Enter');
+            assert.equal(await coverage.evaluate(e=>e.open),false);
+            assert.equal(await page.locator('.watchguard-status-icons .watchguard-state-InProgress').first().evaluate(e=>getComputedStyle(e).color),'rgb(130, 196, 255)');
+        }
         await page.screenshot({path:path.join(output,'interest-overview.png')});
         await page.setViewportSize({width:390,height:844});
         await page.waitForFunction(()=>{const e=document.querySelector('.watchguard-page');return e && e.scrollWidth<=e.clientWidth;});
@@ -298,6 +309,59 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         assert.ok(popoverBounds.x>=0 && popoverBounds.x+popoverBounds.width<=390);
         await page.screenshot({path:path.join(output,'status-filters-narrow.png')});
         await page.locator('.watchguard-filter').getByRole('checkbox',{name:'Watching',exact:true}).press('Escape');
+        if (fixture.standalone) {
+            await api('/WatchGuard/Watchlist/'+fixture.items['PoC Movie Detail'],'PUT');
+            await selectOwner('all'); await setStatuses('all');
+            for (const width of [1280,390]) {
+                await page.setViewportSize({width,height:900});
+                await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
+                const bounds=await myList().locator('.watchguard-toolbar :is(select,summary,button)').evaluateAll(nodes=>nodes.filter(n=>n.getBoundingClientRect().width).map(n=>{const b=n.getBoundingClientRect();return {x:b.x,right:b.right,height:b.height};}));
+                assert.ok(bounds.every(b=>b.x>=0 && b.right<=width && b.height>=44),'touch controls fit the viewport');
+                const remove=await myList().locator('.watchguard-remove').first().boundingBox();
+                assert.ok(remove.width>=44 && remove.height>=44);
+                assert.ok(await myList().locator('.watchguard-card').filter({hasText:'BrowserMember'}).filter({hasText:'WatchGuardPoCTest'}).count());
+                assert.equal(await myList().evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+                await page.screenshot({path:path.join(output,'overview-polish-'+width+'.png')});
+                const disclosure=page.locator('.watchguard-coverage-details');
+                await disclosure.locator('summary').focus();await page.keyboard.press('Enter');
+                assert.equal(await disclosure.evaluate(e=>e.open),true);
+                await page.screenshot({path:path.join(output,'overview-coverage-'+width+'.png')});
+                await page.keyboard.press('Enter');
+                assert.equal(await disclosure.evaluate(e=>e.open),false);
+                if (width===1280) {
+                    await myList().evaluate(e=>{e.style.setProperty('--jf-palette-background-default','#f5f5f5');e.style.setProperty('--jf-palette-text-primary','#202020');e.style.setProperty('--jf-palette-background-paper','#fff');});
+                    assert.equal(await myList().evaluate(e=>getComputedStyle(e).color),'rgb(32, 32, 32)');
+                    await page.waitForFunction(()=>['.watchguard-toolbar-field','.watchguard-filter summary','.watchguard-refresh','.watchguard-status'].every(selector=>getComputedStyle(document.querySelector(selector)).color==='rgb(32, 32, 32)'));
+                    for(const selector of ['.watchguard-toolbar-field','.watchguard-filter summary','.watchguard-refresh','.watchguard-status'])
+                        assert.equal(await myList().locator(selector).first().evaluate(e=>getComputedStyle(e).color),'rgb(32, 32, 32)',selector+' light-palette contrast');
+                    assert.equal(await myList().locator('.watchguard-status-icons').first().evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(37, 42, 48)');
+                    await page.screenshot({path:path.join(output,'overview-light-1280.png')});
+                    await myList().evaluate(e=>{for(const name of ['--jf-palette-background-default','--jf-palette-text-primary','--jf-palette-background-paper'])e.style.removeProperty(name);});
+                }
+
+            }
+            const endpoint='**/WatchGuard/ActivityOverview';
+            const warning=' Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them. A safety limit was reached; some items are omitted.';
+            await page.route(endpoint,async route=>{
+                const response=await route.fetch();const data=await response.json();
+                data.Notice+=warning;data.LimitReached=true;
+                data.Items.forEach(item=>item.Users.forEach(user=>user.DisplayName='<img src=x onerror=alert(1)> '+ 'Long username '.repeat(12)));
+                await route.fulfill({response,json:data});
+            });
+            await myList().getByRole('button',{name:'Refresh',exact:true}).click();
+            await page.locator('.watchguard-coverage-warning').getByText(/A safety limit was reached/).waitFor();
+            assert.equal(await page.locator('.watchguard-coverage-details').evaluate(e=>e.open),false);
+            assert.equal(await page.locator('.watchguard-coverage-warning').isVisible(),true);
+            assert.ok((await page.locator('.watchguard-coverage-warning').innerText()).includes(warning.trim()));
+            assert.equal(await myList().locator('.watchguard-status img').count(),0);
+            assert.equal(await myList().evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+            await page.screenshot({path:path.join(output,'overview-warning-390.png')});
+            await page.unroute(endpoint);
+            await api('/WatchGuard/Watchlist/'+fixture.items['PoC Movie Detail'],'DELETE');
+            await myList().getByRole('button',{name:'Refresh',exact:true}).click();
+            await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
+            report.paths.push({path:'Overview polish',result:'keyboard disclosure; visible safety/coverage warnings; labeled colors; multi-user/unsafe text; 44px controls and no overflow at 1280/390'});
+        }
         await page.setViewportSize({width:1280,height:900});
         await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).click();
         await page.locator('#itemDetailPage:not(.hide)').getByText('PoC Parent Clear',{exact:true}).first().waitFor();
@@ -522,6 +586,15 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
                     ['.nameContainer','.itemMiscInfo-primary','.mainDetailButtons','.detailRibbon'].map(selector=>{
                         const b=view.querySelector(selector).getBoundingClientRect();return [selector,{x:b.x+scrollX,y:b.y+scrollY,width:b.width,height:b.height}];
                     })));
+                // Jellyfin's responsive shell settles asynchronously after resizing. Compare
+                // expansion only after its native title/action geometry stops changing.
+                await page.waitForFunction(()=>{
+                    const view=document.querySelector('#itemDetailPage:not(.hide)');
+                    const signature=['.nameContainer','.itemMiscInfo-primary','.mainDetailButtons','.detailRibbon'].map(s=>{const b=view.querySelector(s).getBoundingClientRect();return [b.x,b.y,b.width,b.height];}).flat().join(',');
+                    const sample=window.__watchguardGeometrySample;
+                    if(!sample || sample.signature!==signature) {window.__watchguardGeometrySample={signature,since:performance.now()};return false;}
+                    return performance.now()-sample.since>500;
+                });
                 const collapsed=await geometry();
                 assert.ok(collapsed['.nameContainer'].width>100 && collapsed['.nameContainer'].height>0,'native title remains visible');
                 assert.equal(await activityPanel.evaluate(p=>!!p.closest('.detailPagePrimaryContent') && !p.closest('.detailRibbon')),true);
