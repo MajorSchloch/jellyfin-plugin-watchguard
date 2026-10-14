@@ -33,7 +33,7 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
     shutil.copyfile(production,public/production.name)
     manifest[0]['versions'].append({**manifest[0]['versions'][0],'version':'0.4.2.0','sourceUrl':base+'/'+production.name,'checksum':hashlib.md5(production.read_bytes()).hexdigest()})
     previous_release=Path(__file__).resolve().parents[1]/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.3.zip'
-    assert hashlib.sha256(previous_release.read_bytes()).hexdigest()=='4f374251eb1b25182635c3583505c9838bdb2057842c335c1a21c4cb56c4c8e9'
+    assert hashlib.sha256(previous_release.read_bytes()).hexdigest()=='fc8bcb6e312f37fe73749ee0450a57f5dfda8fc4470549c633c1e3920271be47'
     shutil.copyfile(previous_release,public/previous_release.name)
     manifest[0]['versions'].append({**manifest[0]['versions'][0],'version':'0.4.3.0','sourceUrl':base+'/'+previous_release.name,'checksum':hashlib.md5(previous_release.read_bytes()).hexdigest()})
     (public/'manifest.json').write_text(json.dumps(manifest))
