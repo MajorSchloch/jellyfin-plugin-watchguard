@@ -19,14 +19,15 @@
 (function () {
     const page = document.querySelector('#WatchGuardSettings'), id = 'a3c6bc84-783d-4ba8-a0db-89bfb83ab486';
     const field = name => page.querySelector(name);
-    let epoch = 0;
+    let epoch = 0, statusGeneration = 0;
     function identity() { return [ApiClient, ApiClient.getCurrentUserId(), ApiClient.accessToken()]; }
     function valid(who, revision) { return revision === epoch && who.every((v,i) => v === identity()[i]); }
     async function status() {
-        const who = identity(), revision = epoch;
+        const who = identity(), revision = epoch, statusRevision = ++statusGeneration;
+        const current = () => valid(who, revision) && statusRevision === statusGeneration;
         try {
             const result = await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/IntegrationStatus'), dataType:'json'});
-            if (!valid(who, revision)) return;
+            if (!current()) return;
             const target = field('#wgIntegration'); target.replaceChildren();
             const standalone = result.Standalone?.Enabled === true;
             const lines = [ 'Plugin loaded: true · WatchGuard ' + result.PluginVersion + ' · Jellyfin ' + result.JellyfinVersion,
@@ -46,7 +47,7 @@
             if (standalone) {
                 try { await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/Standalone/script.js'), dataType:'text', cache:false}); }
                 catch { available = false; }
-                if (!valid(who, revision)) return;
+                if (!current()) return;
                 const p = document.createElement('p'); p.textContent = 'Authenticated script available to this browser now: ' + available; target.append(p);
                 if (window.WatchGuardStandalone?.buildId !== result.Standalone.BuildId || !result.Standalone.LoaderActive || !available) {
                     field('#wgBrowser').textContent = 'This browser: standalone build is stale, blocked or unavailable. Fully reload this tab; do not infer protection from a retained adapter.'; return;
@@ -57,10 +58,11 @@
             field('#wgBrowser').textContent = window.WatchGuardPoc?.isInstalled() === true
                 ? 'This browser: adapter installed on its current ApiClient. This does not verify every deletion path; test Cancel on disposable media.'
                 : 'This browser: adapter not detected. Check the selected loader, authentication and CSP, then fully reload this tab.';
-        } catch { if (valid(who, revision)) { field('#wgIntegration').textContent = 'Integration status unavailable. Administrator access is required.'; field('#wgBrowser').textContent = 'Browser verification unavailable. A retained adapter is not evidence of a working installation.'; } }
+        } catch { if (current()) { field('#wgIntegration').textContent = 'Integration status unavailable. Administrator access is required.'; field('#wgBrowser').textContent = 'Browser verification unavailable. A retained adapter is not evidence of a working installation.'; } }
     }
     page.addEventListener('pageshow', async function () {
         const revision = ++epoch, who = identity();
+        statusGeneration++;
         field('#wgSettingsMessage').textContent = ''; field('#wgIntegration').textContent = 'Loading…'; field('#wgBrowser').textContent = '';
         try {
             const config = await ApiClient.getPluginConfiguration(id);
@@ -69,7 +71,7 @@
             field('#wgCaughtUp').checked = config.ProtectCaughtUpSeries !== false; field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
         } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not load settings. Administrator access is required.'; }
     });
-    page.addEventListener('pagehide', () => { epoch++; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
+    page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
     field('#wgCheck').onclick = status;
     field('#WatchGuardSettingsForm').onsubmit = async function (event) {
         event.preventDefault();
