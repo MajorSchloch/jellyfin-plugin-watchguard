@@ -1,0 +1,135 @@
+{
+  "version": "0.4.8.0",
+  "status": "release-candidate-not-published",
+  "backendTests": 105,
+  "javascriptAndBootstrapTests": 53,
+  "catalogUnitTests": 4,
+  "deterministicPublishedModelComparison": "PASS (exact Items and Coverage, both workloads)",
+  "nativeVerification": "PASS (published v0.4.7 versus candidate; mixed, restrictive policies, eight-account large library)",
+  "localIntegrationJobs": [
+    {
+      "suite": "standalone-caddy",
+      "exitCodes": [
+        0
+      ],
+      "seconds": 299.14018687501084
+    },
+    {
+      "suite": "migration",
+      "exitCodes": [
+        0
+      ],
+      "seconds": 207.22348758403677
+    },
+    {
+      "suite": "basepath",
+      "exitCodes": [
+        0
+      ],
+      "seconds": 145.3962019579485
+    },
+    {
+      "suite": "legacy",
+      "exitCodes": [
+        0,
+        0
+      ],
+      "seconds": 212.6073145000264
+    },
+    {
+      "suite": "websocket",
+      "exitCodes": [
+        0
+      ],
+      "seconds": 30.983733790926635
+    },
+    {
+      "suite": "discovery",
+      "exitCodes": [
+        0
+      ],
+      "seconds": 180.22768374998122
+    }
+  ],
+  "browserReports": [
+    {
+      "path": "artifacts/v048/linuxserver/direct/migration/report.json",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "path": "artifacts/v048/linuxserver/caddy/standalone/report.json",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "path": "artifacts/v048/official/direct/injector/report.json",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "path": "artifacts/v048/official/basepath/standalone/report.json",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    }
+  ],
+  "catalogRoundTrip": {
+    "result": "PASS",
+    "baselineSha256": "439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d",
+    "roundTrip": "0.4.8 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5 -> 0.4.6 -> 0.4.7 -> 0.4.8",
+    "storesAndConfigBytesPreserved": true,
+    "noInjector": true,
+    "singleActiveAssembly": true
+  },
+  "legacyMigration": {
+    "result": "PASS",
+    "publishedBaselineSha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+    "upgrade": "0.3.1 -> 0.4.8",
+    "rollback": "0.4.8 -> 0.3.1 -> 0.4.8",
+    "checksumRejection": "tested separately by legacy catalog fixture",
+    "conflictBlocked": true,
+    "noAutomaticInjectorWrites": true,
+    "otherScriptsPreserved": true,
+    "dataAndConfigBytesPreserved": true,
+    "duplicateActivePlugins": false
+  },
+  "caddy": {
+    "image": "caddy:2@sha256:f2a1290d0463aad60660d4ec134943f183ee2a5f6c3eb7bf32dd984f2f020772",
+    "httpsTrustedTestCA": true,
+    "rootPath": true,
+    "compression": [
+      "identity",
+      "gzip",
+      "zstd"
+    ],
+    "authenticatedWebSocketUpgradeAndPing": true,
+    "conditionalHtml": "200 fresh/no-store",
+    "head": true,
+    "authenticatedScriptNoStore": true
+  },
+  "reproducibleZip": true,
+  "zipBytes": 269381,
+  "sha256": "06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5",
+  "catalogMd5": "c09115ba15d1ec4f6e2b46566e040257",
+  "unchanged": [
+    "InterestService",
+    "Protection controller",
+    "SeriesActivity",
+    "Web adapter/dialog",
+    "standalone loader",
+    "configuration",
+    "schema-1 stores",
+    "public manifest"
+  ],
+  "limitations": [
+    "Native fixtures do not create virtual/missing provider rows; deterministic regression tests cover their semantics.",
+    "Native allocation and individual SQL timing are not measured.",
+    "No production latency guarantee; per-user native filtering remains."
+  ],
+  "published": false,
+  "productionModified": false
+}

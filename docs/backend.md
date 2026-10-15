@@ -154,3 +154,7 @@ ActivityOverview adds structured `Coverage` and aggregate `Diagnostics`; existin
 ### v0.4.7 verification diagnostics
 
 ActivityOverview adds aggregate stage durations and prepared-read hit/miss counts to `Diagnostics`. Routes, authorization, `Coverage`, and all existing fields remain compatible. See [measurement definitions and unchanged work bounds](verification-performance-v047.md#diagnostics). The Protection endpoint never uses these prepared reads.
+
+### v0.4.8 episode metadata diagnostics
+
+ActivityOverview adds `EpisodeIdQueryCount`, `EpisodeHydrationQueryCount`, `EpisodeHydratedRows` and `EpisodeMetadataReusedRows`. `EpisodeQueryCount` counts both native projections and full hydration, including fallbacks; `EpisodeRowsProcessed` retains the original per-user logical work. No response contract, authorization, classification, work allowance or protection path changes. See [native query evidence and field definitions](episode-query-performance-v048.md).

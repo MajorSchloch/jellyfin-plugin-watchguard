@@ -41,6 +41,10 @@ public sealed class OverviewDiagnostics
     public double ClassificationDurationMs { get; set; }
     public double TotalVerificationDurationMs { get; set; }
     public int EpisodeQueryCount { get; set; }
+    public int EpisodeIdQueryCount { get; set; }
+    public int EpisodeHydrationQueryCount { get; set; }
+    public int EpisodeHydratedRows { get; set; }
+    public int EpisodeMetadataReusedRows { get; set; }
     public int PlaybackBatchCount { get; set; }
     public int PlaybackCacheHits { get; set; }
     public int PlaybackCacheMisses { get; set; }

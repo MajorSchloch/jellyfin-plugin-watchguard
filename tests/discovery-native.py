@@ -10,14 +10,14 @@ import zipfile
 
 def validate(output):
     results = {(r['version'], r['scope']): r for r in output['results']}
-    for version in (output.get('baseline','published-v045'), 'candidate-v047'):
+    for version in (output.get('baseline','published-v045'), 'candidate-v048'):
         for scope in ('movies-only', 'mixed-all-users'):
             row = results[version, scope]
             expected = 0 if version == 'published-v045' and scope == 'mixed-all-users' else 100
             assert row['returned'] == [expected] * 3, (version, scope, row['returned'])
             assert row['truncationFrequency'] == 1
-    assert all(d['NativePlaybackBatches'] == 2 for d in results['candidate-v047', 'movies-only']['diagnostics'])
-    assert len(results['candidate-v047', 'movies-only']['diagnostics']) == 3
+    assert all(d['NativePlaybackBatches'] == 2 for d in results['candidate-v048', 'movies-only']['diagnostics'])
+    assert len(results['candidate-v048', 'movies-only']['diagnostics']) == 3
 
 
 def run(call, restart, docker, name, root, plugins, token):
@@ -25,6 +25,7 @@ def run(call, restart, docker, name, root, plugins, token):
     repo = Path(__file__).resolve().parents[1]
     baseline_version = os.environ.get('WATCHGUARD_DISCOVERY_BASELINE','0.4.5')
     digests = {'0.4.5':'ebe3827470e439bd0a15f7fb65edfa330c6ecf2d1f8ec4112402680f109f709f',
+               '0.4.7':'8046bbd611ba3e17bf003160e32d8bffdf07a22038f06863bd8414e78c08b6e0',
                '0.4.6':'e083f873d76a2cd62005e1093f30ecfde3201409fa9caa45948433372bba87e1'}
     baseline = repo/f'artifacts/Jellyfin.Plugin.WatchGuard-v{baseline_version}.zip'
     assert hashlib.sha256(baseline.read_bytes()).hexdigest() == digests[baseline_version]
@@ -77,7 +78,7 @@ done
     for item in series:
         full = call('/Items/'+item['Id'], token=token)
         call('/Items/'+item['Id'], 'POST', {**full, 'Status':'Continuing'}, token, expected=204)
-    for number in range(3):
+    for number in range(6):
         user = call('/Users/New', 'POST', {'Name':f'BenchmarkUser{number}', 'Password':'DisposableBenchmark123!'}, token)
         for item in series:
             call('/UserPlayedItems/'+item['Id']+'?userId='+user['Id'], 'POST', token=token)
@@ -93,26 +94,27 @@ done
     snapshots = {}
     try:
         with zipfile.ZipFile(baseline) as archive: previous=archive.read('Jellyfin.Plugin.WatchGuard.dll')
-        for label, assembly in [(baseline_label,previous), ('candidate-v047',candidate)]:
+        for label, assembly in [(baseline_label,previous), ('candidate-v048',candidate)]:
             docker('stop',name);dll.write_bytes(assembly);restart()
             for scope,route in [('movies-only','/WatchGuard/ActivityOverview/Users/'+movie_owner['Id']),('mixed-all-users','/WatchGuard/ActivityOverview')]:
                 call(route,token=token)
-                samples=[];returned=[];truncated=[];diagnostics=[]
+                samples=[];returned=[];truncated=[];diagnostics=[];coverage=[]
                 for _ in range(3):
                     start=time.perf_counter();response=call(route,token=token)
-                    if baseline_version == '0.4.6':
-                        canonical=json.dumps(response['Items'],sort_keys=True)
+                    if baseline_version in ('0.4.6','0.4.7'):
+                        canonical=json.dumps({'items':response['Items'],'coverage':response['Coverage']},sort_keys=True)
                         if scope not in snapshots: snapshots[scope]=canonical
                         assert snapshots[scope]==canonical, 'Large-series classifications or coverage changed'
                     samples.append((time.perf_counter()-start)*1000)
                     returned.append(len(response['Items']));truncated.append(response['LimitReached'])
                     if response.get('Diagnostics'):diagnostics.append(response['Diagnostics'])
+                    coverage.append(response.get('Coverage'))
                 results.append({'version':label,'scope':scope,'requestMs':samples,'medianMs':statistics.median(samples),'returned':returned,
-                    'truncationFrequency':sum(truncated)/len(truncated),'diagnostics':diagnostics})
+                    'truncationFrequency':sum(truncated)/len(truncated),'diagnostics':diagnostics,'coverage':coverage})
     finally:
         docker('stop',name);dll.write_bytes(candidate);restart()
     output={'kind':'native-disposable-official-image','baseline':baseline_label,'seriesEpisodeCounts':[300,1000,1501],
-        'seriesPlaybackUsers':3,'movieOnlyUsers':1,'completedMovies':140,'untouchedMovies':200,'results':results}
+        'seriesPlaybackUsers':6,'movieOnlyUsers':1,'completedMovies':140,'untouchedMovies':200,'results':results}
     validate(output)
-    (repo/f'artifacts/discovery-native-v047-{baseline_version}.json').write_text(json.dumps(output,indent=2)+'\n')
+    (repo/f'artifacts/discovery-native-v048-{baseline_version}.json').write_text(json.dumps(output,indent=2)+'\n')
     print('Native discovery benchmark:',json.dumps(output),flush=True)

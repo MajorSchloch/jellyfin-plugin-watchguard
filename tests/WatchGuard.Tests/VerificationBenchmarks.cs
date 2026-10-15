@@ -47,8 +47,9 @@ public sealed class VerificationBenchmarks
                     if(q.AncestorIds.Length>0) rowsProcessed+=found.Length;
                     return found;
                 });
-                data.Setup(d=>d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),It.IsAny<User>())).Returns((IReadOnlyList<BaseItem> items,User u)=>{batches++;return items.ToDictionary(i=>i.Id,i=>new UserItemData {Key="test",Played=u==accounts[0] || Array.IndexOf(episodes,i)%episodeCount<episodeCount-1,LastPlayedDate=DateTime.UtcNow.AddDays(-1)});});
+                data.Setup(d=>d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),It.IsAny<User>())).Returns((IReadOnlyList<BaseItem> items,User u)=>{batches++;return items.ToDictionary(i=>i.Id,i=>new UserItemData {Key="test",Played=u==accounts[0] || Array.IndexOf(episodes,i)%episodeCount<episodeCount-1,LastPlayedDate=DateTime.UtcNow.Date.AddDays(-1)});});
                 data.Setup(d=>d.GetResumeUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),It.IsAny<User>())).Returns(()=>{batches++;return new Dictionary<Guid,VersionResumeData>();});
+                lib.Setup(l=>l.GetItemIds(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q)=>lib.Object.GetItemList(q).Select(i=>i.Id).ToArray());
                 sessions.Setup(s=>s.Sessions).Returns(Array.Empty<SessionInfo>());
                 var store=new WatchlistStore(root);
                 var interest=new InterestService(store,lib.Object,users.Object,data.Object,sessions.Object);
@@ -57,7 +58,7 @@ public sealed class VerificationBenchmarks
                 rowsProcessed=batches=queries=lookups=0;
                 var before=GC.GetAllocatedBytesForCurrentThread();var timer=Stopwatch.StartNew();
                 var result=service.GetActivity(accounts[0]);timer.Stop();
-                output.Add(new {episodeCount,users=userCount,titles=110,returned=result.Items.Length,result.LimitReached,episodeRows=rowsProcessed,nativePlaybackBatches=batches,nativeQueries=queries,nativeLookups=lookups,elapsedMs=timer.Elapsed.TotalMilliseconds,allocatedBytes=GC.GetAllocatedBytesForCurrentThread()-before});
+                output.Add(new {result.Items,result.Coverage,result.Diagnostics,episodeCount,users=userCount,titles=110,returned=result.Items.Length,result.LimitReached,episodeRows=rowsProcessed,nativePlaybackBatches=batches,nativeQueries=queries,nativeLookups=lookups,elapsedMs=timer.Elapsed.TotalMilliseconds,allocatedBytes=GC.GetAllocatedBytesForCurrentThread()-before});
                 Assert.False(result.IsComplete);
                 Assert.Equal(100,result.Items.Length);
                 Assert.Equal(userCount*100*episodeCount,rowsProcessed);

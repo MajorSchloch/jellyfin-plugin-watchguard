@@ -1,4 +1,4 @@
-# WatchGuard v0.4.7 deployment candidate
+# WatchGuard v0.4.8 deployment candidate
 
 Target: Jellyfin Server/Web 12.2, .NET 10. Standalone loading is compiled and enabled in the normal plugin. There is no JavaScript Injector dependency or special environment variable. **The candidate is not published; the public catalog still advertises existing releases.**
 
@@ -8,7 +8,7 @@ After authorized publication, use the existing repository URL in Dashboard → P
 
 `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
 
-Install/update WatchGuard through Catalog and restart. Jellyfin creates `WatchGuard_0.4.7.0` and matching `meta.json`; do not manually copy DLLs into additional discovery folders or edit native metadata for a normal update. See [v0.3.1 migration](migration-v040.md) before upgrading an installation that has Injector's persisted `watchguard-v1` entry.
+Install/update WatchGuard through Catalog and restart. Jellyfin creates `WatchGuard_0.4.8.0` and matching `meta.json`; do not manually copy DLLs into additional discovery folders or edit native metadata for a normal update. See [v0.3.1 migration](migration-v040.md) before upgrading an installation that has Injector's persisted `watchguard-v1` entry.
 
 For **unpublished RC validation**, use `python3 tests/docker-smoke.py --linuxserver --catalog --caddy` after building the ZIP and installing test prerequisites. This creates a real temporary local repository/ZIP URL, calls Jellyfin's native installer, restarts, and tests the exact packaged DLL. It never updates the public manifest or points at production.
 
@@ -39,7 +39,7 @@ The provided production local image ID is not a registry digest. Only the pinned
 
 | Purpose | LinuxServer.io path |
 | --- | --- |
-| Catalog runtime | `/config/data/plugins/WatchGuard_0.4.7.0/` |
+| Catalog runtime | `/config/data/plugins/WatchGuard_0.4.8.0/` |
 | Schema-1 memberships | `/config/data/plugins/Jellyfin.Plugin.WatchGuard/watchlists.json` |
 | Schema-1 preferences | `/config/data/plugins/Jellyfin.Plugin.WatchGuard/preferences.json` |
 | Settings XML | `/config/data/plugins/configurations/Jellyfin.Plugin.WatchGuard.xml` |
@@ -48,7 +48,7 @@ The official Jellyfin fixture instead uses `/config/plugins`. Data paths come fr
 
 ## Verify loading and operation
 
-1. Dashboard → Plugins: one active WatchGuard `0.4.7.0`; no required Injector. Settings remain ActivityWindowDays 30 (1–90), ActivityLimit 100 (1–100), DiagnosticMode false and ProtectCaughtUpSeries true by default. Existing XML is retained; settings apply without restart, but script diagnostic changes require client reload.
+1. Dashboard → Plugins: one active WatchGuard `0.4.8.0`; no required Injector. Settings remain ActivityWindowDays 30 (1–90), ActivityLimit 100 (1–100), DiagnosticMode false and ProtectCaughtUpSeries true by default. Existing XML is retained; settings apply without restart, but script diagnostic changes require client reload.
 2. Dashboard → Plugins → WatchGuard: check server version, standalone loader active, Injector conflict absent, and completed bootstrap/private-script responses. Counters are aggregate server observations since restart, not proof of execution in this browser.
 3. Refresh the settings browser check: authenticated script available now and adapter installed on current ApiClient, with matching build ID. A stale build, unavailable script or conflict must not show healthy. An administrative server endpoint cannot remotely certify arbitrary browsers.
 4. In Network tools, the Web entry contains one `watchguard-standalone-loader` script reference. Anonymous bootstrap is safe; `/WatchGuard/Standalone/script.js` is retrieved only with native authentication and is no-store. Do not share authorization headers. CSP excluding Blob execution prevents loading; do not weaken CSP as a workaround.
@@ -59,7 +59,7 @@ A retained `window.WatchGuardPoc.isInstalled()` or bootstrap `status() === 'load
 
 ## Uninstall and rollback
 
-v0.4.6 → v0.4.7 changes bounded overview discovery and batching, with additive coverage fields; deletion policies are unchanged. Keep settings and both JSON stores; catalog update, restart and full client reload are sufficient. Roll back to the retained v0.4.6 package with one active assembly. See [UI validation and rollback](activity-discovery-v046.md).
+v0.4.7 → v0.4.8 reuses bounded request-local episode metadata only after each account's native visibility query. Protection, targeted activity, settings and both JSON schemas are unchanged. Back up XML/JSON, update through the catalog after publication, restart and fully reload clients. Roll back with the checksum-verified published v0.4.7 ZIP and one active assembly. See [episode-query measurements and rollback](episode-query-performance-v048.md).
 
 v0.4.2 → v0.4.3 adds targeted series viewing and default-enabled Caught Up protection. Both stores remain schema 1. Preserve the published v0.4.2 package and XML/JSON backups for rollback; reinstall it with one active assembly, restart and fully reload every client. See [v0.4.3 migration and rollback](caught-up-protection.md).
 
@@ -80,8 +80,8 @@ If migrating from an older Injector-based version, complete the explicit `watchg
 - [ ] Two-account privacy, memberships/preferences/activity and disposable Cancel/override pass.
 - [ ] Restart, full client reload, uninstall and rollback understood.
 
-See [v0.4.7 validation and package](activity-discovery-v046.md) and [catalog preparation/publishing](plugin-repository.md). No production service, media, configuration or public release is changed by the test harness.
+See [v0.4.8 validation and package](episode-query-performance-v048.md) and [catalog preparation/publishing](plugin-repository.md). No production service, media, configuration or public release is changed by the test harness.
 
-## v0.4.7 verification performance
+## v0.4.8 verification performance
 
-See [before/after measurements and diagnostics](verification-performance-v047.md). This update keeps the v0.4.6 configuration and schema-1 stores. Back up both JSON files and plugin XML, use one active catalog assembly, restart, and fully reload clients. Rollback uses the immutable published v0.4.6 ZIP. Expect existing coverage warnings when unchanged work limits are reached; overview caching never authorizes deletion. No production migration is performed by the test suite.
+See [before/after measurements and diagnostics](episode-query-performance-v048.md). This update keeps the v0.4.7 configuration and schema-1 stores. Back up both JSON files and plugin XML, use one active catalog assembly, restart, and fully reload clients. Rollback uses the immutable published v0.4.7 ZIP. Expect existing coverage warnings when unchanged work limits are reached; overview caching never authorizes deletion. No production migration is performed by the test suite.

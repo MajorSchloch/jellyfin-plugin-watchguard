@@ -32,6 +32,8 @@ internal sealed class OverviewVerificationReads
         var exhausted = false;
         foreach (var title in candidates)
         {
+            // Metadata only; never reuse another account's authorized episode set.
+            var metadata = new Dictionary<Guid, BaseItem>();
             foreach (var account in budget.Accounts)
             {
                 budget.Cancellation.ThrowIfCancellationRequested();
@@ -57,15 +59,50 @@ internal sealed class OverviewVerificationReads
                 if (title is Series)
                 {
                     started = Stopwatch.GetTimestamp();
-                    rows = library.GetItemList(new InternalItemsQuery(user)
+                    InternalItemsQuery Query() => new(user)
                     {
                         AncestorIds = [title.Id], Recursive = true, IncludeItemTypes = [BaseItemKind.Episode],
                         IsVirtualItem = inspectCoverage ? null : false, IsMissing = inspectCoverage ? null : false,
                         Limit = InterestOverviewService.EpisodeLimit + 1,
                         DtoOptions = new DtoOptions(false) { Fields = [ItemFields.ProviderIds], EnableImages = false, EnableUserData = false }
-                    });
+                    };
+                    IReadOnlyList<Guid>? authorized = null;
+                    if (metadata.Count > 0)
+                    {
+                        // Same native query translation/grouping/permissions as GetItemList,
+                        // projected to IDs. A cache hit is not an authorization decision.
+                        authorized = library.GetItemIds(Query());
+                        budget.Diagnostics.EpisodeIdQueryCount++;
+                        budget.Diagnostics.EpisodeQueryCount++;
+                        budget.Cancellation.ThrowIfCancellationRequested();
+                        if (authorized.Count > InterestOverviewService.EpisodeLimit)
+                        {
+                            budget.Diagnostics.EpisodeRowsProcessed += authorized.Count;
+                            budget.Diagnostics.EpisodeQueryDurationMs += OverviewDiagnostics.Elapsed(started);
+                            prepared.Add((user.Id, title.Id), new(visible, [], true));
+                            break;
+                        }
+                    }
+                    if (authorized is not null && authorized.All(metadata.ContainsKey))
+                    {
+                        rows = authorized.Select(id => metadata[id]).ToArray();
+                        budget.Diagnostics.EpisodeMetadataReusedRows += rows.Count;
+                    }
+                    else
+                    {
+                        // First account or a different visible set. Keep native hydration,
+                        // including linked versions/provider IDs, and never save these objects.
+                        budget.Cancellation.ThrowIfCancellationRequested();
+                        rows = library.GetItemList(Query());
+                        budget.Diagnostics.EpisodeHydrationQueryCount++;
+                        budget.Diagnostics.EpisodeQueryCount++;
+                        budget.Diagnostics.EpisodeHydratedRows += rows.Count;
+                        if (authorized is not null && !authorized.ToHashSet().SetEquals(rows.Select(r => r.Id)))
+                            throw new InvalidDataException("Native episode visibility changed during verification.");
+                        if (rows.Count <= InterestOverviewService.EpisodeLimit)
+                            foreach (var row in rows) metadata.TryAdd(row.Id, row);
+                    }
                     budget.Diagnostics.EpisodeQueryDurationMs += OverviewDiagnostics.Elapsed(started);
-                    budget.Diagnostics.EpisodeQueryCount++;
                     budget.Diagnostics.EpisodeRowsProcessed += rows.Count;
                 }
                 var oversized = rows.Count > InterestOverviewService.EpisodeLimit;

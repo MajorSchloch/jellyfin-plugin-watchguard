@@ -48,6 +48,8 @@ public sealed class BackendTests : IDisposable
             .Returns(new Dictionary<Guid, VersionResumeData>());
         sessions.Setup(s => s.Sessions).Returns(Array.Empty<SessionInfo>());
         library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns(Array.Empty<BaseItem>());
+        library.Setup(l => l.GetItemIds(It.IsAny<InternalItemsQuery>()))
+            .Returns((InternalItemsQuery q) => library.Object.GetItemList(q).Select(i => i.Id).ToArray());
         SignIn(alice);
     }
 
@@ -368,7 +370,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 4, 7, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 4, 8, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.True(new Configuration().ProtectCaughtUpSeries);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());
@@ -633,6 +635,95 @@ public sealed class BackendTests : IDisposable
         Assert.Equal(date.AddDays(1),first.Users.Single(u=>u.UserId==bob.Id).LastPlayedDate);
         Assert.Equal(3,first.Users.Single(u=>u.UserId==alice.Id).AvailableEpisodes);
         Assert.DoesNotContain(result.Items.Single(i=>i.ItemId==titles[1].Id).Users,u=>u.UserId==bob.Id);
+    }
+
+    [Fact]
+    public void EpisodeMetadataReuseRequiresFreshNativeUserIdsAndExpiresAfterRequest()
+    {
+        var series = new Series { Id=Guid.NewGuid(), Status=MediaBrowser.Model.Entities.SeriesStatus.Continuing };
+        var date = new DateTime(2020,1,1,0,0,0,DateTimeKind.Utc);
+        var rows = Enumerable.Range(0,3).Select(_ => (BaseItem)new AvailableEpisode
+            {Id=Guid.NewGuid(),SeriesId=series.Id,PremiereDate=date}).ToArray();
+        var bobRows = rows.Take(1).ToArray();
+        library.Setup(l=>l.GetItemById<BaseItem>(series.Id,It.IsAny<User>())).Returns(series);
+        library.Setup(l=>l.GetItemById<BaseItem>(rows[0].Id,It.IsAny<User>())).Returns(rows[0]);
+        library.Setup(l=>l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q)=>
+            q.AncestorIds.Length>0 ? (q.User==bob ? bobRows : rows) : q.IsResumable==true ? [rows[0]] : []);
+        library.Setup(l=>l.GetItemIds(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q)=>
+        {
+            Assert.Same(bob,q.User); Assert.Equal(new[]{series.Id},q.AncestorIds);
+            Assert.Equal(1001,q.Limit); Assert.False(q.DtoOptions.EnableUserData);
+            return bobRows.Select(i=>i.Id).ToArray();
+        });
+        foreach(var row in rows)
+        {
+            states[(alice.Id,row.Id)]=new(){Key="test",Played=true,LastPlayedDate=date};
+            states[(bob.Id,row.Id)]=new(){Key="test",PlaybackPositionTicks=100,LastPlayedDate=date.AddDays(1)};
+        }
+        var overview=new InterestOverviewService(store,library.Object,users.Object,sessions.Object,service);
+        var first=overview.GetActivity(alice);
+        Assert.Equal(1,first.Diagnostics!.EpisodeHydrationQueryCount);
+        Assert.Equal(1,first.Diagnostics.EpisodeIdQueryCount);
+        Assert.Equal(1,first.Diagnostics.EpisodeMetadataReusedRows);
+        Assert.Equal(4,first.Diagnostics.EpisodeRowsProcessed);
+        Assert.Equal(1,Assert.Single(first.Items).Users.Single(u=>u.UserId==bob.Id).AvailableEpisodes);
+        library.Verify(l=>l.GetItemList(It.Is<InternalItemsQuery>(q=>q.AncestorIds.Length>0 && q.User==bob)),Times.Never);
+        data.Verify(d=>d.GetUserDataBatch(It.Is<IReadOnlyList<BaseItem>>(r=>r.Count==1 && r[0].Id==rows[0].Id),bob),Times.Once);
+        // A new request must re-evaluate changed permissions and metadata.
+        bobRows=rows.Take(2).ToArray(); rows[2].PremiereDate=null;
+        var second=overview.GetActivity(alice);
+        Assert.Equal(2,Assert.Single(second.Items).Users.Single(u=>u.UserId==bob.Id).AvailableEpisodes);
+        Assert.Contains("EpisodeMetadataIncomplete",second.Coverage!.Causes);
+        Assert.Equal(1,second.Diagnostics!.EpisodeHydrationQueryCount);
+        library.Setup(l=>l.GetItemIds(It.IsAny<InternalItemsQuery>())).Throws(new IOException("native failure"));
+        Assert.Throws<IOException>(()=>overview.GetActivity(alice));
+        // Targeted activity/protection never call the overview ID projection.
+        service.GetSeriesActivity(series,alice.Id);
+        Assert.Throws<InvalidDataException>(()=>service.Get(series,alice.Id));
+    }
+
+    [Fact]
+    public void DifferentEpisodeSetsHydrateNativelyAndChangingResultsFailClosed()
+    {
+        var series = new Series {Id=Guid.NewGuid()};
+        var rows = Enumerable.Range(0,2).Select(_=>(BaseItem)new AvailableEpisode {Id=Guid.NewGuid(),SeriesId=series.Id}).ToArray();
+        library.Setup(l=>l.GetItemById<BaseItem>(series.Id,It.IsAny<User>())).Returns(series);
+        library.Setup(l=>l.GetItemById<BaseItem>(rows[0].Id,It.IsAny<User>())).Returns(rows[0]);
+        library.Setup(l=>l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q)=>
+            q.AncestorIds.Length>0 ? (q.User==alice ? [rows[0]] : rows) : q.IsResumable==true ? [rows[0]] : []);
+        library.Setup(l=>l.GetItemIds(It.IsAny<InternalItemsQuery>())).Returns(rows.Select(r=>r.Id).ToArray());
+        foreach(var row in rows) states[(bob.Id,row.Id)]=new(){Key="test",PlaybackPositionTicks=100};
+        var overview=new InterestOverviewService(store,library.Object,users.Object,sessions.Object,service);
+        var result=overview.GetActivity(alice);
+        Assert.Equal(2,Assert.Single(result.Items).Users.Single(u=>u.UserId==bob.Id).AvailableEpisodes);
+        Assert.Equal(3,result.Diagnostics!.EpisodeQueryCount); // Includes the fallback, no hidden work.
+        Assert.Equal(2,result.Diagnostics.EpisodeHydrationQueryCount);
+        library.Setup(l=>l.GetItemIds(It.IsAny<InternalItemsQuery>())).Returns([Guid.NewGuid()]);
+        Assert.Throws<InvalidDataException>(()=>overview.GetActivity(alice));
+        using var cancellation=new CancellationTokenSource();
+        library.Setup(l=>l.GetItemIds(It.IsAny<InternalItemsQuery>())).Returns(()=>{cancellation.Cancel();return rows.Select(r=>r.Id).ToArray();});
+        data.Invocations.Clear();
+        Assert.Throws<OperationCanceledException>(()=>overview.GetActivity(alice,cancellation:cancellation.Token));
+        data.Verify(d=>d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),It.IsAny<User>()),Times.Never);
+    }
+
+    [Fact]
+    public void OversizedAuthorizedIdProbeDoesNotHydrateOrBypassTheLimit()
+    {
+        var series=new Series {Id=Guid.NewGuid()};
+        var episode=new AvailableEpisode {Id=Guid.NewGuid(),SeriesId=series.Id};
+        library.Setup(l=>l.GetItemById<BaseItem>(series.Id,It.IsAny<User>())).Returns(series);
+        library.Setup(l=>l.GetItemById<BaseItem>(episode.Id,It.IsAny<User>())).Returns(episode);
+        library.Setup(l=>l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q)=>
+            q.AncestorIds.Length>0 || q.IsResumable==true ? [episode] : []);
+        library.Setup(l=>l.GetItemIds(It.IsAny<InternalItemsQuery>())).Returns(Enumerable.Range(0,1001).Select(_=>Guid.NewGuid()).ToArray());
+        var result=new InterestOverviewService(store,library.Object,users.Object,sessions.Object,service).GetActivity(alice);
+        Assert.Empty(result.Items); Assert.Contains("EpisodeLimit",result.Coverage!.Causes);
+        Assert.Equal(1002,result.Diagnostics!.EpisodeRowsProcessed);
+        Assert.Equal(1,result.Diagnostics.EpisodeHydratedRows);
+        Assert.Equal(2,result.Diagnostics.EpisodeQueryCount);
+        library.Verify(l=>l.GetItemList(It.Is<InternalItemsQuery>(q=>q.AncestorIds.Length>0 && q.User==bob)),Times.Never);
+        data.Verify(d=>d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),bob),Times.Never);
     }
 
     [Fact]

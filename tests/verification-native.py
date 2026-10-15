@@ -10,6 +10,7 @@ import time
 
 def run(call, restart, docker, name, plugins, token):
     assert name.startswith('watchguard-poc-')
+    policies = os.environ.get('WATCHGUARD_VERIFICATION_POLICIES') == '1'
     docker('exec', name, 'sh', '-c', '''set -eu
 s=1; while [ "$s" -le 100 ]; do
  folder="/tmp/poc-tv/Verification $s/Season 01"; mkdir -p "$folder"
@@ -44,6 +45,17 @@ done''')
     full=call('/Items/'+gap['Id'],token=token)
     call('/Items/'+gap['Id'],'POST',{**full,'PremiereDate':None},token,expected=204)
     # Admin plus six accounts: seven visible users, six with progress.
+    if policies:
+        # Per-episode rating/tag/future metadata exercises filtering below a visible series.
+        for index,item in enumerate(series[:10]):
+            episode=next(e for e in episodes if e.get('SeriesId')==item['Id'])
+            full=call('/Items/'+episode['Id'],token=token)
+            call('/Items/'+episode['Id'],'POST',{**full,'OfficialRating':'TV-MA',
+                 'Tags':['episode-restricted'],
+                 'PremiereDate':'2099-01-01T00:00:00Z' if index==3 else full.get('PremiereDate')},token,expected=204)
+        for item in series[::2]:
+            full=call('/Items/'+item['Id'],token=token)
+            call('/Items/'+item['Id'],'POST',{**full,'Tags':full.get('Tags',[])+['allowed-series']},token,expected=204)
     owners = []
     for index in range(6):
         owner = call('/Users/New', 'POST', {'Name':f'VerificationUser{index}', 'Password':'DisposableBenchmark123!'}, token)
@@ -57,9 +69,24 @@ done''')
         if index==5:
             policy=call('/Users/'+owner['Id'],token=token)['Policy']
             call('/Users/'+owner['Id']+'/Policy','POST',{**policy,'BlockedTags':['verification-restricted']},token,expected=204)
+    if policies:
+        folders=call('/Library/VirtualFolders',token=token)
+        tv=next(f['ItemId'] for f in folders if f['Name']=='PoC TV')
+        movie_folder=next(f['ItemId'] for f in folders if f['Name']=='PoC Movies')
+        ratings=call('/Localization/ParentalRatings',token=token)
+        maximum=next(r['Value'] for r in ratings if r['Name']=='TV-PG')
+        restrictions=[(1,{'BlockedTags':['episode-restricted']}),
+                      (2,{'MaxParentalRating':maximum}),
+                      (3,{'EnableAllFolders':False,'EnabledFolders':[movie_folder],'BlockedMediaFolders':[tv]}),
+                      (4,{'AllowedTags':['allowed-series']})]
+        for index,change in restrictions:
+            policy=call('/Users/'+owners[index],token=token)['Policy']
+            call('/Users/'+owners[index]+'/Policy','POST',{**policy,**change},token,expected=204)
+        # Explicit membership is preserved independently of automatic results.
+        call('/WatchGuard/Watchlist/'+series[0]['Id'],'PUT',token=token,expected=204)
     repo = Path(__file__).resolve().parents[1]
-    baseline = repo/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.6.zip'
-    assert hashlib.sha256(baseline.read_bytes()).hexdigest() == 'e083f873d76a2cd62005e1093f30ecfde3201409fa9caa45948433372bba87e1'
+    baseline = repo/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip'
+    assert hashlib.sha256(baseline.read_bytes()).hexdigest() == '8046bbd611ba3e17bf003160e32d8bffdf07a22038f06863bd8414e78c08b6e0'
     dll = plugins/'WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
     candidate = dll.read_bytes()
     with zipfile.ZipFile(baseline) as archive:
@@ -67,7 +94,7 @@ done''')
     results = []
     snapshots = {}
     try:
-        for label, assembly in [('published-v046', previous), ('candidate-v047', candidate)]:
+        for label, assembly in [('published-v047', previous), ('candidate-v048', candidate)]:
             docker('stop',name); dll.write_bytes(assembly); restart()
             for scope, route in [('single-user','/WatchGuard/ActivityOverview/Users/'+owners[0]),
                                  ('all-users','/WatchGuard/ActivityOverview')]:
@@ -79,10 +106,17 @@ done''')
                 for _ in range(3):
                     started = time.perf_counter()
                     response = call(route, token=token, timeout=60)
-                    canonical = json.dumps(response['Items'], sort_keys=True)
+                    canonical = json.dumps({'items':response['Items'],'coverage':response['Coverage']}, sort_keys=True)
                     if scope not in snapshots: snapshots[scope] = canonical
                     assert canonical == snapshots[scope], 'Playback classifications or title coverage changed'
                     assert len(response['Items']) == 100
+                    if policies and scope=='all-users':
+                        assert all(u['UserId'].replace('-','')!=owners[3].replace('-','') for item in response['Items'] for u in item['Users'])
+                    if policies and scope=='all-users':
+                        for restricted in (1,2):
+                            assert any(u['UserId'].replace('-','')==owners[restricted].replace('-','') and u['AvailableEpisodes']<24 for item in response['Items'] for u in item['Users'])
+                    if policies:
+                        assert any(i['ItemId'].replace('-','')==series[0]['Id'].replace('-','') for i in call('/WatchGuard/Watchlist',token=token))
                     samples.append({'httpMs':(time.perf_counter()-started)*1000,
                                     'returned':len(response['Items']), 'diagnostics':response['Diagnostics'],
                                     'coverage':response['Coverage']})
@@ -90,7 +124,7 @@ done''')
     finally:
         docker('stop',name); dll.write_bytes(candidate); restart()
     output = {'kind':'synthetic-native-verification','series':100,'episodesPerSeries':24,'enabledUsers':7,
-              'variants':['continuing','ended','unfinished','alternate-versions','missing-air-date','blocked-tags'], 'results':results}
-    path = Path(os.environ.get('WATCHGUARD_VERIFICATION_OUTPUT','artifacts/verification-native-v047.json'))
+              'variants':['continuing','ended','unfinished','alternate-versions','missing-air-date','blocked-tags']+(['episode-tags','parental-rating','restricted-library-folders','allowed-tags','future-episode','explicit-membership'] if policies else []), 'results':results}
+    path = Path(os.environ.get('WATCHGUARD_VERIFICATION_OUTPUT','artifacts/verification-native-v048.json'))
     path.write_text(json.dumps(output,indent=2)+'\n')
     print('Verification benchmark complete: '+str(path), flush=True)

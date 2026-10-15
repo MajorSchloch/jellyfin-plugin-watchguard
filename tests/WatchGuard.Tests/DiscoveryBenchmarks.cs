@@ -46,8 +46,9 @@ public sealed class DiscoveryBenchmarks
                     if(q.AncestorIds.Length>0) rows+=found.Length;
                     return found;
                 });
-                data.Setup(d=>d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),It.IsAny<User>())).Returns((IReadOnlyList<BaseItem> items,User u)=>{batches++;return items.ToDictionary(i=>i.Id,i=>new UserItemData {Key="test",Played=i is Movie || u==accounts[0] || Array.IndexOf(episodes,i)<episodeCount-1,LastPlayedDate=DateTime.UtcNow.AddDays(-1)});});
+                data.Setup(d=>d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),It.IsAny<User>())).Returns((IReadOnlyList<BaseItem> items,User u)=>{batches++;return items.ToDictionary(i=>i.Id,i=>new UserItemData {Key="test",Played=i is Movie || u==accounts[0] || Array.IndexOf(episodes,i)<episodeCount-1,LastPlayedDate=DateTime.UtcNow.Date.AddDays(-1)});});
                 data.Setup(d=>d.GetResumeUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),It.IsAny<User>())).Returns(()=>{batches++;return new Dictionary<Guid,VersionResumeData>();});
+                lib.Setup(l=>l.GetItemIds(It.IsAny<InternalItemsQuery>())).Returns((InternalItemsQuery q)=>lib.Object.GetItemList(q).Select(i=>i.Id).ToArray());
                 sessions.Setup(s=>s.Sessions).Returns(Array.Empty<SessionInfo>());
                 var store=new WatchlistStore(root);foreach(var u in accounts)store.Set(u.Id,series.Id,true);
                 var interest=new InterestService(store,lib.Object,users.Object,data.Object,sessions.Object);
@@ -56,7 +57,7 @@ public sealed class DiscoveryBenchmarks
                 rows=batches=queries=lookups=0;
                 var before=GC.GetAllocatedBytesForCurrentThread();var timer=Stopwatch.StartNew();
                 var result=service.GetActivity(accounts[0]);timer.Stop();
-                output.Add(new {episodeCount,users=4,untouched=10000,completedMovies=140,returned=result.Items.Length,result.LimitReached,episodeRows=rows,nativePlaybackBatches=batches,nativeQueries=queries,nativeLookups=lookups,elapsedMs=timer.Elapsed.TotalMilliseconds,allocatedBytes=GC.GetAllocatedBytesForCurrentThread()-before});
+                output.Add(new {result.Items,result.Coverage,result.Diagnostics,episodeCount,users=4,untouched=10000,completedMovies=140,returned=result.Items.Length,result.LimitReached,episodeRows=rows,nativePlaybackBatches=batches,nativeQueries=queries,nativeLookups=lookups,elapsedMs=timer.Elapsed.TotalMilliseconds,allocatedBytes=GC.GetAllocatedBytesForCurrentThread()-before});
                 Assert.False(result.IsComplete);
                 var baseline = Environment.GetEnvironmentVariable("WATCHGUARD_BENCHMARK_BASELINE") == "1";
                 Assert.Equal(baseline && episodeCount == 1501 ? 0 : 100, result.Items.Length);
