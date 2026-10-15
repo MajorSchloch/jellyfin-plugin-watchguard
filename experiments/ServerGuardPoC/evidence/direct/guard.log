@@ -1,0 +1,38 @@
+[17:06:12.673] [WRN] [6] WatchGuard.ServerGuardPoC.AttachmentReport: WG-GUARD-POC attached=2 supported=true veto-only; interception still requires HTTP qualification
+[17:06:17.724] [WRN] [7] WatchGuard.ServerGuardPoC.AttachmentReport: WG-GUARD-POC attached=2 supported=true veto-only; interception still requires HTTP qualification
+[17:06:30.415] [WRN] [26] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=14.4988
+[17:06:30.531] [WRN] [24] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=41.1578
+[17:06:30.623] [WRN] [7] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=8.1758
+[17:06:30.691] [WRN] [26] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=7.9762
+[17:06:33.438] [WRN] [25] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=18.6437
+[17:06:36.054] [WRN] [7] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=10.3699
+[17:06:38.495] [WRN] [25] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=17.2552
+[17:06:40.947] [WRN] [25] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=6.3444
+[17:06:43.399] [WRN] [24] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=16.3886
+[17:06:45.810] [WRN] [25] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=6.4086
+[17:06:48.251] [WRN] [25] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=16.3812
+[17:06:50.782] [WRN] [21] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=ContinueNative evaluations=1 elapsedMs=9.4913
+[17:06:51.123] [WRN] [21] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=DeletionNotPermitted evaluations=0 elapsedMs=3.1343
+[17:06:51.188] [WRN] [26] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=10.6799
+[17:06:51.223] [WRN] [24] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=TargetUnavailable evaluations=0 elapsedMs=3.136
+[17:06:51.249] [WRN] [21] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=InvalidTargetSet evaluations=0 elapsedMs=2.9632
+[17:06:51.308] [WRN] [21] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=ApiKeyDeletionUnsupported evaluations=0 elapsedMs=0.0817
+[17:06:51.332] [WRN] [21] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=ProtectionUnavailable evaluations=1 elapsedMs=3.747
+[17:06:51.361] [WRN] [21] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=ApiKeyDeletionUnsupported evaluations=0 elapsedMs=0.0579
+[17:06:51.414] [WRN] [26] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=2 elapsedMs=15.9248
+[17:06:51.447] [WRN] [24] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=InvalidTargetSet evaluations=0 elapsedMs=3.0361
+[17:06:51.500] [WRN] [26] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=OverlappingTargets evaluations=0 elapsedMs=3.1975
+[17:06:51.566] [WRN] [24] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=OverlappingTargets evaluations=0 elapsedMs=3.7094
+[17:06:51.608] [WRN] [21] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=TargetUnavailable evaluations=0 elapsedMs=3.3568
+[17:06:51.634] [WRN] [26] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=InvalidTargetSet evaluations=0 elapsedMs=3.1924
+[17:06:51.665] [WRN] [21] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=DeletionNotPermitted evaluations=0 elapsedMs=2.9766
+[17:06:51.726] [WRN] [7] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=ContinueNative evaluations=2 elapsedMs=15.2762
+[17:06:51.801] [WRN] [24] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=15.8273
+[17:06:51.803] [WRN] [21] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=15.2412
+[17:06:51.806] [WRN] [26] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=16.1266
+[17:06:51.807] [WRN] [7] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=18.3297
+[17:06:57.180] [WRN] [7] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=18.0113
+[17:06:58.580] [WRN] [9] WatchGuard.ServerGuardPoC.AttachmentReport: WG-GUARD-POC attached=2 supported=true veto-only; interception still requires HTTP qualification
+[17:07:01.198] [WRN] [10] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=57.4089
+[17:07:06.261] [WRN] [10] WatchGuard.ServerGuardPoC.AttachmentReport: WG-GUARD-POC attached=2 supported=true veto-only; interception still requires HTTP qualification
+[17:07:08.891] [WRN] [20] WatchGuard.ServerGuardPoC.Guard: WG-GUARD-POC outcome=WatchGuardProtectionRequired evaluations=1 elapsedMs=53.4116

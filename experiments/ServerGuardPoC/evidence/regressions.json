@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-15",
+  "productionVersion": "0.4.8.0",
+  "prototype": "isolated veto-only companion, no production release",
+  "isolatedUnitTests": 8,
+  "existingBackendTests": 105,
+  "existingWebBootstrapTests": 53,
+  "existingCatalogUnitTests": 4,
+  "nativeDirectCases": 31,
+  "nativeBasePathCases": 31,
+  "baselineLinuxServerCaddy": {
+    "exitCode": 0,
+    "nativeDeleteRequests": 13,
+    "orderingViolations": 0
+  },
+  "notRerun": [
+    "full catalog installation/migration matrix",
+    "legacy Docker suite",
+    "discovery/verification performance matrix"
+  ],
+  "sourceIsolation": "No production source, standalone loader, public manifest, version or workflow changes"
+}

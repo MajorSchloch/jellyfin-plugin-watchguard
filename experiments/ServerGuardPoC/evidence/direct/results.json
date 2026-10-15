@@ -1,0 +1,209 @@
+{
+  "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+  "basePath": "",
+  "cases": [
+    {
+      "case": "movie",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 26.13
+    },
+    {
+      "case": "series",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 46.52
+    },
+    {
+      "case": "season",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 13.21
+    },
+    {
+      "case": "episode",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 14.3
+    },
+    {
+      "case": "long-series-300",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 23.44
+    },
+    {
+      "case": "warm-movie-0",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 15.29
+    },
+    {
+      "case": "warm-long-series-0",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 21.9
+    },
+    {
+      "case": "warm-movie-1",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 11.2
+    },
+    {
+      "case": "warm-long-series-1",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 21.61
+    },
+    {
+      "case": "warm-movie-2",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 10.72
+    },
+    {
+      "case": "warm-long-series-2",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 20.8
+    },
+    {
+      "case": "unprotected",
+      "http": 204,
+      "nativeContinuations": 1,
+      "fileAndRecordRemoved": true,
+      "requestDurationMs": 47.67
+    },
+    {
+      "case": "native-permission",
+      "http": 401,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 12.24
+    },
+    {
+      "case": "ordinary-user-no-history",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 15.48
+    },
+    {
+      "case": "invisible",
+      "http": 404,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 7.49
+    },
+    {
+      "case": "empty-bulk",
+      "http": 400,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 8.6
+    },
+    {
+      "case": "unauthenticated",
+      "http": 401,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 1.82
+    },
+    {
+      "case": "api-key",
+      "http": 403,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 3.37
+    },
+    {
+      "case": "lookup-failure",
+      "http": 503,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 8.69
+    },
+    {
+      "case": "api-key-bulk",
+      "http": 403,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 2.4
+    },
+    {
+      "case": "protected-last",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 20.29
+    },
+    {
+      "case": "duplicates",
+      "http": 400,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 8.81
+    },
+    {
+      "case": "overlap-series-episode",
+      "http": 400,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 9.77
+    },
+    {
+      "case": "overlap-season-episode",
+      "http": 400,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 8.03
+    },
+    {
+      "case": "missing-last",
+      "http": 404,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 8.02
+    },
+    {
+      "case": "malformed",
+      "http": 400,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 9.13
+    },
+    {
+      "case": "unsupported-library-folder-native-permission",
+      "http": 401,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 7.74
+    },
+    {
+      "case": "unprotected-bulk",
+      "http": 204,
+      "nativeContinuations": 1,
+      "nativeTargetCount": 2,
+      "filesAndRecordsRemoved": true,
+      "requestDurationMs": 33.74
+    },
+    {
+      "case": "concurrent-protected",
+      "requests": 4,
+      "filesAndRecordsPreserved": true
+    },
+    {
+      "case": "restart",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 75.6
+    },
+    {
+      "case": "native-reenable",
+      "http": 409,
+      "filesAndRecordsPreserved": true,
+      "requestDurationMs": 78.79
+    }
+  ],
+  "status": "PASS",
+  "publishedBaselineZipSha256": "06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5",
+  "pluginDiscovery": [
+    {
+      "name": "WatchGuard",
+      "id": "a3c6bc84783d4ba8a0db89bfb83ab486",
+      "version": "0.4.8.0"
+    }
+  ],
+  "unrelatedRequestsEvaluations": 0,
+  "browser": "PASS: Cancel zero DELETE; Delete Anyway one DELETE rejected 409",
+  "nativeDisable": "co-located WatchGuard folder disabled after restart: no attachment and native deletion restored; reenable restores veto",
+  "disabled": "native deletion restored after environment opt-out/recreation",
+  "uninstalled": "native deletion restored after assembly removal/restart",
+  "watchlistsAndPreferences": "byte-identical after veto, restart, disable and uninstall"
+}
