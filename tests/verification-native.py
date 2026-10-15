@@ -71,11 +71,14 @@ done''')
             docker('stop',name); dll.write_bytes(assembly); restart()
             for scope, route in [('single-user','/WatchGuard/ActivityOverview/Users/'+owners[0]),
                                  ('all-users','/WatchGuard/ActivityOverview')]:
-                call(route, token=token)
+                # The published baseline can exceed 15 seconds on contended CI runners.
+                # Only the timed benchmark requests get a longer transport timeout;
+                # preserve all result/equality/coverage assertions.
+                call(route, token=token, timeout=60)
                 samples = []
                 for _ in range(3):
                     started = time.perf_counter()
-                    response = call(route, token=token)
+                    response = call(route, token=token, timeout=60)
                     canonical = json.dumps(response['Items'], sort_keys=True)
                     if scope not in snapshots: snapshots[scope] = canonical
                     assert canonical == snapshots[scope], 'Playback classifications or title coverage changed'
