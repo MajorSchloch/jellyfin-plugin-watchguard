@@ -1,0 +1,241 @@
+{
+  "kind": "native-disposable-official-image",
+  "baseline": "published-v045",
+  "seriesEpisodeCounts": [
+    300,
+    1000,
+    1501
+  ],
+  "seriesPlaybackUsers": 3,
+  "movieOnlyUsers": 1,
+  "completedMovies": 140,
+  "untouchedMovies": 200,
+  "results": [
+    {
+      "version": "published-v045",
+      "scope": "movies-only",
+      "requestMs": [
+        488.1104579544626,
+        476.3365420512855,
+        385.7589999679476
+      ],
+      "medianMs": 476.3365420512855,
+      "returned": [
+        100,
+        100,
+        100
+      ],
+      "truncationFrequency": 1.0,
+      "diagnostics": []
+    },
+    {
+      "version": "published-v045",
+      "scope": "mixed-all-users",
+      "requestMs": [
+        634.48479201179,
+        587.4932080041617,
+        556.4055839786306
+      ],
+      "medianMs": 587.4932080041617,
+      "returned": [
+        0,
+        0,
+        0
+      ],
+      "truncationFrequency": 1.0,
+      "diagnostics": []
+    },
+    {
+      "version": "candidate-v047",
+      "scope": "movies-only",
+      "requestMs": [
+        149.58391699474305,
+        147.09304098505527,
+        127.1206249948591
+      ],
+      "medianMs": 147.09304098505527,
+      "returned": [
+        100,
+        100,
+        100
+      ],
+      "truncationFrequency": 1.0,
+      "diagnostics": [
+        {
+          "CandidatesDiscovered": 100,
+          "UniqueCandidates": 100,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 100,
+          "EpisodeRowsProcessed": 0,
+          "NativePlaybackBatches": 2,
+          "NativeDiscoveryQueries": 4,
+          "QueryDurationMs": 122.1751,
+          "DiscoveryDurationMs": 113.8471,
+          "EpisodeQueryDurationMs": 0,
+          "VisibilityDurationMs": 6.071599999999993,
+          "PlaybackBatchDurationMs": 1.5695,
+          "UserDataBatchDurationMs": 0.5805,
+          "ResumeBatchDurationMs": 0.9883,
+          "ClassificationDurationMs": 0.1295000000000001,
+          "TotalVerificationDurationMs": 8.3263,
+          "EpisodeQueryCount": 0,
+          "PlaybackBatchCount": 2,
+          "PlaybackCacheHits": 100,
+          "PlaybackCacheMisses": 1,
+          "PreparedVisibilityHits": 100,
+          "PreparedVisibilityMisses": 100,
+          "AccountCacheHits": 199,
+          "AccountCacheMisses": 1
+        },
+        {
+          "CandidatesDiscovered": 100,
+          "UniqueCandidates": 100,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 100,
+          "EpisodeRowsProcessed": 0,
+          "NativePlaybackBatches": 2,
+          "NativeDiscoveryQueries": 4,
+          "QueryDurationMs": 118.3489,
+          "DiscoveryDurationMs": 100.9104,
+          "EpisodeQueryDurationMs": 0,
+          "VisibilityDurationMs": 16.337399999999896,
+          "PlaybackBatchDurationMs": 0.615,
+          "UserDataBatchDurationMs": 0.0429,
+          "ResumeBatchDurationMs": 0.5718,
+          "ClassificationDurationMs": 0.1335000000000001,
+          "TotalVerificationDurationMs": 17.4367,
+          "EpisodeQueryCount": 0,
+          "PlaybackBatchCount": 2,
+          "PlaybackCacheHits": 100,
+          "PlaybackCacheMisses": 1,
+          "PreparedVisibilityHits": 100,
+          "PreparedVisibilityMisses": 100,
+          "AccountCacheHits": 199,
+          "AccountCacheMisses": 1
+        },
+        {
+          "CandidatesDiscovered": 100,
+          "UniqueCandidates": 100,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 100,
+          "EpisodeRowsProcessed": 0,
+          "NativePlaybackBatches": 2,
+          "NativeDiscoveryQueries": 4,
+          "QueryDurationMs": 105.9265,
+          "DiscoveryDurationMs": 100.4953,
+          "EpisodeQueryDurationMs": 0,
+          "VisibilityDurationMs": 4.667099999999997,
+          "PlaybackBatchDurationMs": 0.3507,
+          "UserDataBatchDurationMs": 0.0335,
+          "ResumeBatchDurationMs": 0.317,
+          "ClassificationDurationMs": 0.11420000000000011,
+          "TotalVerificationDurationMs": 5.4302,
+          "EpisodeQueryCount": 0,
+          "PlaybackBatchCount": 2,
+          "PlaybackCacheHits": 100,
+          "PlaybackCacheMisses": 1,
+          "PreparedVisibilityHits": 100,
+          "PreparedVisibilityMisses": 100,
+          "AccountCacheHits": 199,
+          "AccountCacheMisses": 1
+        }
+      ]
+    },
+    {
+      "version": "candidate-v047",
+      "scope": "mixed-all-users",
+      "requestMs": [
+        1151.2718750163913,
+        981.4457499887794,
+        892.0121670234948
+      ],
+      "medianMs": 981.4457499887794,
+      "returned": [
+        100,
+        100,
+        100
+      ],
+      "truncationFrequency": 1.0,
+      "diagnostics": [
+        {
+          "CandidatesDiscovered": 712,
+          "UniqueCandidates": 103,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 501,
+          "EpisodeRowsProcessed": 7501,
+          "NativePlaybackBatches": 30,
+          "NativeDiscoveryQueries": 20,
+          "QueryDurationMs": 1129.2114,
+          "DiscoveryDurationMs": 559.5203,
+          "EpisodeQueryDurationMs": 416.67699999999996,
+          "VisibilityDurationMs": 34.67220000000004,
+          "PlaybackBatchDurationMs": 103.94309999999999,
+          "UserDataBatchDurationMs": 79.5437,
+          "ResumeBatchDurationMs": 24.393300000000004,
+          "ClassificationDurationMs": 1.8670999999999707,
+          "TotalVerificationDurationMs": 569.6895,
+          "EpisodeQueryCount": 11,
+          "PlaybackBatchCount": 30,
+          "PlaybackCacheHits": 500,
+          "PlaybackCacheMisses": 15,
+          "PreparedVisibilityHits": 501,
+          "PreparedVisibilityMisses": 501,
+          "AccountCacheHits": 992,
+          "AccountCacheMisses": 10
+        },
+        {
+          "CandidatesDiscovered": 712,
+          "UniqueCandidates": 103,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 501,
+          "EpisodeRowsProcessed": 7501,
+          "NativePlaybackBatches": 30,
+          "NativeDiscoveryQueries": 20,
+          "QueryDurationMs": 964.9678,
+          "DiscoveryDurationMs": 479.2215,
+          "EpisodeQueryDurationMs": 372.30659999999995,
+          "VisibilityDurationMs": 35.62829999999986,
+          "PlaybackBatchDurationMs": 64.3059,
+          "UserDataBatchDurationMs": 55.07350000000001,
+          "ResumeBatchDurationMs": 9.227699999999999,
+          "ClassificationDurationMs": 2.182299999999966,
+          "TotalVerificationDurationMs": 485.7446,
+          "EpisodeQueryCount": 11,
+          "PlaybackBatchCount": 30,
+          "PlaybackCacheHits": 500,
+          "PlaybackCacheMisses": 15,
+          "PreparedVisibilityHits": 501,
+          "PreparedVisibilityMisses": 501,
+          "AccountCacheHits": 992,
+          "AccountCacheMisses": 10
+        },
+        {
+          "CandidatesDiscovered": 712,
+          "UniqueCandidates": 103,
+          "CandidatesVerified": 100,
+          "UsersEvaluated": 501,
+          "EpisodeRowsProcessed": 7501,
+          "NativePlaybackBatches": 30,
+          "NativeDiscoveryQueries": 20,
+          "QueryDurationMs": 875.2863,
+          "DiscoveryDurationMs": 416.8656,
+          "EpisodeQueryDurationMs": 361.8185,
+          "VisibilityDurationMs": 30.352399999999953,
+          "PlaybackBatchDurationMs": 53.056099999999994,
+          "UserDataBatchDurationMs": 42.85550000000001,
+          "ResumeBatchDurationMs": 10.196799999999998,
+          "ClassificationDurationMs": 1.7086999999999624,
+          "TotalVerificationDurationMs": 458.4184,
+          "EpisodeQueryCount": 11,
+          "PlaybackBatchCount": 30,
+          "PlaybackCacheHits": 500,
+          "PlaybackCacheMisses": 15,
+          "PreparedVisibilityHits": 501,
+          "PreparedVisibilityMisses": 501,
+          "AccountCacheHits": 992,
+          "AccountCacheMisses": 10
+        }
+      ]
+    }
+  ]
+}

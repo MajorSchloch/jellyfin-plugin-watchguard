@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Jellyfin.Data;
 using Jellyfin.Data.Enums;
 using Jellyfin.Database.Implementations.Entities;
@@ -65,8 +66,8 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
 
     internal ProtectionStatus GetForOverview(BaseItem item, Guid requester, OverviewBudget budget) => GetCore(item, requester, budget);
 
-    internal void PrepareOverviewMovies(BaseItem[] candidates, OverviewBudget budget) =>
-        budget.MovieReads = new(candidates, library, data);
+    internal void PrepareOverviewVerification(BaseItem[] candidates, OverviewBudget budget) =>
+        budget.VerificationReads = new(candidates, library, users, data, budget);
 
     private ProtectionStatus GetCore(BaseItem item, Guid requester, OverviewBudget? budget)
     {
@@ -79,23 +80,35 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
         {
             budget?.Consume(1);
             if (budget is not null) budget.Diagnostics.UsersEvaluated++;
-            var user = users.GetUserById(candidate.Id);
+            var visibilityStarted = Stopwatch.GetTimestamp();
+            var user = budget?.VerificationReads is { } preparedAccount
+                ? preparedAccount.Account(candidate.Id, budget) : users.GetUserById(candidate.Id);
             if (user is null || user.HasPermission(PermissionKind.IsDisabled)) continue;
-            var visible = library.GetItemById<BaseItem>(item.Id, user);
+            var visible = budget?.VerificationReads is { } prepared
+                ? prepared.Visible(item.Id, user.Id, budget) : library.GetItemById<BaseItem>(item.Id, user);
+            if (budget is not null) budget.Diagnostics.VisibilityDurationMs += OverviewDiagnostics.Elapsed(visibilityStarted);
             if (!Supported(visible)) continue;
             var reasons = new List<string>();
             if (entries.Contains(new(user.Id, item.Id))) reasons.Add("Watchlisted");
             // Targeted series reads include missing rows to verify completion coverage.
             var continuingActivity = budget?.IncludeActivity == true && visible is Series { Status: SeriesStatus.Continuing };
             var inspectCoverage = continuingActivity || budget?.TargetedSeries == true;
-            IReadOnlyList<BaseItem> items = item is Series
+            var episodeStarted = Stopwatch.GetTimestamp();
+            IReadOnlyList<BaseItem> items = budget?.VerificationReads is { } preparedRows
+                ? preparedRows.Episodes(item.Id, user.Id)
+                : item is Series
                 ? library.GetItemList(new InternalItemsQuery(user)
                 {
                     AncestorIds = [item.Id], Recursive = true, IncludeItemTypes = [BaseItemKind.Episode],
                     IsVirtualItem = inspectCoverage ? null : false, IsMissing = inspectCoverage ? null : false, Limit = budget is null ? null : InterestOverviewService.EpisodeLimit + 1
                 })
                 : [visible!];
-            if (budget is not null && item is Series) budget.Diagnostics.EpisodeRowsProcessed += items.Count;
+            if (budget is not null && item is Series && budget.VerificationReads is null)
+            {
+                budget.Diagnostics.EpisodeRowsProcessed += items.Count;
+                budget.Diagnostics.EpisodeQueryCount++;
+                budget.Diagnostics.EpisodeQueryDurationMs += OverviewDiagnostics.Elapsed(episodeStarted);
+            }
             if (budget is not null && items.Count > InterestOverviewService.EpisodeLimit) throw new OverviewLimitException();
             budget?.Consume(items.Count);
             // Active playback still covers available future episodes; only completion/progress
@@ -111,12 +124,19 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
                 if (!coverageComplete) budget!.IncompleteCoverage = true;
                 items = items.Where(i => (budget?.TargetedSeries == true || !i.IsUnaired) && !i.IsVirtualItem && i is Episode { IsMissingEpisode: false }).ToArray();
             }
-            // Only the overview populates MovieReads; fresh protection and all episode
-            // paths keep their original native read sequence and authorization checks.
-            var (states, resumes) = item is Movie && budget?.MovieReads is { } movieReads
-                ? movieReads.Read(item, user)
+            // Only the overview populates prepared reads. Targeted checks keep
+            // their original native read sequence and authorization checks.
+            var playbackStarted = Stopwatch.GetTimestamp();
+            var (states, resumes) = budget?.VerificationReads is { } preparedPlayback
+                ? preparedPlayback.Read(items, user.Id, budget)
                 : (data.GetUserDataBatch(items, user), data.GetResumeUserDataBatch(items, user));
-            if (budget is not null && !(item is Movie && budget.MovieReads is not null)) budget.Diagnostics.NativePlaybackBatches += 2;
+            if (budget is not null && budget.VerificationReads is null)
+            {
+                budget.Diagnostics.NativePlaybackBatches += 2;
+                budget.Diagnostics.PlaybackBatchCount += 2;
+                budget.Diagnostics.PlaybackBatchDurationMs += OverviewDiagnostics.Elapsed(playbackStarted);
+            }
+            var classificationStarted = Stopwatch.GetTimestamp();
             var effective = items.Select(i =>
             {
                 if (!states.TryGetValue(i.Id, out var state))
@@ -157,6 +177,7 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
                 reasons.Add("CurrentlyPlaying");
             if (budget?.TargetedSeries == true) budget.TargetedReasons[user.Id] = reasons.ToArray();
             if (reasons.Count > 0) result.Add(new(user.Id, user.Username, reasons.ToArray()));
+            if (budget is not null) budget.Diagnostics.ClassificationDurationMs += OverviewDiagnostics.Elapsed(classificationStarted);
         }
         return new(item.Id, result.Count > 0, result.Any(u => u.UserId != requester), result.ToArray());
     }

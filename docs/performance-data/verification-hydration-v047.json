@@ -1,0 +1,254 @@
+{
+  "kind": "synthetic-native-verification",
+  "series": 100,
+  "episodesPerSeries": 24,
+  "enabledUsers": 7,
+  "results": [
+    {
+      "scope": "single-user",
+      "samples": [
+        {
+          "httpMs": 779.6909580356441,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 200,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 100,
+            "EpisodeRowsProcessed": 2400,
+            "NativePlaybackBatches": 200,
+            "NativeDiscoveryQueries": 4,
+            "QueryDurationMs": 769.8054,
+            "DiscoveryDurationMs": 109.259,
+            "EpisodeQueryDurationMs": 429.0651,
+            "VisibilityDurationMs": 189.17499999999995,
+            "PlaybackBatchDurationMs": 40.9161,
+            "ClassificationDurationMs": 0.37250000000000016,
+            "TotalVerificationDurationMs": 660.5458,
+            "EpisodeQueryCount": 100,
+            "PlaybackBatchCount": 200,
+            "PlaybackCacheHits": 0,
+            "PlaybackCacheMisses": 0
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": false,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 747.3475830047391,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 200,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 100,
+            "EpisodeRowsProcessed": 2400,
+            "NativePlaybackBatches": 200,
+            "NativeDiscoveryQueries": 4,
+            "QueryDurationMs": 737.3725,
+            "DiscoveryDurationMs": 97.1817,
+            "EpisodeQueryDurationMs": 405.14120000000025,
+            "VisibilityDurationMs": 194.96480000000005,
+            "PlaybackBatchDurationMs": 38.79990000000001,
+            "ClassificationDurationMs": 0.3521000000000001,
+            "TotalVerificationDurationMs": 640.1902,
+            "EpisodeQueryCount": 100,
+            "PlaybackBatchCount": 200,
+            "PlaybackCacheHits": 0,
+            "PlaybackCacheMisses": 0
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": false,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 682.6154580339789,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 200,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 100,
+            "EpisodeRowsProcessed": 2400,
+            "NativePlaybackBatches": 200,
+            "NativeDiscoveryQueries": 4,
+            "QueryDurationMs": 672.1922,
+            "DiscoveryDurationMs": 96.3917,
+            "EpisodeQueryDurationMs": 361.1252000000002,
+            "VisibilityDurationMs": 180.226,
+            "PlaybackBatchDurationMs": 33.551800000000014,
+            "ClassificationDurationMs": 0.242,
+            "TotalVerificationDurationMs": 575.8002,
+            "EpisodeQueryCount": 100,
+            "PlaybackBatchCount": 200,
+            "PlaybackCacheHits": 0,
+            "PlaybackCacheMisses": 0
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": false,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        }
+      ],
+      "medianMs": 747.3475830047391
+    },
+    {
+      "scope": "all-users",
+      "samples": [
+        {
+          "httpMs": 4691.158458008431,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 1200,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 700,
+            "EpisodeRowsProcessed": 16800,
+            "NativePlaybackBatches": 1400,
+            "NativeDiscoveryQueries": 28,
+            "QueryDurationMs": 4677.5782,
+            "DiscoveryDurationMs": 566.3401,
+            "EpisodeQueryDurationMs": 2587.8845,
+            "VisibilityDurationMs": 1279.2141999999994,
+            "PlaybackBatchDurationMs": 238.45960000000008,
+            "ClassificationDurationMs": 2.0037999999999876,
+            "TotalVerificationDurationMs": 4111.2379,
+            "EpisodeQueryCount": 700,
+            "PlaybackBatchCount": 1400,
+            "PlaybackCacheHits": 0,
+            "PlaybackCacheMisses": 0
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": false,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 4688.25787503738,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 1200,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 700,
+            "EpisodeRowsProcessed": 16800,
+            "NativePlaybackBatches": 1400,
+            "NativeDiscoveryQueries": 28,
+            "QueryDurationMs": 4675.9503,
+            "DiscoveryDurationMs": 571.5521,
+            "EpisodeQueryDurationMs": 2586.258000000003,
+            "VisibilityDurationMs": 1285.3955,
+            "PlaybackBatchDurationMs": 226.88060000000002,
+            "ClassificationDurationMs": 1.884299999999988,
+            "TotalVerificationDurationMs": 4104.3979,
+            "EpisodeQueryCount": 700,
+            "PlaybackBatchCount": 1400,
+            "PlaybackCacheHits": 0,
+            "PlaybackCacheMisses": 0
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": false,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 4713.464457949158,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 1200,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 700,
+            "EpisodeRowsProcessed": 16800,
+            "NativePlaybackBatches": 1400,
+            "NativeDiscoveryQueries": 28,
+            "QueryDurationMs": 4702.2103,
+            "DiscoveryDurationMs": 576.2879,
+            "EpisodeQueryDurationMs": 2609.1286000000014,
+            "VisibilityDurationMs": 1278.8749999999986,
+            "PlaybackBatchDurationMs": 232.40040000000005,
+            "ClassificationDurationMs": 1.922099999999989,
+            "TotalVerificationDurationMs": 4125.9221,
+            "EpisodeQueryCount": 700,
+            "PlaybackBatchCount": 1400,
+            "PlaybackCacheHits": 0,
+            "PlaybackCacheMisses": 0
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": false,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        }
+      ],
+      "medianMs": 4691.158458008431
+    }
+  ]
+}

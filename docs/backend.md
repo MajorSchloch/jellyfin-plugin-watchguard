@@ -150,3 +150,7 @@ Both `GET /WatchGuard/InterestOverview?automaticOnly=true` (administrator only) 
 ## v0.4.6 activity discovery
 
 ActivityOverview adds structured `Coverage` and aggregate `Diagnostics`; existing fields and authorization remain. See [API field definitions, bounds, failure/cancellation semantics and benchmarks](activity-discovery-v046.md). No continuation cursor is offered. The protection endpoint, schemas and policies remain unchanged.
+
+### v0.4.7 verification diagnostics
+
+ActivityOverview adds aggregate stage durations and prepared-read hit/miss counts to `Diagnostics`. Routes, authorization, `Coverage`, and all existing fields remain compatible. See [measurement definitions and unchanged work bounds](verification-performance-v047.md#diagnostics). The Protection endpoint never uses these prepared reads.

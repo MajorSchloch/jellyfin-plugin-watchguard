@@ -1,0 +1,512 @@
+{
+  "kind": "synthetic-native-verification",
+  "series": 100,
+  "episodesPerSeries": 24,
+  "enabledUsers": 7,
+  "variants": [
+    "continuing",
+    "ended",
+    "unfinished",
+    "alternate-versions",
+    "missing-air-date",
+    "blocked-tags"
+  ],
+  "results": [
+    {
+      "version": "published-v046",
+      "scope": "single-user",
+      "samples": [
+        {
+          "httpMs": 1718.8605410046875,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 300,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 100,
+            "EpisodeRowsProcessed": 2399,
+            "NativePlaybackBatches": 200,
+            "NativeDiscoveryQueries": 4,
+            "QueryDurationMs": 1699.0252
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 1515.7224590075202,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 300,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 100,
+            "EpisodeRowsProcessed": 2399,
+            "NativePlaybackBatches": 200,
+            "NativeDiscoveryQueries": 4,
+            "QueryDurationMs": 1501.6404
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 1464.864207955543,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 300,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 100,
+            "EpisodeRowsProcessed": 2399,
+            "NativePlaybackBatches": 200,
+            "NativeDiscoveryQueries": 4,
+            "QueryDurationMs": 1449.2873
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        }
+      ],
+      "medianMs": 1515.7224590075202
+    },
+    {
+      "version": "published-v046",
+      "scope": "all-users",
+      "samples": [
+        {
+          "httpMs": 10814.744875009637,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 1280,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 700,
+            "EpisodeRowsProcessed": 16314,
+            "NativePlaybackBatches": 1360,
+            "NativeDiscoveryQueries": 28,
+            "QueryDurationMs": 10789.9493
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 11191.81483401917,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 1280,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 700,
+            "EpisodeRowsProcessed": 16314,
+            "NativePlaybackBatches": 1360,
+            "NativeDiscoveryQueries": 28,
+            "QueryDurationMs": 11167.1508
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 11103.38912496809,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 1280,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 700,
+            "EpisodeRowsProcessed": 16314,
+            "NativePlaybackBatches": 1360,
+            "NativeDiscoveryQueries": 28,
+            "QueryDurationMs": 11053.3635
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        }
+      ],
+      "medianMs": 11103.38912496809
+    },
+    {
+      "version": "candidate-v047",
+      "scope": "single-user",
+      "samples": [
+        {
+          "httpMs": 874.4495830032974,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 300,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 100,
+            "EpisodeRowsProcessed": 2399,
+            "NativePlaybackBatches": 6,
+            "NativeDiscoveryQueries": 4,
+            "QueryDurationMs": 847.2771,
+            "DiscoveryDurationMs": 238.4578,
+            "EpisodeQueryDurationMs": 568.1467000000004,
+            "VisibilityDurationMs": 5.757499999999995,
+            "PlaybackBatchDurationMs": 30.944900000000004,
+            "UserDataBatchDurationMs": 27.480099999999997,
+            "ResumeBatchDurationMs": 3.4634,
+            "ClassificationDurationMs": 0.5721999999999997,
+            "TotalVerificationDurationMs": 608.8177,
+            "EpisodeQueryCount": 100,
+            "PlaybackBatchCount": 6,
+            "PlaybackCacheHits": 100,
+            "PlaybackCacheMisses": 3,
+            "PreparedVisibilityHits": 100,
+            "PreparedVisibilityMisses": 100,
+            "AccountCacheHits": 199,
+            "AccountCacheMisses": 1
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 831.9039999623783,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 300,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 100,
+            "EpisodeRowsProcessed": 2399,
+            "NativePlaybackBatches": 6,
+            "NativeDiscoveryQueries": 4,
+            "QueryDurationMs": 814.316,
+            "DiscoveryDurationMs": 181.4255,
+            "EpisodeQueryDurationMs": 591.2680000000003,
+            "VisibilityDurationMs": 6.209400000000003,
+            "PlaybackBatchDurationMs": 31.142000000000003,
+            "UserDataBatchDurationMs": 23.9049,
+            "ResumeBatchDurationMs": 7.235600000000001,
+            "ClassificationDurationMs": 0.6961999999999997,
+            "TotalVerificationDurationMs": 632.8888,
+            "EpisodeQueryCount": 100,
+            "PlaybackBatchCount": 6,
+            "PlaybackCacheHits": 100,
+            "PlaybackCacheMisses": 3,
+            "PreparedVisibilityHits": 100,
+            "PreparedVisibilityMisses": 100,
+            "AccountCacheHits": 199,
+            "AccountCacheMisses": 1
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 762.4327079975046,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 300,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 100,
+            "EpisodeRowsProcessed": 2399,
+            "NativePlaybackBatches": 6,
+            "NativeDiscoveryQueries": 4,
+            "QueryDurationMs": 744.8694,
+            "DiscoveryDurationMs": 175.7065,
+            "EpisodeQueryDurationMs": 532.1761000000002,
+            "VisibilityDurationMs": 4.7231,
+            "PlaybackBatchDurationMs": 27.6071,
+            "UserDataBatchDurationMs": 23.859,
+            "ResumeBatchDurationMs": 3.7466,
+            "ClassificationDurationMs": 0.8287999999999994,
+            "TotalVerificationDurationMs": 569.1612,
+            "EpisodeQueryCount": 100,
+            "PlaybackBatchCount": 6,
+            "PlaybackCacheHits": 100,
+            "PlaybackCacheMisses": 3,
+            "PreparedVisibilityHits": 100,
+            "PreparedVisibilityMisses": 100,
+            "AccountCacheHits": 199,
+            "AccountCacheMisses": 1
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        }
+      ],
+      "medianMs": 831.9039999623783
+    },
+    {
+      "version": "candidate-v047",
+      "scope": "all-users",
+      "samples": [
+        {
+          "httpMs": 5029.860083013773,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 1280,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 700,
+            "EpisodeRowsProcessed": 16314,
+            "NativePlaybackBatches": 40,
+            "NativeDiscoveryQueries": 28,
+            "QueryDurationMs": 5002.9528,
+            "DiscoveryDurationMs": 878.7341,
+            "EpisodeQueryDurationMs": 3831.522299999996,
+            "VisibilityDurationMs": 28.35909999999955,
+            "PlaybackBatchDurationMs": 242.59520000000003,
+            "UserDataBatchDurationMs": 199.8103,
+            "ResumeBatchDurationMs": 42.76390000000001,
+            "ClassificationDurationMs": 0.9328999999999936,
+            "TotalVerificationDurationMs": 4124.2154,
+            "EpisodeQueryCount": 680,
+            "PlaybackBatchCount": 40,
+            "PlaybackCacheHits": 680,
+            "PlaybackCacheMisses": 20,
+            "PreparedVisibilityHits": 700,
+            "PreparedVisibilityMisses": 700,
+            "AccountCacheHits": 1393,
+            "AccountCacheMisses": 7
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 5365.586625004653,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 1280,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 700,
+            "EpisodeRowsProcessed": 16314,
+            "NativePlaybackBatches": 40,
+            "NativeDiscoveryQueries": 28,
+            "QueryDurationMs": 5346.483,
+            "DiscoveryDurationMs": 865.6244,
+            "EpisodeQueryDurationMs": 4231.951299999998,
+            "VisibilityDurationMs": 31.827299999999607,
+            "PlaybackBatchDurationMs": 201.37889999999993,
+            "UserDataBatchDurationMs": 185.3386,
+            "ResumeBatchDurationMs": 16.0316,
+            "ClassificationDurationMs": 0.8782999999999952,
+            "TotalVerificationDurationMs": 4480.8494,
+            "EpisodeQueryCount": 680,
+            "PlaybackBatchCount": 40,
+            "PlaybackCacheHits": 680,
+            "PlaybackCacheMisses": 20,
+            "PreparedVisibilityHits": 700,
+            "PreparedVisibilityMisses": 700,
+            "AccountCacheHits": 1393,
+            "AccountCacheMisses": 7
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        },
+        {
+          "httpMs": 4974.570624995977,
+          "returned": 100,
+          "diagnostics": {
+            "CandidatesDiscovered": 1280,
+            "UniqueCandidates": 100,
+            "CandidatesVerified": 100,
+            "UsersEvaluated": 700,
+            "EpisodeRowsProcessed": 16314,
+            "NativePlaybackBatches": 40,
+            "NativeDiscoveryQueries": 28,
+            "QueryDurationMs": 4954.22,
+            "DiscoveryDurationMs": 798.8772,
+            "EpisodeQueryDurationMs": 3914.6580999999987,
+            "VisibilityDurationMs": 27.470999999999574,
+            "PlaybackBatchDurationMs": 194.28930000000003,
+            "UserDataBatchDurationMs": 176.9484,
+            "ResumeBatchDurationMs": 17.321100000000005,
+            "ClassificationDurationMs": 1.1044999999999991,
+            "TotalVerificationDurationMs": 4155.3405,
+            "EpisodeQueryCount": 680,
+            "PlaybackBatchCount": 40,
+            "PlaybackCacheHits": 680,
+            "PlaybackCacheMisses": 20,
+            "PreparedVisibilityHits": 700,
+            "PreparedVisibilityMisses": 700,
+            "AccountCacheHits": 1393,
+            "AccountCacheMisses": 7
+          },
+          "coverage": {
+            "Version": 1,
+            "ActivityWindowDays": 30,
+            "DiscoveryLimited": true,
+            "EpisodeMetadataIncomplete": true,
+            "VerificationLimited": false,
+            "ResultLimitReached": false,
+            "AdditionalPagesAvailable": false,
+            "Causes": [
+              "EpisodeMetadataIncomplete",
+              "RawEpisodeDiscoveryLimit"
+            ],
+            "Warnings": [
+              "Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them.",
+              "Candidate discovery was bounded; older titles or titles with incomplete series keys may be omitted."
+            ]
+          }
+        }
+      ],
+      "medianMs": 5029.860083013773
+    }
+  ]
+}

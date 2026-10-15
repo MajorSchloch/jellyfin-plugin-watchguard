@@ -17,18 +17,21 @@ jobs:
       - run: dotnet build Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
       - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-build --no-restore
         env:
-          WATCHGUARD_BENCHMARK_OUTPUT: /tmp/discovery-model-v046.json
+          WATCHGUARD_BENCHMARK_OUTPUT: /tmp/discovery-model-v047.json
+          WATCHGUARD_VERIFICATION_MODEL_OUTPUT: /tmp/verification-model-v047.json
       - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs
       - uses: actions/upload-artifact@v6
         with:
-          name: discovery-model-v046
-          path: /tmp/discovery-model-v046.json
+          name: discovery-model-v047
+          path: |
+            /tmp/discovery-model-v047.json
+            /tmp/verification-model-v047.json
       - run: python3 scripts/build-release.py
       - run: python3 tests/catalog_test.py
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.6.zip
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip
       - uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-v0.4.6
+          name: WatchGuard-v0.4.7
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.6.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.6.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip.sha256

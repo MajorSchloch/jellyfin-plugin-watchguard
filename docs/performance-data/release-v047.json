@@ -1,0 +1,81 @@
+{
+  "version": "0.4.7.0",
+  "targetAbi": "12.2.0.0",
+  "backendTests": 102,
+  "javascriptTests": 53,
+  "catalogTests": 4,
+  "browserRuns": [
+    {
+      "fixture": "linuxserver/direct/migration",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "fixture": "linuxserver/caddy/standalone",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "fixture": "official/direct/injector",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    },
+    {
+      "fixture": "official/basepath/standalone",
+      "result": "PASS",
+      "nativeDeletes": 13,
+      "orderingViolations": 0
+    }
+  ],
+  "deletionEntryMethodsAndControllerUnchanged": true,
+  "webAndStandaloneLoaderUnchanged": true,
+  "storesAndConfigurationSchemaUnchanged": true,
+  "reproducibleBuild": true,
+  "sha256": "8046bbd611ba3e17bf003160e32d8bffdf07a22038f06863bd8414e78c08b6e0",
+  "md5": "5c0ed51730eeaff62f7d87da453ad671",
+  "publishedV046Sha256": "e083f873d76a2cd62005e1093f30ecfde3201409fa9caa45948433372bba87e1",
+  "unchangedManifestSha256": "505243512d405c3d4d0c3520b5a927103d6d4bdefd478e5e766937782ef902c2",
+  "catalogRoundTrip": {
+    "result": "PASS",
+    "baselineSha256": "439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d",
+    "roundTrip": "0.4.7 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5 -> 0.4.6 -> 0.4.7",
+    "storesAndConfigBytesPreserved": true,
+    "noInjector": true,
+    "singleActiveAssembly": true
+  },
+  "published": false,
+  "deployed": false,
+  "result": "PASS",
+  "parallelCiJobsLocallyPassed": [
+    "standalone-caddy",
+    "migration",
+    "basepath",
+    "legacy",
+    "websocket",
+    "discovery",
+    "verification"
+  ],
+  "nativeBenchmarks": {
+    "uniformAllUsersMedianMs": {
+      "published": 12920.36,
+      "candidate": 4859.82
+    },
+    "mixedAllUsersMedianMs": {
+      "published": 11103.39,
+      "candidate": 5029.86
+    },
+    "uniformPlaybackCalls": {
+      "published": 1400,
+      "candidate": 42
+    },
+    "mixedPlaybackCalls": {
+      "published": 1360,
+      "candidate": 40
+    },
+    "exactItemResultsMatch": true,
+    "productionMeasured": false
+  }
+}

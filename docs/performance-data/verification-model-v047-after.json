@@ -1,0 +1,28 @@
+[
+  {
+    "episodeCount": 24,
+    "users": 1,
+    "titles": 110,
+    "returned": 100,
+    "LimitReached": true,
+    "episodeRows": 2400,
+    "nativePlaybackBatches": 6,
+    "nativeQueries": 104,
+    "nativeLookups": 495,
+    "elapsedMs": 22.604,
+    "allocatedBytes": 2489304
+  },
+  {
+    "episodeCount": 24,
+    "users": 7,
+    "titles": 110,
+    "returned": 100,
+    "LimitReached": true,
+    "episodeRows": 16800,
+    "nativePlaybackBatches": 42,
+    "nativeQueries": 728,
+    "nativeLookups": 2865,
+    "elapsedMs": 385.3974,
+    "allocatedBytes": 16132064
+  }
+]

@@ -23,7 +23,7 @@ def run(call, admin_token, items, plugins, standalone=True):
     call('/Plugins/'+guid+'/Configuration', 'POST', config, admin_token, expected=204)
     assert 'WatchGuardSettings' in call('/web/ConfigurationPage?name=WatchGuard', token=admin_token, raw=True)
     status = call('/WatchGuard/IntegrationStatus', token=admin_token)
-    assert status['PluginVersion'] == ('0.4.6' if standalone else '0.3.1') and status['BrowserExecutionVerified'] is False
+    assert status['PluginVersion'] == ('0.4.7' if standalone else '0.3.1') and status['BrowserExecutionVerified'] is False
     if standalone:
         assert status['PluginLoaded'] and status['Standalone']['Enabled'] and status['Standalone']['LoaderActive']
         assert status['Standalone']['AuthenticatedScriptResponsesCompleted'] >= 1

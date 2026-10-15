@@ -32,6 +32,24 @@ public sealed class OverviewDiagnostics
     public int NativePlaybackBatches { get; set; }
     public int NativeDiscoveryQueries { get; set; }
     public double QueryDurationMs { get; set; }
+    public double DiscoveryDurationMs { get; set; }
+    public double EpisodeQueryDurationMs { get; set; }
+    public double VisibilityDurationMs { get; set; }
+    public double PlaybackBatchDurationMs { get; set; }
+    public double UserDataBatchDurationMs { get; set; }
+    public double ResumeBatchDurationMs { get; set; }
+    public double ClassificationDurationMs { get; set; }
+    public double TotalVerificationDurationMs { get; set; }
+    public int EpisodeQueryCount { get; set; }
+    public int PlaybackBatchCount { get; set; }
+    public int PlaybackCacheHits { get; set; }
+    public int PlaybackCacheMisses { get; set; }
+    public int PreparedVisibilityHits { get; set; }
+    public int PreparedVisibilityMisses { get; set; }
+    public int AccountCacheHits { get; set; }
+    public int AccountCacheMisses { get; set; }
+
+    internal static double Elapsed(long started) => Stopwatch.GetElapsedTime(started).TotalMilliseconds;
 }
 
 internal sealed record OverviewPlayback(string DisplayName, DateTime? LastPlayedDate, bool Completed, int? AvailableEpisodes, int? WatchedEpisodes)
@@ -46,7 +64,7 @@ internal sealed record OverviewPlayback(string DisplayName, DateTime? LastPlayed
 internal sealed class OverviewBudget(WatchlistEntry[] entries, User[] accounts)
 {
     public User[] Accounts { get; } = accounts;
-    public OverviewMovieReads? MovieReads { get; set; }
+    public OverviewVerificationReads? VerificationReads { get; set; }
     public OverviewDiagnostics Diagnostics { get; } = new();
     public CancellationToken Cancellation { get; init; }
     public IEnumerable<SessionInfo>? SessionSnapshot { get; init; }
@@ -207,10 +225,17 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
         var result = new List<OverviewItem>();
         var attempted = 0;
         diagnostics.UniqueCandidates = candidates.Count;
+        diagnostics.DiscoveryDurationMs = timer.Elapsed.TotalMilliseconds;
+        var verificationStarted = Stopwatch.GetTimestamp();
         using var verificationTiming = OverviewTiming.Begin("Verification", logger);
-        foreach (var chunk in candidates.Values.Chunk(CandidateLimit))
+        var orderedCandidates = candidates.Values.ToArray();
+        for (var offset = 0; offset < orderedCandidates.Length;)
         {
-            if (activityDays.HasValue) interest.PrepareOverviewMovies(chunk, budget);
+            // Never prepare more titles than the remaining result slots. Earlier
+            // chunks may contain uninteresting titles, so adapt the final window.
+            var chunk = orderedCandidates.Skip(offset).Take(candidateLimit - result.Count).ToArray();
+            offset += chunk.Length;
+            if (activityDays.HasValue) interest.PrepareOverviewVerification(chunk, budget);
             foreach (var item in chunk)
             {
                 cancellation.ThrowIfCancellationRequested();
@@ -247,13 +272,13 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
                     if (budget.Remaining < 0) break;
                 }
             }
-            diagnostics.NativePlaybackBatches += budget.MovieReads?.BatchCalls ?? 0;
-            budget.MovieReads = null;
+            budget.VerificationReads = null;
             if (result.Count >= candidateLimit || budget.Remaining < 0) break;
         }
         if (result.Count >= candidateLimit && attempted < candidates.Count)
         { limited = resultLimited = true; causes.Add("ResultLimit"); }
         if (budget.IncompleteCoverage) causes.Add("EpisodeMetadataIncomplete");
+        diagnostics.TotalVerificationDurationMs = OverviewDiagnostics.Elapsed(verificationStarted);
         diagnostics.QueryDurationMs = timer.Elapsed.TotalMilliseconds;
         if (Plugin.Instance?.Configuration.DiagnosticMode == true)
             logger?.LogInformation("WatchGuard overview: discovered {Discovered}, unique {Unique}, verified {Verified}, users {Users}, episode rows {Rows}, playback batches {Batches}, discovery queries {Queries}, duration {Duration:F3} ms, causes {Causes}",
