@@ -77,14 +77,14 @@ def main():
             port = docker('port', name, '8096/tcp').split(':')[-1]
             base = 'http://127.0.0.1:' + port + options.base_path
 
-            def call(path, method='GET', data=None, token=None, expected=200, raw=False):
+            def call(path, method='GET', data=None, token=None, expected=200, raw=False, timeout=15):
                 header = 'MediaBrowser Client="WatchGuardPoCTest", Device="Disposable", DeviceId="watchguard-poc", Version="1"'
                 if token: header += ', Token="' + token + '"'
                 body = json.dumps(data).encode() if data is not None else (b'' if method == 'POST' else None)
                 request = urllib.request.Request(base + path, data=body, method=method,
                     headers={'Content-Type': 'application/json', 'Authorization': header})
                 try:
-                    with urllib.request.urlopen(request, timeout=15) as response:
+                    with urllib.request.urlopen(request, timeout=timeout) as response:
                         status, result = response.status, response.read()
                 except urllib.error.HTTPError as error:
                     status, result = error.code, error.read()
