@@ -1,0 +1,82 @@
+{
+  "direct": {
+    "challenge": {
+      "count": 28,
+      "medianMs": 21.82,
+      "maxMs": 152.71
+    },
+    "approved-single": {
+      "count": 1,
+      "medianMs": 33.22,
+      "maxMs": 33.22
+    },
+    "approved-bulk": {
+      "count": 1,
+      "medianMs": 50.42,
+      "maxMs": 50.42
+    },
+    "ordinary-clear": {
+      "count": 1,
+      "medianMs": 55.07,
+      "maxMs": 55.07
+    },
+    "Present": {
+      "count": 27,
+      "medianMs": 26.18,
+      "maxMs": 83.98
+    },
+    "Approve": {
+      "count": 27,
+      "medianMs": 24.84,
+      "maxMs": 83.68
+    },
+    "longSeriesChallengeMs": 152.71,
+    "longSeriesPresentMs": 83.98,
+    "longSeriesApproveMs": 83.68,
+    "freshEvaluation": {
+      "count": 111,
+      "medianMs": 11.8,
+      "maxMs": 142.84
+    }
+  },
+  "basepath": {
+    "challenge": {
+      "count": 28,
+      "medianMs": 23.07,
+      "maxMs": 170.32
+    },
+    "approved-single": {
+      "count": 1,
+      "medianMs": 32.38,
+      "maxMs": 32.38
+    },
+    "approved-bulk": {
+      "count": 1,
+      "medianMs": 50.58,
+      "maxMs": 50.58
+    },
+    "ordinary-clear": {
+      "count": 1,
+      "medianMs": 51.5,
+      "maxMs": 51.5
+    },
+    "Present": {
+      "count": 27,
+      "medianMs": 28.62,
+      "maxMs": 89.73
+    },
+    "Approve": {
+      "count": 27,
+      "medianMs": 26.34,
+      "maxMs": 93.81
+    },
+    "longSeriesChallengeMs": 170.32,
+    "longSeriesPresentMs": 89.73,
+    "longSeriesApproveMs": 93.81,
+    "freshEvaluation": {
+      "count": 107,
+      "medianMs": 12.56,
+      "maxMs": 160.77
+    }
+  }
+}
