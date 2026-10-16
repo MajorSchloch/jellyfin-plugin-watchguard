@@ -1,0 +1,7 @@
+  Jellyfin.Plugin.WatchGuard -> /Users/dave/RiderProjects/jellyfin-plugin-watchguard/Jellyfin.Plugin.WatchGuard/bin/Release/net10.0/Jellyfin.Plugin.WatchGuard.dll
+  ServerApproval -> /Users/dave/RiderProjects/jellyfin-plugin-watchguard/experiments/ServerApproval/bin/Release/net10.0/WatchGuard.ServerApproval.dll
+  ServerApproval.Tests -> /Users/dave/RiderProjects/jellyfin-plugin-watchguard/experiments/ServerApproval.Tests/bin/Release/net10.0/ServerApproval.Tests.dll
+Test run for /Users/dave/RiderProjects/jellyfin-plugin-watchguard/experiments/ServerApproval.Tests/bin/Release/net10.0/ServerApproval.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    35, Skipped:     0, Total:    35, Duration: 213 ms - ServerApproval.Tests.dll (net10.0)

@@ -1,0 +1,8 @@
+  Determining projects to restore...
+  Restored /var/folders/7g/56cjc1k978n1zdr5lpgv4ff40000gn/T/watchguard-model-ir6gkz5i/Baseline.csproj (in 599 ms).
+  Baseline -> /var/folders/7g/56cjc1k978n1zdr5lpgv4ff40000gn/T/watchguard-model-ir6gkz5i/bin/Release/net10.0/Baseline.dll
+Test run for /var/folders/7g/56cjc1k978n1zdr5lpgv4ff40000gn/T/watchguard-model-ir6gkz5i/bin/Release/net10.0/Baseline.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 480 ms - Baseline.dll (net10.0)
+Published/candidate model results and episode work match; native hydration occurs once per series; playback calls unchanged.

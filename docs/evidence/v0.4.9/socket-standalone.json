@@ -1,0 +1,12 @@
+{
+  "mode": "standalone",
+  "https": true,
+  "nativeWebSocketOpen": false,
+  "handshakeStatusCodes": [
+    101
+  ],
+  "connectionsRemaining": 1,
+  "closed": 2,
+  "framesReceived": 2,
+  "frameErrors": 2
+}

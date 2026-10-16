@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "publishedBaselineSha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+  "upgrade": "0.3.1 -> 0.4.9",
+  "rollback": "0.4.9 -> 0.3.1 -> 0.4.9",
+  "checksumRejection": "tested separately by legacy catalog fixture",
+  "conflictBlocked": true,
+  "noAutomaticInjectorWrites": true,
+  "otherScriptsPreserved": true,
+  "dataAndConfigBytesPreserved": true,
+  "duplicateActivePlugins": false
+}

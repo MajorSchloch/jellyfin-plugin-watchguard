@@ -30,3 +30,7 @@ Registration retries startup ordering for approximately 60 seconds. A failed att
 ## Native sources
 
 Pinned 12.2 sources: [base configuration persistence/event](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/MediaBrowser.Common/Plugins/BasePluginOfT.cs), [administrator configuration controller](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/Jellyfin.Api/Controllers/PluginsController.cs), [embedded dashboard pages](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/Jellyfin.Api/Controllers/DashboardController.cs). See [deployment](deployment.md) for verification results and rollback.
+
+## v0.4.9 opt-in server enforcement
+
+`EnableServerEnforcement` is a native administrator-only Boolean setting, default false, including older XML with no field. It uses the existing configuration file. Changing it requires restart in either direction; the immutable startup activation remains effective until then. Dashboard distinguishes configured preference, attached actions, compatibility, runtime state, native-session/proxy observations and restart requirement. It never infers protection from the checkbox alone. See [server enforcement](server-enforcement-v049.md) before enabling: unsupported clients cannot approve protected deletion, API keys are restricted, and external file changes remain outside coverage.

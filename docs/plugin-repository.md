@@ -45,3 +45,9 @@ Contract source: pinned Jellyfin [PackageInfo](https://github.com/jellyfin/jelly
 
 
 v0.4.8 retains the seven-suite parallel release workflow. The standalone catalog fixture additionally verifies the immutable published v0.4.0–v0.4.7 packages and schema-1 persistence before returning to the RC. The checked-in manifest is unchanged from the published baseline; v0.4.8 is not advertised.
+
+## v0.4.9 candidate preparation
+
+The normal package remains one DLL plus LICENSE, stable GUID and target ABI 12.2.0.0. The candidate adds no companion plugin or runtime dependency. `scripts/build-release.py` prepares v0.4.9 and `scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip` validates it without advertising an unpublished URL. The parallel release workflow adds official direct, base-path and LinuxServer server-enforcement jobs alongside the existing matrix. Publication remains explicitly gated and off by default; this implementation does not update public manifest history.
+
+Normal v0.4.8 catalog upgrades must select one active v0.4.9 assembly without manual DLL retirement and default enforcement off. See [upgrade and retained-version behavior](server-enforcement-upgrade-v049.md).

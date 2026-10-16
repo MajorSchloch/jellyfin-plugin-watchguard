@@ -31,21 +31,21 @@ class CatalogTests(unittest.TestCase):
             with zipfile.ZipFile(path,'w') as z:z.writestr('OtherPlugin.dll','not allowed')
             with self.assertRaises(ValueError):catalog.inspect_zip(path)
     def test_release_archive(self):
-        path=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip')
+        path=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip')
         _,sha=catalog.inspect_zip(path)
         self.assertEqual(path.with_suffix('.zip.sha256').read_text().split(),[sha,path.name])
 
     def test_published_history_is_preserved_and_versions_are_immutable(self):
-        archive=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip')
+        archive=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip')
         published=json.loads(Path('manifest.json').read_text())
         self.assertTrue(any(v['version']=='0.4.1.0' for v in published[0]['versions']))
         # Preparation must preserve every published entry, including v0.4.1.
-        # Only the synthetic v0.4.8 release is added to the temporary manifest.
+        # Only the synthetic v0.4.9 release is added to the temporary manifest.
         original=json.loads(json.dumps(published))
-        original[0]['versions']=[v for v in original[0]['versions'] if v['version']!='0.4.8.0']
+        original[0]['versions']=[v for v in original[0]['versions'] if v['version']!='0.4.9.0']
         self.assertTrue(any(v['version']=='0.3.1.0' for v in original[0]['versions']))
         self.assertTrue(any(v['version']=='0.4.0.0' for v in original[0]['versions']))
-        base='https://github.com/Fixture/WatchGuard/releases/download/v0.4.8/'
+        base='https://github.com/Fixture/WatchGuard/releases/download/v0.4.9/'
         release={'draft':False,'prerelease':False,'published_at':'2026-10-12T00:00:00Z','assets':[
             {'name':archive.name,'browser_download_url':base+archive.name},
             {'name':archive.name+'.sha256','browser_download_url':base+archive.name+'.sha256'}]}
@@ -56,13 +56,13 @@ class CatalogTests(unittest.TestCase):
             Path(destination).write_bytes(content)
         with tempfile.TemporaryDirectory() as temp, patch.object(catalog,'download',download):
             manifest=Path(temp)/'manifest.json';manifest.write_text(json.dumps(original))
-            catalog.add_release(manifest,'Fixture/WatchGuard','v0.4.8',archive)
+            catalog.add_release(manifest,'Fixture/WatchGuard','v0.4.9',archive)
             updated=json.loads(manifest.read_text())
             for old in original[0]['versions']:
                 self.assertEqual(next(v for v in updated[0]['versions'] if v['version']==old['version']),old)
-            self.assertEqual(updated[0]['versions'][0]['version'],'0.4.8.0')
+            self.assertEqual(updated[0]['versions'][0]['version'],'0.4.9.0')
             saved=manifest.read_bytes();release['published_at']='2026-10-13T00:00:00Z'
-            with self.assertRaises(ValueError):catalog.add_release(manifest,'Fixture/WatchGuard','v0.4.8',archive)
+            with self.assertRaises(ValueError):catalog.add_release(manifest,'Fixture/WatchGuard','v0.4.9',archive)
             self.assertEqual(manifest.read_bytes(),saved)
 
 if __name__=='__main__':unittest.main()

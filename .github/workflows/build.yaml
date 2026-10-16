@@ -19,7 +19,7 @@ jobs:
         env:
           WATCHGUARD_BENCHMARK_OUTPUT: /tmp/discovery-model-v048.json
           WATCHGUARD_VERIFICATION_MODEL_OUTPUT: /tmp/verification-model-v048.json
-      - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs
+      - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs
       - uses: actions/upload-artifact@v6
         with:
           name: discovery-model-v048
@@ -28,10 +28,10 @@ jobs:
             /tmp/verification-model-v048.json
       - run: python3 scripts/build-release.py
       - run: python3 tests/catalog_test.py
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
       - uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-v0.4.8
+          name: WatchGuard-v0.4.9
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256

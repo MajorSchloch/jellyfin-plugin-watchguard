@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "baselineSha256": "439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d",
+  "roundTrip": "0.4.9 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5 -> 0.4.6 -> 0.4.7 -> 0.4.8 -> 0.4.9",
+  "roundTripStoresAndConfigBytesPreserved": true,
+  "normalCatalogUpgradeWithoutManualAssemblyOperations": true,
+  "existingConfigValuesPreserved": true,
+  "noInjector": true,
+  "singleActiveAssembly": true
+}

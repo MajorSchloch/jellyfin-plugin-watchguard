@@ -8,6 +8,7 @@
 <div class="inputContainer"><label class="inputLabel" for="wgLimit">Activity overview limit</label><input is="emby-input" id="wgLimit" type="number" min="1" max="100" step="1" required><div class="fieldDescription">Default 100; 1–100 returned activity titles and completed-movie candidates per user. Other discovery and verification safety limits also apply; results are not exhaustive.</div></div>
 <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input is="emby-checkbox" id="wgDiagnostics" type="checkbox"><span>Diagnostic mode</span></label><div class="fieldDescription">Default off. Logs timing and adapter events without tokens or private data. Save, then fully reload Web clients for script changes.</div></div>
 <div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input is="emby-checkbox" id="wgCaughtUp" type="checkbox"><span>Protect Caught Up series</span></label><div class="fieldDescription">Default on. Warn before deleting a continuing series, season or episode when someone has watched all known aired episodes with verified coverage. Applies immediately; ended viewing history alone remains unprotected.</div></div>
+<div class="checkboxContainer checkboxContainer-withDescription"><label class="emby-checkbox-label"><input is="emby-checkbox" id="wgEnforcement" type="checkbox"><span>Enable server-side deletion enforcement</span></label><div class="fieldDescription">Default off. Requires a Jellyfin restart after changing. Protects only the qualified native HTTP item deletion routes. Clients without WatchGuard approval support cannot delete protected media; only enabled administrators can approve. Does not protect filesystem changes or direct Sonarr/Radarr/Tdarr operations.</div></div>
 <button is="emby-button" class="raised button-submit block" type="submit">Save</button>
 </form>
 <p id="wgSettingsMessage" role="status"></p>
@@ -43,6 +44,19 @@
             for (const text of lines) {
                 const p = document.createElement('p'); p.textContent = text; target.append(p);
             }
+            const guard = await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/ServerApproval/Capabilities'), dataType:'json', cache:false});
+            if (!current()) return;
+            for (const text of [
+                'Server enforcement configured: ' + guard.Configured + ' · Runtime: ' + guard.Runtime,
+                'Native delete actions attached: ' + guard.AttachedActions + '/2 · Compatible: ' + guard.Compatible,
+                'Restart required: ' + guard.RestartRequired,
+                guard.State === 'Enabled' && guard.Compatible && guard.AttachedActions === 2
+                    ? 'Server guard attached. Approval protocol available; browser/proxy execution still requires validation.'
+                    : guard.Expected ? 'Server enforcement expected but unavailable. Resolve compatibility and reload clients; do not assume protection.' : 'Web-only protection. Server enforcement is inactive.',
+                'Request environment: ' + guard.RequestEnvironment,
+                'Approval authentication: ' + guard.AuthorizationState,
+                'Coverage: ' + guard.Coverage + '. External filesystem operations are outside this boundary.'
+            ]) { const p = document.createElement('p'); p.textContent = text; target.append(p); }
             let available = true;
             if (standalone) {
                 try { await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/Standalone/script.js'), dataType:'text', cache:false}); }
@@ -68,7 +82,7 @@
             const config = await ApiClient.getPluginConfiguration(id);
             if (!valid(who, revision)) return;
             field('#wgDays').value = config.ActivityWindowDays; field('#wgLimit').value = config.ActivityLimit;
-            field('#wgCaughtUp').checked = config.ProtectCaughtUpSeries !== false; field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
+            field('#wgEnforcement').checked = config.EnableServerEnforcement === true; field('#wgCaughtUp').checked = config.ProtectCaughtUpSeries !== false; field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
         } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not load settings. Administrator access is required.'; }
     });
     page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
@@ -84,9 +98,9 @@
         try {
             const config = await ApiClient.getPluginConfiguration(id);
             if (!valid(who, revision)) return;
-            config.ProtectCaughtUpSeries = field('#wgCaughtUp').checked; config.ActivityWindowDays = days; config.ActivityLimit = limit; config.DiagnosticMode = diagnostic;
+            config.EnableServerEnforcement = field('#wgEnforcement').checked; config.ProtectCaughtUpSeries = field('#wgCaughtUp').checked; config.ActivityWindowDays = days; config.ActivityLimit = limit; config.DiagnosticMode = diagnostic;
             await ApiClient.updatePluginConfiguration(id, config);
-            if (valid(who, revision)) { field('#wgSettingsMessage').textContent = 'Saved. Activity settings apply to the next query. Fully reload Web clients for diagnostic script changes; no server restart needed.'; await status(); }
+            if (valid(who, revision)) { field('#wgSettingsMessage').textContent = 'Saved. Activity settings apply to the next query. Changing server enforcement requires a Jellyfin restart. Fully reload Web clients after restart or diagnostic changes; check runtime status below.'; await status(); }
         } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not save settings. Please retry.'; }
         finally { button.disabled = false; }
     };

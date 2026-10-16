@@ -1,0 +1,38 @@
+{
+  "removed": [
+    "002ce0eab8fcbbd6cacfb393ab736ef2"
+  ],
+  "cases": [
+    "approved-Movie"
+  ],
+  "timings": [
+    {
+      "kind": "Movie",
+      "elapsedMs": 136
+    }
+  ],
+  "requests": [
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 50
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 17
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 20
+    },
+    {
+      "phase": "NativeDelete",
+      "status": 204,
+      "ms": 73
+    }
+  ],
+  "status": "PASS",
+  "nativeDeletes": 1
+}

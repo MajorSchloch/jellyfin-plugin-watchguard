@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Jellyfin.Plugin.WatchGuard.Standalone;
 
 [ApiController, Route("WatchGuard/Standalone"), ResponseCache(NoStore = true, Location = ResponseCacheLocation.None, VaryByHeader = "Authorization")]
-public sealed class StandaloneController(StandaloneMode mode, IAuthorizationContext authorization, IUserManager users) : ControllerBase
+public sealed class StandaloneController(StandaloneMode mode, ServerEnforcement.Attachment guard, IAuthorizationContext authorization, IUserManager users) : ControllerBase
 {
     private static string Read(string resource)
     {
@@ -33,6 +33,7 @@ public sealed class StandaloneController(StandaloneMode mode, IAuthorizationCont
         if (!mode.CanLoad()) return Conflict("Conflicting or unverifiable Injector registration.");
         Response.OnCompleted(() => { if (Response.StatusCode == 200) mode.ScriptDelivered(); return Task.CompletedTask; });
         return Content(Read("Jellyfin.Plugin.WatchGuard.Web.watchguard.js").Replace("/*WATCHGUARD_DIAGNOSTICS*/false",
-            Plugin.Instance!.Configuration.DiagnosticMode ? "true" : "false", StringComparison.Ordinal), "application/javascript; charset=utf-8");
+            Plugin.Instance!.Configuration.DiagnosticMode ? "true" : "false", StringComparison.Ordinal)
+            .Replace("/*WATCHGUARD_SERVER_EXPECTED*/false", guard.EnabledAtStartup ? "true" : "false", StringComparison.Ordinal), "application/javascript; charset=utf-8");
     }
 }

@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish v0.4.8 and update the public catalog (requires release environment approval)
+        description: Publish v0.4.9 and update the public catalog (requires release environment approval)
         type: boolean
         default: false
 permissions:
@@ -31,7 +31,7 @@ jobs:
         env:
           WATCHGUARD_BENCHMARK_OUTPUT: /tmp/discovery-model-v048.json
           WATCHGUARD_VERIFICATION_MODEL_OUTPUT: /tmp/verification-model-v048.json
-      - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs
+      - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs
       - uses: actions/upload-artifact@v6
         with:
           name: discovery-model-v048
@@ -39,7 +39,7 @@ jobs:
             /tmp/discovery-model-v048.json
             /tmp/verification-model-v048.json
       - run: python3 tests/catalog_test.py
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
       - name: Compare identical models with published v0.4.7
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.7/Jellyfin.Plugin.WatchGuard-v0.4.7.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip
@@ -52,16 +52,16 @@ jobs:
             artifacts/discovery-model-v048-before.json
       - name: Rebuild and verify determinism
         run: |
-          cp artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256 /tmp/first.sha256
+          cp artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256 /tmp/first.sha256
           python3 scripts/build-release.py
-          cmp /tmp/first.sha256 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256
+          cmp /tmp/first.sha256 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256
       - uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-v0.4.8-validated
+          name: WatchGuard-v0.4.9-validated
           if-no-files-found: error
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256
 
   integration:
     name: Integration / ${{ matrix.suite }}
@@ -70,7 +70,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [standalone-caddy, migration, basepath, legacy, websocket, discovery, verification]
+        suite: [standalone-caddy, migration, basepath, legacy, websocket, discovery, verification, server-enforcement, server-enforcement-basepath, server-enforcement-linuxserver]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-dotnet@v5
@@ -83,14 +83,14 @@ jobs:
           cache-dependency-path: tests/browser/package-lock.json
       - uses: actions/download-artifact@v6
         with:
-          name: WatchGuard-v0.4.8-validated
+          name: WatchGuard-v0.4.9-validated
           path: artifacts
       - name: Extract verified release candidate for Docker fixture
         run: |
           cd artifacts
-          sha256sum -c Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256
+          sha256sum -c Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256
           mkdir -p WatchGuard
-          unzip -p Jellyfin.Plugin.WatchGuard-v0.4.8.zip Jellyfin.Plugin.WatchGuard.dll > WatchGuard/Jellyfin.Plugin.WatchGuard.dll
+          unzip -p Jellyfin.Plugin.WatchGuard-v0.4.9.zip Jellyfin.Plugin.WatchGuard.dll > WatchGuard/Jellyfin.Plugin.WatchGuard.dll
       - name: Build Injector fixture (rollback/legacy only)
         if: matrix.suite == 'migration' || matrix.suite == 'legacy'
         run: |
@@ -100,7 +100,7 @@ jobs:
       - run: npm ci --prefix tests/browser
       - run: cd tests/browser && npx playwright install --with-deps chromium
       - name: Install zstd decoder where tested
-        if: matrix.suite == 'standalone-caddy' || matrix.suite == 'websocket'
+        if: matrix.suite == 'standalone-caddy' || matrix.suite == 'websocket' || startsWith(matrix.suite, 'server-enforcement')
         run: sudo apt-get update && sudo apt-get install -y zstd
       - name: Download and verify standalone rollback fixture
         if: matrix.suite == 'standalone-caddy'
@@ -146,7 +146,7 @@ jobs:
       - name: Pull pinned test image with registry backoff
         run: |
           set -euo pipefail
-          if [[ "${{ matrix.suite }}" == 'basepath' || "${{ matrix.suite }}" == 'legacy' || "${{ matrix.suite }}" == 'discovery' || "${{ matrix.suite }}" == 'verification' ]]; then
+          if [[ "${{ matrix.suite }}" == 'server-enforcement' || "${{ matrix.suite }}" == 'server-enforcement-basepath' || "${{ matrix.suite }}" == 'basepath' || "${{ matrix.suite }}" == 'legacy' || "${{ matrix.suite }}" == 'discovery' || "${{ matrix.suite }}" == 'verification' ]]; then
             image='jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037'
           else
             image='lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b'
@@ -166,9 +166,20 @@ jobs:
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.7/Jellyfin.Plugin.WatchGuard-v0.4.7.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip
           echo '8046bbd611ba3e17bf003160e32d8bffdf07a22038f06863bd8414e78c08b6e0  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip' | sha256sum -c -
+      - name: Download and verify published v0.4.8
+        if: matrix.suite == 'standalone-caddy'
+        run: |
+          curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.8/Jellyfin.Plugin.WatchGuard-v0.4.8.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
+          echo '06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip' | sha256sum -c -
       - name: Complete disposable regression suite
         run: |
           case "${{ matrix.suite }}" in
+            server-enforcement)
+              python3 tests/server-enforcement.py ;;
+            server-enforcement-basepath)
+              python3 tests/server-enforcement.py --base-path /jellyfin ;;
+            server-enforcement-linuxserver)
+              python3 tests/server-enforcement.py --linuxserver ;;
             standalone-caddy)
               python3 tests/docker-smoke.py --linuxserver --catalog --caddy ;;
             migration)
@@ -195,7 +206,9 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-browser-failure-${{ matrix.suite }}
-          path: artifacts/v048/
+          path: |
+            artifacts/v049/
+            artifacts/server-enforcement/
           if-no-files-found: warn
       - name: Upload suite evidence
         if: success()
@@ -203,13 +216,14 @@ jobs:
         with:
           name: WatchGuard-evidence-${{ matrix.suite }}
           path: |
+            artifacts/server-enforcement/
             artifacts/settings-validation.json
             artifacts/catalog-validation.json
-            artifacts/v048/
+            artifacts/v049/
             artifacts/standalone/caddy-http.json
             artifacts/standalone/socket-standalone.json
-            artifacts/migration-v048.json
-            artifacts/catalog-upgrade-v048.json
+            artifacts/migration-v049.json
+            artifacts/catalog-upgrade-v049.json
             artifacts/discovery-native-v048-*.json
             artifacts/verification-native-v048*.json
           if-no-files-found: warn
@@ -225,7 +239,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/download-artifact@v6
         with:
-          name: WatchGuard-v0.4.8-validated
+          name: WatchGuard-v0.4.9-validated
           path: artifacts
       - name: Refuse publication from stale catalog history
         run: |
@@ -246,17 +260,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           test "$(gh repo view "$GITHUB_REPOSITORY" --json isPrivate --jq .isPrivate)" = false
-          python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
+          python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
           # No replacement of existing immutable release assets.
-          gh release create v0.4.8 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title 'WatchGuard v0.4.8' --notes-file docs/episode-query-performance-v048.md
-          gh release upload v0.4.8 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256 --repo "$GITHUB_REPOSITORY"
-          gh release edit v0.4.8 --draft=false --repo "$GITHUB_REPOSITORY"
+          gh release create v0.4.9 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title 'WatchGuard v0.4.9' --notes-file docs/server-enforcement-v049.md
+          gh release upload v0.4.9 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256 --repo "$GITHUB_REPOSITORY"
+          gh release edit v0.4.9 --draft=false --repo "$GITHUB_REPOSITORY"
       - name: Verify public assets and update version history
-        run: python3 scripts/catalog.py --from-release "$GITHUB_REPOSITORY" v0.4.8 --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
+        run: python3 scripts/catalog.py --from-release "$GITHUB_REPOSITORY" v0.4.9 --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
       - name: Commit verified manifest to the source branch
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add manifest.json
-          git commit -m 'Update WatchGuard catalog for v0.4.8'
+          git commit -m 'Update WatchGuard catalog for v0.4.9'
           git push origin "HEAD:$GITHUB_REF_NAME"

@@ -1,0 +1,30 @@
+{
+  "candidateVersion": "0.4.9.0",
+  "targetAbi": "12.2.0.0",
+  "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d",
+  "productionDefault": "Web-only; EnableServerEnforcement=false",
+  "backendTests": 147,
+  "javascriptTests": 86,
+  "catalogTests": 4,
+  "archivedApprovalTests": 35,
+  "archivedVetoTests": 8,
+  "publishedModelTests": 2,
+  "reproducibleForcedBuilds": 2,
+  "publicManifestUnchanged": true,
+  "published": false,
+  "productionDeployed": false,
+  "qualification": "PASS: local full release matrix; candidate ready for separate release approval",
+  "candidateMatrixJobs": 11,
+  "legacyBaselineCatalogAndBrowser": "passed separately against published v0.3.1",
+  "guardNativeCases": {
+    "officialDirect": 74,
+    "officialBasePath": 73,
+    "linuxserverDirectCaddy": 74
+  },
+  "remainingBoundaries": [
+    "Pinned Jellyfin 12.2.0 images and exact native item-delete actions only",
+    "No independent external security audit or production deployment validation",
+    "Native browser WebSocket baseline limitation retained; authenticated Caddy probe passes",
+    "Native mutation is not transactional; no exactly-once filesystem completion guarantee"
+  ]
+}

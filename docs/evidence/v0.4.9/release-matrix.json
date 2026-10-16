@@ -1,0 +1,68 @@
+[
+  {
+    "suite": "guard-direct",
+    "exitCode": 0,
+    "seconds": 165.67,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "guard-basepath",
+    "exitCode": 0,
+    "seconds": 153.7,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "guard-linuxserver",
+    "exitCode": 0,
+    "seconds": 182.91,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "basepath",
+    "exitCode": 0,
+    "seconds": 145.41,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "migration",
+    "exitCode": 0,
+    "seconds": 206.23,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "catalog-caddy",
+    "exitCode": 0,
+    "seconds": 322.32,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "websocket",
+    "exitCode": 0,
+    "seconds": 30.72,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "discovery",
+    "exitCode": 0,
+    "seconds": 170.22,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "verification",
+    "exitCode": 0,
+    "seconds": 181.07,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "episode-policies",
+    "exitCode": 0,
+    "seconds": 202.25,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  },
+  {
+    "suite": "discovery-v047",
+    "exitCode": 0,
+    "seconds": 173.34,
+    "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d"
+  }
+]

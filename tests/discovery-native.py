@@ -6,6 +6,8 @@ from pathlib import Path
 import statistics
 import time
 import zipfile
+from datetime import datetime, timedelta, timezone
+from urllib.parse import urlencode
 
 
 def validate(output):
@@ -78,13 +80,19 @@ done
     for item in series:
         full = call('/Items/'+item['Id'], token=token)
         call('/Items/'+item['Id'], 'POST', {**full, 'Status':'Continuing'}, token, expected=204)
+    playback_base = datetime.now(timezone.utc) - timedelta(days=1)
     for number in range(6):
         user = call('/Users/New', 'POST', {'Name':f'BenchmarkUser{number}', 'Password':'DisposableBenchmark123!'}, token)
-        for item in series:
-            call('/UserPlayedItems/'+item['Id']+'?userId='+user['Id'], 'POST', token=token)
+        for index, item in enumerate(series):
+            # Native DatePlayed ordering must not depend on timestamp ties or scan order.
+            stamp = (playback_base + timedelta(minutes=index)).strftime('%Y-%m-%dT%H:%M:%SZ')
+            call('/UserPlayedItems/'+item['Id']+'?'+urlencode({'userId':user['Id'],'datePlayed':stamp}), 'POST', token=token)
             if number == 0:
                 episode = next(e for e in episodes if e.get('SeriesId') == item['Id'])
-                call('/UserItems/'+episode['Id']+'/UserData?userId='+user['Id'], 'POST', {'Played':False,'PlaybackPositionTicks':1000000}, token)
+                call('/UserItems/'+episode['Id']+'/UserData?userId='+user['Id'], 'POST', {'Played':False,'PlaybackPositionTicks':1000000,'LastPlayedDate':stamp}, token)
+        if number == 0:
+            resume = call('/UserItems/Resume?'+urlencode({'userId':user['Id'],'includeItemTypes':'Episode','limit':3}),token=token)['Items']
+            assert [e['SeriesId'] for e in resume] == [s['Id'] for s in reversed(series)], 'Native resume ordering does not match the bounded stress fixture'
         for item in movies[:140]:
             call('/UserPlayedItems/'+item['Id']+'?userId='+user['Id'], 'POST', token=token)
     movie_owner = call('/Users/New', 'POST', {'Name':'BenchmarkMoviesOnly','Password':'DisposableBenchmark123!'}, token)

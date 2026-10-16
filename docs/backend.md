@@ -158,3 +158,7 @@ ActivityOverview adds aggregate stage durations and prepared-read hit/miss count
 ### v0.4.8 episode metadata diagnostics
 
 ActivityOverview adds `EpisodeIdQueryCount`, `EpisodeHydrationQueryCount`, `EpisodeHydratedRows` and `EpisodeMetadataReusedRows`. `EpisodeQueryCount` counts both native projections and full hydration, including fallbacks; `EpisodeRowsProcessed` retains the original per-user logical work. No response contract, authorization, classification, work allowance or protection path changes. See [native query evidence and field definitions](episode-query-performance-v048.md).
+
+## v0.4.9 opt-in HTTP deletion guard
+
+Existing watchlist, activity and Protection contracts remain unchanged. New authenticated no-store routes under `/WatchGuard/ServerApproval/` expose Capabilities, Prepare, Present, Approve and Revoke. They never replace native deletion or authorize it from overview data. The feature defaults off and requires restart to activate/deactivate. Read [the production integration contract](server-enforcement-v049.md) and [security boundaries](server-enforcement-security-v049.md), including credential, administrator, expiry and replay restrictions.
