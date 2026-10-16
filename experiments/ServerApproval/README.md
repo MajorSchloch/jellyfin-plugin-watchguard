@@ -28,3 +28,23 @@ and restores v0.4.8 Web-only behavior. The test harness does this explicitly.
 `evidence/` contains aggregate results without access tokens, challenges or
 private viewing details. The store memory sample is a managed-heap test, not
 native server RSS. Stage B requires separate review and authorization.
+
+## Stage B Web opt-in
+
+The same companion now has an independent disposable Web flag,
+`WATCHGUARD_DISPOSABLE_SERVER_WEB=1`. It substitutes only the successful,
+authenticated WatchGuard script response; the production asset and loader
+remain unchanged. Do not enable it outside the disposable fixture.
+
+```sh
+node --test experiments/ServerApproval/server-web.test.cjs tests/*.test.cjs
+python3 experiments/ServerApproval/docker-test.py --web
+python3 experiments/ServerApproval/docker-test.py --web --base-path /jellyfin
+```
+
+These runs retain Stage A native checks, then restart with the Web experiment,
+exercise the existing native dialogs and Caddy, and test disabled-guard fallback.
+See [Stage B protocol/install/rollback](../../docs/server-web-integration-v049.md)
+and [results/screenshots](../../docs/server-web-integration-results-v049.md).
+Evidence is separate under `evidence-stage-b/`; Stage A evidence stays intact.
+Production packaging and activation still require separate review.

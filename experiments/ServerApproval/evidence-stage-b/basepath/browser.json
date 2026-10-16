@@ -1,0 +1,327 @@
+{
+  "removed": [
+    "3ef2b76654bc23e4643e9c1847656743",
+    "320db56f43b735f850884134f73d3eae",
+    "12ab3761e2a87e629f58fa52d3c08ac7",
+    "f32cf90754ce6074ccc941ed221a67a1",
+    "757aaf417b25132670c5a172cdde3c53",
+    "13aff29492a57294e589c73392c70d80",
+    "c26e666c2b7650b1c06b0225ed795c72",
+    "33fe16ceb76fb5d97b7a1a0c0443826e"
+  ],
+  "cases": [
+    "Cancel-zero-delete",
+    "Escape-zero-delete",
+    "close-zero-delete",
+    "approved-Movie",
+    "ApprovalExpired-zero-delete",
+    "ServerGuardUnsupported-zero-delete",
+    "individual-bulk-queue",
+    "approved-Episode",
+    "approved-Season",
+    "approved-Series",
+    "clear-native"
+  ],
+  "timings": [
+    {
+      "kind": "Movie",
+      "elapsedMs": 302
+    },
+    {
+      "kind": "Episode",
+      "elapsedMs": 263
+    },
+    {
+      "kind": "Season",
+      "elapsedMs": 227
+    },
+    {
+      "kind": "Series",
+      "elapsedMs": 188
+    }
+  ],
+  "requests": [
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 71
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 17
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 20
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 13
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 35
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 19
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 24
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 11
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 25
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 11
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 29
+    },
+    {
+      "phase": "Prepare",
+      "status": 200,
+      "ms": 75
+    },
+    {
+      "phase": "Present",
+      "status": 200,
+      "ms": 39
+    },
+    {
+      "phase": "Approve",
+      "status": 200,
+      "ms": 32
+    },
+    {
+      "phase": "NativeDelete",
+      "status": 204,
+      "ms": 87
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 25
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 11
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 22
+    },
+    {
+      "phase": "Prepare",
+      "status": 200,
+      "ms": 26
+    },
+    {
+      "phase": "Present",
+      "status": 200,
+      "ms": 24
+    },
+    {
+      "phase": "Approve",
+      "status": 410,
+      "ms": 3
+    },
+    {
+      "phase": "Revoke",
+      "status": 200,
+      "ms": 15
+    },
+    {
+      "phase": "Capabilities",
+      "status": 503,
+      "ms": 2
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 13
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 20
+    },
+    {
+      "phase": "Prepare",
+      "status": 200,
+      "ms": 32
+    },
+    {
+      "phase": "Present",
+      "status": 200,
+      "ms": 29
+    },
+    {
+      "phase": "Approve",
+      "status": 200,
+      "ms": 26
+    },
+    {
+      "phase": "NativeDelete",
+      "status": 204,
+      "ms": 38
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 10
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 21
+    },
+    {
+      "phase": "Prepare",
+      "status": 200,
+      "ms": 27
+    },
+    {
+      "phase": "Present",
+      "status": 200,
+      "ms": 24
+    },
+    {
+      "phase": "Approve",
+      "status": 200,
+      "ms": 23
+    },
+    {
+      "phase": "NativeDelete",
+      "status": 204,
+      "ms": 33
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 9
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 32
+    },
+    {
+      "phase": "Prepare",
+      "status": 200,
+      "ms": 84
+    },
+    {
+      "phase": "Present",
+      "status": 200,
+      "ms": 28
+    },
+    {
+      "phase": "Approve",
+      "status": 200,
+      "ms": 34
+    },
+    {
+      "phase": "NativeDelete",
+      "status": 204,
+      "ms": 38
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 12
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 29
+    },
+    {
+      "phase": "Prepare",
+      "status": 200,
+      "ms": 30
+    },
+    {
+      "phase": "Present",
+      "status": 200,
+      "ms": 29
+    },
+    {
+      "phase": "Approve",
+      "status": 200,
+      "ms": 30
+    },
+    {
+      "phase": "NativeDelete",
+      "status": 204,
+      "ms": 62
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 10
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 22
+    },
+    {
+      "phase": "Prepare",
+      "status": 200,
+      "ms": 28
+    },
+    {
+      "phase": "Present",
+      "status": 200,
+      "ms": 29
+    },
+    {
+      "phase": "Approve",
+      "status": 200,
+      "ms": 30
+    },
+    {
+      "phase": "NativeDelete",
+      "status": 204,
+      "ms": 37
+    },
+    {
+      "phase": "Capabilities",
+      "status": 200,
+      "ms": 10
+    },
+    {
+      "phase": "Protection",
+      "status": 200,
+      "ms": 22
+    },
+    {
+      "phase": "NativeDelete",
+      "status": 204,
+      "ms": 35
+    }
+  ],
+  "status": "PASS",
+  "nativeDeletes": 7
+}

@@ -49,7 +49,7 @@ public sealed class ApprovalController(IServiceProvider services, ILogger<Approv
             evaluator.CheckPermissions(ticket.Operation, final.User, HttpContext.RequestAborted);
             ticket = store.Transition(request.ChallengeId, principal.Owner, ticket.Operation, fresh.Fingerprint, desired);
             outcome = desired.ToString();
-            return Ok(new { State = outcome, ticket.ExpiresAt, Targets = ticket.Operation.Targets,
+            return Ok(new { State = outcome, ticket.ExpiresAt, Action = ticket.Operation.Action, Targets = ticket.Operation.Targets, Scopes = fresh.Scopes, Generation = store.Generation,
                 // Only Present returns admin-authorized detail. No details are stored in approvals.
                 Protection = desired == ApprovalState.Presented ? fresh.Protection : null });
         }

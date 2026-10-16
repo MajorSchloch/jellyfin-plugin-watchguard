@@ -23,6 +23,8 @@ public sealed class Registration : IPluginServiceRegistrator
 {
     public void RegisterServices(IServiceCollection serviceCollection, IServerApplicationHost applicationHost)
     {
+        if (Environment.GetEnvironmentVariable("WATCHGUARD_DISPOSABLE_SERVER_WEB") == "1")
+            serviceCollection.Configure<MvcOptions>(options => options.Conventions.Add(new WebAssetConvention()));
         if (Environment.GetEnvironmentVariable("WATCHGUARD_DISPOSABLE_SERVER_APPROVAL") != "1") return;
         serviceCollection.AddSingleton(new Attachment { ServerVersion = applicationHost.ApplicationVersion });
         if (Environment.GetEnvironmentVariable("WATCHGUARD_DISPOSABLE_SERVER_GUARD") == "1")

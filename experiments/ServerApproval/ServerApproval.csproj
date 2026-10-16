@@ -7,6 +7,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="server-web.js" LogicalName="WatchGuard.ServerApproval.server-web.js" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="../../Jellyfin.Plugin.WatchGuard/Jellyfin.Plugin.WatchGuard.csproj" Private="false" />
   </ItemGroup>

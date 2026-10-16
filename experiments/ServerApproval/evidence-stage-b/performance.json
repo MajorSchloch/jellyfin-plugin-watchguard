@@ -1,0 +1,189 @@
+{
+  "direct": {
+    "browser": {
+      "nativeDeletes": 7,
+      "clickToNativeNavigationMs": [
+        {
+          "kind": "Movie",
+          "elapsedMs": 333
+        },
+        {
+          "kind": "Episode",
+          "elapsedMs": 270
+        },
+        {
+          "kind": "Season",
+          "elapsedMs": 270
+        },
+        {
+          "kind": "Series",
+          "elapsedMs": 216
+        }
+      ],
+      "phases": {
+        "Approve": {
+          "samples": 6,
+          "medianMs": 33.5
+        },
+        "Capabilities": {
+          "samples": 12,
+          "medianMs": 25.0
+        },
+        "NativeDelete": {
+          "samples": 7,
+          "medianMs": 45
+        },
+        "Prepare": {
+          "samples": 7,
+          "medianMs": 44
+        },
+        "Present": {
+          "samples": 7,
+          "medianMs": 34
+        },
+        "Protection": {
+          "samples": 14,
+          "medianMs": 31.0
+        },
+        "Revoke": {
+          "samples": 1,
+          "medianMs": 28
+        }
+      }
+    },
+    "browser-proxy": {
+      "nativeDeletes": 1,
+      "clickToNativeNavigationMs": [
+        {
+          "kind": "Movie",
+          "elapsedMs": 226
+        }
+      ],
+      "phases": {
+        "Approve": {
+          "samples": 1,
+          "medianMs": 31
+        },
+        "Capabilities": {
+          "samples": 1,
+          "medianMs": 19
+        },
+        "NativeDelete": {
+          "samples": 1,
+          "medianMs": 45
+        },
+        "Prepare": {
+          "samples": 1,
+          "medianMs": 46
+        },
+        "Present": {
+          "samples": 1,
+          "medianMs": 31
+        },
+        "Protection": {
+          "samples": 2,
+          "medianMs": 33.0
+        }
+      }
+    },
+    "browser-legacy": {
+      "nativeDeletes": 1,
+      "clickToNativeNavigationMs": [
+        {
+          "kind": "Movie",
+          "elapsedMs": 138
+        }
+      ],
+      "phases": {
+        "Capabilities": {
+          "samples": 1,
+          "medianMs": 16
+        },
+        "NativeDelete": {
+          "samples": 1,
+          "medianMs": 74
+        },
+        "Protection": {
+          "samples": 2,
+          "medianMs": 41.5
+        }
+      }
+    }
+  },
+  "basepath": {
+    "browser": {
+      "nativeDeletes": 7,
+      "clickToNativeNavigationMs": [
+        {
+          "kind": "Movie",
+          "elapsedMs": 302
+        },
+        {
+          "kind": "Episode",
+          "elapsedMs": 263
+        },
+        {
+          "kind": "Season",
+          "elapsedMs": 227
+        },
+        {
+          "kind": "Series",
+          "elapsedMs": 188
+        }
+      ],
+      "phases": {
+        "Approve": {
+          "samples": 6,
+          "medianMs": 30.0
+        },
+        "Capabilities": {
+          "samples": 12,
+          "medianMs": 11.0
+        },
+        "NativeDelete": {
+          "samples": 7,
+          "medianMs": 38
+        },
+        "Prepare": {
+          "samples": 7,
+          "medianMs": 30
+        },
+        "Present": {
+          "samples": 7,
+          "medianMs": 29
+        },
+        "Protection": {
+          "samples": 14,
+          "medianMs": 24.5
+        },
+        "Revoke": {
+          "samples": 1,
+          "medianMs": 15
+        }
+      }
+    },
+    "browser-legacy": {
+      "nativeDeletes": 1,
+      "clickToNativeNavigationMs": [
+        {
+          "kind": "Movie",
+          "elapsedMs": 151
+        }
+      ],
+      "phases": {
+        "Capabilities": {
+          "samples": 1,
+          "medianMs": 21
+        },
+        "NativeDelete": {
+          "samples": 1,
+          "medianMs": 77
+        },
+        "Protection": {
+          "samples": 2,
+          "medianMs": 34.5
+        }
+      }
+    }
+  }
+}

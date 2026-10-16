@@ -9,9 +9,10 @@ BASELINE_SHA256='06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d
 def docker(*args): return subprocess.check_output(['docker',*args],text=True,stderr=subprocess.DEVNULL).strip()
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--base-path',choices=['','/jellyfin'],default='');a=parser.parse_args()
-    output=ROOT/'experiments/ServerApproval/evidence'/('basepath' if a.base_path else 'direct');output.mkdir(parents=True,exist_ok=True)
+    parser=argparse.ArgumentParser();parser.add_argument('--web',action='store_true');parser.add_argument('--base-path',choices=['','/jellyfin'],default='');a=parser.parse_args()
+    output=ROOT/'experiments/ServerApproval'/('evidence-stage-b' if a.web else 'evidence')/('basepath' if a.base_path else 'direct');output.mkdir(parents=True,exist_ok=True)
     report={'image':IMAGE,'basePath':a.base_path,'cases':[],'status':'RUNNING'}
+    (output/'results.json').write_text(json.dumps(report,indent=2)+'\n')
     archive=subprocess.check_output(['curl','--fail','--silent','--show-error','--location','--max-time','60','https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.8/Jellyfin.Plugin.WatchGuard-v0.4.8.zip'])
     assert hashlib.sha256(archive).hexdigest()==BASELINE_SHA256
     BASELINE.parent.mkdir(parents=True,exist_ok=True)
@@ -46,8 +47,8 @@ def main():
                     assert call('/System/Info/Public').get('Version');call('/Startup/User') if token is None else call('/Users/Me');return
                 except Exception:time.sleep(1)
             raise RuntimeError('Server startup timeout')
-        def start(enabled=True):
-            docker('run','-d','--name',name,'--user',f'{os.getuid()}:{os.getgid()}','-p','127.0.0.1::8096','-e','WATCHGUARD_DISPOSABLE_SERVER_APPROVAL='+('1' if enabled else '0'),'-v',str(root/'config')+':/config','-v',str(root/'media')+':/media',IMAGE);ready()
+        def start(enabled=True,web=False):
+            docker('run','-d','--name',name,'--user',f'{os.getuid()}:{os.getgid()}','-p','127.0.0.1::8096','-e','WATCHGUARD_DISPOSABLE_SERVER_WEB='+('1' if web else '0'),'-e','WATCHGUARD_DISPOSABLE_SERVER_APPROVAL='+('1' if enabled else '0'),'-v',str(root/'config')+':/config','-v',str(root/'media')+':/media',IMAGE);ready()
         def preserved(items):
             expanded={i['Id']:i for i in items}
             for parent in items:
@@ -75,9 +76,9 @@ def main():
             report['pluginDiscovery']=[{'name':p['Name'],'id':p['Id'],'version':p['Version']} for p in call('/Plugins') if 'WatchGuard' in p['Name']]
             logs=docker('logs',name);assert 'WG-APPROVAL attached=2 supported=true' in logs
             docker('exec',name,'/usr/lib/jellyfin-ffmpeg/ffmpeg','-hide_banner','-loglevel','error','-f','lavfi','-i','color=c=black:s=64x64:d=1','-c:v','libx264','-y','/media/template.mp4')
-            for title in ['Protected','Clear','BulkClear','Disabled','Uninstalled','ConcurrentClear','WebProtected','NativeDisabled','ApprovedSingle','ApprovedBulk1','ApprovedBulk2','Replay','ParallelA','ParallelBulk1','ParallelBulk2']:
+            for title in ['Protected','Clear','BulkClear','Disabled','Uninstalled','ConcurrentClear','WebProtected','NativeDisabled','ApprovedSingle','ApprovedBulk1','ApprovedBulk2','Replay','ParallelA','ParallelBulk1','ParallelBulk2','WebApproved','WebError','WebClear','WebBulkA','WebBulkB','CaddyWeb','WebLegacy']:
                 folder=media/'movies'/title;folder.mkdir(parents=True);shutil.copy2(media/'template.mp4',folder/(title+'.mp4'))
-            for title,count in [('Guard Series',2),('Long Series',300)]:
+            for title,count in [('Guard Series',2),('Long Series',300),('Web Series',2)]:
                 folder=media/'tv'/title/'Season 01';folder.mkdir(parents=True)
                 (folder.parent/'tvshow.nfo').write_text('<tvshow><title>'+title+'</title><status>Ended</status></tvshow>')
                 for number in range(1,count+1):
@@ -89,13 +90,13 @@ def main():
                 call('/Library/VirtualFolders?name='+kind+'&collectionType='+kind+'&paths='+path+'&refreshLibrary=true','POST',options,expected=204)
             for _ in range(120):
                 items=call('/Items?Recursive=true&Fields=Path&IncludeItemTypes=Movie,Series,Season,Episode')['Items']
-                if len([i for i in items if i['Type']=='Episode'])==302:break
+                if len([i for i in items if i['Type']=='Episode'])==304:break
                 time.sleep(1)
             else:raise AssertionError('Scan incomplete')
             media_records=items
             movies={i['Name']:i for i in items if i['Type']=='Movie'};series={i['Name']:i for i in items if i['Type']=='Series'}
             parent=series['Guard Series'];children=call('/Items?Recursive=true&ParentId='+parent['Id']+'&Fields=Path')['Items'];ep=next(i for i in children if i['Type']=='Episode');season=next(i for i in children if i['Type']=='Season')
-            for item in [i for n,i in movies.items() if n not in ('Clear','BulkClear','ConcurrentClear')]+[parent,series['Long Series']]:call('/WatchGuard/Watchlist/'+item['Id'],'PUT',expected=204)
+            for item in [i for n,i in movies.items() if n not in ('Clear','BulkClear','ConcurrentClear','WebClear')]+[parent,series['Long Series'],series['Web Series']]:call('/WatchGuard/Watchlist/'+item['Id'],'PUT',expected=204)
             call('/WatchGuard/Preferences','PUT',{'Owner':'mine','Statuses':['watchlisted','watching','playing'],'Sort':'title'})
             saved_data={p:p.read_bytes() for p in (root/'config').rglob('*.json') if p.name in ('watchlists.json','preferences.json')}
             assert len(saved_data)==2
@@ -225,6 +226,20 @@ def main():
             fixture=root/'browser.json';fixture.write_text(json.dumps({'base':base,'username':'WatchGuardPoCTest','password':password,'id':movies['WebProtected']['Id'],'serverId':signed['ServerId']}));fixture.chmod(0o600)
             subprocess.run(['node',str(ROOT/'experiments/ServerGuardPoC/browser-test.cjs'),str(fixture)],check=True)
             preserved([movies['WebProtected']]);report['browser']='PASS: unchanged Cancel zero DELETE; Delete Anyway one DELETE rejected 409'
+            def web_browser(url,proxy=False,legacy=False):
+                selected=[movies[n] for n in (['WebLegacy'] if legacy else ['CaddyWeb'] if proxy else ['WebApproved','WebError','WebClear','WebBulkA','WebBulkB'])]
+                if not proxy and not legacy:selected+= [series['Web Series']]+call('/Items?Recursive=true&ParentId='+series['Web Series']['Id']+'&Fields=Path')['Items']
+                config={'base':url,'username':'WatchGuardPoCTest','password':password,'serverId':signed['ServerId'],'items':selected,'output':str(output.resolve()),'proxy':proxy,'legacy':legacy,'mediaRoot':str(media)}
+                fixture.write_text(json.dumps(config));fixture.chmod(0o600)
+                subprocess.run(['node',str(ROOT/'experiments/ServerApproval/browser-test.cjs'),str(fixture)],check=True)
+                result=json.loads((output/('browser-legacy.json' if legacy else 'browser-proxy.json' if proxy else 'browser.json')).read_text())
+                for item in selected:
+                    if item['Id'] in result['removed']:
+                        call('/Items/'+item['Id'],expected=404);assert not (root/item['Path'].lstrip('/')).exists()
+                    else:preserved([item])
+                report['webLegacy' if legacy else 'webProxy' if proxy else 'web']=result
+            if a.web:
+                docker('rm','-f',name);start(web=True);web_browser(base)
             if not a.base_path:
                 caddy=runpy.run_path(str(ROOT/'tests/standalone-caddy.py'))['Caddy'](docker,name,root)
                 try:
@@ -247,11 +262,14 @@ def main():
                     target=movies['Disabled'];id=proxy(route([target]),'DELETE',expected=409)['ChallengeId'];preserved([target])
                     for action in ['Present','Approve']:proxy(api+action,'POST',{'ChallengeId':id,'Decision':'Approve'})
                     proxy(route([target]),'DELETE',expected=204,approval=id);call('/Items/'+target['Id'],expected=404);assert not (root/target['Path'].lstrip('/')).exists()
+                    if a.web:web_browser(caddy.base,True)
                     report['caddy']='PASS: trusted HTTPS same-origin challenge/approval/redemption; gzip/zstd and WebSocket unaffected'
                 finally:caddy.close()
+                ready() # Docker network detachment may reset host-port reads; only readiness GETs are retried.
             id=approved([protected]);docker('restart',name);ready();attempt('restart-invalidates',[protected],headers={'X-WatchGuard-Approval':id},code='ApprovalInvalid')
             (output/'guard.log').write_text('\n'.join(l for l in docker('logs',name).splitlines() if 'WG-APPROVAL' in l)+'\n')
-            docker('rm','-f',name);start(False)
+            docker('rm','-f',name);start(False,web=a.web)
+            if a.web:web_browser(base,legacy=True)
             assert call(api+'Present','POST',{'ChallengeId':id},expected=503)['Code']=='ServerGuardUnsupported'
             call(route([movies['NativeDisabled']]),'DELETE',expected=204);call('/Items/'+movies['NativeDisabled']['Id'],expected=404);assert not (root/movies['NativeDisabled']['Path'].lstrip('/')).exists()
             report['optOut']='PASS: no approval services/filter; native deletion restored'

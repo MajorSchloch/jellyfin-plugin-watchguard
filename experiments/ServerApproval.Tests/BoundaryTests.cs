@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
 using Moq;
 using WatchGuard.ServerApproval;
 using Xunit;
@@ -153,6 +155,45 @@ public sealed class BoundaryTests : IDisposable
         library.Setup(l => l.GetItemList(It.IsAny<InternalItemsQuery>())).Returns(Array.Empty<BaseItem>());
         var op = Operation.Create("DeleteItem", [episode.Id]); var first = evaluator.Read(op, user, default);
         episode.SeriesId = b.Id; Assert.NotEqual(first.Fingerprint, evaluator.Read(op, user, default).Fingerprint);
+    }
+    [Fact] public async Task PrepareIsNonAuthorizingAndBoundToFreshNativePermission()
+    {
+        watchlists.Set(user.Id, movie.Id, true);
+        using var services = new ServiceCollection().AddSingleton(new Attachment { Supported = true })
+            .AddSingleton(identity).AddSingleton(evaluator).AddSingleton(approvals).AddSingleton(work).BuildServiceProvider();
+        var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new ControllerContext { HttpContext = Context() } };
+        var result = Assert.IsType<OkObjectResult>(await controller.Prepare(new("DeleteItem", [movie.Id])));
+        var json = JsonSerializer.SerializeToElement(result.Value);
+        var id = json.GetProperty("ChallengeId").GetString()!;
+        var ticket = approvals.Read(id, Owner);
+        Assert.Equal(ApprovalState.Created, ticket.State);
+        Assert.Throws<GuardFailure>(() => approvals.Consume(id, Owner, Operation, ticket.Fingerprint));
+        Assert.Equal("no-store", controller.Response.Headers.CacheControl);
+        movie.Permitted = false;
+        Assert.Equal(403, Assert.IsType<ObjectResult>(await controller.Prepare(new("DeleteItem", [movie.Id]))).StatusCode);
+    }
+    [Fact] public async Task PrepareDoesNotGrantOrdinaryUserOrApiKeyOverrides()
+    {
+        using var services = new ServiceCollection().AddSingleton(new Attachment { Supported = true }).AddSingleton(identity).BuildServiceProvider();
+        var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new ControllerContext { HttpContext = Context() } };
+        user.SetPermission(PermissionKind.IsAdministrator, false);
+        Assert.Equal(403, Assert.IsType<ObjectResult>(await controller.Prepare(new("DeleteItem", [movie.Id]))).StatusCode);
+        auth.Setup(a => a.GetAuthorizationInfo(It.IsAny<HttpRequest>())).ReturnsAsync(new AuthorizationInfo { IsAuthenticated = true, IsApiKey = true, User = user, Token = "token" });
+        Assert.Equal(403, Assert.IsType<ObjectResult>(await controller.Prepare(new("DeleteItem", [movie.Id]))).StatusCode);
+    }
+    [Theory]
+    [InlineData(false, false, "Disabled")]
+    [InlineData(true, false, "Unhealthy")]
+    [InlineData(true, true, "Enabled")]
+    public async Task CapabilitiesReportActualServerAttachment(bool registered, bool supported, string expected)
+    {
+        var collection = new ServiceCollection().AddSingleton(approvals);
+        if (registered) collection.AddSingleton(new Attachment { Supported = supported });
+        using var services = collection.BuildServiceProvider();
+        var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new ControllerContext { HttpContext = Context() } };
+        var result = Assert.IsType<OkObjectResult>(await controller.Capabilities());
+        Assert.Equal(expected, JsonSerializer.SerializeToElement(result.Value).GetProperty("State").GetString());
+        Assert.Equal("no-store", controller.Response.Headers.CacheControl);
     }
     public void Dispose() { work.Dispose(); if (Directory.Exists(directory)) Directory.Delete(directory, true); }
 }
