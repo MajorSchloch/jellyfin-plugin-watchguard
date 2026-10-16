@@ -13,7 +13,24 @@ assert.match(f.base,/^http:\/\/127\.0\.0\.1:\d+(\/jellyfin)?$/);
   await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
   async function begin(){
    await page.goto(f.base+'/web/#/details?id='+f.id+'&serverId='+f.serverId);
-   const more=page.locator('#itemDetailPage:not(.hide) .btnMoreCommands:visible');await more.waitFor({timeout:15000});await more.click();
+   // Docker's freshly indexed item page can render its title before Jellyfin
+   // finishes loading native actions. Retry navigation once, but never skip
+   // the real More -> Delete -> confirmation path or any veto assertions.
+   const more=page.locator('#itemDetailPage:not(.hide) .btnMoreCommands:visible');
+   try { await more.waitFor({timeout:10000}); }
+   catch (error) {
+    console.warn('Old-tab native More action not ready; reloading detail once');
+    await page.reload();
+    try { await more.waitFor({timeout:15000}); }
+    catch {
+     console.error('Old-tab action diagnostics:',JSON.stringify(await page.evaluate(()=>({
+      title:document.title,
+      detailPages:[...document.querySelectorAll('#itemDetailPage')].map(x=>({classes:x.className,buttons:[...x.querySelectorAll('button')].map(b=>({className:b.className,title:b.title,visible:!!b.getClientRects().length})).slice(0,35)}))
+     }))));
+     throw error;
+    }
+   }
+   await more.click();
    await page.getByText(/^Delete (?:media|series|episode|season)$/i).click();
    await page.getByRole('button',{name:/^Delete(?: \d+ Episodes)?$/}).click();
    await page.locator('dialog.watchguard-deletion-dialog').waitFor();

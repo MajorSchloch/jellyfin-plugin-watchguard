@@ -101,11 +101,24 @@ def main():
             for kind in ['movies','tvshows']:
                 path='/media/'+('movies' if kind=='movies' else 'tv')
                 call('/Library/VirtualFolders?name='+kind+'&collectionType='+kind+'&paths='+path+'&refreshLibrary=true','POST',options,expected=204)
-            for _ in range(120):
-                items=call('/Items?Recursive=true&Fields=Path&IncludeItemTypes=Movie,Series,Season,Episode')['Items']
-                if len([i for i in items if i['Type']=='Episode'])==304:break
+            # Jellyfin indexes movie and TV libraries independently. Episode
+            # completion alone does not guarantee that all disposable movie
+            # records have appeared in native /Items results.
+            expected_movies=23
+            for attempt in range(120):
+                response=call('/Items?Recursive=true&Fields=Path&IncludeItemTypes=Movie,Series,Season,Episode&Limit=10000')
+                items=response['Items']
+                episode_count=sum(i['Type']=='Episode' for i in items)
+                movie_count=sum(i['Type']=='Movie' and i['Name'] in (
+                    'Protected','Clear','BulkClear','Disabled','Uninstalled','ConcurrentClear','WebProtected',
+                    'NativeDisabled','ApprovedSingle','ApprovedBulk1','ApprovedBulk2','Replay','ParallelA',
+                    'ParallelBulk1','ParallelBulk2','WebApproved','WebError','WebClear','WebBulkA',
+                    'WebBulkB','CaddyWeb','WebLegacy','DefaultDisabled') for i in items)
+                series_count=sum(i['Type']=='Series' and i['Name'] in ('Guard Series','Long Series','Web Series') for i in items)
+                if episode_count==304 and movie_count==expected_movies and series_count==3:break
+                if attempt%20==0:print(f'Waiting for native media scan: episodes={episode_count}/304 movies={movie_count}/{expected_movies} series={series_count}/3',flush=True)
                 time.sleep(1)
-            else:raise AssertionError('Scan incomplete')
+            else:raise AssertionError(f'Scan incomplete: episodes={episode_count}/304 movies={movie_count}/{expected_movies} series={series_count}/3')
             media_records=items
             movies={i['Name']:i for i in items if i['Type']=='Movie'};series={i['Name']:i for i in items if i['Type']=='Series'}
             parent=series['Guard Series'];children=call('/Items?Recursive=true&ParentId='+parent['Id']+'&Fields=Path')['Items'];ep=next(i for i in children if i['Type']=='Episode');season=next(i for i in children if i['Type']=='Season')
