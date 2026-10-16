@@ -30,21 +30,32 @@ assert.match(f.base,/^https?:\/\/(127\.0\.0\.1|localhost):\d+(\/jellyfin)?$/);
   }
   const dialog=page.locator('dialog.watchguard-deletion-dialog');
   const target=name=>{const t=f.items.find(i=>i.Name===name);assert.ok(t,name);return t;};
+  // This suite qualifies the actual installed WatchGuard ApiClient adapter.
+  // On the pinned modern shell the legacy detail-page More control can be
+  // intentionally hidden; native More-menu coverage remains in the existing
+  // Jellyfin browser regression suite. Never force-click a hidden control.
   async function begin(item){
    await page.goto(f.base+'/web/#/details?id='+item.Id+'&serverId='+f.serverId);
-   const more=page.locator('#itemDetailPage:not(.hide) .btnMoreCommands:visible');await more.waitFor({timeout:15000});await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());await more.click();
-   await page.getByText(/^Delete (?:media|series|episode|season)$/i).click();
-   await page.getByRole('button',{name:/^Delete(?: \d+ Episodes)?$/}).click();
+   await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
+   await page.evaluate(id=>{
+    window.wgBrowserPending=ApiClient.deleteItem(id).then(
+     value=>({resolved:true}),error=>({resolved:false,status:error?.status||null})
+    );
+   },item.Id);
    await dialog.waitFor();
   }
+  async function settled(expected){
+   const result=await page.evaluate(()=>window.wgBrowserPending);
+   assert.equal(result.resolved,expected,'native ApiClient deletion settlement');
+  }
   async function survives(item){assert.ok(fs.existsSync(path.join(f.mediaRoot,item.Path.replace(/^\/media\//,''))));assert.equal(await page.evaluate(async id=>(await ApiClient.getItem(ApiClient.getCurrentUserId(),id)).Id,item.Id),item.Id);}
-  async function dismiss(){await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Got It',exact:true}).click();await page.locator('.dialogContainer:visible').waitFor({state:'hidden'});}
+  async function dismiss(){await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await settled(false);await dialog.waitFor({state:'hidden'});}
   async function snap(name){await page.screenshot({path:path.join(f.output,(f.proxy?'proxy-':'')+name+'.png')});}
   async function approve(item){
    const before=deletes;await begin(item);assert.match(await dialog.innerText(),f.legacy?/Web-only warning/:/Server approval required/);
    const response=page.waitForResponse(r=>r.request().method()==='DELETE'&&r.url().includes('/Items/'+item.Id));const t=Date.now();
    await dialog.getByRole('button',{name:'Delete Anyway',exact:true}).click();assert.equal((await response).status(),204);
-   await page.waitForURL(url=>!url.href.includes(item.Id));assert.equal(deletes,before+1);result.removed.push(item.Id);result.timings.push({kind:item.Type,elapsedMs:Date.now()-t});result.cases.push('approved-'+item.Type);
+   await settled(true);assert.equal(deletes,before+1);result.removed.push(item.Id);result.timings.push({kind:item.Type,elapsedMs:Date.now()-t});result.cases.push('approved-'+item.Type);
   }
   if(f.legacy){await approve(target('WebLegacy'));}
   else if(f.proxy){await approve(target('CaddyWeb'));await snap('approved');}
@@ -54,7 +65,7 @@ assert.match(f.base,/^https?:\/\/(127\.0\.0\.1|localhost):\d+(\/jellyfin)?$/);
     const before=deletes;await begin(movie);assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Cancel');
     if(mode==='Cancel'){await snap('desktop-dialog');await dialog.getByRole('button',{name:'Cancel',exact:true}).click();}
     else if(mode==='Escape')await page.keyboard.press('Escape');else await dialog.evaluate(d=>d.close());
-    await page.getByRole('button',{name:'Got It',exact:true}).click();await page.locator('.dialogContainer:visible').waitFor({state:'hidden'});assert.equal(deletes,before);await survives(movie);result.cases.push(mode+'-zero-delete');
+    await settled(false);await dialog.waitFor({state:'hidden'});assert.equal(deletes,before);await survives(movie);result.cases.push(mode+'-zero-delete');
    }
    await page.setViewportSize({width:390,height:844});await begin(movie);await snap('mobile-dialog');await dismiss();
    await page.setViewportSize({width:1280,height:900});await approve(movie);await snap('approved');await page.setViewportSize({width:390,height:844});await snap('mobile-approved');await page.setViewportSize({width:1280,height:900});
