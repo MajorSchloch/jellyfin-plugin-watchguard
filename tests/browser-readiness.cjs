@@ -24,6 +24,23 @@ function timing(fixture,phase,ms) {
     fs.mkdirSync(output,{recursive:true});
     fs.writeFileSync(path.join(output,'browser-timing-'+phase+'.json'),JSON.stringify({phase,ms,status:'PASS'})+'\n');
 }
+// Jellyfin may switch from the user chooser to the username/password form
+// while Playwright is preparing the Manual Login click. Accept that legitimate
+// transition; do not retry authentication or bypass any native login control.
+async function revealManualLogin(page) {
+    const username=page.locator('#txtManualName');
+    if (!(await username.isVisible())) {
+        const manual=page.getByRole('button',{name:'Manual Login',exact:true});
+        try {
+            await manual.click({timeout:3000});
+        } catch (error) {
+            // A disappearing chooser button is fine only when Jellyfin has
+            // already revealed the actual username field. Otherwise fail.
+            if (!(await username.isVisible())) throw error;
+        }
+    }
+    await username.waitFor({state:'visible',timeout:15000});
+}
 async function login(page, fixture) {
     const started=Date.now();
     let networkChanged=false;
@@ -51,12 +68,7 @@ async function login(page, fixture) {
                     return Array.from(document.querySelectorAll('button, a')).some(el =>
                         el.getClientRects().length && el.textContent.trim()==='Manual Login');
                 },null,{timeout:15000});
-                const username=page.locator('#txtManualName');
-                if (!(await username.isVisible())) {
-                    const manual=page.getByRole('button',{name:'Manual Login',exact:true});
-                    await manual.click();
-                }
-                await username.waitFor({state:'visible',timeout:15000});
+                await revealManualLogin(page);
                 break;
             } catch (error) {
                 if (attempt !== 0 || !(networkChanged || String(error.message).includes('ERR_NETWORK_CHANGED'))) throw error;
@@ -157,4 +169,4 @@ async function setupRetry(page,fixture,label) {
     if(output)fs.writeFileSync(path.join(output,label+'-attempt.json'),JSON.stringify({retry:true,operation:'login-navigation',cause:'ERR_NETWORK_CHANGED'}));
     await page.context().tracing.start({screenshots:true,snapshots:false,sources:false});
 }
-module.exports = {identity, login, detail, failure, capture, setupRetry, timing};
+module.exports = {identity, login, revealManualLogin, detail, failure, capture, setupRetry, timing};
