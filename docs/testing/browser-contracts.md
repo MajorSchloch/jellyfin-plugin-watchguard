@@ -7,3 +7,7 @@
 No helper clicks hidden controls or retries a deletion. Failure must stop the scenario; an unexpected Home route is not repaired by automatically repeating the destructive action. Cancel, Escape, close, approval counts, file survival and native record survival assertions remain in their existing suites.
 
 Failure readiness snapshots deliberately omit tokens, credentials, complete page text and approval identifiers. Bounded console/error/request chronology and sanitized action/screenshot traces are captured on failure. Network payloads, DOM snapshots and action parameters are deliberately omitted from uploaded traces; raw traces are removed from a temporary directory. Screenshots contain only generated fixture users/media.
+
+Native detail DELETE completion has two boundaries: the HTTP result and the subsequent native parent navigation. The test records native `viewshow` events and awaits the expected parent after an approved detail deletion before setting up another scenario. Context-menu and bulk operations do not inherit this detail-only redirect requirement. Layout preference changes use an explicit bootstrap reload, not an error-triggered reload.
+
+A real sanitized failure ZIP was successfully opened and rendered in the pinned Playwright trace viewer using headless Chromium. Its actions and screenshots remain usable; network payloads and DOM snapshots are intentionally unavailable.

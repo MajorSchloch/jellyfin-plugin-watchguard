@@ -42,6 +42,17 @@ async function detail(page, fixture, id) {
     assert.equal(key(new URLSearchParams(new URL(page.url()).hash.split('?')[1]).get('id')), key(id), 'Route must remain on requested item');
 }
 async function capture(page) {
+    await page.addInitScript(()=>{
+        window.wgFixtureView={serial:0};
+        document.addEventListener('viewshow',event=>{
+            const query=new URLSearchParams(location.hash.split('?')[1]);
+            window.wgFixtureView={serial:window.wgFixtureView.serial+1,
+                id:event.detail?.params?.id||query.get('id'),
+                parentId:event.detail?.params?.parentId||query.get('parentId'),
+                topParentId:event.detail?.params?.topParentId||query.get('topParentId'),
+                route:location.hash.split('?')[0]};
+        });
+    });
     const events=[];
     observations.set(page,events);
     const add=event=>{if(events.length===200)events.shift();events.push({ms:Date.now(),...event});};

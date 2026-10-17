@@ -55,7 +55,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
     }
     async function detail(title) {
         await page.goto(fixture.base + '/web/#/details?id=' + fixture.items[title] + '&serverId=' + fixture.serverId);
-        await page.locator('#itemDetailPage').getByText(title, {exact:true}).first().waitFor();
+        await page.locator('#itemDetailPage:visible').getByText(title, {exact:true}).first().waitFor();
         const more = page.locator('#itemDetailPage:visible .btnMoreCommands:visible');
         // Native UI contract: no hidden clicks or reload that erases a first failure.
         await more.waitFor({state:'visible',timeout:15000});
@@ -86,7 +86,22 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         }
         await filter.getByRole('checkbox',{name:'Watched',exact:true}).press('Escape');
     }
+    let pendingNativeReturn=null;
+    async function nativeReturned() {
+        if(!pendingNativeReturn)return; // Poster menus/bulk do not use the detail controller redirect.
+        await page.waitForFunction(expected=>{
+            const view=window.wgFixtureView;
+            const key=value=>String(value||'').replaceAll('-','').toLowerCase();
+            return view && view.serial>expected.serial && (expected.parent
+                ? key(view.id)===key(expected.parent)||key(view.parentId)===key(expected.parent)||key(view.topParentId)===key(expected.parent)
+                : view.route==='#/home');
+        },pendingNativeReturn);
+        pendingNativeReturn=null;
+    }
     async function nativeDelete() {
+        const id=new URLSearchParams(new URL(page.url()).hash.split('?')[1]).get('id');
+        const item=await api('/Items/'+id);
+        pendingNativeReturn={serial:await page.evaluate(()=>window.wgFixtureView.serial),parent:item.SeasonId||item.SeriesId||item.ParentId||null};
         await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').click();
         await page.getByText(/^Delete (?:media|series|episode|season)$/i).click();
     }
@@ -109,6 +124,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.screenshot({ path: path.join(output, 'native-cancel-error.png') });
         await page.getByRole('button', { name: 'Got It', exact: true }).click();
         await page.getByText(errorText, {exact:true}).waitFor({state:'hidden'});
+        pendingNativeReturn=null;
     }
     async function approve(title) {
         const before = report.deletes.length;
@@ -124,6 +140,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         assert.equal((await response).status(), 204);
         assert.equal(report.deletes.length, before + 1);
         await exists(fixture.items[title], 404);
+        await nativeReturned();
     }
     async function applyLayout(layout) {
         await page.evaluate(mode=>mode ? localStorage.setItem('layout',mode) : localStorage.removeItem('layout'),layout);
@@ -717,7 +734,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             }
             const response = page.waitForResponse(r => r.request().method()==='DELETE' && new URL(r.url()).pathname.endsWith('/Items/' + fixture.items[title]));
             await nativeDelete(); await nativeConfirm(); assert.equal((await response).status(),204);
-            assert.equal(await dialog().count(),0); await exists(fixture.items[title],404);
+            assert.equal(await dialog().count(),0); await exists(fixture.items[title],404); await nativeReturned();
             report.paths.push({path:title,result:'native deletion without extra WatchGuard warning'});
         }
         // Use the source-verified saved layout preference; never inject a replacement adapter.
@@ -796,7 +813,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
                 } else {
                     const response = page.waitForResponse(r=>r.request().method()==='DELETE' && new URL(r.url()).pathname.endsWith('/Items/' + target.Id));
                     await nativeDelete(); await nativeConfirm(); assert.equal((await response).status(),204);
-                    assert.equal(await dialog().count(),0); await exists(target.Id,404);
+                    assert.equal(await dialog().count(),0); await exists(target.Id,404); await nativeReturned();
                 }
                 await exists(parentId);
                 report.paths.push({path:label,result:interested?'parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives':'confirmed clear parent; no extra warning; target deleted once, parent survives'});
