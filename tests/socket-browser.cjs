@@ -40,8 +40,12 @@ assert.match(fixture.base,/^https?:\/\/(?:localhost|127\.0\.0\.1):\d+(?:\/jellyf
    }
   }
   await page.locator('#txtManualName').fill(fixture.username);await page.locator('#txtManualPassword').fill(fixture.password);
+  const loginStarted=Date.now();
   await page.getByRole('button',{name:'Sign In',exact:true}).click();
   await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
+  await page.getByText('My Media',{exact:true}).waitFor();
+  await readiness.identity(page,fixture);
+  readiness.timing(fixture,'socket-login',Date.now()-loginStarted);
   await page.evaluate(()=>window.ApiClient.ensureWebSocket());
   await page.waitForTimeout(3000);
   const open=await page.evaluate(()=>window.ApiClient.isWebSocketOpen());
@@ -51,6 +55,6 @@ assert.match(fixture.base,/^https?:\/\/(?:localhost|127\.0\.0\.1):\d+(?:\/jellyf
   fs.writeFileSync('artifacts/standalone/socket-'+report.mode+'.json',JSON.stringify(report,null,2)+'\n');
   console.log('Unmodified native browser WebSocket:',JSON.stringify(report));
  } catch(error) {
-  await readiness.failure(page,{...fixture,output:fixture.reportDirectory},'socket').catch(()=>console.warn('Diagnostic capture failed'));throw error;
+  await readiness.failure(page,{...fixture,output:fixture.reportDirectory},'socket',error).catch(()=>console.warn('Diagnostic capture failed'));throw error;
  } finally {await browser.close();}
 })();

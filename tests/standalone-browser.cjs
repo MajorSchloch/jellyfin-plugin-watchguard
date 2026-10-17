@@ -63,12 +63,15 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
             }
             assert.equal(privateRequests,0);
             await page.locator('#txtManualName').fill(fixture.username);await page.locator('#txtManualPassword').fill(fixture.password);
+            const loginStarted=Date.now();
             await page.getByRole('button',{name:'Sign In',exact:true}).click();
             if(restricted) {
                 await page.waitForFunction(()=>window.WatchGuardStandalone?.status()==='failed-or-csp-blocked');
                 assert.equal(await page.evaluate(()=>!!window.WatchGuardPoc),false);
+                readiness.timing(fixture,'bootstrap-csp-rejected',Date.now()-loginStarted);
             } else {
                 await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
+                readiness.timing(fixture,'bootstrap-installed',Date.now()-loginStarted);
                 assert.equal(privateRequests,1);
                 await page.reload();await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
                 assert.equal(privateRequests,2);
@@ -82,7 +85,7 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
                 assert.equal(await blocked,true);assert.equal(deletes,0);
             }
             } catch(error) {
-                await readiness.failure(page,{...fixture,output},restricted?'csp-bootstrap':'bootstrap').catch(()=>console.warn('Diagnostic capture failed'));
+                await readiness.failure(page,{...fixture,output},restricted?'csp-bootstrap':'bootstrap',error).catch(()=>console.warn('Diagnostic capture failed'));
                 throw error;
             } finally {await context.close();}
         }

@@ -34,7 +34,7 @@ assert.match(f.base,/^http:\/\/127\.0\.0\.1:\d+(\/jellyfin)?$/);
   assert.equal((await response).status(),409);assert.equal(deletes,1);
   assert.equal(await page.evaluate(()=>window.wgOldTabPending),false);
  }catch(error){
-  await readiness.failure(page,f,'old-tab').catch(()=>console.warn('Diagnostic capture failed; original error follows'));
+  await readiness.failure(page,f,'old-tab',error).catch(()=>console.warn('Diagnostic capture failed; original error follows'));
   throw error;
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

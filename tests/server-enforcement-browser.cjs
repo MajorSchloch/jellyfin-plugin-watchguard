@@ -94,7 +94,7 @@ assert.match(f.base,/^https?:\/\/(127\.0\.0\.1|localhost):\d+(\/jellyfin)?$/);
   fs.writeFileSync(path.join(f.output,f.legacy?'browser-legacy.json':f.proxy?'browser-proxy.json':'browser.json'),JSON.stringify(result,null,2)+'\n');
  } catch(error) {
   result.status='FAIL';fs.writeFileSync(path.join(f.output,'browser-failure.json'),JSON.stringify(result,null,2)+'\n');
-  await readiness.failure(page,f,f.proxy?'proxy-browser':'browser').catch(()=>console.warn('Diagnostic capture failed; original error follows'));
+  await readiness.failure(page,f,f.proxy?'proxy-browser':'browser',error).catch(()=>console.warn('Diagnostic capture failed; original error follows'));
   throw error;
  } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

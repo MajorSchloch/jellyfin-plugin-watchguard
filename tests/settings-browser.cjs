@@ -11,9 +11,12 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
     try {
         await page.goto(fixture.base+'/web/');
         await page.locator('#txtManualName').fill(fixture.username); await page.locator('#txtManualPassword').fill(fixture.password);
+        const loginStarted=Date.now();
         await page.getByRole('button',{name:'Sign In',exact:true}).click();
         await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
         await page.getByText('My Media',{exact:true}).waitFor();
+        await readiness.identity(page,fixture);
+        readiness.timing(fixture,'settings-login',Date.now()-loginStarted);
         await page.goto(fixture.base+'/web/#/configurationpage?name=WatchGuard');
         await page.locator('#wgDays').waitFor();
         await page.waitForFunction(()=>document.querySelector('#wgDays')?.value==='30');
@@ -66,6 +69,6 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         const report={result:'PASS',nativeConfiguration:true,settingsPersistence:true,serverAndBrowserStatus:true,saveDefaults:true,urlPrecedence:true,reset:true};
         fs.mkdirSync('artifacts',{recursive:true});fs.writeFileSync('artifacts/settings-validation.json',JSON.stringify(report,null,2)+'\n');
         console.log('Settings/preferences browser checks passed.');
-    } catch (error) { await readiness.failure(page,{...fixture,output:fixture.reportDirectory},'settings').catch(()=>console.warn('Diagnostic capture failed')); throw error; }
+    } catch (error) { await readiness.failure(page,{...fixture,output:fixture.reportDirectory},'settings',error).catch(()=>console.warn('Diagnostic capture failed')); throw error; }
     finally {await browser.close();}
 })();

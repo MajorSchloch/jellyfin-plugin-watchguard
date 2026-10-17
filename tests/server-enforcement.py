@@ -302,7 +302,7 @@ def main():
             assert docker('logs',name).count('WG-GUARD evaluation')==before;report['unrelatedRequestsEvaluations']=0
             phases.phase('old-tab-browser')
             fixture=root/'browser.json';fixture.write_text(json.dumps({'base':base,'username':'WatchGuardPoCTest','password':password,'output':str(output.resolve()),'legacyScript':str(legacy_script),'id':movies['WebProtected']['Id'],'userId':signed['User']['Id'],'serverId':signed['ServerId']}));fixture.chmod(0o600)
-            subprocess.run(['node',str(ROOT/'tests/server-enforcement-old-tab.cjs'),str(fixture)],check=True)
+            subprocess.run(['node',str(ROOT/'tests/server-enforcement-old-tab.cjs'),str(fixture)],check=True,timeout=600)
             preserved([movies['WebProtected']]);report['browser']='PASS: unchanged Cancel zero DELETE; Delete Anyway one DELETE rejected 409'
             phases.phase('current-browser-and-proxy')
             def web_browser(url,proxy=False,legacy=False):
@@ -310,7 +310,7 @@ def main():
                 if not proxy and not legacy:selected+= [series['Web Series']]+call('/Items?Recursive=true&ParentId='+series['Web Series']['Id']+'&Fields=Path')['Items']
                 config={'base':url,'username':'WatchGuardPoCTest','password':password,'userId':signed['User']['Id'],'serverId':signed['ServerId'],'items':selected,'output':str(output.resolve()),'proxy':proxy,'legacy':legacy,'mediaRoot':str(media)}
                 fixture.write_text(json.dumps(config));fixture.chmod(0o600)
-                subprocess.run(['node',str(ROOT/'tests/server-enforcement-browser.cjs'),str(fixture)],check=True)
+                subprocess.run(['node',str(ROOT/'tests/server-enforcement-browser.cjs'),str(fixture)],check=True,timeout=600)
                 result=json.loads((output/('browser-legacy.json' if legacy else 'browser-proxy.json' if proxy else 'browser.json')).read_text())
                 for item in selected:
                     if item['Id'] in result['removed']:

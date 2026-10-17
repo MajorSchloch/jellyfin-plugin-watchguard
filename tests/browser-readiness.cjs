@@ -18,7 +18,14 @@ async function identity(page, fixture) {
     assert.equal(new URL(actual.address).origin, new URL(fixture.base).origin, 'Active ApiClient origin');
     assert.equal(new URL(actual.address).pathname.replace(/\/$/,''),new URL(fixture.base).pathname.replace(/\/$/,''),'Active ApiClient base path');
 }
+function timing(fixture,phase,ms) {
+    const output=fixture.output||fixture.reportDirectory;
+    if(!output)return;
+    fs.mkdirSync(output,{recursive:true});
+    fs.writeFileSync(path.join(output,'browser-timing-'+phase+'.json'),JSON.stringify({phase,ms,status:'PASS'})+'\n');
+}
 async function login(page, fixture) {
+    const started=Date.now();
     await page.goto(fixture.base + '/web/');
     await page.locator('#txtManualName').fill(fixture.username);
     await page.locator('#txtManualPassword').fill(fixture.password);
@@ -27,6 +34,7 @@ async function login(page, fixture) {
     await page.waitForURL(url => url.hash.split('?')[0] === '#/home', {timeout: 30000});
     await page.getByRole('heading', {name: 'My Media', exact: true}).waitFor();
     await identity(page, fixture);
+    timing(fixture,fixture.legacyScript?'old-tab-login':fixture.proxy?'proxy-login':fixture.legacy?'web-only-login':'current-login',Date.now()-started);
 }
 async function detail(page, fixture, id) {
     await identity(page, fixture);
@@ -69,10 +77,11 @@ async function capture(page) {
     });
     await page.context().tracing.start({screenshots:true, snapshots:false, sources:false});
 }
-async function failure(page, fixture, label) {
+async function failure(page, fixture, label, error) {
     if (!page || !fixture.output) return;
     const state = await page.evaluate(() => ({
         route: location.hash.split('?')[0],
+        redactedUrl:location.origin+location.pathname+location.hash.split('?')[0],
         authenticated: Boolean(window.ApiClient?.getCurrentUserId?.()),
         actualIdentity: {userId:window.ApiClient?.getCurrentUserId?.()||null,serverId:window.ApiClient?.serverId?.()||null},
         installed: Boolean(window.WatchGuardPoc?.isInstalled()),
@@ -81,6 +90,8 @@ async function failure(page, fixture, label) {
             open: el.open === true
         }))
     }));
+    if(error)state.failure={name:error.name,message:String(error.message).replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,1000)};
+    state.expectedBase=fixture.base;
     state.expectedIdentity={userId:fixture.userId||null,serverId:fixture.serverId||null};
     state.chronology=observations.get(page)||[];
     fs.mkdirSync(fixture.output, {recursive: true});
@@ -103,4 +114,4 @@ async function setupRetry(page,fixture,label) {
     if(output)fs.writeFileSync(path.join(output,label+'-attempt.json'),JSON.stringify({retry:true,operation:'login-navigation',cause:'ERR_NETWORK_CHANGED'}));
     await page.context().tracing.start({screenshots:true,snapshots:false,sources:false});
 }
-module.exports = {identity, login, detail, failure, capture, setupRetry};
+module.exports = {identity, login, detail, failure, capture, setupRetry, timing};

@@ -167,6 +167,8 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.waitForFunction(() => window.WatchGuardPoc?.isInstalled());
         report.loginToAdapterMs = Date.now() - loginStarted;
         await page.getByText('My Media', {exact:true}).waitFor();
+        await readiness.identity(page,fixture);
+        readiness.timing(fixture,'native-login',Date.now()-loginStarted);
         report.phase = 'Watchlist UI';
         const memberPassword = require('node:crypto').randomUUID();
         await api('/Users/New', 'POST', { Name: 'BrowserMember', Password: memberPassword });
@@ -932,7 +934,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             const standaloneState=await page.evaluate(()=>({state:window.WatchGuardStandalone?.status(),adapter:!!window.WatchGuardPoc,script:!!document.querySelector('#watchguard-standalone-loader')})).catch(err=>({diagnosticUnavailable:String(err)}));
             console.log('Standalone diagnostic:',standaloneState,nativeErrors.slice(-5));
         }
-        await readiness.failure(page,{...fixture,output},'native-ui').catch(()=>console.warn('Additional browser evidence unavailable'));
+        await readiness.failure(page,{...fixture,output},'native-ui',error).catch(()=>console.warn('Additional browser evidence unavailable'));
         fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
         await page.screenshot({path:path.join(output,'failure.png')}).catch(err=>console.warn('Failure screenshot unavailable:',String(err)));
         throw error;

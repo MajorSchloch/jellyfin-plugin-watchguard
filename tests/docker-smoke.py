@@ -219,7 +219,7 @@ def main():
             if caddy: os.environ['NODE_EXTRA_CA_CERTS'] = str(caddy.ca)
             print('READY fixture=' + str(fixture), flush=True)
             if options.measure:
-                subprocess.run(['node', str(ROOT/'tests/socket-browser.cjs'), str(fixture)], check=True)
+                subprocess.run(['node', str(ROOT/'tests/socket-browser.cjs'), str(fixture)], check=True,timeout=600)
                 runpy.run_path(str(ROOT/'tests/standalone-measure.py'))['run'](base,options.standalone)
             elif options.catalog and not options.standalone:
                 runpy.run_path(str(ROOT / 'tests/catalog-smoke.py'))['run'](call, restart, docker, name, root, plugins, token, next(i['Id'] for i in items if i['Type']=='Movie' and i['Name']=='PoC Movie Detail'))
@@ -231,10 +231,10 @@ def main():
                 while True: time.sleep(1)
             else:
                 if options.standalone:
-                    subprocess.run(['node', str(ROOT / 'tests/standalone-browser.cjs'), str(fixture)], check=True)
+                    subprocess.run(['node', str(ROOT / 'tests/standalone-browser.cjs'), str(fixture)], check=True,timeout=600)
                 if not options.profile:
-                    subprocess.run(['node', str(ROOT / 'tests/settings-browser.cjs'), str(fixture)], check=True)
-                subprocess.run(['node', str(ROOT / 'tests/profile-overview.cjs' if options.profile else 'tests/browser-poc.cjs'), str(fixture), *([options.profile] if options.profile else [])], check=True)
+                    subprocess.run(['node', str(ROOT / 'tests/settings-browser.cjs'), str(fixture)], check=True,timeout=600)
+                subprocess.run(['node', str(ROOT / 'tests/profile-overview.cjs' if options.profile else 'tests/browser-poc.cjs'), str(fixture), *([options.profile] if options.profile else [])], check=True,timeout=600)
                 if not options.standalone:
                     # Same operation as removing the plugin-managed script in Injector's dashboard.
                     injector_config['PluginJavaScripts'] = [s for s in injector_config['PluginJavaScripts'] if s['Id'] != 'watchguard-v1']
