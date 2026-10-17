@@ -1,3 +1,4 @@
+const readiness=require('./browser-readiness.cjs');
 /* Auth/CSP bootstrap checks on disposable fixtures only. */
 const {chromium}=require('./browser/node_modules/playwright');
 const fs=require('node:fs'),assert=require('node:assert/strict');
@@ -11,9 +12,11 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
         fs.mkdirSync(output,{recursive:true});
         for (const restricted of [false,true]) {
             const context=await browser.newContext({ignoreHTTPSErrors:fixture.tls === true,locale:'en-US'});const page=await context.newPage();page.setDefaultTimeout(15000);
+            await readiness.capture(page);
+            try {
             const browserErrors=[];
-            page.on('pageerror',err=>browserErrors.push('pageerror: '+String(err.message||err).slice(0,400)));
-            page.on('console',msg=>{if(msg.type()==='error')browserErrors.push('console: '+msg.text().slice(0,400));});
+            page.on('pageerror',err=>browserErrors.push('pageerror: '+String(err.message||err).replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,400)));
+            page.on('console',msg=>{if(msg.type()==='error')browserErrors.push('console: '+msg.text().replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,400));});
             const responses=[];
             page.on('response',response=>{if(response.status()>=400)responses.push({status:response.status(),path:new URL(response.url()).pathname});});
             let privateRequests=0;
@@ -28,7 +31,7 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
                 // Chromium is navigating. Retry only this transient transport error.
                 if (!String(error).includes('net::ERR_NETWORK_CHANGED')) throw error;
                 console.warn('Chromium network changed on initial navigation; retrying once');
-                browserErrors.length=0;
+                await readiness.setupRetry(page,{...fixture,output},restricted?'csp-login-retry':'login-retry');
                 await page.goto('about:blank');
                 await page.goto(fixture.base+'/web/');
             }
@@ -42,7 +45,7 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
                 const networkChanged=browserErrors.some(message=>message.includes('net::ERR_NETWORK_CHANGED'));
                 if (networkChanged) {
                     console.warn('Chromium network changed during Jellyfin Web bootstrap; retrying native login navigation once');
-                    browserErrors.length=0;
+                    await readiness.setupRetry(page,{...fixture,output},restricted?'csp-login-retry':'login-retry');
                     await page.goto('about:blank');
                     await page.goto(fixture.base+'/web/');
                     try {
@@ -78,7 +81,10 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
                 await page.getByRole('button',{name:'Cancel',exact:true}).click();
                 assert.equal(await blocked,true);assert.equal(deletes,0);
             }
-            await context.close();
+            } catch(error) {
+                await readiness.failure(page,{...fixture,output},restricted?'csp-bootstrap':'bootstrap').catch(()=>console.warn('Diagnostic capture failed'));
+                throw error;
+            } finally {await context.close();}
         }
         console.log('Standalone browser: anonymous idle, authenticated load, reload, stale-tab failure and CSP blocking verified.');
     } finally {await browser.close();}

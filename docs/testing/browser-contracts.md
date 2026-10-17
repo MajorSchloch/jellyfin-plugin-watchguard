@@ -11,3 +11,5 @@ Failure readiness snapshots deliberately omit tokens, credentials, complete page
 Native detail DELETE completion has two boundaries: the HTTP result and the subsequent native parent navigation. The test records native `viewshow` events and awaits the expected parent after an approved detail deletion before setting up another scenario. Context-menu and bulk operations do not inherit this detail-only redirect requirement. Layout preference changes use an explicit bootstrap reload, not an error-triggered reload.
 
 A real sanitized failure ZIP was successfully opened and rendered in the pinned Playwright trace viewer using headless Chromium. Its actions and screenshots remain usable; network payloads and DOM snapshots are intentionally unavailable.
+
+Standalone bootstrap, settings and WebSocket helpers use the same sanitized capture. Existing retries for a specifically observed pre-login `ERR_NETWORK_CHANGED` are bounded (at most two setup retries per page), preserve a distinct initial-failure trace/screenshot/attempt record, and never extend to approvals or DELETE. A passing setup retry remains visible in artifacts.

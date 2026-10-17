@@ -1,3 +1,4 @@
+const readiness=require('./browser-readiness.cjs');
 /* Observe Jellyfin's unmodified native WebSocket; report no URL, token or frame payload. */
 const {chromium}=require('./browser/node_modules/playwright');
 const fs=require('node:fs'),assert=require('node:assert/strict');
@@ -5,13 +6,14 @@ const fixture=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
 assert.equal(fixture.username,'WatchGuardPoCTest');
 assert.match(fixture.base,/^https?:\/\/(?:localhost|127\.0\.0\.1):\d+(?:\/jellyfin)?$/);
 (async()=>{
- const browser=await chromium.launch({headless:true});
+ const browser=await chromium.launch({headless:true});let page;
  try {
   const context=await browser.newContext({ignoreHTTPSErrors:fixture.tls===true,locale:'en-US'});
-  const page=await context.newPage();
+  page=await context.newPage();
+  await readiness.capture(page);
   const browserErrors=[];
-  page.on('pageerror',error=>browserErrors.push('pageerror: '+String(error.message||error).slice(0,350)));
-  page.on('console',message=>{if(message.type()==='error')browserErrors.push('console: '+message.text().slice(0,350));});
+  page.on('pageerror',error=>browserErrors.push('pageerror: '+String(error.message||error).replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,350)));
+  page.on('console',message=>{if(message.type()==='error')browserErrors.push('console: '+message.text().replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,350));});
   const cdp=await page.context().newCDPSession(page), statuses=[], connected=new Set();let closed=0,frames=0,errors=0;
   await cdp.send('Network.enable');
   cdp.on('Network.webSocketHandshakeResponseReceived',event=>{statuses.push(event.response.status);if(event.response.status===101)connected.add(event.requestId);});
@@ -25,7 +27,7 @@ assert.match(fixture.base,/^https?:\/\/(?:localhost|127\.0\.0\.1):\d+(?:\/jellyf
    const networkChanged=browserErrors.some(entry=>entry.includes('net::ERR_NETWORK_CHANGED'));
    if (networkChanged) {
     console.warn('Chromium network changed during native Jellyfin login bootstrap; retrying navigation once');
-    browserErrors.length=0;
+    await readiness.setupRetry(page,{...fixture,output:fixture.reportDirectory},'socket-login-retry');
     await page.goto('about:blank');
     await page.goto(fixture.base+'/web/');
    }
@@ -48,5 +50,7 @@ assert.match(fixture.base,/^https?:\/\/(?:localhost|127\.0\.0\.1):\d+(?:\/jellyf
   fs.mkdirSync('artifacts/standalone',{recursive:true});
   fs.writeFileSync('artifacts/standalone/socket-'+report.mode+'.json',JSON.stringify(report,null,2)+'\n');
   console.log('Unmodified native browser WebSocket:',JSON.stringify(report));
+ } catch(error) {
+  await readiness.failure(page,{...fixture,output:fixture.reportDirectory},'socket').catch(()=>console.warn('Diagnostic capture failed'));throw error;
  } finally {await browser.close();}
 })();

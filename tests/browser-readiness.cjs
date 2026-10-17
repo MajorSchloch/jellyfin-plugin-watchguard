@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const observations = new WeakMap();
+const setupAttempts = new WeakMap();
 const key = value => String(value || '').replaceAll('-', '').toLowerCase();
 async function identity(page, fixture) {
     await page.waitForFunction(() => window.ApiClient?.getCurrentUserId?.() && window.WatchGuardPoc?.isInstalled(), null, {timeout: 15000});
@@ -92,4 +93,14 @@ async function failure(page, fixture, label) {
         require('node:child_process').execFileSync('python3',[path.join(__dirname,'sanitize_trace.py'),raw,path.join(fixture.output,label+'-trace.zip')]);
     } finally { fs.rmSync(temp,{recursive:true,force:true}); }
 }
-module.exports = {identity, login, detail, failure, capture};
+async function setupRetry(page,fixture,label) {
+    const attempt=(setupAttempts.get(page)||0)+1;
+    assert.ok(attempt<=2,'Bounded pre-authentication navigation retries exhausted');
+    setupAttempts.set(page,attempt);
+    label+='-'+attempt;
+    await failure(page,fixture,label).catch(()=>console.warn('Initial setup failure capture unavailable'));
+    const output=fixture.output;
+    if(output)fs.writeFileSync(path.join(output,label+'-attempt.json'),JSON.stringify({retry:true,operation:'login-navigation',cause:'ERR_NETWORK_CHANGED'}));
+    await page.context().tracing.start({screenshots:true,snapshots:false,sources:false});
+}
+module.exports = {identity, login, detail, failure, capture, setupRetry};

@@ -1,3 +1,4 @@
+const readiness=require('./browser-readiness.cjs');
 /* Disposable fixture only: native dashboard settings and server-side personal defaults. */
 const {chromium} = require('./browser/node_modules/playwright');
 const fs = require('node:fs'), assert = require('node:assert/strict');
@@ -6,6 +7,7 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
 (async () => {
     const browser = await chromium.launch({headless:true});
     const page = await browser.newPage({ignoreHTTPSErrors:fixture.tls === true}); page.setDefaultTimeout(12000);
+    await readiness.capture(page);
     try {
         await page.goto(fixture.base+'/web/');
         await page.locator('#txtManualName').fill(fixture.username); await page.locator('#txtManualPassword').fill(fixture.password);
@@ -64,6 +66,6 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         const report={result:'PASS',nativeConfiguration:true,settingsPersistence:true,serverAndBrowserStatus:true,saveDefaults:true,urlPrecedence:true,reset:true};
         fs.mkdirSync('artifacts',{recursive:true});fs.writeFileSync('artifacts/settings-validation.json',JSON.stringify(report,null,2)+'\n');
         console.log('Settings/preferences browser checks passed.');
-    } catch (error) { console.error('Settings phase URL:', new URL(page.url()).hash); console.error((await page.locator('body').innerText()).slice(0,2000)); await page.screenshot({path:'artifacts/settings-failure.png'}); throw error; }
+    } catch (error) { await readiness.failure(page,{...fixture,output:fixture.reportDirectory},'settings').catch(()=>console.warn('Diagnostic capture failed')); throw error; }
     finally {await browser.close();}
 })();
