@@ -26,6 +26,7 @@ jobs:
           path: |
             /tmp/discovery-model-v048.json
             /tmp/verification-model-v048.json
+      - run: python3 -m py_compile tests/native_proxy_policy.py tests/server-enforcement.py
       - run: python3 scripts/build-release.py
       - run: python3 tests/catalog_test.py
       - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip
