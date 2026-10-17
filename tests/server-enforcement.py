@@ -340,6 +340,8 @@ def main():
                     if a.proxy_matrix:
                         from proxy_compatibility import qualify
                         report['portableProxies']=qualify(docker,name,root,caddy,token,movies,call,preserved,output)
+                        from native_proxy_policy import begin
+                        policy_probe=begin(docker,name,root,caddy,call)
                     # Retain the strict native trusted-proxy path as independent coverage.
 
                     proxy_ip=json.loads(docker('inspect',caddy.name))[0]['NetworkSettings']['Networks'][caddy.network]['IPAddress']
