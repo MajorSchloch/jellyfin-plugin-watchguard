@@ -99,3 +99,46 @@ test('a failed feedback dialog cannot replace the native deletion rejection',asy
 test('a foreign ApiClient receiver cannot redeem on a different native transport',async()=>{
  const f=fixture();await assert.rejects(f.api.deleteItem.call({...f.api},id));assert.equal(deletes(f).length,0);
 });
+
+const {revealManualLogin}=require('./browser-readiness.cjs');
+function fakeJellyfinLoginForm(initialVisible,clickHandler) {
+ let visible=initialVisible,clicks=0,waits=0;
+ const username={
+  async isVisible(){return visible;},
+  async waitFor(options){waits++;assert.equal(options.state,'visible');assert.equal(visible,true,'The native username form must actually be visible');}
+ };
+ const page={
+  locator(selector){assert.equal(selector,'#txtManualName');return username;},
+  getByRole(role,options){
+   assert.equal(role,'button');assert.deepEqual(options,{name:'Manual Login',exact:true});
+   return {async click(options){clicks++;assert.ok(options.timeout>0 && options.timeout<=5000);return clickHandler(()=>{visible=true;});}};
+  }
+ };
+ return {page,counts:()=>({clicks,waits})};
+}
+test('browser fixture skips the Manual Login button when the native form is already visible',async()=>{
+ const f=fakeJellyfinLoginForm(true,()=>{throw Error('Manual Login must not be clicked');});
+ await revealManualLogin(f.page);
+ assert.deepEqual(f.counts(),{clicks:0,waits:1});
+});
+test('browser fixture opens a stable native Manual Login chooser exactly once',async()=>{
+ const f=fakeJellyfinLoginForm(false,show=>show());
+ await revealManualLogin(f.page);
+ assert.deepEqual(f.counts(),{clicks:1,waits:1});
+});
+test('browser fixture accepts a chooser that disappears because the native form appears',async()=>{
+ const f=fakeJellyfinLoginForm(false,show=>{show();throw Error('Manual Login button detached during navigation');});
+ await revealManualLogin(f.page);
+ assert.deepEqual(f.counts(),{clicks:1,waits:1});
+});
+test('browser fixture does not hide a genuine Manual Login button failure',async()=>{
+ const lost=new Error('Unable to open Manual Login');
+ const f=fakeJellyfinLoginForm(false,()=>{throw lost;});
+ await assert.rejects(revealManualLogin(f.page),error=>error===lost);
+ assert.deepEqual(f.counts(),{clicks:1,waits:0});
+});
+test('browser fixture refuses a click that did not reveal the native username form',async()=>{
+ const f=fakeJellyfinLoginForm(false,()=>{});
+ await assert.rejects(revealManualLogin(f.page),/must actually be visible/);
+ assert.deepEqual(f.counts(),{clicks:1,waits:1});
+});
