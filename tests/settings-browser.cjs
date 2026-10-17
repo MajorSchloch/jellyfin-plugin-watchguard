@@ -8,6 +8,23 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
     const browser = await chromium.launch({headless:true});
     const page = await browser.newPage({ignoreHTTPSErrors:fixture.tls === true}); page.setDefaultTimeout(12000);
     await readiness.capture(page);
+    // A Saved message precedes the asynchronous status refresh. The native form
+    // re-enables Save only after that refresh settles; never reuse a stale message.
+    async function saveSettings() {
+        const saved = page.waitForResponse(response => response.request().method() === 'POST' && /\/Plugins\/[^/]+\/Configuration(?:\?|$)/i.test(new URL(response.url()).pathname));
+        await page.getByRole('button',{name:'Save',exact:true}).click();
+        assert.equal((await saved).ok(),true,'native configuration save must succeed');
+        await page.waitForFunction(()=>document.querySelector('#WatchGuardSettingsForm button[type=submit]')?.disabled === false);
+        await page.getByText(/^Saved\. Activity settings/).waitFor();
+    }
+    async function refreshStatus() {
+        // Wait for this refresh's final HTTP stage, not text left by the previous
+        // refresh. IntegrationStatus clears the old row before fetching script.js.
+        const completed = page.waitForResponse(response => response.request().method() === 'GET' &&
+            new URL(response.url()).pathname.endsWith(fixture.standalone ? '/WatchGuard/Standalone/script.js' : '/WatchGuard/IntegrationStatus'));
+        await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
+        assert.equal((await completed).ok(),true,'integration status refresh must succeed');
+    }
     try {
         await page.goto(fixture.base+'/web/');
         await page.locator('#txtManualName').fill(fixture.username); await page.locator('#txtManualPassword').fill(fixture.password);
@@ -22,13 +39,12 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         await page.waitForFunction(()=>document.querySelector('#wgDays')?.value==='30');
         if (fixture.standalone) { assert.equal(await page.locator('#wgCaughtUp').isChecked(),true); await page.getByText('Protect Caught Up series',{exact:true}).click(); }
         await page.locator('#wgDays').fill('17'); await page.locator('#wgLimit').fill('31');
-        await page.getByRole('button',{name:'Save',exact:true}).click();
-        await page.getByText(/^Saved\. Activity settings/).waitFor();
+        await saveSettings();
         await page.reload(); await page.waitForFunction(()=>document.querySelector('#wgDays')?.value==='17');
         assert.equal(await page.locator('#wgLimit').inputValue(),'31');
-        if (fixture.standalone) { assert.equal(await page.locator('#wgCaughtUp').isChecked(),false); await page.getByText('Protect Caught Up series',{exact:true}).click(); await page.getByRole('button',{name:'Save',exact:true}).click(); await page.getByText(/^Saved\. Activity settings/).waitFor(); }
+        if (fixture.standalone) { assert.equal(await page.locator('#wgCaughtUp').isChecked(),false); await page.getByText('Protect Caught Up series',{exact:true}).click(); await saveSettings(); }
         await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
-        await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
+        await refreshStatus();
         await page.getByText(fixture.standalone ? /Standalone loader active: true/ : /Server registration succeeded; browser unverified/).waitFor();
         await page.getByText(/This browser: adapter installed/).waitFor();
         if (fixture.standalone) {
@@ -39,14 +55,14 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
                 result.Standalone.BuildId='different-server-build';
                 await route.fulfill({response,json:result});
             });
-            await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
+            await refreshStatus();
             await page.locator('#wgBrowser').filter({hasText:/standalone build is stale, blocked or unavailable/}).waitFor();
             await page.unroute('**/WatchGuard/IntegrationStatus');
-            await page.getByRole('button',{name:'Refresh status and check this browser'}).click();
+            await refreshStatus();
             await page.locator('#wgBrowser').filter({hasText:/This browser: adapter installed/}).waitFor();
         }
         await page.locator('#wgDays').fill('30'); await page.locator('#wgLimit').fill('100');
-        await page.getByRole('button',{name:'Save',exact:true}).click(); await page.getByText(/^Saved\. Activity settings/).waitFor();
+        await saveSettings();
         await page.goto(fixture.base+'/web/#/home?watchguard=watchlists&owner=all&interest=watched&sort=recent');
         const region = page.getByRole('region',{name:'Watchlists',exact:true});
         await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
