@@ -26,7 +26,42 @@ function timing(fixture,phase,ms) {
 }
 async function login(page, fixture) {
     const started=Date.now();
-    await page.goto(fixture.base + '/web/');
+    let networkChanged=false;
+    // Docker can change the fixture's network when the disposable Caddy proxy
+    // is attached. Observe real Chromium transport failures; retry only this
+    // pre-authentication navigation, never an approval or DELETE.
+    const observeFailure=request=>{
+        if (String(request.failure()||'').includes('ERR_NETWORK_CHANGED')) networkChanged=true;
+    };
+    page.on('requestfailed',observeFailure);
+    try {
+        for (let attempt=0; attempt<2; attempt++) {
+            try {
+                await page.goto(fixture.base + '/web/');
+                // Once a disposable second user becomes visible on Jellyfin's
+                // native login page, the manual username form is collapsed
+                // behind its "Manual Login" control. Both layouts are valid.
+                await page.waitForFunction(() => {
+                    const input=document.querySelector('#txtManualName');
+                    if (input?.getClientRects().length) return true;
+                    return Array.from(document.querySelectorAll('button, a')).some(el =>
+                        el.getClientRects().length && el.textContent.trim()==='Manual Login');
+                },null,{timeout:15000});
+                const manual=page.getByRole('button',{name:'Manual Login',exact:true});
+                if (await manual.isVisible()) await manual.click();
+                await page.locator('#txtManualName').waitFor({state:'visible',timeout:15000});
+                break;
+            } catch (error) {
+                if (attempt !== 0 || !(networkChanged || String(error.message).includes('ERR_NETWORK_CHANGED'))) throw error;
+                // Preserve screenshots, sanitized traces and timing of the
+                // initial network failure before the one permitted navigation retry.
+                await setupRetry(page,fixture,'login-network-changed');
+                networkChanged=false;
+            }
+        }
+    } finally {
+        page.off('requestfailed',observeFailure);
+    }
     await page.locator('#txtManualName').fill(fixture.username);
     await page.locator('#txtManualPassword').fill(fixture.password);
     await page.getByRole('button', {name: 'Sign In', exact: true}).click();
