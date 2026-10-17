@@ -9,3 +9,5 @@ Evidence includes elapsed time, counts, missing paths and parent mismatches in `
 Current scope: shared indexing, phase journals and sanitized container failure evidence are implemented. Broader lifecycle consolidation and cleanup failure handling remain under qualification. Do not treat this document as evidence that all requested lifecycle work has passed.
 
 CI pins Ubuntu 24.04, Node 24.22.0, Python 3.12.0, .NET SDK from global.json and Playwright 1.56.1 from package-lock. Local qualification must use the same language/tool versions; macOS Docker Desktop remains a distinct host environment from hosted Linux.
+
+Startup/restart probes require the native `/health` body to be `Healthy`, not merely HTTP 200 (ASP.NET health responses may return 200 for Degraded), plus authenticated API readiness. The pinned main pipeline maps `/health`; the setup server exposes a separate StartupCheck. This strengthens readiness; it is not asserted to explain the earlier catalog timeout without further evidence.

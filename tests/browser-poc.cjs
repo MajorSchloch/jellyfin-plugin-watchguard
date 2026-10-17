@@ -18,12 +18,12 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
     // Capture native Jellyfin exceptions that can prevent getCommands() from revealing More.
     const nativeErrors = [];
     page.on('pageerror', err => {
-        const message = String(err.message || err).slice(0, 600);
+        const message = String(err.message || err).replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,600);
         nativeErrors.push('pageerror: ' + message);
     });
     page.on('console', message => {
         if (message.type() === 'error') {
-            nativeErrors.push('console: ' + message.text().slice(0, 600));
+            nativeErrors.push('console: ' + message.text().replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,600));
         }
     });
     page.setDefaultTimeout(10000);
@@ -56,7 +56,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
     async function detail(title) {
         await page.goto(fixture.base + '/web/#/details?id=' + fixture.items[title] + '&serverId=' + fixture.serverId);
         await page.locator('#itemDetailPage').getByText(title, {exact:true}).first().waitFor();
-        const more = page.locator('#itemDetailPage:not(.hide) .btnMoreCommands');
+        const more = page.locator('#itemDetailPage:visible .btnMoreCommands:visible');
         // Native UI contract: no hidden clicks or reload that erases a first failure.
         await more.waitFor({state:'visible',timeout:15000});
         await page.waitForFunction(() => window.WatchGuardPoc?.isInstalled());
@@ -87,7 +87,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await filter.getByRole('checkbox',{name:'Watched',exact:true}).press('Escape');
     }
     async function nativeDelete() {
-        await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').click();
+        await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').click();
         await page.getByText(/^Delete (?:media|series|episode|season)$/i).click();
     }
     async function nativeConfirm() {
@@ -124,6 +124,15 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         assert.equal((await response).status(), 204);
         assert.equal(report.deletes.length, before + 1);
         await exists(fixture.items[title], 404);
+    }
+    async function applyLayout(layout) {
+        await page.evaluate(mode=>mode ? localStorage.setItem('layout',mode) : localStorage.removeItem('layout'),layout);
+        // Layout is selected at application bootstrap, not on a hash route change.
+        // This is explicit configuration setup, never a retry of an operation.
+        await page.goto(fixture.base+'/web/#/home');
+        await page.reload();
+        await page.getByText('My Media',{exact:true}).waitFor();
+        await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
     }
     async function movies() {
         await page.goto(fixture.base + '/web/');
@@ -337,7 +346,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.setViewportSize({width:1280,height:900});
         await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).click();
         await page.locator('#itemDetailPage:not(.hide)').getByText('PoC Parent Clear',{exact:true}).first().waitFor();
-        await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
+        await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').waitFor();
         await openInterest();
         if (fixture.standalone) await page.locator('.watchguard-series-activity summary').filter({hasText:'Watching'}).waitFor();
         else await page.getByRole('status',{name:'Title interest',exact:true}).getByRole('img',{name:'Watching',exact:true}).waitFor();
@@ -421,7 +430,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.getByRole('button',{name:'Remove from Watchlist',exact:true}).click();
         await page.getByRole('button',{name:'Add to Watchlist',exact:true}).waitFor();
         await openInterest(); await page.screenshot({path:path.join(output,'inline-series.png')});
-        await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').click();
+        await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').click();
         const seriesCommand=page.locator('.actionSheet.opened .watchguard-native-action');
         await seriesCommand.getByText('Add to Watchlist',{exact:true}).waitFor();
         await seriesCommand.click();await seriesCommand.getByText('Remove from Watchlist',{exact:true}).waitFor();
@@ -715,7 +724,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         for (const [layout,title] of [['desktop-legacy','PoC Layout Legacy'],['modern','PoC Layout Modern']]) {
             report.phase = layout;
             await api('/WatchGuard/Watchlist/' + fixture.items[title],'PUT',undefined,member.AccessToken);
-            await page.evaluate(mode=>localStorage.setItem('layout',mode),layout);
+            await applyLayout(layout);
             await detail(title);
             assert.equal(await page.locator('.skinHeader').isVisible(),layout==='desktop-legacy');
             await page.getByRole('button',{name:'Add to Watchlist',exact:true}).waitFor();
@@ -731,7 +740,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             await nativeDelete(); await nativeConfirm(); await approve(title);
             report.paths.push({path:'Explicit ' + layout,result:'correct shell verified; shared legacy detail controls/list and native cancel/override passed'});
         }
-        await page.evaluate(()=>localStorage.removeItem('layout'));
+        await applyLayout(null);
         // Real episode/season targets: retain the original native deletion ID.
         for (const interested of [true,false]) {
             const parentTitle = interested ? 'PoC Parent Interested' : 'PoC Parent Clear';
@@ -745,7 +754,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
                 const label = parentTitle + ' ' + target.Type; fixture.items[label] = target.Id;
                 report.phase = label;
                 await page.goto(fixture.base + '/web/#/details?id=' + target.Id + '&serverId=' + fixture.serverId);
-                await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
+                await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').waitFor();
                 await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
                 await page.getByRole('button',{name:'Add to Watchlist',exact:true}).waitFor();
                 await openInterest();
@@ -806,7 +815,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         report.paths.push({ path: 'Escape on movie detail', cancel: 'zero DELETE', genericErrorOnCancel: true });
         report.phase = 'Native membership actions';
         await detail('PoC Context Movie');
-        await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').click();
+        await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').click();
         const ownCommand=()=>page.locator('.actionSheet.opened .watchguard-native-action');
         await ownCommand().getByText('Add to Watchlist',{exact:true}).waitFor();
         await page.screenshot({path:path.join(output,'native-menu.png')});
@@ -884,7 +893,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.goBack();
         const policy = {...member.User.Policy, EnableContentDeletion:true};
         await api('/Users/' + member.User.Id + '/Policy','POST',policy);
-        await page.reload(); await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
+        await page.reload(); await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').waitFor();
         report.phase = 'Non-admin deletion permission';
         const beforeDenied = report.deletes.length;
         await nativeDelete(); await nativeConfirm();

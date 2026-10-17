@@ -62,12 +62,14 @@ async function failure(page, fixture, label) {
     const state = await page.evaluate(() => ({
         route: location.hash.split('?')[0],
         authenticated: Boolean(window.ApiClient?.getCurrentUserId?.()),
+        actualIdentity: {userId:window.ApiClient?.getCurrentUserId?.()||null,serverId:window.ApiClient?.serverId?.()||null},
         installed: Boolean(window.WatchGuardPoc?.isInstalled()),
         controls: Array.from(document.querySelectorAll('.btnMoreCommands,dialog.watchguard-deletion-dialog')).map(el => ({
             tag: el.tagName, classes: el.className, visible: !!el.getClientRects().length,
             open: el.open === true
         }))
     }));
+    state.expectedIdentity={userId:fixture.userId||null,serverId:fixture.serverId||null};
     state.chronology=observations.get(page)||[];
     fs.mkdirSync(fixture.output, {recursive: true});
     fs.writeFileSync(path.join(fixture.output, label + '-readiness.json'), JSON.stringify(state, null, 2));

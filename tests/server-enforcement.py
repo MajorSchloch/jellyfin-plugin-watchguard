@@ -48,6 +48,7 @@ def main():
             nonlocal base
             base='http://127.0.0.1:'+docker('port',name,'8096/tcp').split(':')[-1]+a.base_path
             def probe(timeout):
+                assert call('/health',timeout=timeout)==b'Healthy', 'Native startup health is not Healthy'
                 assert call('/System/Info/Public',timeout=timeout).get('Version')
                 call('/Startup/User' if token is None else '/Users/Me',timeout=timeout)
             wait_ready(probe)
