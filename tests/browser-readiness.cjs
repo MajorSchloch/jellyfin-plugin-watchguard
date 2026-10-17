@@ -33,7 +33,11 @@ async function login(page, fixture) {
     const observeFailure=request=>{
         if (String(request.failure()||'').includes('ERR_NETWORK_CHANGED')) networkChanged=true;
     };
+    const observeConsole=message=>{
+        if (message.type()==='error' && message.text().includes('ERR_NETWORK_CHANGED')) networkChanged=true;
+    };
     page.on('requestfailed',observeFailure);
+    page.on('console',observeConsole);
     try {
         for (let attempt=0; attempt<2; attempt++) {
             try {
@@ -47,9 +51,12 @@ async function login(page, fixture) {
                     return Array.from(document.querySelectorAll('button, a')).some(el =>
                         el.getClientRects().length && el.textContent.trim()==='Manual Login');
                 },null,{timeout:15000});
-                const manual=page.getByRole('button',{name:'Manual Login',exact:true});
-                if (await manual.isVisible()) await manual.click();
-                await page.locator('#txtManualName').waitFor({state:'visible',timeout:15000});
+                const username=page.locator('#txtManualName');
+                if (!(await username.isVisible())) {
+                    const manual=page.getByRole('button',{name:'Manual Login',exact:true});
+                    await manual.click();
+                }
+                await username.waitFor({state:'visible',timeout:15000});
                 break;
             } catch (error) {
                 if (attempt !== 0 || !(networkChanged || String(error.message).includes('ERR_NETWORK_CHANGED'))) throw error;
@@ -61,6 +68,7 @@ async function login(page, fixture) {
         }
     } finally {
         page.off('requestfailed',observeFailure);
+        page.off('console',observeConsole);
     }
     await page.locator('#txtManualName').fill(fixture.username);
     await page.locator('#txtManualPassword').fill(fixture.password);
