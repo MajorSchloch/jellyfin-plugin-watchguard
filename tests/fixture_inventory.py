@@ -35,10 +35,11 @@ def differences(items, expected):
 def wait_inventory(get, user_id, expected, output, seconds=120):
     started = time.monotonic()
     deadline = started + seconds
-    snapshot = {'phase': 'media-indexing', 'status': 'WAITING', 'retries': 0}
+    snapshot = {'phase': 'media-indexing', 'status': 'WAITING', 'transportRetries': 0, 'polls': 0}
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     while time.monotonic() < deadline:
+        snapshot['polls'] += 1
         timeout = max(.1, min(10, deadline - time.monotonic()))
         try:
             response = get('/Items?UserId=' + user_id + '&Recursive=true&Fields=Path,ParentId&IncludeItemTypes=Movie,Series,Season,Episode&Limit=10000', timeout)
@@ -55,6 +56,7 @@ def wait_inventory(get, user_id, expected, output, seconds=120):
         except (OSError, TimeoutError) as error:
             # Only transport failures on read-only readiness queries may retry.
             snapshot['transportError'] = type(error).__name__
+            snapshot['transportRetries'] += 1
         snapshot['elapsedSeconds'] = round(time.monotonic() - started, 3)
         output.write_text(json.dumps(snapshot, indent=2) + '\n')
         time.sleep(min(1, max(0, deadline - time.monotonic())))

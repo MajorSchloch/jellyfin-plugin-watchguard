@@ -29,7 +29,7 @@ def capture(output, container, error, read=None):
                 report[label]=[{k:r.get(k) for k in fields} for r in read(route)]
             except Exception as failure:
                 report[label+'CaptureFailure']=type(failure).__name__
-    (output/'failure.json').write_text(redact(json.dumps(report,indent=2))+'\n')
+    (output/'failure.json').write_text(json.dumps(report,indent=2)+'\n')
 
 class Phases:
     """A transition marks the previous phase complete; failure keeps its first phase."""

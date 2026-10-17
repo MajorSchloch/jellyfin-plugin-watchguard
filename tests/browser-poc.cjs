@@ -54,7 +54,6 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         assert.equal(response.status, expected);
     }
     async function detail(title) {
-        await page.goto('about:blank');
         await page.goto(fixture.base + '/web/#/details?id=' + fixture.items[title] + '&serverId=' + fixture.serverId);
         await page.locator('#itemDetailPage').getByText(title, {exact:true}).first().waitFor();
         const more = page.locator('#itemDetailPage:not(.hide) .btnMoreCommands');
@@ -127,7 +126,6 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await exists(fixture.items[title], 404);
     }
     async function movies() {
-        await page.goto('about:blank');
         await page.goto(fixture.base + '/web/');
         await page.getByRole('link', { name: 'PoC Movies', exact: true }).first().click();
         await page.getByText('PoC Bulk One', { exact: true }).waitFor();
@@ -746,7 +744,6 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             for (const target of targets) {
                 const label = parentTitle + ' ' + target.Type; fixture.items[label] = target.Id;
                 report.phase = label;
-                await page.goto('about:blank');
                 await page.goto(fixture.base + '/web/#/details?id=' + target.Id + '&serverId=' + fixture.serverId);
                 await page.locator('#itemDetailPage:not(.hide) .btnMoreCommands').waitFor();
                 await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());

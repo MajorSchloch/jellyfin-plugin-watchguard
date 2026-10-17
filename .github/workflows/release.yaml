@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: '24.22.0'
       - run: python3 scripts/build-release.py
-      - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
+      - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore --logger trx --results-directory artifacts/testing/backend
         env:
           WATCHGUARD_BENCHMARK_OUTPUT: /tmp/discovery-model-v048.json
           WATCHGUARD_VERIFICATION_MODEL_OUTPUT: /tmp/verification-model-v048.json
@@ -59,6 +59,13 @@ jobs:
           cp artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256 /tmp/first.sha256
           python3 scripts/build-release.py
           cmp /tmp/first.sha256 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256
+      - name: Retain build and backend test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: WatchGuard-build-diagnostics
+          path: artifacts/testing/
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-v0.4.9-validated
@@ -179,32 +186,7 @@ jobs:
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.8/Jellyfin.Plugin.WatchGuard-v0.4.8.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
           echo '06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip' | sha256sum -c -
       - name: Complete disposable regression suite
-        run: |
-          case "${{ matrix.suite }}" in
-            server-enforcement)
-              python3 tests/server-enforcement.py ;;
-            server-enforcement-basepath)
-              python3 tests/server-enforcement.py --base-path /jellyfin ;;
-            server-enforcement-linuxserver)
-              python3 tests/server-enforcement.py --linuxserver ;;
-            standalone-caddy)
-              python3 tests/docker-smoke.py --linuxserver --catalog --caddy ;;
-            migration)
-              python3 tests/docker-smoke.py --linuxserver --migration --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll ;;
-            basepath)
-              python3 tests/docker-smoke.py --base-path /jellyfin --proxy ;;
-            legacy)
-              python3 tests/docker-smoke.py --legacy-injector --catalog --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
-              python3 tests/docker-smoke.py --legacy-injector --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll ;;
-            discovery)
-              python3 tests/docker-smoke.py --profile discovery ;;
-            verification)
-              python3 tests/docker-smoke.py --profile verification
-              WATCHGUARD_VERIFICATION_POLICIES=1 WATCHGUARD_VERIFICATION_OUTPUT=artifacts/verification-native-v048-policies.json python3 tests/docker-smoke.py --profile verification
-              WATCHGUARD_DISCOVERY_BASELINE=0.4.7 python3 tests/docker-smoke.py --profile discovery ;;
-            websocket)
-              python3 tests/docker-smoke.py --linuxserver --caddy --measure ;;
-          esac
+        run: python3 tests/run_suite.py "${{ matrix.suite }}"
       - name: Summarize first failed fixture phase
         if: always()
         run: python3 tests/summarize_qualification.py

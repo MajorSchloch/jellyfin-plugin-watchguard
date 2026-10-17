@@ -17,3 +17,7 @@ Pinned server source: `ca0f16eb7c195f720a1493ed469a27c4657db0c6`. `ScheduledTask
 No production security defect has been established by these failures. No security invariant is waived. Remaining investigation includes first-failure trace capture, teardown evidence, test contamination, version parity and full hosted repeatability.
 
 During local refactoring qualification, migration exposed an order-dependent `items[0]` assumption: expanding inventory to include seasons caused a season to be sent to a movie watchlist setup operation. Fixed by selecting `PoC Movie Detail` explicitly in migration and legacy catalog setup. This was introduced/exposed by the refactor, not asserted as the cause of historical run #58. The failed run is retained and does not count as qualification.
+
+The first base-path failure in #57 was `page.goto: net::ERR_ABORTED at about:blank` during Watchlist UI, not a deletion assertion. The redundant intermediate blank-document navigations were removed; setup now navigates directly to the intended native route. There is no automatic navigation/deletion retry. Qualification must demonstrate this remains valid for all native UI cases.
+
+A local standalone/catalog run also timed out on the native package installation POST after repeated version round-trips. The failed operation was not retried. Its sanitized container evidence is retained; the reason for the package timeout is not yet established. This is a release blocker until diagnosed.

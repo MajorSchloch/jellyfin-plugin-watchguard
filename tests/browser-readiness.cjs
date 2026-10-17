@@ -15,6 +15,7 @@ async function identity(page, fixture) {
     assert.equal(key(actual.nativeUserId), key(fixture.userId), 'Native authenticated user');
     assert.equal(key(actual.serverId), key(fixture.serverId), 'Active ApiClient server');
     assert.equal(new URL(actual.address).origin, new URL(fixture.base).origin, 'Active ApiClient origin');
+    assert.equal(new URL(actual.address).pathname.replace(/\/$/,''),new URL(fixture.base).pathname.replace(/\/$/,''),'Active ApiClient base path');
 }
 async function login(page, fixture) {
     await page.goto(fixture.base + '/web/');

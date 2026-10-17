@@ -15,8 +15,8 @@ assert.match(f.base,/^http:\/\/127\.0\.0\.1:\d+(\/jellyfin)?$/);
   // The old-tab compatibility contract is the retained v0.4.8 ApiClient
   // adapter, not Jellyfin's current detail-toolbar visibility. Other suites
   // exercise actual native More -> Delete menus. Invoke the same ApiClient
-  // method here so we can verify the real Web dialog and server veto even
-  // when the modern Jellyfin shell hides legacy detail action buttons.
+  // method here to verify the real Web dialog and server veto independently
+  // of native toolbar rendering, which has its own regression suite.
   async function begin(){
    await readiness.detail(page,f,f.id);
    await page.evaluate(id=>{

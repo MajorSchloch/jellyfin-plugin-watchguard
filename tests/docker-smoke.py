@@ -185,15 +185,11 @@ def main():
                 docker('restart', name)
                 # Docker Desktop can allocate a different ephemeral host port on restart.
                 base = 'http://127.0.0.1:' + docker('port', name, '8096/tcp').split(':')[-1] + options.base_path
-                for attempt in range(60):
-                    try:
-                        current = call('/Plugins/' + injector_id + '/Configuration', token=token)
-                        registered = [s for s in current['PluginJavaScripts'] if s['Id'] == 'watchguard-v1']
-                        assert len(registered) == 1 and registered[0]['PluginVersion'] == '0.3.1'
-                        break
-                    except (urllib.error.URLError, http.client.HTTPException, ConnectionError, AssertionError):
-                        if attempt == 59: raise
-                        time.sleep(1)
+                def registered_probe(timeout):
+                    current=call('/Plugins/'+injector_id+'/Configuration',token=token,timeout=timeout)
+                    registered=[row for row in current['PluginJavaScripts'] if row['Id']=='watchguard-v1']
+                    assert len(registered)==1 and registered[0]['PluginVersion']=='0.3.1'
+                wait_ready(registered_probe)
                 assert 'WatchGuard web script registered with JavaScript Injector.' in docker('logs', name)
             else:
                 runpy.run_path(str(ROOT/'tests/standalone-http.py'))['run'](base,token)
@@ -214,7 +210,7 @@ def main():
                 caddy.verify(token)
             fixture = root / 'fixture.json'
             fixture.write_text(json.dumps({'base': browser_base, 'username': username, 'password': password,
-                'standalone':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')), 'token': token, 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
+                'standalone':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')/name), 'token': token, 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
             fixture.chmod(0o600)
             if caddy: os.environ['NODE_EXTRA_CA_CERTS'] = str(caddy.ca)
             print('READY fixture=' + str(fixture), flush=True)

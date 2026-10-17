@@ -14,7 +14,7 @@ def main():
     parser=argparse.ArgumentParser();parser.add_argument('--linuxserver',action='store_true');parser.add_argument('--web',action='store_true',default=True);parser.add_argument('--base-path',choices=['','/jellyfin'],default='');a=parser.parse_args()
     image='lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b' if a.linuxserver else IMAGE
     run_user=['-e',f'PUID={os.getuid()}','-e',f'PGID={os.getgid()}'] if a.linuxserver else ['--user',f'{os.getuid()}:{os.getgid()}']
-    output=ROOT/'artifacts/server-enforcement'/('linuxserver' if a.linuxserver else 'official')/('basepath' if a.base_path else 'direct');output.mkdir(parents=True,exist_ok=True)
+    output=ROOT/'artifacts/server-enforcement'/('linuxserver' if a.linuxserver else 'official')/('basepath' if a.base_path else 'direct')/uuid.uuid4().hex[:10];output.mkdir(parents=True,exist_ok=True)
     report={'image':image,'basePath':a.base_path,'cases':[],'status':'RUNNING'}
     (output/'results.json').write_text(json.dumps(report,indent=2)+'\n')
     archive=subprocess.check_output(['curl','--fail','--silent','--show-error','--location','--max-time','60','https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.8/Jellyfin.Plugin.WatchGuard-v0.4.8.zip'])

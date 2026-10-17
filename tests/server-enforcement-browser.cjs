@@ -32,9 +32,9 @@ assert.match(f.base,/^https?:\/\/(127\.0\.0\.1|localhost):\d+(\/jellyfin)?$/);
   const dialog=page.locator('dialog.watchguard-deletion-dialog');
   const target=name=>{const t=f.items.find(i=>i.Name===name);assert.ok(t,name);return t;};
   // This suite qualifies the actual installed WatchGuard ApiClient adapter.
-  // On the pinned modern shell the legacy detail-page More control can be
-  // intentionally hidden; native More-menu coverage remains in the existing
-  // Jellyfin browser regression suite. Never force-click a hidden control.
+  // Native toolbar readiness is a separate contract exercised by browser-poc.
+  // A hidden More button does not establish adapter failure or unsupported UI.
+  // Never force-click a hidden control.
   async function begin(item){
    await readiness.detail(page,f,item.Id);
    await page.evaluate(id=>{
@@ -80,12 +80,14 @@ assert.match(f.base,/^https?:\/\/(127\.0\.0\.1|localhost):\d+(\/jellyfin)?$/);
    }
    // Native per-item queue semantics, no conversion to /Items?ids. Existing UI dialog is reused.
    const bulk=[target('WebBulkA'),target('WebBulkB')],before=deletes;
+   await readiness.identity(page,f);
    await page.evaluate(ids=>{window.wgTestDone=Promise.allSettled(ids.map(id=>ApiClient.deleteItem(id)));},bulk.map(i=>i.Id));
    for(const item of bulk){await dialog.waitFor();const response=page.waitForResponse(r=>r.request().method()==='DELETE'&&r.url().includes(item.Id));await dialog.getByRole('button',{name:'Delete Anyway',exact:true}).click();assert.equal((await response).status(),204);result.removed.push(item.Id);}
    await page.evaluate(()=>window.wgTestDone);assert.equal(deletes,before+2);result.cases.push('individual-bulk-queue');
    // Adapter coverage for each inherited series target; native menus are tested separately.
    for(const type of ['Episode','Season','Series']) {const item=f.items.find(i=>i.Type===type);assert.ok(item);await approve(item);if(type==='Season')for(const child of f.items.filter(i=>i.Type==='Episode'))if(!result.removed.includes(child.Id))result.removed.push(child.Id);}
    const clear=target('WebClear');const count=deletes;
+   await readiness.identity(page,f);
    await page.evaluate(id=>ApiClient.deleteItem(id),clear.Id);assert.equal(deletes,count+1);result.removed.push(clear.Id);result.cases.push('clear-native');
   }
   result.status='PASS';result.nativeDeletes=deletes;
