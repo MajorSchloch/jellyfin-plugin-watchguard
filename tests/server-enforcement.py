@@ -340,12 +340,18 @@ def main():
                     if a.proxy_matrix:
                         from proxy_compatibility import qualify
                         report['portableProxies']=qualify(docker,name,root,caddy,token,movies,call,preserved,output)
+                        from native_proxy_policy import begin
+                        policy_probe=begin(docker,name,root,caddy,call)
                     # Retain the strict native trusted-proxy path as independent coverage.
 
                     proxy_ip=json.loads(docker('inspect',caddy.name))[0]['NetworkSettings']['Networks'][caddy.network]['IPAddress']
                     network=call('/System/Configuration/network');network['KnownProxies']=[proxy_ip]
                     call('/System/Configuration/network','POST',network,expected=204)
                     docker('restart',name);ready()
+                    if a.proxy_matrix:
+                        from native_proxy_policy import finish
+                        report['nativeRemoteAccessProxyBoundary']=finish(docker,name,root,caddy,call,policy_probe)
+                        (output/'native-remote-access-proxy.json').write_text(json.dumps(report['nativeRemoteAccessProxyBoundary'],indent=2)+'\n')
                     before=docker('logs',name).count('WG-GUARD evaluation');caddy.verify(token)
                     assert docker('logs',name).count('WG-GUARD evaluation')==before
                     def proxy(path,method='GET',body=None,expected=200,approval=None):

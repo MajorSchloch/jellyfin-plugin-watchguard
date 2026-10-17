@@ -12,7 +12,7 @@
 <button is="emby-button" class="raised button-submit block" type="submit">Save</button>
 </form>
 <p id="wgSettingsMessage" role="status"></p>
-<h2>Integration status</h2><p id="wgApprovalReadiness" role="status">Approval request readiness has not been checked.</p><div id="wgIntegration" role="status">Loading…</div>
+<h2>Integration status</h2><p id="wgApprovalReadiness" role="status">Approval request readiness has not been checked.</p><p id="wgProxyNetworkNote" class="fieldDescription" role="status">Jellyfin client-IP forwarding and native remote-access restrictions are not verified by WatchGuard.</p><div id="wgIntegration" role="status">Loading…</div>
 <button is="emby-button" class="button-flat" id="wgCheck" type="button">Refresh status and check this browser</button>
 <p id="wgBrowser" class="fieldDescription">Server registration alone cannot verify browser execution.</p>
 </div></div>
@@ -25,6 +25,7 @@
     function valid(who, revision) { return revision === epoch && who.every((v,i) => v === identity()[i]); }
     async function status() {
         field('#wgApprovalReadiness').textContent = 'Checking approval request readiness…';
+        field('#wgProxyNetworkNote').textContent = 'Jellyfin client-IP forwarding and native remote-access restrictions are not verified by WatchGuard.';
         const who = identity(), revision = epoch, statusRevision = ++statusGeneration;
         const current = () => valid(who, revision) && statusRevision === statusGeneration;
         try {
@@ -65,9 +66,13 @@
                 field('#wgApprovalReadiness').textContent = 'Approval POST readiness: ' + (readiness.ApprovalRequestsReady === true ? 'ready' : 'not active or browser origin unverified') +
                     ' · Origin: ' + readiness.OriginStatus + ' · Native administrator authenticated: ' + readiness.Authenticated +
                     '. This checks authentication and origin without creating an approval or deleting media; target permissions remain operation-specific.';
+                field('#wgProxyNetworkNote').textContent = readiness.OriginStatus === 'HttpsProxySameOrigin'
+                    ? 'Jellyfin reverse-proxy networking: NOT VERIFIED. WatchGuard accepted an HTTPS-to-HTTP approval request using browser same-origin evidence; that does not mean Jellyfin trusts the proxy for client-IP forwarding. Without native trusted-proxy configuration, Jellyfin may classify remote clients as local and fail to apply native remote-access restrictions. Configure Jellyfin Dashboard → Networking → Known Proxies for a reverse-proxy installation.'
+                    : 'Jellyfin client-IP forwarding and native remote-access restrictions: NOT VERIFIED by this approval check. Direct connections need no proxy entry. If Jellyfin is behind a reverse proxy, configure its native Known Proxies under Dashboard → Networking, independently of WatchGuard approval readiness.';
             } catch {
                 if (!current()) return;
                 field('#wgApprovalReadiness').textContent = 'Approval POST readiness failed. Verify the administrator session, public Host and browser Fetch Metadata. Proxies that rewrite Host or strip these headers need Jellyfin native trusted-proxy configuration. Do not enable arbitrary forwarded-header trust.';
+                field('#wgProxyNetworkNote').textContent = 'Jellyfin proxy/network health: NOT VERIFIED. Approval failure does not diagnose native client-IP forwarding or remote-access restrictions; check Dashboard → Networking when behind a proxy.';
             }
             let available = true;
             if (standalone) {
@@ -90,6 +95,7 @@
         const revision = ++epoch, who = identity();
         statusGeneration++;
         field('#wgApprovalReadiness').textContent = 'Approval request readiness has not been checked.';
+        field('#wgProxyNetworkNote').textContent = 'Jellyfin client-IP forwarding and native remote-access restrictions are not verified by WatchGuard.';
         field('#wgSettingsMessage').textContent = ''; field('#wgIntegration').textContent = 'Loading…'; field('#wgBrowser').textContent = '';
         try {
             const config = await ApiClient.getPluginConfiguration(id);
@@ -98,7 +104,7 @@
             field('#wgEnforcement').checked = config.EnableServerEnforcement === true; field('#wgCaughtUp').checked = config.ProtectCaughtUpSeries !== false; field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
         } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not load settings. Administrator access is required.'; }
     });
-    page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgApprovalReadiness').textContent = 'Approval request readiness has not been checked.'; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
+    page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgApprovalReadiness').textContent = 'Approval request readiness has not been checked.'; field('#wgProxyNetworkNote').textContent = 'Jellyfin proxy/network health: not checked.'; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
     field('#wgCheck').onclick = status;
     field('#WatchGuardSettingsForm').onsubmit = async function (event) {
         event.preventDefault();

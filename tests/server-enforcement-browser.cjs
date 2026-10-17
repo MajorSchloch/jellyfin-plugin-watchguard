@@ -16,6 +16,11 @@ assert.match(f.base,/^https?:\/\/(127\.0\.0\.1|localhost):\d+(\/jellyfin)?$/);
   if(f.proxy) {
    await page.goto(f.base+'/web/#/configurationpage?name=WatchGuard');
    await page.locator('#wgApprovalReadiness').filter({hasText:'Approval POST readiness: ready'}).waitFor();
+   // Browser approval success is not a native client-IP/remote-access policy check.
+   await page.locator('#wgProxyNetworkNote').filter({hasText:'Jellyfin reverse-proxy networking: NOT VERIFIED'}).waitFor();
+   assert.match(await page.locator('#wgProxyNetworkNote').innerText(), /remote clients as local/);
+   assert.match(await page.locator('#wgApprovalReadiness').innerText(), /Origin: HttpsProxySameOrigin/);
+   result.cases.push('approval-ready-not-native-proxy-policy-ready');
    await page.screenshot({path:path.join(f.output,'proxy-readiness-desktop.png'),fullPage:true});
    await page.setViewportSize({width:390,height:844});
    await page.screenshot({path:path.join(f.output,'proxy-readiness-mobile.png'),fullPage:true});

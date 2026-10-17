@@ -2,6 +2,12 @@
 
 Status: **full hosted release qualification PASS** on commit `6582dd7933200eb3233ae63531f52589feb6ef96`. [Run 39035305677](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39035305677) used `publish=false`, `proxy_matrix=true`; all eleven required jobs passed and publication was skipped. No publication or production deployment is authorized by these results.
 
+## Follow-up: native Jellyfin network-policy qualification (pending)
+
+The previous hosted qualification below establishes **WatchGuard approval compatibility and deletion-security behavior**, not the correctness of Jellyfin's own client-IP forwarding and remote-access restrictions. The follow-up branch `docs/v0410-native-proxy-boundary` adds a separate native-policy regression and dashboard disclosure. **Those new assertions are not covered by the historical run listed below.** They require a fresh hosted `publish=false`, `proxy_matrix=true` run on the final branch/merged source before release approval.
+
+The disposable native-policy check creates an ordinary local-only account with `EnableRemoteAccess=false` and injects a synthetic RFC 5737 remote client address from the owned Caddy proxy. With KnownProxies empty, Jellyfin sees the proxy as a local caller; after trusting exactly Caddy's container IP, Jellyfin must hide the local-only account in `GET /Users/Public` and deny `GET /Users/Me` for that account. A direct request with forged forwarding headers must remain untrusted. These tests use Jellyfin's own endpoints, independent of WatchGuard challenge/approval evaluation, and do not read or change production settings.
+
 ## Automated coverage
 
 - 175 backend tests: existing state-machine, atomic replay/concurrency, session/account binding, permissions, changed interest/inventory, default settings and memory bounds retained. New origin policy tests cover direct schemes, HTTPS frontend/HTTP backend, exact host/port, spoofed Origin/Host/forwarded headers, missing metadata, cross-site/same-site, null/malformed/duplicate origins, credentials/path/query/fragment and base path independence.
