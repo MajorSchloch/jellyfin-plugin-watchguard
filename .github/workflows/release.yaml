@@ -13,11 +13,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.0'
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
@@ -25,7 +28,7 @@ jobs:
           cache-dependency-path: '**/packages.lock.json'
       - uses: actions/setup-node@v5
         with:
-          node-version: '24'
+          node-version: '24.22.0'
       - run: python3 scripts/build-release.py
       - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
         env:
@@ -38,6 +41,7 @@ jobs:
           path: |
             /tmp/discovery-model-v048.json
             /tmp/verification-model-v048.json
+      - run: python3 -m unittest discover -s tests -p 'test_*.py'
       - run: python3 tests/catalog_test.py
       - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
       - name: Compare identical models with published v0.4.7
@@ -66,19 +70,22 @@ jobs:
   integration:
     name: Integration / ${{ matrix.suite }}
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         suite: [standalone-caddy, migration, basepath, legacy, websocket, discovery, verification, server-enforcement, server-enforcement-basepath, server-enforcement-linuxserver]
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.0'
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
       - uses: actions/setup-node@v5
         with:
-          node-version: '24'
+          node-version: '24.22.0'
           cache: npm
           cache-dependency-path: tests/browser/package-lock.json
       - uses: actions/download-artifact@v6
@@ -185,10 +192,7 @@ jobs:
             migration)
               python3 tests/docker-smoke.py --linuxserver --migration --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll ;;
             basepath)
-              if ! python3 tests/docker-smoke.py --base-path /jellyfin --proxy; then
-                echo "::warning::Base-path browser fixture failed; rerunning complete regression once with a fresh container"
-                python3 tests/docker-smoke.py --base-path /jellyfin --proxy
-              fi ;;
+              python3 tests/docker-smoke.py --base-path /jellyfin --proxy ;;
             legacy)
               python3 tests/docker-smoke.py --legacy-injector --catalog --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
               python3 tests/docker-smoke.py --legacy-injector --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll ;;
@@ -201,17 +205,21 @@ jobs:
             websocket)
               python3 tests/docker-smoke.py --linuxserver --caddy --measure ;;
           esac
+      - name: Summarize first failed fixture phase
+        if: always()
+        run: python3 tests/summarize_qualification.py
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-browser-failure-${{ matrix.suite }}
           path: |
+            artifacts/testing/
             artifacts/v049/
             artifacts/server-enforcement/
           if-no-files-found: warn
       - name: Upload suite evidence
-        if: success()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-evidence-${{ matrix.suite }}
@@ -219,6 +227,7 @@ jobs:
             artifacts/server-enforcement/
             artifacts/settings-validation.json
             artifacts/catalog-validation.json
+            artifacts/testing/
             artifacts/v049/
             artifacts/standalone/caddy-http.json
             artifacts/standalone/socket-standalone.json
@@ -232,7 +241,7 @@ jobs:
     if: inputs.publish && github.ref_name == github.event.repository.default_branch
     needs: [build, integration]
     environment: release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:

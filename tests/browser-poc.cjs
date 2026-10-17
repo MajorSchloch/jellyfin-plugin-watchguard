@@ -1,3 +1,4 @@
+const readiness = require('./browser-readiness.cjs');
 /* Run only through docker-smoke.py, which owns a fresh server and synthetic media. */
 const { chromium } = require('./browser/node_modules/playwright');
 const assert = require('node:assert/strict');
@@ -13,6 +14,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ ignoreHTTPSErrors: fixture.tls === true, viewport: { width: 1280, height: 900 }, locale: 'en-US' });
     const page = await context.newPage();
+    await readiness.capture(page);
     // Capture native Jellyfin exceptions that can prevent getCommands() from revealing More.
     const nativeErrors = [];
     page.on('pageerror', err => {
@@ -56,37 +58,8 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.goto(fixture.base + '/web/#/details?id=' + fixture.items[title] + '&serverId=' + fixture.serverId);
         await page.locator('#itemDetailPage').getByText(title, {exact:true}).first().waitFor();
         const more = page.locator('#itemDetailPage:not(.hide) .btnMoreCommands');
-        // Native detail actions can still be initializing after the title becomes visible.
-        // Retry a single full page load; do not bypass the native More-menu assertion.
-        try {
-            await more.waitFor({ state: 'visible', timeout: 5000 });
-        } catch (error) {
-            await page.reload();
-            await page.locator('#itemDetailPage').getByText(title, {exact:true}).first().waitFor();
-            try {
-                await more.waitFor({ state: 'visible', timeout: 10000 });
-            } catch (retryError) {
-                const diagnostics = await page.evaluate(async () => {
-                    const params = new URLSearchParams(location.hash.split('?')[1] || '');
-                    const itemId = params.get('id');
-                    const client = window.ApiClient;
-                    let dto = null;
-                    try {
-                        if (client && itemId) {
-                            const item = await client.getItem(client.getCurrentUserId(), itemId);
-                            dto = { type: item.Type, canDelete: item.CanDelete, pathPresent: Boolean(item.Path) };
-                        }
-                    } catch (err) { dto = { lookupFailed: true }; }
-                    const more = document.querySelector('#itemDetailPage:not(.hide) .btnMoreCommands');
-                    return { dto, nativeMoreClass: more?.className, currentHash: location.hash.split('?')[0] };
-                });
-                console.error('Hidden native More diagnostic:', JSON.stringify(diagnostics));
-                console.error('Native Jellyfin browser errors:', JSON.stringify(nativeErrors.slice(-20)));
-
-                await page.screenshot({ path: path.join(output, 'hidden-native-more.png') });
-                throw retryError;
-            }
-        }
+        // Native UI contract: no hidden clicks or reload that erases a first failure.
+        await more.waitFor({state:'visible',timeout:15000});
         await page.waitForFunction(() => window.WatchGuardPoc?.isInstalled());
     }
     async function openInterest() {
@@ -936,7 +909,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             const standaloneState=await page.evaluate(()=>({state:window.WatchGuardStandalone?.status(),adapter:!!window.WatchGuardPoc,script:!!document.querySelector('#watchguard-standalone-loader')})).catch(err=>({diagnosticUnavailable:String(err)}));
             console.log('Standalone diagnostic:',standaloneState,nativeErrors.slice(-5));
         }
-        console.log(await page.locator('body').innerText().catch(err=>'Body diagnostic unavailable: '+String(err)));
+        await readiness.failure(page,{...fixture,output},'native-ui').catch(()=>console.warn('Additional browser evidence unavailable'));
         fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
         await page.screenshot({path:path.join(output,'failure.png')}).catch(err=>console.warn('Failure screenshot unavailable:',String(err)));
         throw error;

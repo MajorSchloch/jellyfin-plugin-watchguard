@@ -1,3 +1,5 @@
+from fixture_evidence import capture as capture_failure, Phases
+from fixture_inventory import wait_inventory, wait_ready
 """Run isolated Jellyfin 12.2 deployment and browser tests; never mounts real media.
 Default runs browser-poc.cjs and cleans up. --serve keeps the fixture alive until Ctrl+C.
 """
@@ -20,7 +22,7 @@ IMAGE = 'jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8
 
 
 def docker(*args):
-    return subprocess.check_output(['docker', *args], text=True).strip()
+    return subprocess.check_output(['docker', *args], text=True, timeout=180).strip()
 
 
 def main():
@@ -57,6 +59,7 @@ def main():
     pristine_web_hash = docker('run', '--rm', '--entrypoint', 'sha256sum', image, web_index).split()[0]
     proxy = None
     name = 'watchguard-poc-' + uuid.uuid4().hex[:10]
+    phases=Phases(ROOT/'artifacts/testing'/name/'phases.json')
     with tempfile.TemporaryDirectory(prefix='watchguard-poc-') as temp:
         root = Path(temp)
         plugins = root / ('config/data/plugins' if options.linuxserver else 'config/plugins')
@@ -71,6 +74,7 @@ def main():
             network_dir.mkdir(parents=True,exist_ok=True)
             (network_dir/'network.xml').write_text('<NetworkConfiguration><BaseUrl>'+options.base_path+'</BaseUrl></NetworkConfiguration>')
         try:
+            phases.phase('container-start')
             docker('run', '-d', '--name', name, *run_user,
                    '-p', '127.0.0.1::8096',
                    '--add-host', 'host.docker.internal:host-gateway', '-v', f'{root}/config:/config', image)
@@ -95,21 +99,12 @@ def main():
                 nonlocal base
                 docker('restart', name)
                 base = 'http://127.0.0.1:' + docker('port', name, '8096/tcp').split(':')[-1] + options.base_path
-                for attempt in range(60):
-                    try:
-                        call('/System/Info/Public'); call('/Plugins', token=token); return
-                    except (urllib.error.URLError, http.client.HTTPException, ConnectionError, AssertionError):
-                        if attempt == 59: raise
-                        time.sleep(1)
-            for _ in range(60):
-                try:
-                    call('/System/Info/Public'); call('/Startup/User'); break
-                except (urllib.error.URLError, http.client.HTTPException, ConnectionError, AssertionError):
-                    time.sleep(1)
-            else: raise RuntimeError('Jellyfin did not become ready.')
+                wait_ready(lambda timeout:(call('/System/Info/Public',timeout=timeout),call('/Plugins',token=token,timeout=timeout)))
+            wait_ready(lambda timeout:(call('/System/Info/Public',timeout=timeout),call('/Startup/User',timeout=timeout)))
             version = call('/System/Info/Public')['Version']
             assert version.startswith('12.2'), version
             print('Verified server '+version+' image '+image, flush=True)
+            phases.phase('native-setup-authentication')
             password = uuid.uuid4().hex
             username = 'WatchGuardPoCTest'
             call('/Startup/User', 'POST', {'Name': username, 'Password': password}, expected=204)
@@ -118,6 +113,7 @@ def main():
             token = admin['AccessToken']
             # Own installation order in this disposable fixture. The native StartupTrigger
             # otherwise upgrades the rollback DLL concurrently with our Packages API call.
+            phases.phase('background-tasks')
             updates=next(t for t in call('/ScheduledTasks',token=token) if t['Key']=='PluginUpdates')
             call('/ScheduledTasks/'+updates['Id']+'/Triggers','POST',[],token,expected=204)
             restart() # Ends any already-running startup task without a cancel/idle race.
@@ -125,6 +121,7 @@ def main():
             assert task['State']=='Idle' and task['Triggers']==[]
             print('Disposable fixture: native automatic plugin update triggers disabled; explicit catalog operations remain asserted.',flush=True)
 
+            phases.phase('generate-media')
             movies = ['PoC Movie Detail', 'PoC Context Movie', 'PoC Bulk One', 'PoC Bulk Two', 'PoC Escape', 'PoC Modern Movie', 'PoC Zero', 'PoC Self', 'PoC Layout Legacy', 'PoC Layout Modern']
             docker('exec', name, 'mkdir', '-p', '/tmp/poc-movies', '/tmp/poc-tv/PoC Series Detail/Season 01')
             docker('exec', name, '/usr/lib/jellyfin-ffmpeg/ffmpeg', '-hide_banner', '-loglevel', 'error',
@@ -148,17 +145,28 @@ def main():
                 assert docker('exec', name, 'id', '-u', 'abc') == str(os.getuid())
                 assert docker('exec', name, 'id', '-g', 'abc') == str(os.getgid())
                 print('LinuxServer native s6 startup and abc PUID/PGID verified; plugins=/config/data/plugins.', flush=True)
+            phases.phase('configure-libraries')
             library = {'LibraryOptions': {'EnableRealtimeMonitor': False, 'EnableInternetProviders': False,
                        'TypeOptions': [{'Type': kind, 'MetadataFetchers': [], 'ImageFetchers': []}
                                        for kind in ('Movie', 'Series', 'Season', 'Episode')]}}
             for path, kind, title in [('poc-movies', 'movies', 'PoC Movies'), ('poc-tv', 'tvshows', 'PoC TV')]:
-                call(f'/Library/VirtualFolders?name={title.replace(" ", "%20")}&collectionType={kind}&paths=/tmp/{path}&refreshLibrary=true',
+                call(f'/Library/VirtualFolders?name={title.replace(" ", "%20")}&collectionType={kind}&paths=/tmp/{path}&refreshLibrary=false',
                      'POST', library, token, expected=204)
-            for _ in range(60):
-                items = call('/Items?Recursive=true&IncludeItemTypes=Movie,Series', token=token)['Items']
-                if len(items) == 13 and len(call('/Items?Recursive=true&IncludeItemTypes=Episode', token=token)['Items']) == 10: break
-                time.sleep(1)
-            else: raise RuntimeError('Synthetic media was not scanned.')
+            expected = {f'/tmp/poc-movies/{title}/{title}.mp4': ('Movie',None,title) for title in movies}
+            for title,seasons in [('PoC Series Detail',(1,)),('PoC Parent Interested',(1,2)),('PoC Parent Clear',(1,2))]:
+                series_path=f'/tmp/poc-tv/{title}'
+                expected[series_path]=('Series',None,title)
+                for season in seasons:
+                    season_path=f'{series_path}/Season 0{season}'
+                    expected[season_path]=('Season',series_path,None)
+                    for episode in (1,2):
+                        expected[f'{season_path}/{title} S0{season}E0{episode}.mp4']=('Episode',season_path,None)
+            phases.phase('media-indexing')
+            scan=next(t for t in call('/ScheduledTasks',token=token) if t['Key']=='RefreshLibrary')
+            call('/ScheduledTasks/Running/'+scan['Id'],'POST',token=token,expected=204)
+            items=wait_inventory(lambda path,timeout:call(path,token=token,timeout=timeout), admin['User']['Id'], expected,
+                                 ROOT/'artifacts/testing'/name/'inventory.json')
+            phases.phase('installation-and-regressions')
             installed_folder = plugins/'WatchGuard'
             if options.standalone_catalog:
                 assert options.standalone and not options.injector_dll
@@ -194,7 +202,7 @@ def main():
                 call, token, {i['Name']: i['Id'] for i in items}, plugins, standalone=options.standalone)
             if options.qualification_upgrade or options.migration:
                 assert options.standalone
-                installed_folder = runpy.run_path(str(ROOT/'tests/standalone-upgrade.py'))['run'](call,restart,docker,name,root,plugins,token,items[0]['Id'],installed_folder)
+                installed_folder = runpy.run_path(str(ROOT/'tests/standalone-upgrade.py'))['run'](call,restart,docker,name,root,plugins,token,next(i['Id'] for i in items if i['Type']=='Movie' and i['Name']=='PoC Movie Detail'),installed_folder)
             browser_base = base
             if options.proxy:
                 proxy = runpy.run_path(str(ROOT/'tests/standalone-proxy.py'))['start'](base)
@@ -214,7 +222,7 @@ def main():
                 subprocess.run(['node', str(ROOT/'tests/socket-browser.cjs'), str(fixture)], check=True)
                 runpy.run_path(str(ROOT/'tests/standalone-measure.py'))['run'](base,options.standalone)
             elif options.catalog and not options.standalone:
-                runpy.run_path(str(ROOT / 'tests/catalog-smoke.py'))['run'](call, restart, docker, name, root, plugins, token, items[0]['Id'])
+                runpy.run_path(str(ROOT / 'tests/catalog-smoke.py'))['run'](call, restart, docker, name, root, plugins, token, next(i['Id'] for i in items if i['Type']=='Movie' and i['Name']=='PoC Movie Detail'))
             elif options.profile == 'discovery':
                 runpy.run_path(str(ROOT/'tests/discovery-native.py'))['run'](call, restart, docker, name, root, plugins, token)
             elif options.profile == 'verification':
@@ -244,14 +252,21 @@ def main():
                 assert docker('exec',name,'sha256sum',web_index).split()[0]==pristine_web_hash
                 print('Native standalone uninstall: no loader, no asset endpoint, JSON retained, Web files unchanged.',flush=True)
 
+        except BaseException as error:
+            phases.fail(error)
+            capture_failure(ROOT/'artifacts/testing'/name, name, error,
+                            (lambda path:call(path,token=token,timeout=5)) if 'token' in locals() else None)
+            raise
         finally:
+            phases.phase('teardown')
             if caddy: caddy.close()
             if proxy:
                 proxy[0].shutdown(); proxy[0].server_close(); proxy[1].join()
                 print('Reverse proxy counts: '+json.dumps(proxy[3]),flush=True)
-            subprocess.run(['docker', 'rm', '-f', name], stdout=subprocess.DEVNULL, check=False)
+            subprocess.run(['docker', 'rm', '-f', name], stdout=subprocess.DEVNULL, check=True, timeout=60)
+            phases.complete()
 
 
 if __name__ == '__main__':
     try: main()
-    except KeyboardInterrupt: pass
+    except KeyboardInterrupt: raise SystemExit(130)

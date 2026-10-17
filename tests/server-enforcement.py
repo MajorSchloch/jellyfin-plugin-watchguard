@@ -1,3 +1,5 @@
+from fixture_evidence import capture as capture_failure, Phases
+from fixture_inventory import wait_inventory, wait_ready
 """Disposable native HTTP qualification. Never accepts a remote server/config/media path."""
 import argparse, functools, http.server, threading, runpy, concurrent.futures, hashlib, io, json, os, pathlib, shutil, subprocess, tempfile, time, urllib.request, urllib.error, uuid, zipfile
 ROOT=pathlib.Path(__file__).resolve().parents[1]
@@ -6,7 +8,7 @@ DLL=ROOT/'artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
 BASELINE=ROOT/'artifacts/PublishedV048/Jellyfin.Plugin.WatchGuard.dll'
 BASELINE_SHA256='06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5'
 
-def docker(*args): return subprocess.check_output(['docker',*args],text=True,stderr=subprocess.DEVNULL).strip()
+def docker(*args): return subprocess.check_output(['docker',*args],text=True,stderr=subprocess.DEVNULL,timeout=180).strip()
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--linuxserver',action='store_true');parser.add_argument('--web',action='store_true',default=True);parser.add_argument('--base-path',choices=['','/jellyfin'],default='');a=parser.parse_args()
@@ -21,19 +23,20 @@ def main():
     BASELINE.write_bytes(zipfile.ZipFile(io.BytesIO(archive)).read('Jellyfin.Plugin.WatchGuard.dll'))
     report['publishedBaselineZipSha256']=BASELINE_SHA256
     name='wg-approval-test-'+uuid.uuid4().hex[:10]
+    phases=Phases(output/'phases.json')
     with tempfile.TemporaryDirectory(prefix='wg-guard-disposable-') as temp:
         root=pathlib.Path(temp);plugins=root/('config/data/plugins' if a.linuxserver else 'config/plugins');guard=plugins/'WatchGuard';guard.mkdir(parents=True)
         shutil.copy2(BASELINE,guard/DLL.name)
         (guard/'meta.json').write_text(json.dumps({'guid':'a3c6bc84-783d-4ba8-a0db-89bfb83ab486','name':'WatchGuard','version':'0.4.8.0','targetAbi':'12.2.0.0','status':'Active','autoUpdate':False}))
         network_dir=root/('config' if a.linuxserver else 'config/config');network_dir.mkdir(exist_ok=True);(network_dir/'network.xml').write_text('<NetworkConfiguration><BaseUrl>'+a.base_path+'</BaseUrl></NetworkConfiguration>')
         token=None;base=None;media_records=[]
-        def call(path,method='GET',data=None,auth='admin',expected=200,headers=None,device='guard'):
+        def call(path,method='GET',data=None,auth='admin',expected=200,headers=None,device='guard',timeout=120):
             actual=token if auth=='admin' else auth
             header='MediaBrowser Client="GuardFixture", Device="Disposable", DeviceId="'+device+'", Version="1"'
             if actual: header+=', Token="'+actual+'"'
             request=urllib.request.Request(base+path,method=method,data=json.dumps(data).encode() if data is not None else (b'' if method=='POST' else None),headers={'Authorization':header,'Content-Type':'application/json',**(headers or {})})
             try:
-                with urllib.request.urlopen(request,timeout=120) as r: status,body,response_headers=r.status,r.read(),r.headers
+                with urllib.request.urlopen(request,timeout=timeout) as r: status,body,response_headers=r.status,r.read(),r.headers
             except urllib.error.HTTPError as e: status,body,response_headers=e.code,e.read(),e.headers
             assert status in (expected if isinstance(expected,tuple) else (expected,)),(path.split('?')[0],status,expected)
             try:result=json.loads(body) if body else None
@@ -44,11 +47,10 @@ def main():
         def ready():
             nonlocal base
             base='http://127.0.0.1:'+docker('port',name,'8096/tcp').split(':')[-1]+a.base_path
-            for _ in range(90):
-                try:
-                    assert call('/System/Info/Public').get('Version');call('/Startup/User') if token is None else call('/Users/Me');return
-                except Exception:time.sleep(1)
-            raise RuntimeError('Server startup timeout')
+            def probe(timeout):
+                assert call('/System/Info/Public',timeout=timeout).get('Version')
+                call('/Startup/User' if token is None else '/Users/Me',timeout=timeout)
+            wait_ready(probe)
         def start(enabled=None,web=False):
             if enabled is not None: set_enabled(enabled, offline=True)
             docker('run','-d','--name',name,*run_user,'-p','127.0.0.1::8096','--add-host','host.docker.internal:host-gateway','-v',str(root/'config')+':/config','-v',str(root/'media')+':/media',image);ready()
@@ -78,16 +80,20 @@ def main():
             if isinstance(r,dict):assert 'Users' not in r and 'DisplayName' not in r
             report['cases'].append({'case':label,'http':status,'filesAndRecordsPreserved':True,'requestDurationMs':request_ms})
         try:
+            phases.phase('container-start')
             media=root/'media';media.mkdir();start()
             assert call('/System/Info/Public')['Version'].startswith('12.2')
+            phases.phase('native-setup-authentication')
             password=uuid.uuid4().hex
             call('/Startup/User','POST',{'Name':'WatchGuardPoCTest','Password':password},expected=204)
             call('/Startup/Complete','POST',expected=204)
             signed=call('/Users/AuthenticateByName','POST',{'Username':'WatchGuardPoCTest','Pw':password});token=signed['AccessToken']
+            phases.phase('background-tasks')
             tasks=call('/ScheduledTasks');update=next(t for t in tasks if t['Key']=='PluginUpdates');call('/ScheduledTasks/'+update['Id']+'/Triggers','POST',[],expected=204)
             docker('restart',name);ready()
             report['pluginDiscovery']=[{'name':p['Name'],'id':p['Id'],'version':p['Version']} for p in call('/Plugins') if 'WatchGuard' in p['Name']]
             assert call('/WatchGuard/IntegrationStatus')['PluginVersion']=='0.4.8'
+            phases.phase('generate-media')
             docker('exec',name,'/usr/lib/jellyfin-ffmpeg/ffmpeg','-hide_banner','-loglevel','error','-f','lavfi','-i','color=c=black:s=64x64:d=1','-c:v','libx264','-y','/media/template.mp4')
             for title in ['Protected','Clear','BulkClear','Disabled','Uninstalled','ConcurrentClear','WebProtected','NativeDisabled','ApprovedSingle','ApprovedBulk1','ApprovedBulk2','Replay','ParallelA','ParallelBulk1','ParallelBulk2','WebApproved','WebError','WebClear','WebBulkA','WebBulkB','CaddyWeb','WebLegacy','DefaultDisabled']:
                 folder=media/'movies'/title;folder.mkdir(parents=True);shutil.copy2(media/'template.mp4',folder/(title+'.mp4'))
@@ -97,28 +103,27 @@ def main():
                 for number in range(1,count+1):
                     stem=f'{title} S01E{number:03d}';shutil.copy2(media/'template.mp4',folder/(stem+'.mp4'))
                     (folder/(stem+'.nfo')).write_text(f'<episodedetails><title>Fixture {number}</title><season>1</season><episode>{number}</episode><aired>2020-01-01</aired></episodedetails>')
+            phases.phase('configure-libraries')
             options={'LibraryOptions':{'EnableRealtimeMonitor':False,'EnableInternetProviders':False,'TypeOptions':[{'Type':kind,'MetadataFetchers':[],'ImageFetchers':[]} for kind in ['Movie','Series','Season','Episode']]}}
             for kind in ['movies','tvshows']:
                 path='/media/'+('movies' if kind=='movies' else 'tv')
-                call('/Library/VirtualFolders?name='+kind+'&collectionType='+kind+'&paths='+path+'&refreshLibrary=true','POST',options,expected=204)
-            # Jellyfin indexes movie and TV libraries independently. Episode
-            # completion alone does not guarantee that all disposable movie
-            # records have appeared in native /Items results.
-            expected_movies=23
-            for attempt in range(120):
-                response=call('/Items?Recursive=true&Fields=Path&IncludeItemTypes=Movie,Series,Season,Episode&Limit=10000')
-                items=response['Items']
-                episode_count=sum(i['Type']=='Episode' for i in items)
-                movie_count=sum(i['Type']=='Movie' and i['Name'] in (
-                    'Protected','Clear','BulkClear','Disabled','Uninstalled','ConcurrentClear','WebProtected',
-                    'NativeDisabled','ApprovedSingle','ApprovedBulk1','ApprovedBulk2','Replay','ParallelA',
-                    'ParallelBulk1','ParallelBulk2','WebApproved','WebError','WebClear','WebBulkA',
-                    'WebBulkB','CaddyWeb','WebLegacy','DefaultDisabled') for i in items)
-                series_count=sum(i['Type']=='Series' and i['Name'] in ('Guard Series','Long Series','Web Series') for i in items)
-                if episode_count==304 and movie_count==expected_movies and series_count==3:break
-                if attempt%20==0:print(f'Waiting for native media scan: episodes={episode_count}/304 movies={movie_count}/{expected_movies} series={series_count}/3',flush=True)
-                time.sleep(1)
-            else:raise AssertionError(f'Scan incomplete: episodes={episode_count}/304 movies={movie_count}/{expected_movies} series={series_count}/3')
+                call('/Library/VirtualFolders?name='+kind+'&collectionType='+kind+'&paths='+path+'&refreshLibrary=false','POST',options,expected=204)
+            expected = {}
+            for file in (media/'movies').glob('*/*.mp4'):
+                expected['/media/'+file.relative_to(media).as_posix()] = ('Movie', None, file.stem)
+            for folder in (media/'tv').iterdir():
+                series_path='/media/'+folder.relative_to(media).as_posix()
+                expected[series_path]=('Series',None,folder.name)
+                for season_folder in folder.glob('Season *'):
+                    season_path='/media/'+season_folder.relative_to(media).as_posix()
+                    expected[season_path]=('Season',series_path,None)
+                    for file in season_folder.glob('*.mp4'):
+                        expected['/media/'+file.relative_to(media).as_posix()]=('Episode',season_path,None)
+            phases.phase('media-indexing')
+            scan=next(t for t in call('/ScheduledTasks') if t['Key']=='RefreshLibrary')
+            call('/ScheduledTasks/Running/'+scan['Id'],'POST',expected=204)
+            items=wait_inventory(lambda path,timeout:call(path,timeout=timeout), signed['User']['Id'], expected, output/'inventory.json')
+            phases.phase('native-security-regressions')
             media_records=items
             movies={i['Name']:i for i in items if i['Type']=='Movie'};series={i['Name']:i for i in items if i['Type']=='Series'}
             parent=series['Guard Series'];children=call('/Items?Recursive=true&ParentId='+parent['Id']+'&Fields=Path')['Items'];ep=next(i for i in children if i['Type']=='Episode');season=next(i for i in children if i['Type']=='Season')
@@ -294,13 +299,15 @@ def main():
             before=docker('logs',name).count('WG-GUARD evaluation')
             for path in ['/System/Info/Public','/Items?Limit=2','/WatchGuard/Watchlist','/Users/Me']:call(path)
             assert docker('logs',name).count('WG-GUARD evaluation')==before;report['unrelatedRequestsEvaluations']=0
-            fixture=root/'browser.json';fixture.write_text(json.dumps({'base':base,'username':'WatchGuardPoCTest','password':password,'output':str(output.resolve()),'legacyScript':str(legacy_script),'id':movies['WebProtected']['Id'],'serverId':signed['ServerId']}));fixture.chmod(0o600)
+            phases.phase('old-tab-browser')
+            fixture=root/'browser.json';fixture.write_text(json.dumps({'base':base,'username':'WatchGuardPoCTest','password':password,'output':str(output.resolve()),'legacyScript':str(legacy_script),'id':movies['WebProtected']['Id'],'userId':signed['User']['Id'],'serverId':signed['ServerId']}));fixture.chmod(0o600)
             subprocess.run(['node',str(ROOT/'tests/server-enforcement-old-tab.cjs'),str(fixture)],check=True)
             preserved([movies['WebProtected']]);report['browser']='PASS: unchanged Cancel zero DELETE; Delete Anyway one DELETE rejected 409'
+            phases.phase('current-browser-and-proxy')
             def web_browser(url,proxy=False,legacy=False):
                 selected=[movies[n] for n in (['WebLegacy'] if legacy else ['CaddyWeb'] if proxy else ['WebApproved','WebError','WebClear','WebBulkA','WebBulkB'])]
                 if not proxy and not legacy:selected+= [series['Web Series']]+call('/Items?Recursive=true&ParentId='+series['Web Series']['Id']+'&Fields=Path')['Items']
-                config={'base':url,'username':'WatchGuardPoCTest','password':password,'serverId':signed['ServerId'],'items':selected,'output':str(output.resolve()),'proxy':proxy,'legacy':legacy,'mediaRoot':str(media)}
+                config={'base':url,'username':'WatchGuardPoCTest','password':password,'userId':signed['User']['Id'],'serverId':signed['ServerId'],'items':selected,'output':str(output.resolve()),'proxy':proxy,'legacy':legacy,'mediaRoot':str(media)}
                 fixture.write_text(json.dumps(config));fixture.chmod(0o600)
                 subprocess.run(['node',str(ROOT/'tests/server-enforcement-browser.cjs'),str(fixture)],check=True)
                 result=json.loads((output/('browser-legacy.json' if legacy else 'browser-proxy.json' if proxy else 'browser.json')).read_text())
@@ -341,6 +348,7 @@ def main():
                 docker('restart',name);ready()
             id=approved([protected]);docker('restart',name);ready();attempt('restart-invalidates',[protected],headers={'X-WatchGuard-Approval':id},code='ApprovalInvalid')
             (output/'guard.log').write_text('\n'.join(l for l in docker('logs',name).splitlines() if 'WG-GUARD' in l)+'\n')
+            phases.phase('disable-and-rollback')
             set_enabled(False)
             caps=call(api+'Capabilities');assert caps['State']=='Enabled' and caps['RestartRequired'] and not caps['Configured']
             attempt('saved-off-still-enforced',[protected],code='ProtectionRequired')
@@ -355,13 +363,19 @@ def main():
             assert all(p.read_bytes()==value for p,value in saved_data.items());report['watchlistsAndPreferences']='byte-identical; approved deletion did not clear memberships'
             report['status']='PASS';(output/'failure.log').unlink(missing_ok=True)
 
+        except BaseException as error:
+            phases.fail(error)
+            capture_failure(output/'diagnostics',name,error,lambda path:call(path,timeout=5))
+            raise
         finally:
+            phases.phase('teardown')
 
             if report['status']=='RUNNING':
                 report['status']='FAIL'
-                try:(output/'failure.log').write_text('\n'.join(l for l in docker('logs',name).splitlines() if 'WG-GUARD' in l or 'Error' in l or 'Exception' in l))
+                try:(output/'failure.log').write_text(__import__('fixture_evidence').redact('\n'.join(l for l in docker('logs',name).splitlines() if 'WG-GUARD' in l or 'Error' in l or 'Exception' in l)))
                 except Exception:pass
             (output/'results.json').write_text(json.dumps(report,indent=2)+'\n')
-            subprocess.run(['docker','rm','-f',name],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+            subprocess.run(['docker','rm','-f',name],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=True,timeout=60)
+            phases.complete()
     print(json.dumps({'status':report['status'],'cases':len(report['cases']),'basePath':a.base_path}))
 if __name__=='__main__':main()
