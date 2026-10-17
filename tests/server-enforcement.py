@@ -11,7 +11,7 @@ BASELINE_SHA256='06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d
 def docker(*args): return subprocess.check_output(['docker',*args],text=True,stderr=subprocess.DEVNULL,timeout=180).strip()
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--linuxserver',action='store_true');parser.add_argument('--web',action='store_true',default=True);parser.add_argument('--base-path',choices=['','/jellyfin'],default='');a=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--linuxserver',action='store_true');parser.add_argument('--proxy-matrix',action='store_true',default=os.environ.get('WATCHGUARD_PROXY_MATRIX')=='1');parser.add_argument('--web',action='store_true',default=True);parser.add_argument('--base-path',choices=['','/jellyfin'],default='');a=parser.parse_args()
     image='lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b' if a.linuxserver else IMAGE
     run_user=['-e',f'PUID={os.getuid()}','-e',f'PGID={os.getgid()}'] if a.linuxserver else ['--user',f'{os.getuid()}:{os.getgid()}']
     output=ROOT/'artifacts/server-enforcement'/('linuxserver' if a.linuxserver else 'official')/('basepath' if a.base_path else 'direct')/uuid.uuid4().hex[:10];output.mkdir(parents=True,exist_ok=True)
@@ -54,7 +54,7 @@ def main():
             wait_ready(probe)
         def start(enabled=None,web=False):
             if enabled is not None: set_enabled(enabled, offline=True)
-            docker('run','-d','--name',name,*run_user,'-p','127.0.0.1::8096','--add-host','host.docker.internal:host-gateway','-v',str(root/'config')+':/config','-v',str(root/'media')+':/media',image);ready()
+            docker('run','-d','--name',name,*run_user,'-p','127.0.0.1::8096',*(['-p','127.0.0.1::8920'] if a.proxy_matrix else []),'--add-host','host.docker.internal:host-gateway','-v',str(root/'config')+':/config','-v',str(root/'media')+':/media',image);ready()
         def set_enabled(enabled,offline=False):
             if not offline:
                 config=call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/Configuration');config['EnableServerEnforcement']=enabled
@@ -96,7 +96,7 @@ def main():
             assert call('/WatchGuard/IntegrationStatus')['PluginVersion']=='0.4.8'
             phases.phase('generate-media')
             docker('exec',name,'/usr/lib/jellyfin-ffmpeg/ffmpeg','-hide_banner','-loglevel','error','-f','lavfi','-i','color=c=black:s=64x64:d=1','-c:v','libx264','-y','/media/template.mp4')
-            for title in ['Protected','Clear','BulkClear','Disabled','Uninstalled','ConcurrentClear','WebProtected','NativeDisabled','ApprovedSingle','ApprovedBulk1','ApprovedBulk2','Replay','ParallelA','ParallelBulk1','ParallelBulk2','WebApproved','WebError','WebClear','WebBulkA','WebBulkB','CaddyWeb','WebLegacy','DefaultDisabled']:
+            for title in ['Protected','Clear','BulkClear','Disabled','Uninstalled','ConcurrentClear','WebProtected','NativeDisabled','ApprovedSingle','ApprovedBulk1','ApprovedBulk2','Replay','ParallelA','ParallelBulk1','ParallelBulk2','WebApproved','WebError','WebClear','WebBulkA','WebBulkB','CaddyWeb','WebLegacy','DefaultDisabled'] + (['ProxyNginx','ProxyTraefik','ProxyTunnel','ProxyHttps'] if a.proxy_matrix else []):
                 folder=media/'movies'/title;folder.mkdir(parents=True);shutil.copy2(media/'template.mp4',folder/(title+'.mp4'))
             for title,count in [('Guard Series',2),('Long Series',300),('Web Series',2)]:
                 folder=media/'tv'/title/'Season 01';folder.mkdir(parents=True)
@@ -139,7 +139,7 @@ def main():
             assert 'EnableServerEnforcement' not in configuration
             configuration['ProtectCaughtUpSeries']=False
             call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/Configuration','POST',configuration,expected=204)
-            public=root/'catalog';public.mkdir();archive_path=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip'
+            public=root/'catalog';public.mkdir();archive_path=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip'
             digest=archive_path.with_suffix('.zip.sha256').read_text().split()[0]
             assert hashlib.sha256(archive_path.read_bytes()).hexdigest()==digest
             report['candidateZipSha256']=digest
@@ -151,13 +151,13 @@ def main():
             thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
             catalog_url='http://host.docker.internal:'+str(server.server_port)
             guid='a3c6bc84-783d-4ba8-a0db-89bfb83ab486'
-            manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable qualification','category':'General','description':'Local candidate','overview':'Fixture','versions':[{'version':'0.4.9.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive_path.read_bytes()).hexdigest(),'sourceUrl':catalog_url+'/'+archive_path.name,'timestamp':'2026-10-16T00:00:00Z','changelog':'Unpublished local fixture'}]}]
+            manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable qualification','category':'General','description':'Local candidate','overview':'Fixture','versions':[{'version':'0.4.10.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive_path.read_bytes()).hexdigest(),'sourceUrl':catalog_url+'/'+archive_path.name,'timestamp':'2026-10-16T00:00:00Z','changelog':'Unpublished local fixture'}]}]
             (public/'manifest.json').write_text(json.dumps(manifest))
             try:
                 call('/Repositories','POST',[{'Name':'Disposable candidate','Url':catalog_url+'/manifest.json','Enabled':True}],expected=204)
                 from urllib.parse import urlencode
-                call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':guid,'version':'0.4.9.0','repositoryUrl':catalog_url+'/manifest.json'}),'POST',expected=204)
-                docker('stop',name);shutil.move(str(guard),str(root/'retired-v048'));guard=plugins/'WatchGuard_0.4.9.0'
+                call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':guid,'version':'0.4.10.0','repositoryUrl':catalog_url+'/manifest.json'}),'POST',expected=204)
+                docker('stop',name);shutil.move(str(guard),str(root/'retired-v048'));guard=plugins/'WatchGuard_0.4.10.0'
                 assert (guard/'meta.json').exists()
                 assert (guard/DLL.name).read_bytes()==DLL.read_bytes()
                 docker('start',name);ready()
@@ -201,6 +201,16 @@ def main():
                     call('/Items/'+item['Id'],expected=404);assert not (root/item['Path'].lstrip('/')).exists()
                 report['cases'].append({'case':label,'status':204,'nativeContinuations':1,'fileAndRecordRemoved':True,'requestMs':ms})
             protected=movies['Protected']
+            origin=base.removesuffix(a.base_path) if a.base_path else base
+            readiness=call(api+'Readiness','POST',{},headers={'Origin':origin})
+            assert readiness['ApprovalRequestsReady'] and readiness['OriginStatus']=='SameOrigin'
+            before=docker('logs',name).count('WG-GUARD evaluation')
+            call(api+'Readiness','POST',{},headers={'Origin':origin})
+            assert docker('logs',name).count('WG-GUARD evaluation')==before
+            for bad in [{'Origin':'https://evil.invalid'}, {'Origin':origin,'Sec-Fetch-Site':'cross-site'},
+                        {'Origin':origin,'Host':'evil.invalid','X-Forwarded-Host':origin.split('://')[1],'X-Forwarded-Proto':'http'}]:
+                attempt('portable-origin-veto',[protected],headers=bad,status=403,code='ApprovalInvalid')
+
             attempt('unauthenticated',[protected],auth=None,status=401)
             attempt('origin-rejected',[protected],headers={'Origin':'https://attacker.invalid'},status=403,code='ApprovalInvalid')
             attempt('untrusted-forwarded-origin-rejected',[protected],headers={'Origin':'https://attacker.invalid','X-Forwarded-Host':'attacker.invalid','X-Forwarded-Proto':'https'},status=403,code='ApprovalInvalid')
@@ -209,9 +219,11 @@ def main():
             attempt('missing-auth-header',[protected],headers={'Authorization':''},auth=None,status=401)
             call('/Auth/Keys?app=ApprovalFixture','POST',expected=204);key=call('/Auth/Keys')['Items'][0]['AccessToken']
             attempt('api-key',[protected],auth=key,status=403,code='NativePermissionDenied')
+            assert call(api+'Readiness','POST',{},auth=key,expected=403)['ApprovalRequestsReady'] is False
             memberPassword=uuid.uuid4().hex;member=call('/Users/New','POST',{'Name':'Ordinary','Password':memberPassword})
             memberToken=call('/Users/AuthenticateByName','POST',{'Username':'Ordinary','Pw':memberPassword},device='ordinary')['AccessToken']
             attempt('native-permission',[protected],auth=memberToken,status=403,code='NativePermissionDenied')
+            assert call(api+'Readiness','POST',{},auth=memberToken,expected=403)['ApprovalRequestsReady'] is False
             policy=dict(member['Policy'],EnableContentDeletion=True);call('/Users/'+member['Id']+'/Policy','POST',policy,expected=204)
             r=attempt('ordinary-protected',[protected],auth=memberToken,code='ProtectionRequired');assert r.get('ChallengeId') is None
             allow('ordinary-clear',[movies['Clear']],auth=memberToken)
@@ -322,7 +334,14 @@ def main():
             if not a.base_path:
                 caddy=runpy.run_path(str(ROOT/'tests/standalone-caddy.py'))['Caddy'](docker,name,root)
                 try:
-                    # Trust only this disposable proxy's exact address; Jellyfin otherwise ignores forwarded scheme.
+                    assert not call('/System/Configuration/network').get('KnownProxies')
+                    if a.web:web_browser(caddy.base,True)
+                    report['caddyNoKnownProxies']='PASS: real browser approval and one native deletion over HTTPS to HTTP backend'
+                    if a.proxy_matrix:
+                        from proxy_compatibility import qualify
+                        report['portableProxies']=qualify(docker,name,root,caddy,token,movies,call,preserved,output)
+                    # Retain the strict native trusted-proxy path as independent coverage.
+
                     proxy_ip=json.loads(docker('inspect',caddy.name))[0]['NetworkSettings']['Networks'][caddy.network]['IPAddress']
                     network=call('/System/Configuration/network');network['KnownProxies']=[proxy_ip]
                     call('/System/Configuration/network','POST',network,expected=204)
@@ -341,12 +360,14 @@ def main():
                     target=movies['Disabled'];id=proxy(route([target]),'DELETE',expected=409)['ChallengeId'];preserved([target])
                     for action in ['Present','Approve']:proxy(api+action,'POST',{'ChallengeId':id,'Decision':'Approve'})
                     proxy(route([target]),'DELETE',expected=204,approval=id);call('/Items/'+target['Id'],expected=404);assert not (root/target['Path'].lstrip('/')).exists()
-                    if a.web:web_browser(caddy.base,True)
                     report['caddy']='PASS: trusted HTTPS same-origin challenge/approval/redemption; gzip/zstd and WebSocket unaffected'
                 finally:caddy.close()
                 # Docker Desktop can retain a dead host-port route after disconnecting a second network.
                 # Restart this disposable container before further direct requests; no DELETE is retried.
                 docker('restart',name);ready()
+            if a.proxy_matrix:
+                from proxy_compatibility import direct_https
+                report['directHttps']=direct_https(docker,name,root,token,movies['ProxyHttps'],call,ready,preserved,a.base_path)
             id=approved([protected]);docker('restart',name);ready();attempt('restart-invalidates',[protected],headers={'X-WatchGuard-Approval':id},code='ApprovalInvalid')
             (output/'guard.log').write_text('\n'.join(l for l in docker('logs',name).splitlines() if 'WG-GUARD' in l)+'\n')
             phases.phase('disable-and-rollback')

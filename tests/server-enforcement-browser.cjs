@@ -13,6 +13,14 @@ assert.match(f.base,/^https?:\/\/(127\.0\.0\.1|localhost):\d+(\/jellyfin)?$/);
   page.on('response',r=>{const u=r.url(),phase=u.includes('/WatchGuard/Protection/')?'Protection':u.includes('/ServerApproval/')?u.split('/').pop():r.request().method()==='DELETE'&&u.includes('/Items/')?'NativeDelete':null;if(phase)result.requests.push({phase,status:r.status(),ms:Date.now()-started.get(r.request())});});
   page.on('request',r=>{if(r.method()==='DELETE'&&/\/Items\//.test(r.url()))deletes++;});
   await readiness.login(page,f);
+  if(f.proxy) {
+   await page.goto(f.base+'/web/#/configurationpage?name=WatchGuard');
+   await page.locator('#wgApprovalReadiness').filter({hasText:'Approval POST readiness: ready'}).waitFor();
+   await page.screenshot({path:path.join(f.output,'proxy-readiness-desktop.png'),fullPage:true});
+   await page.setViewportSize({width:390,height:844});
+   await page.screenshot({path:path.join(f.output,'proxy-readiness-mobile.png'),fullPage:true});
+   await page.setViewportSize({width:1280,height:900});
+  }
   if (!f.proxy && !f.legacy) {
    await page.goto(f.base+'/web/#/configurationpage?name=WatchGuard');
    await page.getByText('Server enforcement configured: true · Runtime: Enabled',{exact:true}).waitFor();

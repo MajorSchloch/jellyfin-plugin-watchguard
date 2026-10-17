@@ -34,12 +34,8 @@ public sealed class Identity(IAuthorizationContext authorization, IUserManager u
             throw new GuardFailure(403, "ApprovalInvalid");
         var matches = Regex.Matches(header.ToString()[13..], "(?:^|,)\\s*Token=\"([^\"]+)\"(?=\\s*(?:,|$))", RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(100));
         if (matches.Count != 1 || matches[0].Groups[1].Value != auth.Token) throw new GuardFailure(403, "ApprovalInvalid");
-        var origin = request.Headers.Origin;
-        if (origin.Count > 0 && (origin.Count != 1 || !Uri.TryCreate(origin.ToString(), UriKind.Absolute, out var uri) ||
-            uri.GetLeftPart(UriPartial.Authority) != request.Scheme + "://" + request.Host.Value || uri.AbsolutePath != "/" || !string.IsNullOrEmpty(uri.Query) || !string.IsNullOrEmpty(uri.Fragment)))
+        if (!RequestOrigin.Accepted(RequestOrigin.Evaluate(request)))
             throw new GuardFailure(403, "ApprovalInvalid");
-        var site = request.Headers["Sec-Fetch-Site"].ToString();
-        if (site.Length > 0 && site is not ("same-origin" or "none")) throw new GuardFailure(403, "ApprovalInvalid");
         return new(user, owner);
     }
 }
