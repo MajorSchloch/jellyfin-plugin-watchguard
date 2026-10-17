@@ -1,0 +1,115 @@
+{
+  "sourceCommit": "6582dd7933200eb3233ae63531f52589feb6ef96",
+  "workflow": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39035305677",
+  "publish": false,
+  "jobs": [
+    {
+      "name": "build",
+      "result": "success",
+      "startedAt": "2026-10-17T13:08:04Z",
+      "completedAt": "2026-10-17T13:08:59Z"
+    },
+    {
+      "name": "Integration / verification",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:01Z",
+      "completedAt": "2026-10-17T13:22:39Z"
+    },
+    {
+      "name": "Integration / migration",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:02Z",
+      "completedAt": "2026-10-17T13:14:13Z"
+    },
+    {
+      "name": "Integration / legacy",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:01Z",
+      "completedAt": "2026-10-17T13:14:52Z"
+    },
+    {
+      "name": "Integration / basepath",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:02Z",
+      "completedAt": "2026-10-17T13:13:24Z"
+    },
+    {
+      "name": "Integration / server-enforcement-linuxserver",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:02Z",
+      "completedAt": "2026-10-17T13:14:06Z"
+    },
+    {
+      "name": "Integration / server-enforcement",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:02Z",
+      "completedAt": "2026-10-17T13:14:16Z"
+    },
+    {
+      "name": "Integration / discovery",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:02Z",
+      "completedAt": "2026-10-17T13:13:50Z"
+    },
+    {
+      "name": "Integration / standalone-caddy",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:01Z",
+      "completedAt": "2026-10-17T13:17:23Z"
+    },
+    {
+      "name": "Integration / websocket",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:02Z",
+      "completedAt": "2026-10-17T13:10:59Z"
+    },
+    {
+      "name": "Integration / server-enforcement-basepath",
+      "result": "success",
+      "startedAt": "2026-10-17T13:09:02Z",
+      "completedAt": "2026-10-17T13:13:21Z"
+    },
+    {
+      "name": "publish",
+      "result": "skipped",
+      "startedAt": "2026-10-17T13:22:39Z",
+      "completedAt": "2026-10-17T13:22:39Z"
+    }
+  ],
+  "enforcement": [
+    {
+      "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+      "basePath": "",
+      "status": "PASS",
+      "directHttps": {
+        "result": "PASS",
+        "nativeTls": true,
+        "trustedTestCertificate": true,
+        "noFetchMetadataRequired": true,
+        "vetoFilesAndRecordsPreserved": true,
+        "nativeContinuations": 1
+      },
+      "caddyNoKnownProxies": "PASS: real browser approval and one native deletion over HTTPS to HTTP backend",
+      "caddy": "PASS: trusted HTTPS same-origin challenge/approval/redemption; gzip/zstd and WebSocket unaffected",
+      "unrelatedRequestsEvaluations": 0,
+      "mainCases": 77
+    },
+    {
+      "image": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+      "basePath": "",
+      "status": "PASS",
+      "caddyNoKnownProxies": "PASS: real browser approval and one native deletion over HTTPS to HTTP backend",
+      "caddy": "PASS: trusted HTTPS same-origin challenge/approval/redemption; gzip/zstd and WebSocket unaffected",
+      "unrelatedRequestsEvaluations": 0,
+      "mainCases": 77
+    },
+    {
+      "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+      "basePath": "/jellyfin",
+      "status": "PASS",
+      "unrelatedRequestsEvaluations": 0,
+      "mainCases": 77
+    }
+  ],
+  "zipSha256": "6690af55245a051947e074634235c4a593bc6d3561bfd13198785d9a10853eeb"
+}

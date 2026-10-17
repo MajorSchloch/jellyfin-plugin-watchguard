@@ -4,7 +4,7 @@ Baseline is published v0.4.9. This branch is not approved for publication. Appro
 
 ## Why KnownProxies was required
 
-At pinned Jellyfin server `ca0f16eb7c195f720a1493ed469a27c4657db0c6`, `Jellyfin.Server/Extensions/ApiServiceCollectionExtensions.cs:AddJellyfinApi` configures `ForwardedHeaders.None` when KnownProxies is empty. With configured proxies it enables native forwarded host/proto/for processing. `Startup.cs` runs `UseForwardedHeaders` before CORS/authentication. The old WatchGuard Identity compares Origin to Request.Scheme + Host, so a public HTTPS Origin fails against the backend HTTP scheme even when Host is preserved. This is not a failure of native authentication.
+At pinned Jellyfin server `ca0f16eb7c195f720a1493ed469a27c4657db0c6`, `Jellyfin.Server/Extensions/ApiServiceCollectionExtensions.cs:ConfigureForwardHeaders` configures `ForwardedHeaders.None` when KnownProxies is empty. With configured proxies it enables native forwarded host/proto/for processing. `Startup.cs` runs `UseForwardedHeaders` before CORS/authentication. The old WatchGuard Identity compares Origin to Request.Scheme + Host, so a public HTTPS Origin fails against the backend HTTP scheme even when Host is preserved. This is not a failure of native authentication.
 
 Native `AuthorizationContext.GetAuthorizationInfo(HttpRequest)` re-resolves the token. WatchGuard still requires exactly one explicit MediaBrowser Authorization header matching that native token; URL tokens, ambient cookies and API keys cannot approve. A caller-supplied DeviceId is not a session boundary. Existing per-process token HMAC and account binding remain unchanged.
 
