@@ -27,6 +27,12 @@ commands={
 output=Path('artifacts/testing')/a.suite/uuid.uuid4().hex[:10]
 output.mkdir(parents=True,exist_ok=True)
 report={'suite':a.suite,'attempts':[],'status':'RUNNING','python':platform.python_version(),'node':subprocess.check_output(['node','--version'],text=True).strip(),'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
+report['dotnet']=subprocess.check_output(['dotnet','--version'],text=True).strip()
+report['host']=platform.platform()
+report['playwright']=json.loads(Path('tests/browser/node_modules/playwright/package.json').read_text())['version']
+report['chromium']=next(b for b in json.loads(Path('tests/browser/node_modules/playwright-core/browsers.json').read_text())['browsers'] if b['name']=='chromium')
+assert report['dotnet']==json.loads(Path('global.json').read_text())['sdk']['version'], 'Use pinned .NET SDK'
+assert report['playwright']=='1.56.1', 'Use locked Playwright dependency'
 assert report['python']=='3.12.0', 'Use pinned Python 3.12.0'
 assert report['node']=='v24.22.0', 'Use pinned Node 24.22.0'
 def save(): (output/'suite.json').write_text(json.dumps(report,indent=2)+'\n')
