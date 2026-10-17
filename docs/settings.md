@@ -34,3 +34,14 @@ Pinned 12.2 sources: [base configuration persistence/event](https://github.com/j
 ## v0.4.9 opt-in server enforcement
 
 `EnableServerEnforcement` is a native administrator-only Boolean setting, default false, including older XML with no field. It uses the existing configuration file. Changing it requires restart in either direction; the immutable startup activation remains effective until then. Dashboard distinguishes configured preference, attached actions, compatibility, runtime state, native-session/proxy observations and restart requirement. It never infers protection from the checkbox alone. See [server enforcement](server-enforcement-v049.md) before enabling: unsupported clients cannot approve protected deletion, API keys are restricted, and external file changes remain outside coverage.
+
+## v0.4.10 approval compatibility versus Jellyfin native proxy networking
+
+The v0.4.10 settings page reports two **independent** findings:
+
+- **WatchGuard approval POST readiness:** an authenticated administrator's browser can reach the current approval endpoint under the origin policy. This does not grant approval, create a challenge or verify the media target's deletion permission.
+- **Jellyfin client-IP forwarding and remote-access classification: NOT VERIFIED:** WatchGuard does not audit how Jellyfin applies its own trusted-proxy forwarding or native `EnableRemoteAccess` policies. A successful approval request through `HttpsProxySameOrigin` may coexist with native Jellyfin treating an external user as local.
+
+The second finding is informational, not a heuristic that claims to detect the proxy topology or native network-policy health. **When Jellyfin is behind a reverse proxy**, configure that proxy under **Jellyfin Dashboard → Networking → Known Proxies**, and ensure it forwards the actual client address. Direct Jellyfin connections do not require proxy configuration. Never trust an entire unverified network or arbitrary `X-Forwarded-*` headers just to clear the warning.
+
+See [proxy compatibility](proxy-compatibility-v0410.md) and the [official Jellyfin reverse-proxy security guidance](https://jellyfin.org/docs/general/post-install/networking/reverse-proxy/). The optional disposable `--proxy-matrix` fixture independently tests Jellyfin's real local/remote user authorization with a synthetic external address; successful WatchGuard protocol tests alone cannot establish this behavior.
