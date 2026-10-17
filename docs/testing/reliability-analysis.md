@@ -1,6 +1,6 @@
 # Release qualification reliability investigation
 
-Status: in progress; v0.4.9 publication remains frozen. Production code is unchanged.
+Status: investigation and infrastructure qualification completed. Three full hosted passes are documented in [repeatability-results.md](repeatability-results.md). Publication remains subject to explicit approval; production code is unchanged.
 Evidence: full job logs and failure artifacts downloaded from the four runs below, retained locally under `artifacts/reliability/historical`. These are observations from different commits, not repeatability runs of one candidate.
 
 | Run | Confirmed observation | Cause established / uncertainty | Infrastructure response |
@@ -14,13 +14,13 @@ Pinned Web source: `61b1f890365ad15138e943e694af723c1d47df2a`, `src/apps/legacy/
 
 Pinned server source: `ca0f16eb7c195f720a1493ed469a27c4657db0c6`. `ScheduledTasksController.StartTask` (`POST /ScheduledTasks/Running/{taskId}`) starts the native task; `RefreshMediaLibraryTask.Key` is `RefreshLibrary`. Task Idle is necessary here but insufficient: exact inventory must also match.
 
-No production security defect has been established by these failures. No security invariant is waived. Remaining investigation includes first-failure trace capture, teardown evidence, test contamination, version parity and full hosted repeatability.
+No production security defect has been established by these failures. No security invariant is waived. First-failure trace capture, teardown evidence, contamination fixes, version parity and hosted repeatability are now validated. Historical causes without sufficient evidence remain explicitly uncertain.
 
 During local refactoring qualification, migration exposed an order-dependent `items[0]` assumption: expanding inventory to include seasons caused a season to be sent to a movie watchlist setup operation. Fixed by selecting `PoC Movie Detail` explicitly in migration and legacy catalog setup. This was introduced/exposed by the refactor, not asserted as the cause of historical run #58. The failed run is retained and does not count as qualification.
 
 The first base-path failure in #57 was `page.goto: net::ERR_ABORTED at about:blank` during Watchlist UI, not a deletion assertion. The redundant intermediate blank-document navigations were removed; setup now navigates directly to the intended native route. There is no automatic navigation/deletion retry. Qualification must demonstrate this remains valid for all native UI cases.
 
-A local standalone/catalog run also timed out on the native package installation POST after repeated version round-trips. The failed operation was not retried. Its sanitized container evidence is retained; the reason for the package timeout is not yet established. This is a release blocker until diagnosed.
+A local standalone/catalog run also timed out on the native package installation POST after repeated version round-trips. The failed operation was not retried. Its sanitized container evidence is retained; the reason for the package timeout is not yet established. It blocked that qualification attempt. Subsequent instrumented catalog runs and all three final hosted matrices passed without an install retry; the original timeout remains an unexplained residual environment risk, not a claimed fixed production defect.
 
 The instrumented catalog run completed every install in about 0.13–0.18 seconds, so it did not explain the earlier package timeout. It exposed a separate refactor dependency: explicit legacy/modern layout changes require application bootstrap, whereas a hash-route change does not reload Jellyfin. `applyLayout` now performs an explicit Home reload after changing that preference; ordinary detail navigation has no reload retry. The failed layout assertion and sanitized trace are retained.
 
@@ -31,3 +31,22 @@ Both subsequent direct-base-path and Caddy native UI runs reproduced a hidden ca
 Further evidence established the navigation-order defect: after HTTP 204 the native detail controller asynchronously fetches/navigates to the deleted item’s parent (`itemDetails/index.js`, `onMoreCommands`, lines 2067–2075 at the pinned Web commit). The test started its next route before that transition completed. A failure screenshot showed the parent library while the hash already addressed the next title. The fixture now awaits the native `viewshow` event for the exact parent (`id`, `parentId` or source-verified `topParentId`) after detail deletion. `viewManager.js:onViewChange` emits it after switching the active view. This is a read-only completion check, not a navigation or DELETE retry. Poster/bulk menus retain their separate completion contract.
 
 First frozen qualification (`18bd0c2`, run [39020241837](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39020241837)) found a settings-test completion race: `Saved` is written before the asynchronous integration-status refresh finishes. The test started another refresh and observed the availability row between replacement and insertion (count zero, not duplicate rows). The source confirms Save is re-enabled only in `finally`, after status completes. The test now waits for the exact successful native configuration POST and the re-enabled Save button before asserting status or starting another operation. Explicit refreshes also await their own final HTTP stage, so old status text cannot satisfy new-request readiness. No configuration/UI production code changed, no retry was added, and the one-row assertion remains. This failed qualification resets the three-pass sequence; its screenshot, sanitized trace and first assertion are retained.
+
+
+## Before/after summary
+
+All “after” results below are from three full matrices on `d37ea34`, not retries of failed jobs.
+
+| Recurring failure / risk | Before | After / evidence |
+|---|---|---|
+| Hidden native More in old/current adapter tests | Native toolbar readiness was an unrelated dependency | Direct adapter contracts; independent real native detail/menu/bulk UI passes in all three matrices. No hidden-control clicks. |
+| Unexpected Home / next-detail navigation | Script marker and HTTP DELETE completion treated as application readiness | Authenticated Home/identity and exact native parent `viewshow` completion. Historical Caddy cause remains a hypothesis; reproduced post-delete race is confirmed. |
+| Inconsistent indexing / missing movie | Episode-only or generic readiness, missing inventory diagnostics | Exact movie/series/season/episode/name/path/parent/user inventory plus native scan state; all profiles pass. |
+| LinuxServer initialization | Weak startup readiness and late fixture failures | Pinned image, native Healthy, authenticated APIs, exact inventory and retained s6/plugin checks; direct/enforced/migration pass. |
+| Caddy HTTPS / base path | Router initialization and destructive completion could overlap | Same-origin and native trusted-proxy semantics retained; route/identity contracts, HTTPS/base-path native UI and enforcement pass. |
+| Test-order / cached DOM contamination | Array-first item, cached title `.first()`, implicit layout bootstrap | Named movie setup, visible native page/control locators, explicit layout bootstrap and parent-transition completion. |
+| Settings status refresh | Old Saved/status text satisfied a new operation | Matching save response + settled Save button; own refresh completion. First failed hosted attempt retained; three later passes. |
+| Docker restart/teardown | Generic failures, whole-suite base-path retry | Health/runtime preconditions, owned UUID resources, bounded teardown, first-failure phase survives cleanup; no suite retry. |
+| Failure evidence / environment parity | Incomplete scan/route details; raw console risk | Bounded redacted chronology, identity/route/control snapshot, sanitized playable trace, pinned runtimes, always-uploaded artifacts and summaries. |
+
+Source evidence: [native item-details menu continuation](https://github.com/jellyfin/jellyfin-web/blob/61b1f890365ad15138e943e694af723c1d47df2a/src/apps/legacy/controllers/itemDetails/index.js), [native view manager](https://github.com/jellyfin/jellyfin-web/blob/61b1f890365ad15138e943e694af723c1d47df2a/src/components/viewManager/viewManager.js), [scheduled task controller](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/Jellyfin.Api/Controllers/ScheduledTasksController.cs), and [RefreshLibrary task](https://github.com/jellyfin/jellyfin/blob/ca0f16eb7c195f720a1493ed469a27c4657db0c6/Emby.Server.Implementations/ScheduledTasks/Tasks/RefreshMediaLibraryTask.cs). These exact pinned implementations were inspected locally; no historical API assumption substitutes for them.

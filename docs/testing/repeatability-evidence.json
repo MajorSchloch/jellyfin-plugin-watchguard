@@ -1,0 +1,1068 @@
+{
+  "candidate": "d37ea34ed01bf8c1a6266b006e0fcbc307b8ac2a",
+  "publish": false,
+  "runs": [
+    {
+      "sequence": 1,
+      "id": "39021321550",
+      "conclusion": "success",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39021321550",
+      "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d",
+      "totalSeconds": 647.0,
+      "jobs": {
+        "build": {
+          "result": "success",
+          "seconds": 53.0
+        },
+        "Integration / websocket": {
+          "result": "success",
+          "seconds": 129.0
+        },
+        "Integration / discovery": {
+          "result": "success",
+          "seconds": 291.0
+        },
+        "Integration / verification": {
+          "result": "success",
+          "seconds": 588.0
+        },
+        "Integration / legacy": {
+          "result": "success",
+          "seconds": 352.0
+        },
+        "Integration / server-enforcement-linuxserver": {
+          "result": "success",
+          "seconds": 290.0
+        },
+        "Integration / server-enforcement": {
+          "result": "success",
+          "seconds": 247.0
+        },
+        "Integration / basepath": {
+          "result": "success",
+          "seconds": 251.0
+        },
+        "Integration / server-enforcement-basepath": {
+          "result": "success",
+          "seconds": 257.0
+        },
+        "Integration / standalone-caddy": {
+          "result": "success",
+          "seconds": 480.0
+        },
+        "Integration / migration": {
+          "result": "success",
+          "seconds": 315.0
+        },
+        "publish": {
+          "result": "skipped",
+          "seconds": 0
+        }
+      },
+      "profiles": {
+        "basepath": {
+          "setupSeconds": [
+            21.213
+          ],
+          "indexingSeconds": [
+            2.57
+          ],
+          "scenarioSeconds": 159.115,
+          "browserTimings": [
+            {
+              "phase": "bootstrap-installed",
+              "ms": 1213,
+              "status": "PASS"
+            },
+            {
+              "phase": "bootstrap-csp-rejected",
+              "ms": 1114,
+              "status": "PASS"
+            },
+            {
+              "phase": "settings-login",
+              "ms": 756,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 695,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "discovery": {
+          "setupSeconds": [
+            17.285
+          ],
+          "indexingSeconds": [
+            2.439
+          ],
+          "scenarioSeconds": 180.159,
+          "browserTimings": [],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "legacy": {
+          "setupSeconds": [
+            19.958,
+            19.936
+          ],
+          "indexingSeconds": [
+            3.584,
+            3.56
+          ],
+          "scenarioSeconds": 225.488,
+          "browserTimings": [
+            {
+              "phase": "settings-login",
+              "ms": 706,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 808,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "migration": {
+          "setupSeconds": [
+            24.557
+          ],
+          "indexingSeconds": [
+            3.583
+          ],
+          "scenarioSeconds": 215.765,
+          "browserTimings": [
+            {
+              "phase": "bootstrap-installed",
+              "ms": 1484,
+              "status": "PASS"
+            },
+            {
+              "phase": "bootstrap-csp-rejected",
+              "ms": 713,
+              "status": "PASS"
+            },
+            {
+              "phase": "settings-login",
+              "ms": 856,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 889,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "server-enforcement": {
+          "setupSeconds": [
+            13.879
+          ],
+          "indexingSeconds": [
+            9.633
+          ],
+          "scenarioSeconds": 145.624,
+          "browserTimings": [
+            {
+              "phase": "proxy-login",
+              "ms": 2325,
+              "status": "PASS"
+            },
+            {
+              "phase": "old-tab-login",
+              "ms": 1458,
+              "status": "PASS"
+            },
+            {
+              "phase": "current-login",
+              "ms": 2342,
+              "status": "PASS"
+            },
+            {
+              "phase": "web-only-login",
+              "ms": 2329,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "server-enforcement-basepath": {
+          "setupSeconds": [
+            18.045
+          ],
+          "indexingSeconds": [
+            13.177
+          ],
+          "scenarioSeconds": 153.735,
+          "browserTimings": [
+            {
+              "phase": "old-tab-login",
+              "ms": 2374,
+              "status": "PASS"
+            },
+            {
+              "phase": "current-login",
+              "ms": 2491,
+              "status": "PASS"
+            },
+            {
+              "phase": "web-only-login",
+              "ms": 3427,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "server-enforcement-linuxserver": {
+          "setupSeconds": [
+            20.371
+          ],
+          "indexingSeconds": [
+            12.852
+          ],
+          "scenarioSeconds": 173.901,
+          "browserTimings": [
+            {
+              "phase": "proxy-login",
+              "ms": 2337,
+              "status": "PASS"
+            },
+            {
+              "phase": "old-tab-login",
+              "ms": 1556,
+              "status": "PASS"
+            },
+            {
+              "phase": "current-login",
+              "ms": 2357,
+              "status": "PASS"
+            },
+            {
+              "phase": "web-only-login",
+              "ms": 2700,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "standalone-caddy": {
+          "setupSeconds": [
+            22.945
+          ],
+          "indexingSeconds": [
+            2.549
+          ],
+          "scenarioSeconds": 370.41,
+          "browserTimings": [
+            {
+              "phase": "bootstrap-installed",
+              "ms": 635,
+              "status": "PASS"
+            },
+            {
+              "phase": "bootstrap-csp-rejected",
+              "ms": 768,
+              "status": "PASS"
+            },
+            {
+              "phase": "settings-login",
+              "ms": 776,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 1039,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "verification": {
+          "setupSeconds": [
+            15.042,
+            15.092,
+            15.107
+          ],
+          "indexingSeconds": [
+            2.329,
+            2.324,
+            2.341
+          ],
+          "scenarioSeconds": 454.723,
+          "browserTimings": [],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "websocket": {
+          "setupSeconds": [
+            22.619
+          ],
+          "indexingSeconds": [
+            2.528
+          ],
+          "scenarioSeconds": 21.725,
+          "browserTimings": [
+            {
+              "phase": "socket-login",
+              "ms": 1034,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        }
+      }
+    },
+    {
+      "sequence": 2,
+      "id": "39022040613",
+      "conclusion": "success",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39022040613",
+      "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d",
+      "totalSeconds": 864.0,
+      "jobs": {
+        "build": {
+          "result": "success",
+          "seconds": 53.0
+        },
+        "Integration / server-enforcement-basepath": {
+          "result": "success",
+          "seconds": 259.0
+        },
+        "Integration / verification": {
+          "result": "success",
+          "seconds": 807.0
+        },
+        "Integration / websocket": {
+          "result": "success",
+          "seconds": 122.0
+        },
+        "Integration / migration": {
+          "result": "success",
+          "seconds": 315.0
+        },
+        "Integration / discovery": {
+          "result": "success",
+          "seconds": 303.0
+        },
+        "Integration / standalone-caddy": {
+          "result": "success",
+          "seconds": 475.0
+        },
+        "Integration / server-enforcement": {
+          "result": "success",
+          "seconds": 273.0
+        },
+        "Integration / legacy": {
+          "result": "success",
+          "seconds": 354.0
+        },
+        "Integration / basepath": {
+          "result": "success",
+          "seconds": 273.0
+        },
+        "Integration / server-enforcement-linuxserver": {
+          "result": "success",
+          "seconds": 269.0
+        },
+        "publish": {
+          "result": "skipped",
+          "seconds": 0
+        }
+      },
+      "profiles": {
+        "basepath": {
+          "setupSeconds": [
+            19.887
+          ],
+          "indexingSeconds": [
+            3.62
+          ],
+          "scenarioSeconds": 157.531,
+          "browserTimings": [
+            {
+              "phase": "bootstrap-installed",
+              "ms": 889,
+              "status": "PASS"
+            },
+            {
+              "phase": "bootstrap-csp-rejected",
+              "ms": 1220,
+              "status": "PASS"
+            },
+            {
+              "phase": "settings-login",
+              "ms": 807,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 800,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "discovery": {
+          "setupSeconds": [
+            21.476
+          ],
+          "indexingSeconds": [
+            3.596
+          ],
+          "scenarioSeconds": 203.849,
+          "browserTimings": [],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "legacy": {
+          "setupSeconds": [
+            21.124,
+            21.075
+          ],
+          "indexingSeconds": [
+            2.512,
+            2.527
+          ],
+          "scenarioSeconds": 223.925,
+          "browserTimings": [
+            {
+              "phase": "settings-login",
+              "ms": 714,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 480,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "migration": {
+          "setupSeconds": [
+            25.348
+          ],
+          "indexingSeconds": [
+            2.564
+          ],
+          "scenarioSeconds": 214.866,
+          "browserTimings": [
+            {
+              "phase": "bootstrap-installed",
+              "ms": 1012,
+              "status": "PASS"
+            },
+            {
+              "phase": "bootstrap-csp-rejected",
+              "ms": 527,
+              "status": "PASS"
+            },
+            {
+              "phase": "settings-login",
+              "ms": 871,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 990,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "server-enforcement": {
+          "setupSeconds": [
+            15.371
+          ],
+          "indexingSeconds": [
+            10.769
+          ],
+          "scenarioSeconds": 154.957,
+          "browserTimings": [
+            {
+              "phase": "proxy-login",
+              "ms": 2428,
+              "status": "PASS"
+            },
+            {
+              "phase": "old-tab-login",
+              "ms": 1573,
+              "status": "PASS"
+            },
+            {
+              "phase": "current-login",
+              "ms": 2411,
+              "status": "PASS"
+            },
+            {
+              "phase": "web-only-login",
+              "ms": 2525,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "server-enforcement-basepath": {
+          "setupSeconds": [
+            19.001
+          ],
+          "indexingSeconds": [
+            14.235
+          ],
+          "scenarioSeconds": 156.733,
+          "browserTimings": [
+            {
+              "phase": "old-tab-login",
+              "ms": 2446,
+              "status": "PASS"
+            },
+            {
+              "phase": "current-login",
+              "ms": 2742,
+              "status": "PASS"
+            },
+            {
+              "phase": "web-only-login",
+              "ms": 3301,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "server-enforcement-linuxserver": {
+          "setupSeconds": [
+            17.941
+          ],
+          "indexingSeconds": [
+            10.689
+          ],
+          "scenarioSeconds": 161.732,
+          "browserTimings": [
+            {
+              "phase": "proxy-login",
+              "ms": 2302,
+              "status": "PASS"
+            },
+            {
+              "phase": "old-tab-login",
+              "ms": 1334,
+              "status": "PASS"
+            },
+            {
+              "phase": "current-login",
+              "ms": 2285,
+              "status": "PASS"
+            },
+            {
+              "phase": "web-only-login",
+              "ms": 2323,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "standalone-caddy": {
+          "setupSeconds": [
+            21.291
+          ],
+          "indexingSeconds": [
+            2.427
+          ],
+          "scenarioSeconds": 362.344,
+          "browserTimings": [
+            {
+              "phase": "bootstrap-installed",
+              "ms": 1199,
+              "status": "PASS"
+            },
+            {
+              "phase": "bootstrap-csp-rejected",
+              "ms": 732,
+              "status": "PASS"
+            },
+            {
+              "phase": "settings-login",
+              "ms": 945,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 418,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "verification": {
+          "setupSeconds": [
+            21.204,
+            21.125,
+            21.037
+          ],
+          "indexingSeconds": [
+            2.582,
+            2.576,
+            2.585
+          ],
+          "scenarioSeconds": 660.255,
+          "browserTimings": [],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "websocket": {
+          "setupSeconds": [
+            25.047
+          ],
+          "indexingSeconds": [
+            2.592
+          ],
+          "scenarioSeconds": 22.295,
+          "browserTimings": [
+            {
+              "phase": "socket-login",
+              "ms": 932,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        }
+      }
+    },
+    {
+      "sequence": 3,
+      "id": "39022944599",
+      "conclusion": "success",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39022944599",
+      "zipSha256": "5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d",
+      "totalSeconds": 651.0,
+      "jobs": {
+        "build": {
+          "result": "success",
+          "seconds": 57.0
+        },
+        "Integration / basepath": {
+          "result": "success",
+          "seconds": 268.0
+        },
+        "Integration / standalone-caddy": {
+          "result": "success",
+          "seconds": 488.0
+        },
+        "Integration / verification": {
+          "result": "success",
+          "seconds": 588.0
+        },
+        "Integration / migration": {
+          "result": "success",
+          "seconds": 291.0
+        },
+        "Integration / websocket": {
+          "result": "success",
+          "seconds": 124.0
+        },
+        "Integration / server-enforcement-basepath": {
+          "result": "success",
+          "seconds": 265.0
+        },
+        "Integration / legacy": {
+          "result": "success",
+          "seconds": 377.0
+        },
+        "Integration / discovery": {
+          "result": "success",
+          "seconds": 307.0
+        },
+        "Integration / server-enforcement": {
+          "result": "success",
+          "seconds": 282.0
+        },
+        "Integration / server-enforcement-linuxserver": {
+          "result": "success",
+          "seconds": 312.0
+        },
+        "publish": {
+          "result": "skipped",
+          "seconds": 0
+        }
+      },
+      "profiles": {
+        "basepath": {
+          "setupSeconds": [
+            19.62
+          ],
+          "indexingSeconds": [
+            2.526
+          ],
+          "scenarioSeconds": 154.792,
+          "browserTimings": [
+            {
+              "phase": "bootstrap-installed",
+              "ms": 334,
+              "status": "PASS"
+            },
+            {
+              "phase": "bootstrap-csp-rejected",
+              "ms": 740,
+              "status": "PASS"
+            },
+            {
+              "phase": "settings-login",
+              "ms": 790,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 839,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "discovery": {
+          "setupSeconds": [
+            21.493
+          ],
+          "indexingSeconds": [
+            3.622
+          ],
+          "scenarioSeconds": 205.564,
+          "browserTimings": [],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "legacy": {
+          "setupSeconds": [
+            21.487,
+            21.58
+          ],
+          "indexingSeconds": [
+            3.646,
+            3.606
+          ],
+          "scenarioSeconds": 233.297,
+          "browserTimings": [
+            {
+              "phase": "settings-login",
+              "ms": 786,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 696,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "migration": {
+          "setupSeconds": [
+            18.271
+          ],
+          "indexingSeconds": [
+            2.364
+          ],
+          "scenarioSeconds": 183.877,
+          "browserTimings": [
+            {
+              "phase": "bootstrap-installed",
+              "ms": 835,
+              "status": "PASS"
+            },
+            {
+              "phase": "bootstrap-csp-rejected",
+              "ms": 782,
+              "status": "PASS"
+            },
+            {
+              "phase": "settings-login",
+              "ms": 367,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 405,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "server-enforcement": {
+          "setupSeconds": [
+            19.19
+          ],
+          "indexingSeconds": [
+            14.208
+          ],
+          "scenarioSeconds": 179.73,
+          "browserTimings": [
+            {
+              "phase": "proxy-login",
+              "ms": 2607,
+              "status": "PASS"
+            },
+            {
+              "phase": "old-tab-login",
+              "ms": 2460,
+              "status": "PASS"
+            },
+            {
+              "phase": "current-login",
+              "ms": 2925,
+              "status": "PASS"
+            },
+            {
+              "phase": "web-only-login",
+              "ms": 3334,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "server-enforcement-basepath": {
+          "setupSeconds": [
+            19.646
+          ],
+          "indexingSeconds": [
+            14.228
+          ],
+          "scenarioSeconds": 155.588,
+          "browserTimings": [
+            {
+              "phase": "old-tab-login",
+              "ms": 2431,
+              "status": "PASS"
+            },
+            {
+              "phase": "current-login",
+              "ms": 2603,
+              "status": "PASS"
+            },
+            {
+              "phase": "web-only-login",
+              "ms": 3329,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "server-enforcement-linuxserver": {
+          "setupSeconds": [
+            22.073
+          ],
+          "indexingSeconds": [
+            14.271
+          ],
+          "scenarioSeconds": 196.709,
+          "browserTimings": [
+            {
+              "phase": "proxy-login",
+              "ms": 2539,
+              "status": "PASS"
+            },
+            {
+              "phase": "old-tab-login",
+              "ms": 2476,
+              "status": "PASS"
+            },
+            {
+              "phase": "current-login",
+              "ms": 2869,
+              "status": "PASS"
+            },
+            {
+              "phase": "web-only-login",
+              "ms": 3324,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "standalone-caddy": {
+          "setupSeconds": [
+            25.723
+          ],
+          "indexingSeconds": [
+            3.62
+          ],
+          "scenarioSeconds": 380.101,
+          "browserTimings": [
+            {
+              "phase": "bootstrap-installed",
+              "ms": 811,
+              "status": "PASS"
+            },
+            {
+              "phase": "bootstrap-csp-rejected",
+              "ms": 643,
+              "status": "PASS"
+            },
+            {
+              "phase": "settings-login",
+              "ms": 796,
+              "status": "PASS"
+            },
+            {
+              "phase": "native-login",
+              "ms": 973,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "verification": {
+          "setupSeconds": [
+            15.032,
+            14.857,
+            15.24
+          ],
+          "indexingSeconds": [
+            2.333,
+            2.314,
+            2.332
+          ],
+          "scenarioSeconds": 445.731,
+          "browserTimings": [],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        },
+        "websocket": {
+          "setupSeconds": [
+            19.762
+          ],
+          "indexingSeconds": [
+            2.365
+          ],
+          "scenarioSeconds": 20.493,
+          "browserTimings": [
+            {
+              "phase": "socket-login",
+              "ms": 1131,
+              "status": "PASS"
+            }
+          ],
+          "safeSetupRetries": 0,
+          "imagePullAttempts": [
+            1
+          ],
+          "suiteRetries": 0
+        }
+      }
+    }
+  ]
+}
