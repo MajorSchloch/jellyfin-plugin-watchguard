@@ -13,11 +13,15 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
-    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.0'
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
@@ -25,9 +29,9 @@ jobs:
           cache-dependency-path: '**/packages.lock.json'
       - uses: actions/setup-node@v5
         with:
-          node-version: '24'
+          node-version: '24.22.0'
       - run: python3 scripts/build-release.py
-      - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore
+      - run: dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore --logger trx --results-directory artifacts/testing/backend
         env:
           WATCHGUARD_BENCHMARK_OUTPUT: /tmp/discovery-model-v048.json
           WATCHGUARD_VERIFICATION_MODEL_OUTPUT: /tmp/verification-model-v048.json
@@ -38,6 +42,7 @@ jobs:
           path: |
             /tmp/discovery-model-v048.json
             /tmp/verification-model-v048.json
+      - run: python3 -m unittest discover -s tests -p 'test_*.py'
       - run: python3 tests/catalog_test.py
       - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
       - name: Compare identical models with published v0.4.7
@@ -55,6 +60,13 @@ jobs:
           cp artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256 /tmp/first.sha256
           python3 scripts/build-release.py
           cmp /tmp/first.sha256 artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256
+      - name: Retain build and backend test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: WatchGuard-build-diagnostics
+          path: artifacts/testing/
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-v0.4.9-validated
@@ -66,19 +78,23 @@ jobs:
   integration:
     name: Integration / ${{ matrix.suite }}
     needs: build
-    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         suite: [standalone-caddy, migration, basepath, legacy, websocket, discovery, verification, server-enforcement, server-enforcement-basepath, server-enforcement-linuxserver]
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.0'
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
       - uses: actions/setup-node@v5
         with:
-          node-version: '24'
+          node-version: '24.22.0'
           cache: npm
           cache-dependency-path: tests/browser/package-lock.json
       - uses: actions/download-artifact@v6
@@ -151,7 +167,9 @@ jobs:
           else
             image='lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b'
           fi
+          mkdir -p artifacts/testing
           for attempt in 1 2 3 4 5; do
+            echo "$attempt" > artifacts/testing/image-pull-attempts.txt
             if docker pull "$image"; then break; fi
             if [ "$attempt" -eq 5 ]; then exit 1; fi
             sleep "$((attempt * 20))"
@@ -172,46 +190,22 @@ jobs:
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.8/Jellyfin.Plugin.WatchGuard-v0.4.8.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
           echo '06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip' | sha256sum -c -
       - name: Complete disposable regression suite
-        run: |
-          case "${{ matrix.suite }}" in
-            server-enforcement)
-              python3 tests/server-enforcement.py ;;
-            server-enforcement-basepath)
-              python3 tests/server-enforcement.py --base-path /jellyfin ;;
-            server-enforcement-linuxserver)
-              python3 tests/server-enforcement.py --linuxserver ;;
-            standalone-caddy)
-              python3 tests/docker-smoke.py --linuxserver --catalog --caddy ;;
-            migration)
-              python3 tests/docker-smoke.py --linuxserver --migration --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll ;;
-            basepath)
-              if ! python3 tests/docker-smoke.py --base-path /jellyfin --proxy; then
-                echo "::warning::Base-path browser fixture failed; rerunning complete regression once with a fresh container"
-                python3 tests/docker-smoke.py --base-path /jellyfin --proxy
-              fi ;;
-            legacy)
-              python3 tests/docker-smoke.py --legacy-injector --catalog --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll
-              python3 tests/docker-smoke.py --legacy-injector --injector-dll /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll ;;
-            discovery)
-              python3 tests/docker-smoke.py --profile discovery ;;
-            verification)
-              python3 tests/docker-smoke.py --profile verification
-              WATCHGUARD_VERIFICATION_POLICIES=1 WATCHGUARD_VERIFICATION_OUTPUT=artifacts/verification-native-v048-policies.json python3 tests/docker-smoke.py --profile verification
-              WATCHGUARD_DISCOVERY_BASELINE=0.4.7 python3 tests/docker-smoke.py --profile discovery ;;
-            websocket)
-              python3 tests/docker-smoke.py --linuxserver --caddy --measure ;;
-          esac
+        run: python3 tests/run_suite.py "${{ matrix.suite }}"
+      - name: Summarize first failed fixture phase
+        if: always()
+        run: python3 tests/summarize_qualification.py
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-browser-failure-${{ matrix.suite }}
           path: |
+            artifacts/testing/
             artifacts/v049/
             artifacts/server-enforcement/
           if-no-files-found: warn
       - name: Upload suite evidence
-        if: success()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-evidence-${{ matrix.suite }}
@@ -219,6 +213,7 @@ jobs:
             artifacts/server-enforcement/
             artifacts/settings-validation.json
             artifacts/catalog-validation.json
+            artifacts/testing/
             artifacts/v049/
             artifacts/standalone/caddy-http.json
             artifacts/standalone/socket-standalone.json
@@ -232,7 +227,7 @@ jobs:
     if: inputs.publish && github.ref_name == github.event.repository.default_branch
     needs: [build, integration]
     environment: release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:

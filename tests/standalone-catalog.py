@@ -1,6 +1,6 @@
 """Native catalog installation of the release candidate in a disposable server."""
 import functools,http.server,threading,shutil,json,hashlib,zipfile,time
-from urllib.parse import urlencode
+from urllib.parse import urlencode, parse_qs
 from pathlib import Path
 
 def run(call,restart,docker,name,root,plugins,token,artifact):
@@ -11,8 +11,13 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
     with zipfile.ZipFile(archive) as z:
         assert z.namelist()==['Jellyfin.Plugin.WatchGuard.dll','LICENSE']
         assert z.read('Jellyfin.Plugin.WatchGuard.dll')==artifact.read_bytes()
+    transfers=[]
     class Handler(http.server.SimpleHTTPRequestHandler):
-        def log_message(self,*args):pass
+        def log_message(self,format,*args):
+            # Only fixture catalog filenames/status; never headers or query values.
+            transfers.append({'at':time.monotonic(),'file':self.path.split('?')[0].split('/')[-1],
+                              'status':str(args[1]) if len(args)>1 else 'unknown'})
+            if len(transfers)>100:del transfers[0]
         def list_directory(self,path):self.send_error(404)
     server=http.server.ThreadingHTTPServer(('0.0.0.0',0),functools.partial(Handler,directory=str(public)))
     thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
@@ -57,12 +62,21 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
     shutil.copyfile(baseline048,public/baseline048.name)
     manifest[0]['versions'].append({**manifest[0]['versions'][0],'version':'0.4.8.0','sourceUrl':base+'/'+baseline048.name,'checksum':hashlib.md5(baseline048.read_bytes()).hexdigest()})
     (public/'manifest.json').write_text(json.dumps(manifest))
+    def install(query):
+        started=time.monotonic()
+        version=parse_qs(query)['version'][0]
+        print('Catalog install begin: '+version,flush=True)
+        try:
+            call('/Packages/Installed/WatchGuard?'+query,'POST',token=token,expected=204,raw=True)
+        finally:
+            transfers.append({'operation':'native-install','version':version,'seconds':round(time.monotonic()-started,3)})
+            print('Catalog install settled: '+version+' elapsed='+str(round(time.monotonic()-started,3)),flush=True)
     try:
         shutil.move(str(plugins/'WatchGuard'),str(root/'retired-preinstall'))
         restart();call('/WatchGuard/Watchlist',token=token,expected=404)
         call('/Repositories','POST',[{'Name':'Standalone disposable fixture','Url':base+'/manifest.json','Enabled':True}],token,expected=204)
         query=urlencode({'assemblyGuid':guid,'version':'0.4.9.0','repositoryUrl':base+'/manifest.json'})
-        call('/Packages/Installed/WatchGuard?'+query,'POST',token=token,expected=204,raw=True)
+        install(query)
         restart()
         assert 'watchguard-standalone-loader' in call('/web/index.html',raw=True)
         assert not any('JavaScriptInjector' in p.name for p in plugins.rglob('*.dll'))
@@ -86,7 +100,7 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
             restart()
             call('/WatchGuard/Watchlist',token=token,expected=404)
             query=urlencode({'assemblyGuid':guid,'version':version,'repositoryUrl':base+'/manifest.json'})
-            call('/Packages/Installed/WatchGuard?'+query,'POST',token=token,expected=204,raw=True);restart()
+            install(query);restart()
             status=call('/WatchGuard/IntegrationStatus',token=token)
             assert status['PluginVersion']==version[:-2] and status['Standalone']['LoaderActive']
             assert all(p.read_bytes()==content for p,content in saved.items())
@@ -136,13 +150,13 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
         # The installer/PluginManager must select v0.4.9 without manual DLL retirement.
         call('/Plugins/'+guid+'/0.4.9.0','DELETE',token=token,expected=204);restart()
         query=urlencode({'assemblyGuid':guid,'version':'0.4.8.0','repositoryUrl':base+'/manifest.json'})
-        call('/Packages/Installed/WatchGuard?'+query,'POST',token=token,expected=204,raw=True);restart()
+        install(query);restart()
         old_config=call('/Plugins/'+guid+'/Configuration',token=token)
         assert 'EnableServerEnforcement' not in old_config
         call('/Plugins/'+guid+'/Configuration','POST',old_config,token,expected=204)
         json_before={p:p.read_bytes() for p in paths if p.suffix=='.json'}
         query=urlencode({'assemblyGuid':guid,'version':'0.4.9.0','repositoryUrl':base+'/manifest.json'})
-        call('/Packages/Installed/WatchGuard?'+query,'POST',token=token,expected=204,raw=True);restart()
+        install(query);restart()
         current_config=call('/Plugins/'+guid+'/Configuration',token=token)
         assert not current_config['EnableServerEnforcement']
         assert all(current_config[k]==v for k,v in old_config.items())
@@ -163,4 +177,9 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
         print('v0.4.0 standalone catalog rollback/upgrade preserves both stores and configuration.',flush=True)
         print('Standalone native catalog install: fresh discovery, WatchGuard DLL only, restart loaded loader without Injector.',flush=True)
         return plugins/'WatchGuard_0.4.9.0'
-    finally:server.shutdown();server.server_close();thread.join()
+    finally:
+        evidence=Path(__file__).resolve().parents[1]/'artifacts/testing'/name
+        evidence.mkdir(parents=True,exist_ok=True)
+        (evidence/'catalog-transfers.json').write_text(json.dumps(transfers,indent=2)+'\n')
+        server.shutdown();server.server_close();thread.join(timeout=10)
+        assert not thread.is_alive(),'Catalog fixture did not stop'
