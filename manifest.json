@@ -2,11 +2,19 @@
   {
     "guid": "a3c6bc84-783d-4ba8-a0db-89bfb83ab486",
     "name": "WatchGuard",
-    "overview": "Personal watchlists and advisory Web deletion warnings.",
-    "description": "Standalone Web loader; migrate by removing only the old WatchGuard Injector registration. Native clients and direct API deletion are not protected.",
+    "overview": "Personal watchlists, Web warnings and opt-in HTTP deletion enforcement.",
+    "description": "Standalone Web loader. Server enforcement defaults off; opt-in protection covers only qualified native item deletion HTTP routes and requires administrator approval for protected media. External file changes are not protected.",
     "owner": "MajorSchloch",
     "category": "General",
     "versions": [
+      {
+        "version": "0.4.9.0",
+        "changelog": "See the matching release notes.",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.9/Jellyfin.Plugin.WatchGuard-v0.4.9.zip",
+        "checksum": "a83bfce2e35037cf19262fb8fe6f3f1b",
+        "timestamp": "2026-10-17T11:48:19Z"
+      },
       {
         "version": "0.4.8.0",
         "changelog": "See the matching release notes.",
