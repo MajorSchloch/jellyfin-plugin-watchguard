@@ -2,17 +2,23 @@
 
 This is an isolated candidate, not a published release. See the [security policy](deployment-agnostic-security-v0410.md) before interpreting compatibility results.
 
+**Two independent requirements:** WatchGuard can authenticate an approval through some HTTPS reverse proxies even with Jellyfin `KnownProxies` unset. That is **only approval-protocol compatibility**, not proof that Jellyfin recognizes the actual client IP. Jellyfin's [reverse-proxy documentation](https://jellyfin.org/docs/general/post-install/networking/reverse-proxy/) requires trusted proxies to be configured so its own local/remote access restrictions, IP filtering and related network policy use validated forwarded client addresses. **For an internet-facing Jellyfin reverse proxy, configure Jellyfin's native Known Proxies even if WatchGuard reports approval readiness.** Direct Jellyfin connections need no proxy entry. WatchGuard does not add its own proxy IP configuration.
+
 | Deployment | Policy / qualification |
 |---|---|
 | Direct HTTP | Exact Origin authority/scheme; missing Fetch Metadata supported with explicit native token. Native disposable enforcement tested. |
 | Direct HTTPS | Jellyfin's own TLS listener and trusted disposable certificate tested; no Fetch Metadata required for exact Origin. |
-| Caddy, KnownProxies empty | Real Chromium dashboard readiness and protected approval/delete tested across public HTTPS to native HTTP. Public Host/port preserved; browser same-origin metadata required. |
+| Caddy, KnownProxies empty | WatchGuard approval compatibility passed, but native Jellyfin client-IP forwarding is **not trusted**. Do **not** interpret successful approval as native remote-access policy verification. |
 | Caddy, native KnownProxies | Original strict forwarded-scheme fixture retained; native approval/delete, gzip/zstd and WebSocket checks retained. |
-| Nginx | Actual digest-pinned Nginx behind test-CA HTTPS terminator, preserving `$http_host`; native protocol and veto/mutation invariants tested without KnownProxies. |
-| Traefik | Actual digest-pinned Traefik file-provider service with `passHostHeader: true`, behind test-CA HTTPS terminator; same protocol checks. No Docker socket mounted. |
-| Tunnel-style intermediary | Actual Nginx second hop preserves Host while adding misleading X-Forwarded-Host/Proto. With no KnownProxies, those values do not affect WatchGuard. This models forwarding semantics, not Cloudflare's external service. |
+| Nginx | Approval/veto compatibility passed without KnownProxies when the public Host is preserved; configure Jellyfin's native proxy trust independently for correct client-IP classification. |
+| Traefik | Approval/veto compatibility passed using `passHostHeader: true`; native Jellyfin proxy trust remains separately required. No Docker socket mounted. |
+| Tunnel-style intermediary | Actual Nginx second hop preserves Host while adding misleading X-Forwarded-Host/Proto. WatchGuard ignores raw forwarded headers; native Jellyfin client-IP forwarding still requires its own trust configuration. This does not certify Cloudflare. |
 | Base path | Existing official `/jellyfin` suite retained. Origin has no path; existing native model binding and asset/approval paths remain unchanged. |
 | Rewritten Host or stripped metadata | Scheme exception unavailable. Preserve public Host/browser headers, or configure Jellyfin native trusted forwarding for controlled proxy addresses. Diagnostic must not claim ready. |
+
+WatchGuard's non-mutating POST Readiness verifies the current browser's approval authentication/origin only. `HttpsProxySameOrigin` specifically means the constrained HTTPS-frontend/HTTP-backend exception was used; it **does not** mean Jellyfin trusts any proxy. The settings page presents native client-IP and remote-access handling as **not verified**, even when approval is ready.
+
+The optional `--proxy-matrix` fixture additionally exercises **Jellyfin-native** remote-access policy with a disposable local-only account and a synthetic RFC 5737 remote client IP. It verifies visibility and token authorization before native KnownProxies is configured, after trusting only the disposable Caddy IP, and after untrusted direct spoofed forwarding headers. This detects the real policy distinction without using WatchGuard approval to infer network trust. The new checks must pass hosted qualification before the follow-up is release-ready.
 
 There is no WatchGuard proxy IP setting. Host preservation is ordinary proxy routing, not a WatchGuard-specific identity secret. Do not manufacture `Sec-Fetch-Site: same-origin` in a proxy: preserve the browser's value and reject malicious/cross-origin values naturally. If intermediaries remove it, use native trusted forwarding instead. Do not trust arbitrary X-Forwarded-* or clear ASP.NET trust lists to accept every caller.
 
