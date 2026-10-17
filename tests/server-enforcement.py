@@ -348,6 +348,10 @@ def main():
                     network=call('/System/Configuration/network');network['KnownProxies']=[proxy_ip]
                     call('/System/Configuration/network','POST',network,expected=204)
                     docker('restart',name);ready()
+                    if a.proxy_matrix:
+                        from native_proxy_policy import finish
+                        report['nativeRemoteAccessProxyBoundary']=finish(docker,name,root,caddy,call,policy_probe)
+                        (output/'native-remote-access-proxy.json').write_text(json.dumps(report['nativeRemoteAccessProxyBoundary'],indent=2)+'\n')
                     before=docker('logs',name).count('WG-GUARD evaluation');caddy.verify(token)
                     assert docker('logs',name).count('WG-GUARD evaluation')==before
                     def proxy(path,method='GET',body=None,expected=200,approval=None):
