@@ -1,3 +1,5 @@
+> **v0.4.10 isolated security candidate:** [deployment policy](docs/deployment-agnostic-security-v0410.md), [proxy compatibility](docs/proxy-compatibility-v0410.md), and [regression evidence](docs/security-regression-v0410.md). Not published; security review is required. Existing published installation instructions below remain the v0.4.9 baseline.
+
 # Jellyfin WatchGuard v0.4.9 — release candidate
 
 Personal movie/series watchlists, shared viewing activity and advisory deletion warnings for **Jellyfin Server/Web 12.2 / .NET 10**. Watchlists stay separate from Favorites. Native playback data remains authoritative; completed movie/ended-series history alone never protects a title from deletion.

@@ -238,5 +238,51 @@ public sealed class BoundaryTests : IDisposable
         Assert.True(json.GetProperty("Expected").GetBoolean());
         Assert.StartsWith("Unavailable;", json.GetProperty("AuthorizationState").GetString(), StringComparison.Ordinal);
     }
+    [Theory]
+    [InlineData("same-origin", true)]
+    [InlineData("cross-site", false)]
+    [InlineData("same-site", false)]
+    [InlineData("none", false)]
+    [InlineData(null, false)]
+    public async Task HttpsProxyReadinessUsesPostBoundaryWithoutEvaluatingMedia(string? site, bool expected)
+    {
+        using var services = new ServiceCollection().AddSingleton(identity)
+            .AddSingleton(new Attachment { Supported = true, EnabledAtStartup = true }).BuildServiceProvider();
+        var context = Context(); context.Request.Method = "POST"; context.Request.Scheme = "http";
+        context.Request.Headers.Origin = "https://fixture.invalid";
+        if (site is not null) context.Request.Headers["Sec-Fetch-Site"] = site;
+        var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new() { HttpContext = context } };
+        var response = Assert.IsAssignableFrom<ObjectResult>(await controller.Readiness());
+        Assert.Equal(expected ? 200 : 403, response.StatusCode);
+        Assert.Equal(expected, JsonSerializer.SerializeToElement(response.Value).GetProperty("ApprovalRequestsReady").GetBoolean());
+        Assert.Equal("no-store", context.Response.Headers.CacheControl.ToString());
+        library.VerifyNoOtherCalls(); data.VerifyNoOtherCalls();
+    }
+    [Fact] public async Task ProxyEvidenceDoesNotAuthenticateCookieOrQueryCredentials()
+    {
+        var context = Context(); context.Request.Scheme = "http";
+        context.Request.Headers.Origin = "https://fixture.invalid"; context.Request.Headers["Sec-Fetch-Site"] = "same-origin";
+        context.Request.Headers.Authorization = ""; context.Request.Headers.Cookie = "token=token";
+        await Assert.ThrowsAsync<GuardFailure>(() => identity.Read(context, true));
+        context.Request.Headers.Authorization = "MediaBrowser Token=\"token\"";
+        context.Request.QueryString = new("?api_key=token");
+        await Assert.ThrowsAsync<GuardFailure>(() => identity.Read(context, true));
+    }
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task ReadinessDoesNotClaimBrowserOrInactiveGuardFromAuthenticationAlone(bool active, bool origin)
+    {
+        using var services = new ServiceCollection().AddSingleton(identity)
+            .AddSingleton(new Attachment { Supported = true, EnabledAtStartup = active }).BuildServiceProvider();
+        var context = Context();
+        if (origin) context.Request.Headers.Origin = "https://fixture.invalid";
+        var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new() { HttpContext = context } };
+        var response = Assert.IsType<OkObjectResult>(await controller.Readiness());
+        var json = JsonSerializer.SerializeToElement(response.Value);
+        Assert.False(json.GetProperty("ApprovalRequestsReady").GetBoolean());
+        Assert.Equal(active, json.GetProperty("GuardActive").GetBoolean());
+        library.VerifyNoOtherCalls(); data.VerifyNoOtherCalls();
+    }
     public void Dispose() { work.Dispose(); if (Directory.Exists(directory)) Directory.Delete(directory, true); }
 }

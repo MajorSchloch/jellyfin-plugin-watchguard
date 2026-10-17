@@ -28,10 +28,10 @@ jobs:
             /tmp/verification-model-v048.json
       - run: python3 scripts/build-release.py
       - run: python3 tests/catalog_test.py
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip
       - uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-v0.4.9
+          name: WatchGuard-v0.4.10
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip.sha256

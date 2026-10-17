@@ -23,7 +23,7 @@ public sealed class WebProtocol(IServiceProvider services, IAuthorizationContext
         var attachment = services.GetService<Attachment>();
         var environment = EnvironmentStatus();
         var state = attachment?.ConfigurationCaptured != true ? "Unhealthy" : !attachment.EnabledAtStartup ? "Disabled" :
-            attachment.Active && !environment.StartsWith("OriginMismatch", StringComparison.Ordinal) ? "Enabled" : "Unhealthy";
+            attachment.Active && RequestOrigin.Accepted(environment) ? "Enabled" : "Unhealthy";
         var authorizationState = "NotRequiredWhileInactive";
         if (attachment?.Active == true)
         {
@@ -35,7 +35,7 @@ public sealed class WebProtocol(IServiceProvider services, IAuthorizationContext
             catch
             {
                 state = "Unhealthy";
-                authorizationState = "Unavailable; verify native session authentication and trusted-proxy Origin";
+                authorizationState = "Unavailable; verify explicit native session authentication and request-origin diagnostics";
             }
         }
         return Ok(new { Protocol = 1, State = state, Expected = attachment?.EnabledAtStartup != false,
@@ -48,12 +48,32 @@ public sealed class WebProtocol(IServiceProvider services, IAuthorizationContext
             Coverage = "Native LibraryController.DeleteItem/DeleteItems only" });
     }
 
-    private string EnvironmentStatus()
+    private string EnvironmentStatus() => RequestOrigin.Evaluate(Request);
+
+    // Exercises the same authentication/origin boundary as approval POSTs without
+    // allocating a challenge, reading playback data, or mutating library state.
+    [HttpPost("Readiness"), Consumes("application/json"), RequestSizeLimit(1024)]
+    public async Task<IActionResult> Readiness()
     {
-        var origin = Request.Headers.Origin;
-        return origin.Count == 0 ? "NoOriginObserved; verify same-origin browser request through trusted proxy" :
-            origin.Count == 1 && origin.ToString() == Request.Scheme + "://" + Request.Host.Value
-                ? "SameOrigin" : "OriginMismatch; check native trusted-proxy configuration";
+        Response.Headers.CacheControl = "no-store";
+        var environment = EnvironmentStatus();
+        try
+        {
+            await services.GetRequiredService<Identity>().Read(HttpContext, administrator: true);
+            var attachment = services.GetService<Attachment>();
+            return Ok(new { Authenticated = true, OriginStatus = environment,
+                BrowserRequestVerified = environment is "SameOrigin" or "HttpsProxySameOrigin",
+                GuardActive = attachment?.Active == true,
+                ApprovalRequestsReady = attachment?.Active == true && environment is "SameOrigin" or "HttpsProxySameOrigin",
+                Scope = "Request authentication and origin only; target permissions and fresh protection are checked per operation" });
+        }
+        catch (Exception error)
+        {
+            var failure = error as GuardFailure ?? new GuardFailure(503, "ProtectionUnavailable");
+            return StatusCode(failure.Status, new { Code = failure.Code, OriginStatus = environment,
+                ApprovalRequestsReady = false,
+                Instructions = "Use an enabled administrator's explicit native session header. Preserve the public Host and browser Fetch Metadata. If the proxy rewrites Host or strips Fetch Metadata, configure Jellyfin's native trusted proxy handling; never trust arbitrary forwarded headers." });
+        }
     }
 
     [HttpPost("Prepare"), Consumes("application/json"), RequestSizeLimit(8192)]

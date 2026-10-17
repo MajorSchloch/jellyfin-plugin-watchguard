@@ -12,7 +12,7 @@
 <button is="emby-button" class="raised button-submit block" type="submit">Save</button>
 </form>
 <p id="wgSettingsMessage" role="status"></p>
-<h2>Integration status</h2><div id="wgIntegration" role="status">Loading…</div>
+<h2>Integration status</h2><p id="wgApprovalReadiness" role="status">Approval request readiness has not been checked.</p><div id="wgIntegration" role="status">Loading…</div>
 <button is="emby-button" class="button-flat" id="wgCheck" type="button">Refresh status and check this browser</button>
 <p id="wgBrowser" class="fieldDescription">Server registration alone cannot verify browser execution.</p>
 </div></div>
@@ -24,6 +24,7 @@
     function identity() { return [ApiClient, ApiClient.getCurrentUserId(), ApiClient.accessToken()]; }
     function valid(who, revision) { return revision === epoch && who.every((v,i) => v === identity()[i]); }
     async function status() {
+        field('#wgApprovalReadiness').textContent = 'Checking approval request readiness…';
         const who = identity(), revision = epoch, statusRevision = ++statusGeneration;
         const current = () => valid(who, revision) && statusRevision === statusGeneration;
         try {
@@ -57,6 +58,17 @@
                 'Approval authentication: ' + guard.AuthorizationState,
                 'Coverage: ' + guard.Coverage + '. External filesystem operations are outside this boundary.'
             ]) { const p = document.createElement('p'); p.textContent = text; target.append(p); }
+            field('#wgApprovalReadiness').textContent = 'Checking authenticated approval request boundary…';
+            try {
+                const readiness = await ApiClient.ajax({type:'POST', url:ApiClient.getUrl('WatchGuard/ServerApproval/Readiness'), contentType:'application/json', dataType:'json', data:'{}'});
+                if (!current()) return;
+                field('#wgApprovalReadiness').textContent = 'Approval POST readiness: ' + (readiness.ApprovalRequestsReady === true ? 'ready' : 'not active or browser origin unverified') +
+                    ' · Origin: ' + readiness.OriginStatus + ' · Native administrator authenticated: ' + readiness.Authenticated +
+                    '. This checks authentication and origin without creating an approval or deleting media; target permissions remain operation-specific.';
+            } catch {
+                if (!current()) return;
+                field('#wgApprovalReadiness').textContent = 'Approval POST readiness failed. Verify the administrator session, public Host and browser Fetch Metadata. Proxies that rewrite Host or strip these headers need Jellyfin native trusted-proxy configuration. Do not enable arbitrary forwarded-header trust.';
+            }
             let available = true;
             if (standalone) {
                 try { await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/Standalone/script.js'), dataType:'text', cache:false}); }
@@ -72,11 +84,12 @@
             field('#wgBrowser').textContent = window.WatchGuardPoc?.isInstalled() === true
                 ? 'This browser: adapter installed on its current ApiClient. This does not verify every deletion path; test Cancel on disposable media.'
                 : 'This browser: adapter not detected. Check the selected loader, authentication and CSP, then fully reload this tab.';
-        } catch { if (current()) { field('#wgIntegration').textContent = 'Integration status unavailable. Administrator access is required.'; field('#wgBrowser').textContent = 'Browser verification unavailable. A retained adapter is not evidence of a working installation.'; } }
+        } catch { if (current()) { field('#wgIntegration').textContent = 'Integration status unavailable. Administrator access is required.'; field('#wgBrowser').textContent = 'Browser verification unavailable. A retained adapter is not evidence of a working installation.'; field('#wgApprovalReadiness').textContent = 'Approval readiness unavailable; no successful POST check is established.'; } }
     }
     page.addEventListener('pageshow', async function () {
         const revision = ++epoch, who = identity();
         statusGeneration++;
+        field('#wgApprovalReadiness').textContent = 'Approval request readiness has not been checked.';
         field('#wgSettingsMessage').textContent = ''; field('#wgIntegration').textContent = 'Loading…'; field('#wgBrowser').textContent = '';
         try {
             const config = await ApiClient.getPluginConfiguration(id);
@@ -85,7 +98,7 @@
             field('#wgEnforcement').checked = config.EnableServerEnforcement === true; field('#wgCaughtUp').checked = config.ProtectCaughtUpSeries !== false; field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
         } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not load settings. Administrator access is required.'; }
     });
-    page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
+    page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgApprovalReadiness').textContent = 'Approval request readiness has not been checked.'; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
     field('#wgCheck').onclick = status;
     field('#WatchGuardSettingsForm').onsubmit = async function (event) {
         event.preventDefault();
