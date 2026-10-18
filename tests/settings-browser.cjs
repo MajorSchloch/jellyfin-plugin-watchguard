@@ -47,10 +47,17 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         await refreshStatus();
         await page.getByText(fixture.standalone ? /Standalone loader active: true/ : /Server registration succeeded; browser unverified/).waitFor();
         await page.getByText(/This browser: adapter installed/).waitFor();
-        // Approval-readiness and Jellyfin networking are distinct states.
-        await page.locator('#wgProxyNetworkNote').filter({hasText:'NOT VERIFIED'}).waitFor();
-        assert.match(await page.locator('#wgProxyNetworkNote').innerText(), /client-IP forwarding|reverse-proxy networking/);
-        assert.match(await page.locator('#wgProxyNetworkNote').innerText(), /remote-access|remote clients/);
+        // Legacy Injector fixtures install the checksum-verified published v0.3.1
+        // configuration page, which predates the native proxy status element.
+        // Standalone v0.4.10 must always show the independent disclosure.
+        if (fixture.standalone) {
+            await page.locator('#wgProxyNetworkNote').filter({hasText:'NOT VERIFIED'}).waitFor();
+            assert.match(await page.locator('#wgProxyNetworkNote').innerText(), /client-IP forwarding|reverse-proxy networking/);
+            assert.match(await page.locator('#wgProxyNetworkNote').innerText(), /remote-access|remote clients/);
+        } else {
+            assert.equal(await page.locator('#wgProxyNetworkNote').count(), 0,
+                'Published legacy configuration must not be expected to contain v0.4.10 proxy diagnostics');
+        }
         if (fixture.standalone) {
             await page.locator('#wgIntegration').getByText('Authenticated script available to this browser now: true').waitFor();
             assert.equal(await page.locator('#wgIntegration').getByText('Authenticated script available to this browser now: true').count(),1,'status refresh must not duplicate availability lines');
