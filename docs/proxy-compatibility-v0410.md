@@ -1,6 +1,6 @@
 # v0.4.10 proxy compatibility
 
-This is an isolated candidate, not a published release. See the [security policy](deployment-agnostic-security-v0410.md) before interpreting compatibility results.
+**Published v0.4.10 compatibility:** see the [security policy](deployment-agnostic-security-v0410.md) before interpreting these results. This is not a certification of Jellyfin's native client-IP or remote-access configuration. [Final qualification](validation.md) included the optional proxy matrix.
 
 **Two independent requirements:** WatchGuard can authenticate an approval through some HTTPS reverse proxies even with Jellyfin `KnownProxies` unset. That is **only approval-protocol compatibility**, not proof that Jellyfin recognizes the actual client IP. Jellyfin's [reverse-proxy documentation](https://jellyfin.org/docs/general/post-install/networking/reverse-proxy/) requires trusted proxies to be configured so its own local/remote access restrictions, IP filtering and related network policy use validated forwarded client addresses. **For an internet-facing Jellyfin reverse proxy, configure Jellyfin's native Known Proxies even if WatchGuard reports approval readiness.** Direct Jellyfin connections need no proxy entry. WatchGuard does not add its own proxy IP configuration.
 
@@ -34,4 +34,4 @@ Images are digest-pinned in `tests/proxy_compatibility.py` and `tests/standalone
 
 Default enforcement remains OFF. Existing enabled installations retain the setting and current data formats. Restart after installation and reload Web clients. Use the native settings page's approval POST readiness check before relying on browser approvals; no media creation/deletion is needed. Readiness does not grant permission or approve a target.
 
-Rollback to the checksum-verified published v0.4.9 package preserves memberships/preferences/XML. Restart destroys pending in-memory approvals. v0.4.9 again requires native trusted scheme forwarding behind HTTPS-to-HTTP proxies; do not remove an existing valid KnownProxies configuration as part of this upgrade. The public manifest and published ZIPs remain unchanged.
+Rollback to the checksum-verified published v0.4.9 package preserves memberships/preferences/XML. Restart destroys pending in-memory approvals. v0.4.9 again requires native trusted scheme forwarding behind HTTPS-to-HTTP proxies; do not remove an existing valid KnownProxies configuration as part of this upgrade. The public manifest now lists v0.4.10. Existing published version entries and historical ZIPs remain immutable.
