@@ -8,7 +8,7 @@ public sealed record ViewPreferences(string Owner, string[] Statuses, string Sor
     public static ViewPreferences Defaults => new("mine", ["watchlisted", "watching", "playing"], "title");
     public static bool Valid(ViewPreferences? value) => value is not null &&
         (value.Owner is "mine" or "all" || (Guid.TryParse(value.Owner, out var id) && id != Guid.Empty)) &&
-        value.Sort is "title" or "recent" or "added" && value.Statuses is not null && value.Statuses.Length <= 4 &&
+        value.Sort is "title" or "recent" && value.Statuses is not null && value.Statuses.Length <= 4 &&
         value.Statuses.All(s => s is "watchlisted" or "watching" or "playing" or "watched") &&
         value.Statuses.Distinct().Count() == value.Statuses.Length;
 }
