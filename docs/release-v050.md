@@ -36,3 +36,9 @@ This release does **not** add mobile/TV client integration, Sonarr/Radarr/Tdarr 
 - Two identical reproducible candidate ZIP builds, release checksums, and explicit release approval before `publish=true`.
 
 This document is the draft release-notes source for the future v0.5.0 publication. It makes **no** claim that the candidate has been published, installed or fully qualified.
+
+### First hosted qualification — blocked by a stale fixture version
+
+[Run 39129611260](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39129611260), on `ed924bd`, passed the build, legacy suite and all three server-enforcement suites. The other six suites all stopped at the same `backend-smoke.py` assertion, which still expected v0.4.10 from the v0.5.0 candidate. Standalone catalog rollback/upgrade checks completed before that assertion, but later browser and performance phases in the affected suites were not reached.
+
+The shared check now reads the candidate version from `Directory.Build.props`; the published Injector baseline remains pinned to v0.3.1. Fast regression tests reproduce the original rejection of v0.5.0 and acceptance of stale v0.4.10, then verify the corrected version check and unchanged readiness assertions. A **new full workflow run on the corrected branch**, with `publish=false` and `proxy_matrix=true`, is still required. Re-running the old run would test the old commit again.

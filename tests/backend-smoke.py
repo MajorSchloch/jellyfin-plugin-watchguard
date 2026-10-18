@@ -2,6 +2,8 @@
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+import xml.etree.ElementTree as ET
 
 
 def run(call, admin_token, items, plugins, standalone=True):
@@ -23,7 +25,14 @@ def run(call, admin_token, items, plugins, standalone=True):
     call('/Plugins/'+guid+'/Configuration', 'POST', config, admin_token, expected=204)
     assert 'WatchGuardSettings' in call('/web/ConfigurationPage?name=WatchGuard', token=admin_token, raw=True)
     status = call('/WatchGuard/IntegrationStatus', token=admin_token)
-    assert status['PluginVersion'] == ('0.4.10' if standalone else '0.3.1') and status['BrowserExecutionVerified'] is False
+    # Check the source candidate, independently of the server's reported value.
+    # The legacy Injector fixture still loads the checksum-pinned v0.3.1 ZIP.
+    expected_version = (ET.parse(Path(__file__).resolve().parents[1] / 'Directory.Build.props')
+                        .findtext('./PropertyGroup/Version') if standalone else '0.3.1')
+    assert expected_version, 'Candidate Version is missing from Directory.Build.props'
+    assert status['PluginVersion'] == expected_version, (
+        f"Expected WatchGuard {expected_version}, received {status['PluginVersion']}")
+    assert status['BrowserExecutionVerified'] is False
     if standalone:
         assert status['PluginLoaded'] and status['Standalone']['Enabled'] and status['Standalone']['LoaderActive']
         assert status['Standalone']['AuthenticatedScriptResponsesCompleted'] >= 1
