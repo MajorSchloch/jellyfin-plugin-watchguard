@@ -13,6 +13,7 @@ public sealed class WatchlistDatesTests : IDisposable
         public override DateTimeOffset GetUtcNow() => Current;
     }
 
+    private static readonly JsonSerializerOptions StrictLegacyOptions = new() { UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
     private readonly string directory = Path.Combine(Path.GetTempPath(), "watchguard-dates-" + Guid.NewGuid().ToString("N"));
     private readonly Guid alice = Guid.NewGuid();
     private readonly Guid bob = Guid.NewGuid();
@@ -60,8 +61,7 @@ public sealed class WatchlistDatesTests : IDisposable
         var entries = store.ReadDated().OrderBy(x => x.UserId).ToArray();
         Assert.Null(entries.Single(x => x.UserId == alice).AddedAtUtc);
         Assert.Equal(clock.Current, entries.Single(x => x.UserId == bob).AddedAtUtc);
-        var strictLegacy = new JsonSerializerOptions { UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
-        var document = JsonSerializer.Deserialize<WatchlistDocument>(File.ReadAllText(Primary), strictLegacy);
+        var document = JsonSerializer.Deserialize<WatchlistDocument>(File.ReadAllText(Primary), StrictLegacyOptions);
         Assert.Equal(1, document!.Version);
         Assert.Equal(2, document.Entries.Length);
     }
