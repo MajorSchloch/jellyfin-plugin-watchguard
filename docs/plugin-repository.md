@@ -1,4 +1,6 @@
-# WatchGuard v0.4.8 catalog preparation
+# WatchGuard v0.4.8 catalog preparation (historical)
+
+> **Historical snapshot:** This page documents the v0.4.8 and v0.4.9 *pre-publication* workflows and must not be read as the current catalog state. [v0.4.10 is published](release-v0410.md); use [README installation instructions](../README.md#installation-and-upgrades), the actual [manifest](../manifest.json), and [current release workflow](../.github/workflows/release.yaml) as the present-day sources of truth. The standalone root `build.yaml` template metadata has been retired; CI uses `.github/workflows/build.yaml`.
 
 **Release candidate only.** Neither the public manifest nor any published v0.4.7 asset is changed. The catalog currently serves existing releases. No v0.4.8 public source URL or publication timestamp is invented during preparation.
 

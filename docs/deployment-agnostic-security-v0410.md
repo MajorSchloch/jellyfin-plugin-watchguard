@@ -1,6 +1,6 @@
-# v0.4.10 request-security design (isolated candidate)
+# v0.4.10 request-security design
 
-Baseline is published v0.4.9. This branch is not approved for publication. Approval state, native permissions, replay/expiry, target and inventory binding, and fresh protection evaluation are unchanged.
+**Release status:** [v0.4.10 was published on 2026-10-18](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.4.10) after [final full qualification](validation.md). This document originated as a pre-release security review against v0.4.9; its threat model, mechanism and residual risks remain relevant. Approval state, native permissions, replay/expiry, target and inventory binding, and fresh protection evaluation were unchanged in this release.
 
 ## Why KnownProxies was required
 
@@ -48,7 +48,7 @@ Authenticated administrator `POST /WatchGuard/ServerApproval/Readiness` exercise
 
 Host-rewriting or Fetch-Metadata-stripping proxies require normal native trusted-proxy configuration, or preserving the original public Host and browser metadata. No hardcoded WatchGuard IP or proxy-specific exception is introduced. Unsupported browsers can use strict native scheme forwarding. Direct HTTP retains its existing transport confidentiality risk; HTTPS is preferred. Multi-instance approval storage and TOCTOU limitations remain unchanged.
 
-Rollback to published v0.4.9 restores strict scheme matching and its native trusted-proxy requirement. JSON/XML schemas and GUID remain unchanged; restart invalidates pending approvals and clients must reload. Do not publish this candidate before reviewing native/browser regression evidence.
+Rollback to published v0.4.9 restores strict scheme matching and its native trusted-proxy requirement. JSON/XML schemas and GUID remain unchanged; restart invalidates pending approvals and clients must reload. The publication gate was satisfied by the reviewed browser and native regression matrix recorded in [validation](validation.md).
 
 ## Primary references
 

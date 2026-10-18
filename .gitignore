@@ -1,10 +1,23 @@
+# .NET build / IDE state
 bin/
 obj/
 .vs/
 .idea/
-artifacts
+*.DotSettings.user
+*.suo
+*.user
 
+# Package output and integration-test diagnostics
+artifacts/
+TestResults/
+test-results/
+playwright-report/
+
+# Node / Python
 node_modules/
-
-.DS_Store
 __pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Operating systems
+.DS_Store
