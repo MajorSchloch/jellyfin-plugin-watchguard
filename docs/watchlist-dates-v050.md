@@ -38,6 +38,7 @@ Malformed or unknown-schema metadata is preserved and produces a visible API err
 - `AddedAtUtc` is never emitted by automatic playback discovery. The Web validator rejects a dated user who lacks the explicit `Watchlisted` reason.
 - `sort=added` picks the latest known timestamp **among the users matched by the current filter**; automatic-only items and unknown dates sort after known entries, with deterministic title/item-ID ties.
 - When the server returns an explicit `AddedAtUtc: null`, the UI displays **Added: unknown**. Older servers that omit the field remain renderable without implying a timestamp.
+- Membership DTOs explicitly retain that null field under Jellyfin's native PascalCase and camelCase JSON profiles, which otherwise omit null properties. The account directory remains free of membership-date fields. Regression tests serialize controller results with Jellyfin's own `JsonDefaults` options, including legacy and invalidated dates.
 
 ## Saved preferences limitation
 

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Jellyfin.Data;
 using Jellyfin.Database.Implementations.Enums;
 using MediaBrowser.Controller.Entities;
@@ -45,7 +46,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         var items = store.ReadDated().Where(e => e.UserId == user.Id)
             .Select(e => new { Membership = e, Item = library.GetItemById<BaseItem>(e.ItemId, user) })
             .Where(e => InterestService.Supported(e.Item))
-            .Select(e => new { ItemId = e.Item!.Id, Name = e.Item.Name, e.Membership.AddedAtUtc }).ToArray();
+            .Select(e => new WatchlistItem(e.Item!.Id, e.Item.Name, e.Membership.AddedAtUtc)).ToArray();
         return Ok(items);
     });
 
@@ -68,7 +69,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         if (caller is null) return Unauthorized();
         if (!caller.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         return Ok(users.GetUsers().Where(u => !u.HasPermission(PermissionKind.IsDisabled))
-            .Select(u => new WatchlistOwner(u.Id, u.Username)).OrderBy(u => u.DisplayName).ToArray());
+            .Select(u => new { UserId = u.Id, DisplayName = u.Username }).OrderBy(u => u.DisplayName).ToArray());
     });
 
     private Task<IActionResult> WatchlistsCore(Guid? userId) => Execute(async () =>
@@ -163,5 +164,10 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
     });
 }
 
-public sealed record WatchlistOwner(Guid UserId, string DisplayName, DateTimeOffset? AddedAtUtc = null);
+// Jellyfin omits null properties by default. Explicit null distinguishes an
+// unknown membership date from an older server that does not expose dates.
+public sealed record WatchlistItem(Guid ItemId, string Name,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] DateTimeOffset? AddedAtUtc);
+public sealed record WatchlistOwner(Guid UserId, string DisplayName,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] DateTimeOffset? AddedAtUtc = null);
 public sealed record SharedWatchlistItem(Guid ItemId, string Name, WatchlistOwner[] Users);
