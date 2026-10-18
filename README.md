@@ -1,60 +1,81 @@
-> **v0.4.10 isolated security candidate:** [deployment policy](docs/deployment-agnostic-security-v0410.md), [proxy compatibility](docs/proxy-compatibility-v0410.md), and [regression evidence](docs/security-regression-v0410.md). Not published; security review is required. Existing published installation instructions below remain the v0.4.9 baseline.
+# Jellyfin WatchGuard
 
-# Jellyfin WatchGuard v0.4.9 — release candidate
+**Current release: [v0.4.10](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.4.10)** · Target: **Jellyfin Server/Web 12.2.0 / .NET 10** · [Plugin catalog](manifest.json)
 
-Personal movie/series watchlists, shared viewing activity and advisory deletion warnings for **Jellyfin Server/Web 12.2 / .NET 10**. Watchlists stay separate from Favorites. Native playback data remains authoritative; completed movie/ended-series history alone never protects a title from deletion.
+WatchGuard adds personal watchlists, shared viewing-interest indicators and deletion warnings to Jellyfin. An optional **server-side guard** prevents protected media from being deleted through the two qualified native HTTP item-deletion routes without an explicit administrator approval.
 
-**One plugin:** WatchGuard includes its own authenticated Web loader. JavaScript Injector is neither required nor bundled. No feature flag, environment variable, Web-file modification, external database or frontend framework is needed.
+WatchGuard is a **single Jellyfin plugin** with an authenticated, standalone Web loader. No JavaScript Injector, Web-file edits, external database or companion service is required.
 
-**Not published yet.** The public catalog and published v0.4.8 release remain unchanged. Installing from the public catalog today does not install this candidate. The normal Jellyfin catalog installer is tested using a disposable local repository containing the exact RC ZIP.
+## What it does
 
-## Installing and upgrading
+- **Personal watchlists:** add/remove movies and series independently of Jellyfin Favorites; persist memberships per account.
+- **Watchlists overview:** view your interests, filter by status, sort titles or available viewing dates, and save personal view preferences. Administrators can inspect authorized cross-user interests.
+- **Viewing status:** distinguish Watchlisted, In Progress, Currently Playing, Caught Up and Watched using Jellyfin's native playback information. Series detail pages show relevant users and progress where the episode metadata is sufficient.
+- **Deletion warnings:** check current watchlist/playback interest before Web deletion of a movie, series, season or episode, including the requesting user's own interest and the verified parent series.
+- **Optional server enforcement (v0.4.9+):** an authenticated request to a protected native item DELETE needs an exact, one-use administrator approval. WatchGuard re-evaluates interest and native permissions when approving and redeeming it. Unapproved protected DELETEs are rejected.
+- **Proxy-compatible approvals (v0.4.10):** origin validation supports properly configured direct HTTP(S) and common HTTPS reverse-proxy setups without any *WatchGuard-specific* proxy allowlist.
 
-After a v0.4.9 release is explicitly approved and published, use Dashboard → Plugins → Repositories with the existing WatchGuard repository:
+## Installation and upgrades
 
-`https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
+1. In Jellyfin, open **Dashboard → Plugins → Repositories** and add the WatchGuard repository if it is not already configured:
 
-Install/update WatchGuard, restart Jellyfin and fully reload all Web clients. No manual DLL operations are needed for normal catalog updates. On LinuxServer.io, discovery is under `/config/data/plugins`.
+   `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
 
-**Upgrading from v0.4.8:** server enforcement is **off by default**. Existing Web warnings remain. Administrators may opt in through WatchGuard settings, then restart and reload clients. The single assembly adds no plugin dependency. See [server enforcement](docs/server-enforcement-v049.md), [security boundaries](docs/server-enforcement-security-v049.md) and [upgrade/rollback](docs/server-enforcement-upgrade-v049.md).
+2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.4.10.0`).
+3. **Restart Jellyfin**, then **fully reload Jellyfin Web** in each browser.
+4. Open **Dashboard → Plugins → WatchGuard**. Confirm the installed plugin version, standalone loader, the current browser's installed adapter and the active server-guard state. The approval **POST readiness** check is non-mutating.
 
-**Upgrading from v0.3.1:** first follow [migration and rollback](docs/migration-v040.md). A persisted Injector `watchguard-v1` entry blocks standalone delivery. Remove only that entry explicitly; keep unrelated scripts and Injector itself if other plugins need it. WatchGuard never edits Injector configuration or uninstalls it.
+Use the native catalog installer; do **not** copy DLLs into multiple plugin discovery folders. Existing memberships/preferences and configuration use the same plugin GUID and data schema when upgrading from recent standalone releases. Migrating an older Injector-based installation requires [explicit cleanup of only the old WatchGuard Injector entry](docs/migration-v040.md).
 
-Open Dashboard → Plugins → WatchGuard to verify the server loader, bootstrap responses, authenticated script availability and the adapter in the current browser. Server process health alone does not establish deletion protection. See [deployment checks](docs/deployment.md).
+**Back up before upgrading.** On LinuxServer.io, the usual locations under `/config/data/plugins` are `Jellyfin.Plugin.WatchGuard/watchlists.json`, `Jellyfin.Plugin.WatchGuard/preferences.json` (where present), the versioned `WatchGuard_0.4.10.0` directory and `configurations/Jellyfin.Plugin.WatchGuard.xml`. Back up the actual paths used by your installation. Never delete the unversioned WatchGuard data directory to remove a version.
 
-## Behavior and limitations
+## Server-side deletion protection
 
-The Watchlists overview uses a compact coverage disclosure, visible safety warnings, labeled responsive controls and colored user status icons. See [overview UI polish](docs/watchlists-ui-v045.md).
+**Off by default.** In the WatchGuard plugin settings, enable **server-side deletion enforcement**, save, **restart Jellyfin**, and fully reload clients. The dashboard must report `Runtime: Enabled`, `2/2` attached native DELETE actions, and `Restart required: false`. A checked preference without active hooks is not protection.
 
-Administrator series details include a compact, expandable [viewing activity panel](docs/ui-polish-v044.md), independent of watchlist membership. It expands below the native header, with colored status chips, aligned user rows, valid-coverage progress and native playback dates. Title and action placement remain stable.
+With enforcement enabled:
 
-The deletion dialog identifies the exact target, separates your interest from other users and presents reasons in a responsive, keyboard-accessible layout. Cancel receives initial focus. Both confirmations and Jellyfin’s generic cancellation error remain; [native integration research](docs/native-confirmation-options.md) explains why.
+- **Unprotected, permitted** deletions continue through Jellyfin's normal native logic.
+- **Protected** direct HTTP deletions without valid approval are refused (normally HTTP `409 ProtectionRequired`).
+- In supported Jellyfin Web, an administrator may explicitly **Delete Anyway** after viewing the warning. This creates a short-lived, single-use approval and continues the native DELETE once. Cancel performs no DELETE.
+- Jellyfin's native deletion permissions are never bypassed. Ordinary users cannot approve protected deletions; API keys and unsupported credential forms are not approval identities.
+- The guard covers only the verified `LibraryController.DeleteItem` and `DeleteItems` HTTP actions on the qualified Jellyfin 12.2.0 host, **not** filesystem removal, Sonarr/Radarr/Tdarr changes, internal cleanup or arbitrary other APIs.
 
-- Personal memberships and preferences retain their schema-1 JSON files. Settings, user IDs, media IDs and plugin GUID are unchanged.
-- Watchlists navigation, activity dates/history, filters, native context-menu actions, detail controls and administrator-only cross-user information are preserved.
-- Supported movie, series, season and episode deletion uses fresh per-title protection for **all interested users, including you**. Watchlist, unfinished viewing and active playback warn. Verified Caught Up interest in a continuing series also warns by default; administrators can disable only that reason. Completed ended-series history alone does not protect. Cancel sends no DELETE; override calls native deletion once. Native permissions are unchanged. Jellyfin's generic cancellation error remains.
-- Default protection remains advisory and Web-only. Opt-in server enforcement covers only the two verified native HTTP item-deletion routes; protected requests require a fresh, single-use administrator approval. Clients without approval support are rejected for protected media, and API keys cannot delete through the enabled guard. Filesystem changes and internal/external cleanup remain outside coverage. Unsupported scopes fail closed. Settings must show actual compatible attachment, not merely a checked checkbox.
-- The authenticated loader uses Blob script execution. CSP must permit it; a missing CSP response header alone is not proof of browser execution. Loading failure means no adapter, not successful protection.
-- Only native Jellyfin 12.2 Web entry responses and tested layouts/pipeline are qualified. Custom Web bundles, future Jellyfin releases and unusual proxy/middleware/CSP policies need revalidation. Old tabs require a full reload after every upgrade/rollback.
-- Continuing series with verified watched aired episodes show **Caught Up** under the existing Watching filter. Missing coverage or unknown air dates prevent this classification; ended/unknown-status behavior is retained.
-- Activity discovery is bounded; completed history does not become a permanent watchlist entry. Favorites and media metadata are never used for persistence.
+Unsupported native/TV/mobile clients may not implement the approval flow and may therefore be unable to delete protected media. Jellyfin Web's generic deletion error after clicking WatchGuard **Cancel** is a known upstream UI limitation; Cancel still issues **zero** DELETE requests.
 
-The qualified LinuxServer image and Caddy HTTPS/compression results, plus remaining uncertainty about `jellyfin.dave-cave.com`, are recorded in [standalone release notes](docs/standalone-release.md). No production changes were made.
+See [server enforcement and its boundaries](docs/server-enforcement-v049.md), [security model](docs/server-enforcement-security-v049.md), and [v0.4.10 approval security](docs/deployment-agnostic-security-v0410.md).
 
-## Build and test
+## Networking and reverse proxies
 
-Use the SDK pinned by `global.json` (10.0.302):
+WatchGuard does **not** require hardcoded Caddy/Nginx/Traefik container IPs of its own. It uses native Jellyfin authentication and validated browser request-origin evidence. For some HTTPS-to-HTTP proxy configurations, it can validate an approval even without Jellyfin's `KnownProxies` entry.
+
+**That does not validate Jellyfin's networking security.** When Jellyfin is behind a reverse proxy, configure **Jellyfin Dashboard → Networking → Known Proxies** and proper forwarding of the real client address. Without native proxy trust, Jellyfin may incorrectly classify remote clients as local, affecting its remote-access permissions and other network policies. Direct connections need no trusted-proxy entry. Never trust arbitrary `X-Forwarded-*` headers to make an approval test pass.
+
+The dashboard distinguishes approval POST readiness from **Jellyfin client-IP forwarding / remote-access restrictions: NOT VERIFIED**. See [proxy compatibility and limitations](docs/proxy-compatibility-v0410.md) and [Jellyfin's reverse-proxy guidance](https://jellyfin.org/docs/general/post-install/networking/reverse-proxy/). Cloudflare Tunnel is not independently certified by WatchGuard's tunnel-style fixture.
+
+## Activity and compatibility boundaries
+
+Playback-derived interest is a **bounded snapshot, not an exhaustive library audit**. Missing air dates, restricted episode visibility and safety limits can prevent a confident Caught Up classification. Missing entries in the overview never authorize deletion: deletion checks independently re-evaluate the exact target. Completed history alone is not a permanent watchlist membership.
+
+The supported Web integration is version-specific. Future Jellyfin Server/Web versions, custom Web bundles, native TV/mobile apps, nonstandard proxies and restrictive CSPs require separate compatibility testing. The loader uses Blob scripts; successful server delivery alone does not prove that the current browser executed the adapter.
+
+## Development and verification
+
+Build using the SDK pinned in [global.json](global.json) (**10.0.302**):
 
 ```sh
-python3 scripts/build-release.py
+dotnet restore Jellyfin.Plugin.WatchGuard.slnx --locked-mode
 dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release
 node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs
+python3 scripts/build-release.py
 python3 tests/catalog_test.py
-python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
+python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip
 ```
 
-Outputs: `artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip` and `.zip.sha256`. The deterministic archive contains only `Jellyfin.Plugin.WatchGuard.dll` and `LICENSE`; Web assets are embedded. Package/assembly version is `0.4.9.0`, target ABI `12.2.0.0`, GUID `a3c6bc84-783d-4ba8-a0db-89bfb83ab486`.
+The release packager produces a deterministic ZIP containing only the WatchGuard DLL and LICENSE; Web resources are embedded. Building and testing do **not** publish releases or modify the public catalog. The optional full GitHub Actions release workflow defaults to `publish=false`; it tests disposable Jellyfin instances and generated media. **Do not point fixture scripts at production media.**
 
-Docker/browser regressions use disposable configuration and generated media. See [v0.4.9 qualification](docs/server-enforcement-v049.md), [catalog workflow](docs/plugin-repository.md), and [deployment](docs/deployment.md). The release workflow defaults to validation only; this task does not publish, update the public manifest or deploy.
+See the [documentation index](docs/README.md) for the current security, deployment and test references, plus historical version-specific research retained for audit and rollback.
 
-For v0.4.8 performance results, timing-field definitions, unchanged safety limits and memory tradeoffs, see [episode queries](docs/episode-query-performance-v048.md). Synthetic native results are not production latency guarantees.
+## License
+
+[GPL-3.0](LICENSE).
