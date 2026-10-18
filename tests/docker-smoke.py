@@ -244,7 +244,7 @@ def main():
                     print('Deployment checks passed: v0.3.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
             if options.standalone:
                 saved = {p:p.read_bytes() for p in (plugins/'Jellyfin.Plugin.WatchGuard').glob('*.json')}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.4.10.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.5.0.0','DELETE',token=token,expected=204)
                 restart()
                 assert 'watchguard-standalone-loader' not in call('/web/index.html',raw=True)
                 call('/WatchGuard/Standalone/bootstrap.js',expected=404)
