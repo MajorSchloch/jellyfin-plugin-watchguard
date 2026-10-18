@@ -39,32 +39,35 @@ class CatalogTests(unittest.TestCase):
         archive=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.5.0.zip')
         published=json.loads(Path('manifest.json').read_text())
         self.assertTrue(any(v['version']=='0.4.1.0' for v in published[0]['versions']))
-        # Preparation must preserve every published entry, including v0.4.1.
-        # The entire real public history, including published v0.4.10, must
-        # remain byte-for-byte unchanged while preparing the new v0.5.0 entry.
+        # Exercise a synthetic future release so publication of the current
+        # version never invalidates this check. Preserve the entire real history.
         original=json.loads(json.dumps(published))
         self.assertTrue(any(v['version']=='0.4.10.0' for v in original[0]['versions']))
-        self.assertFalse(any(v['version']=='0.5.0.0' for v in original[0]['versions']))
+        latest=max(tuple(map(int,v['version'].split('.'))) for v in original[0]['versions'])
+        version=f'{latest[0]}.{latest[1]}.{latest[2]+1}.0'
+        tag='v'+version.removesuffix('.0')
+        asset_name=f'Jellyfin.Plugin.WatchGuard-{tag}.zip'
+        self.assertFalse(any(v['version']==version for v in original[0]['versions']))
         self.assertTrue(any(v['version']=='0.3.1.0' for v in original[0]['versions']))
         self.assertTrue(any(v['version']=='0.4.0.0' for v in original[0]['versions']))
-        base='https://github.com/Fixture/WatchGuard/releases/download/v0.5.0/'
+        base=f'https://github.com/Fixture/WatchGuard/releases/download/{tag}/'
         release={'draft':False,'prerelease':False,'published_at':'2026-10-12T00:00:00Z','assets':[
-            {'name':archive.name,'browser_download_url':base+archive.name},
-            {'name':archive.name+'.sha256','browser_download_url':base+archive.name+'.sha256'}]}
+            {'name':asset_name,'browser_download_url':base+asset_name},
+            {'name':asset_name+'.sha256','browser_download_url':base+asset_name+'.sha256'}]}
         def download(url,destination):
             if '/releases/tags/' in url: content=json.dumps(release).encode()
-            elif url.endswith('.sha256'): content=archive.with_suffix('.zip.sha256').read_bytes()
+            elif url.endswith('.sha256'): content=f'{catalog.inspect_zip(archive)[1]}  {asset_name}\n'.encode()
             else: content=archive.read_bytes()
             Path(destination).write_bytes(content)
         with tempfile.TemporaryDirectory() as temp, patch.object(catalog,'download',download):
             manifest=Path(temp)/'manifest.json';manifest.write_text(json.dumps(original))
-            catalog.add_release(manifest,'Fixture/WatchGuard','v0.5.0',archive)
+            catalog.add_release(manifest,'Fixture/WatchGuard',tag,archive)
             updated=json.loads(manifest.read_text())
             for old in original[0]['versions']:
                 self.assertEqual(next(v for v in updated[0]['versions'] if v['version']==old['version']),old)
-            self.assertEqual(updated[0]['versions'][0]['version'],'0.5.0.0')
+            self.assertEqual(updated[0]['versions'][0]['version'],version)
             saved=manifest.read_bytes();release['published_at']='2026-10-13T00:00:00Z'
-            with self.assertRaises(ValueError):catalog.add_release(manifest,'Fixture/WatchGuard','v0.5.0',archive)
+            with self.assertRaises(ValueError):catalog.add_release(manifest,'Fixture/WatchGuard',tag,archive)
             self.assertEqual(manifest.read_bytes(),saved)
 
 if __name__=='__main__':unittest.main()

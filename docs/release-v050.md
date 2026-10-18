@@ -1,6 +1,6 @@
 # WatchGuard v0.5.0 — Watchlist-added dates
 
-**Status: unreleased development candidate. Do not install or publish until full qualification and explicit release approval.** The latest public catalog release remains v0.4.10.
+**Published 2026-10-18:** [WatchGuard v0.5.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.0). The public Jellyfin catalog lists `0.5.0.0`.
 
 Target: Jellyfin Server/Web 12.2.0, .NET 10. The plugin GUID, native deletion guard, approval protocols, original watchlist JSON, preference schema and existing configuration are unchanged.
 
@@ -28,17 +28,21 @@ Dates are returned only with authorized explicit membership data: current accoun
 
 This release does **not** add mobile/TV client integration, Sonarr/Radarr/Tdarr filesystem protection or broader Jellyfin server compatibility.
 
-## Verification before release
+## Verified release results
 
-- Unit tests: legacy schema roundtrip, unknown legacy date, idempotency, remove/re-add, per-user isolation, corrupted sidecar preservation, parallel writes and legacy file-replacement invalidation.
-- Browser tests: Date/unknown labels, owner-filtered sorting, independent playback dates, safe literal rendering and refusal to save the rollback-incompatible `added` default.
-- Full disposable Docker release matrix on the **exact final candidate**, with published v0.4.10 checksum-verified rollback, native upgrade/restart, Web/API contracts, and storage persistence. No production media or accounts.
-- Two identical reproducible candidate ZIP builds, release checksums, and explicit release approval before `publish=true`.
+The [publication run 39134889908](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39134889908) qualified source commit `a1a5b877f9dcad9f6d354977ffa52adc976fcfb6` and published v0.5.0 on 2026-10-18. The build, all ten integration jobs and the gated publish job passed.
 
-This document is the draft release-notes source for the future v0.5.0 publication. It makes **no** claim that the candidate has been published, installed or fully qualified.
+- **188 backend tests** and **95 JavaScript/bootstrap/server-enforcement tests** passed, covering timestamp storage, unknown dates, rollback-compatible preferences and existing deletion safeguards.
+- **14 Python infrastructure checks** and **4 catalog tests** passed against the pre-publication source tree.
+- **All ten disposable integration suites passed:** standalone + Caddy, migration, official-image base path, legacy, WebSocket, discovery, verification, and server enforcement on official-image direct, official-image base path and LinuxServer.io installations. The official direct server-enforcement job used `WATCHGUARD_PROXY_MATRIX=1` for the extended proxy matrix.
+- The workflow verified the published v0.4.10 rollback ZIP, exercised upgrade/rollback and storage persistence, and compared performance models against the published v0.4.7 baseline. Only disposable media and accounts were used.
+- Two release builds produced identical ZIP checksums; catalog validation checked the runtime-file allowlist and checksum sidecar before publication.
 
-### First hosted qualification — blocked by a stale fixture version
+Published ZIP SHA-256: `a9ff9255785761aed574e0ac0d14535445461a3de6da5f4d3eb32f5dd300332b`.
+Jellyfin catalog MD5: `c9df7d223b304c077409cd3ada732a76`.
 
-[Run 39129611260](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39129611260), on `ed924bd`, passed the build, legacy suite and all three server-enforcement suites. The other six suites all stopped at the same `backend-smoke.py` assertion, which still expected v0.4.10 from the v0.5.0 candidate. Standalone catalog rollback/upgrade checks completed before that assertion, but later browser and performance phases in the affected suites were not reached.
+### Qualification history
 
-The shared check now reads the candidate version from `Directory.Build.props`; the published Injector baseline remains pinned to v0.3.1. Fast regression tests reproduce the original rejection of v0.5.0 and acceptance of stale v0.4.10, then verify the corrected version check and unchanged readiness assertions. A **new full workflow run on the corrected branch**, with `publish=false` and `proxy_matrix=true`, is still required. Re-running the old run would test the old commit again.
+[Run 39129611260](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39129611260), on `ed924bd`, passed the build, legacy suite and all three server-enforcement suites. The other six suites stopped at a stale `backend-smoke.py` assertion expecting v0.4.10; their later browser/performance phases were not reached.
+
+The shared check was corrected to read the candidate version from `Directory.Build.props`, retaining the pinned v0.3.1 Injector baseline. [Run 39131683055](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39131683055), on `3b349734fa866e3dd52e114043200362048b97e0`, then passed the build and all ten integration jobs with publication skipped. The final publication run above repeated qualification on the merged release commit and passed. The earlier fixture failure is resolved; it is not a pending release gate.

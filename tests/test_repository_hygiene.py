@@ -6,10 +6,14 @@ import unittest
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
+CATALOG = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
+CURRENT_VERSION = CATALOG[0]["versions"][0]["version"]
+RELEASE_VERSION = CURRENT_VERSION.removesuffix(".0")
+CURRENT_RELEASE_DOC = ROOT / "docs" / f"release-v{RELEASE_VERSION.replace('.', '')}.md"
 DOCS = [
     ROOT / "README.md",
     ROOT / "docs/README.md",
-    ROOT / "docs/release-v0410.md",
+    CURRENT_RELEASE_DOC,
     ROOT / "docs/validation.md",
 ]
 
@@ -19,9 +23,15 @@ class RepositoryHygieneTests(unittest.TestCase):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         match = re.search(r"Current release:\s*\[v(\d+\.\d+\.\d+)\]", readme)
         self.assertIsNotNone(match, "README must state the latest published release")
-        catalog = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
-        self.assertEqual(catalog[0]["versions"][0]["version"], match.group(1) + ".0")
-        self.assertIn("v" + match.group(1), (ROOT / "docs/release-v0410.md").read_text(encoding="utf-8"))
+        self.assertEqual(CURRENT_VERSION, match.group(1) + ".0")
+        self.assertTrue(CURRENT_RELEASE_DOC.is_file(), "Current catalog release notes must exist")
+        notes = CURRENT_RELEASE_DOC.read_text(encoding="utf-8")
+        self.assertTrue(notes.startswith(f"# WatchGuard v{RELEASE_VERSION} —"))
+        self.assertIn("**Published ", notes)
+        for name in ["docs/README.md", "docs/validation.md"]:
+            with self.subTest(document=name):
+                source = (ROOT / name).read_text(encoding="utf-8")
+                self.assertRegex(source, rf"Current published version:.*\[.*v{re.escape(RELEASE_VERSION)}\]")
 
     def test_historical_template_artifacts_are_not_tracked(self):
         for name in [

@@ -1,4 +1,4 @@
-> **Current v0.4.10 settings:** See the [published installation and server-enforcement guide](../README.md#server-side-deletion-protection) and [current validation](validation.md). Earlier sections below describe the version in their heading; the final section documents the v0.4.10 approval/proxy diagnostic distinction.
+> **Current v0.5.0 settings (unchanged from v0.4.10):** See the [published installation and server-enforcement guide](../README.md#server-side-deletion-protection) and [current validation](validation.md). Earlier sections below describe the version in their heading; the final section documents the v0.4.10 approval/proxy diagnostic distinction.
 
 > **v0.4.3:** `ProtectCaughtUpSeries` defaults to true; saves apply immediately to fresh protection requests. Existing XML without the property gets true; explicit false is retained. It adds only verified continuing-series Caught Up protection. See [policy and rollback](caught-up-protection.md). Standalone integration diagnostics remain unchanged. Historical registration descriptions below apply to v0.3.1 only.
 
