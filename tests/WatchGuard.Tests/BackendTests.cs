@@ -2,6 +2,7 @@ using Jellyfin.Data.Enums;
 using Jellyfin.Data;
 using Jellyfin.Database.Implementations.Entities;
 using Jellyfin.Database.Implementations.Enums;
+using Jellyfin.Extensions.Json;
 using Jellyfin.Plugin.WatchGuard;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
@@ -156,6 +157,82 @@ public sealed class BackendTests : IDisposable
     }
 
     public void Dispose() { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
+
+    [Fact]
+    public async Task AddedDatesAreExposedOnlyThroughAuthorizedExplicitMemberships()
+    {
+        store.Set(alice.Id, movie.Id, true);
+        var ownResponse = Assert.IsType<OkObjectResult>(await Controller().List());
+        var own = System.Text.Json.JsonSerializer.SerializeToElement(ownResponse.Value, JsonDefaults.PascalCaseOptions);
+        var first = Assert.Single(own.EnumerateArray());
+        Assert.Equal(movie.Id, Guid.Parse(first.GetProperty("ItemId").GetString()!));
+        Assert.Equal(System.Text.Json.JsonValueKind.String, first.GetProperty("AddedAtUtc").ValueKind);
+
+        SignIn(bob);
+        var otherResponse = Assert.IsType<OkObjectResult>(await Controller().List());
+        Assert.Empty(System.Text.Json.JsonSerializer.SerializeToElement(otherResponse.Value, JsonDefaults.PascalCaseOptions).EnumerateArray());
+        Assert.IsType<ForbidResult>(await Controller().AllWatchlists());
+
+        store.Set(bob.Id, movie.Id, true);
+        SignIn(alice);
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var all = Assert.Single(Assert.IsType<SharedWatchlistItem[]>(
+            Assert.IsType<OkObjectResult>(await Controller().AllWatchlists()).Value));
+        Assert.All(all.Users, owner => Assert.NotNull(owner.AddedAtUtc));
+        Assert.Equal(new[] {alice.Id, bob.Id}.Order(), all.Users.Select(o => o.UserId).Order());
+
+        // Supplemental dates never affect authoritative watchlist interest.
+        Assert.True(Status().HasInterest);
+        Assert.Equal(2, store.Read().Length);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task UnknownAddedDatesRemainExplicitWithNativeJsonOptions(bool camelCase, bool invalidatedDates)
+    {
+        if (invalidatedDates)
+        {
+            store.Set(alice.Id, movie.Id, true);
+            store.Set(bob.Id, movie.Id, true);
+            var path = Path.Combine(directory, "watchlists.json");
+            File.SetLastWriteTimeUtc(path, File.GetLastWriteTimeUtc(path).AddSeconds(3));
+        }
+        else
+        {
+            Directory.CreateDirectory(directory);
+            // A real schema-1 membership without any v0.5.0 metadata.
+            await File.WriteAllTextAsync(Path.Combine(directory, "watchlists.json"),
+                System.Text.Json.JsonSerializer.Serialize(new WatchlistDocument(1,
+                    [new(alice.Id, movie.Id), new(bob.Id, movie.Id)])));
+        }
+
+        var options = camelCase ? JsonDefaults.CamelCaseOptions : JsonDefaults.PascalCaseOptions;
+        Assert.Equal(System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull, options.DefaultIgnoreCondition);
+        var addedProperty = camelCase ? "addedAtUtc" : "AddedAtUtc";
+        var usersProperty = camelCase ? "users" : "Users";
+        var own = Assert.IsType<OkObjectResult>(await Controller().List());
+        var ownItem = Assert.Single(System.Text.Json.JsonSerializer.SerializeToElement(own.Value, options).EnumerateArray());
+        Assert.Equal(System.Text.Json.JsonValueKind.Null, ownItem.GetProperty(addedProperty).ValueKind);
+
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        foreach (var response in new[] { await Controller().AllWatchlists(), await Controller().UserWatchlist(bob.Id) })
+        {
+            var result = Assert.IsType<OkObjectResult>(response);
+            var item = Assert.Single(System.Text.Json.JsonSerializer.SerializeToElement(result.Value, options).EnumerateArray());
+            var owners = item.GetProperty(usersProperty).EnumerateArray().ToArray();
+            Assert.NotEmpty(owners);
+            Assert.All(owners, owner => Assert.Equal(System.Text.Json.JsonValueKind.Null, owner.GetProperty(addedProperty).ValueKind));
+        }
+
+        // The user directory describes accounts, not watchlist memberships.
+        var directoryResponse = Assert.IsType<OkObjectResult>(await Controller().OverviewUsers());
+        Assert.All(System.Text.Json.JsonSerializer.SerializeToElement(directoryResponse.Value, options).EnumerateArray(),
+            owner => Assert.False(owner.TryGetProperty(addedProperty, out _)));
+        Assert.True(Status().HasInterest);
+    }
 
     [Fact]
     public async Task CrudIsIdempotentAndIsolated()
@@ -370,7 +447,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 4, 10, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 5, 0, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.True(new Configuration().ProtectCaughtUpSeries);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());

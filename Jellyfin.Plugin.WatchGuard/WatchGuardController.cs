@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Jellyfin.Data;
 using Jellyfin.Database.Implementations.Enums;
 using MediaBrowser.Controller.Entities;
@@ -42,9 +43,10 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         var user = await CurrentUser();
         if (user is null) return Unauthorized();
         using var timing = OverviewTiming.Begin("ExplicitMemberships", logger);
-        var items = store.Read().Where(e => e.UserId == user.Id)
-            .Select(e => library.GetItemById<BaseItem>(e.ItemId, user))
-            .Where(InterestService.Supported).Select(i => new { ItemId = i!.Id, Name = i.Name }).ToArray();
+        var items = store.ReadDated().Where(e => e.UserId == user.Id)
+            .Select(e => new { Membership = e, Item = library.GetItemById<BaseItem>(e.ItemId, user) })
+            .Where(e => InterestService.Supported(e.Item))
+            .Select(e => new WatchlistItem(e.Item!.Id, e.Item.Name, e.Membership.AddedAtUtc)).ToArray();
         return Ok(items);
     });
 
@@ -67,7 +69,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         if (caller is null) return Unauthorized();
         if (!caller.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         return Ok(users.GetUsers().Where(u => !u.HasPermission(PermissionKind.IsDisabled))
-            .Select(u => new WatchlistOwner(u.Id, u.Username)).OrderBy(u => u.DisplayName).ToArray());
+            .Select(u => new { UserId = u.Id, DisplayName = u.Username }).OrderBy(u => u.DisplayName).ToArray());
     });
 
     private Task<IActionResult> WatchlistsCore(Guid? userId) => Execute(async () =>
@@ -77,7 +79,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         if (!caller.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         using var timing = OverviewTiming.Begin("ExplicitMemberships", logger);
         var result = new List<SharedWatchlistItem>();
-        foreach (var group in store.Read().Where(e => !userId.HasValue || e.UserId == userId).GroupBy(e => e.ItemId))
+        foreach (var group in store.ReadDated().Where(e => !userId.HasValue || e.UserId == userId).GroupBy(e => e.ItemId))
         {
             var item = library.GetItemById<BaseItem>(group.Key, caller);
             if (!InterestService.Supported(item)) continue;
@@ -87,7 +89,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
                 var owner = users.GetUserById(entry.UserId);
                 if (owner is null || owner.HasPermission(PermissionKind.IsDisabled)) continue;
                 if (!InterestService.Supported(library.GetItemById<BaseItem>(entry.ItemId, owner))) continue;
-                owners.Add(new(owner.Id, owner.Username));
+                owners.Add(new(owner.Id, owner.Username, entry.AddedAtUtc));
             }
             if (owners.Count > 0) result.Add(new(item!.Id, item.Name,
                 owners.OrderBy(o => o.DisplayName, StringComparer.OrdinalIgnoreCase).ThenBy(o => o.UserId).ToArray()));
@@ -162,5 +164,10 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
     });
 }
 
-public sealed record WatchlistOwner(Guid UserId, string DisplayName);
+// Jellyfin omits null properties by default. Explicit null distinguishes an
+// unknown membership date from an older server that does not expose dates.
+public sealed record WatchlistItem(Guid ItemId, string Name,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] DateTimeOffset? AddedAtUtc);
+public sealed record WatchlistOwner(Guid UserId, string DisplayName,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.Never)] DateTimeOffset? AddedAtUtc = null);
 public sealed record SharedWatchlistItem(Guid ItemId, string Name, WatchlistOwner[] Users);

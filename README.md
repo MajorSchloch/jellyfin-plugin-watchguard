@@ -59,6 +59,10 @@ Playback-derived interest is a **bounded snapshot, not an exhaustive library aud
 
 The supported Web integration is version-specific. Future Jellyfin Server/Web versions, custom Web bundles, native TV/mobile apps, nonstandard proxies and restrictive CSPs require separate compatibility testing. The loader uses Blob scripts; successful server delivery alone does not prove that the current browser executed the adapter.
 
+## Unreleased v0.5.0 development
+
+The `feature/v050-watchlist-timestamps` branch builds a **v0.5.0 release candidate**, not the current published v0.4.10. It adds newly recorded, per-user Watchlist-added dates and the URL/bookmarkable **Recently added** sort. Legacy timestamps remain unknown, and the existing `preferences.json` schema cannot persist that new sort as a saved default. See [v0.5.0 storage and rollback design](docs/watchlist-dates-v050.md) and the [draft release notes](docs/release-v050.md). Do **not** publish or deploy until the separate candidate qualification and approval pass.
+
 ## Development and verification
 
 Build using the SDK pinned in [global.json](global.json) (**10.0.302**):
@@ -69,7 +73,7 @@ dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release
 node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs
 python3 scripts/build-release.py
 python3 tests/catalog_test.py
-python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip
+python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.5.0.zip
 ```
 
 The release packager produces a deterministic ZIP containing only the WatchGuard DLL and LICENSE; Web resources are embedded. Building and testing do **not** publish releases or modify the public catalog. The optional full GitHub Actions release workflow defaults to `publish=false`; it tests disposable Jellyfin instances and generated media. **Do not point fixture scripts at production media.**

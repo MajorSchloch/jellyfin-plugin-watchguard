@@ -555,3 +555,74 @@ test('Structured activity coverage retains material warnings and old-server fall
  assert.match(coveragePresentation('Unknown',true,{...info,Warnings:[]}).warning,/safety limit/);
  assert.match(coveragePresentation('Unknown',false,{...info,ActivityWindowDays:999}).warning,/Unknown/);
 });
+
+test('Recently added sorts by the filtered owner dates, with legacy/automatic titles last',()=>{
+    const newDate='2026-10-18T11:30:00Z', olderDate='2026-10-17T10:00:00Z';
+    const items=[
+        {ItemId:'1'.repeat(32),Name:'Legacy',Users:[{UserId:me,DisplayName:'Me',Reasons:['Watchlisted'],AddedAtUtc:null}]},
+        {ItemId:'2'.repeat(32),Name:'Recent',Users:[
+            {UserId:me,DisplayName:'Me',Reasons:['Watchlisted'],AddedAtUtc:olderDate},
+            {UserId:other,DisplayName:'Other',Reasons:['Watchlisted','InProgress'],AddedAtUtc:newDate}]},
+        {ItemId:'3'.repeat(32),Name:'Today',Users:[{UserId:me,DisplayName:'Me',Reasons:['Watchlisted'],AddedAtUtc:newDate}]},
+        {ItemId:'4'.repeat(32),Name:'Playback only',Users:[{UserId:me,DisplayName:'Me',Reasons:['InProgress'],LastPlayedDate:newDate}]}
+    ];
+    assert.deepEqual(selectInterest(items,'all',me,'all','added').map(e=>e.Name),
+        ['Recent','Today','Legacy','Playback only']);
+    assert.deepEqual(selectInterest(items,'mine',me,'all','added').map(e=>e.Name),
+        ['Today','Recent','Legacy','Playback only']);
+    assert.deepEqual(selectInterest(items,'all',me,'watching','added').map(e=>e.Name),
+        ['Recent','Playback only']);
+    assert.equal(selectInterest(items,other,me,'watchlisted','added').length,1);
+    assert.throws(()=>selectInterest([{ItemId:'5'.repeat(32),Name:'Forged',Users:[
+        {UserId:me,DisplayName:'Me',Reasons:['InProgress'],AddedAtUtc:newDate}]}],'mine',me,'all','added'),/Invalid interest/);
+    assert.throws(()=>selectInterest([{ItemId:'5'.repeat(32),Name:'Invalid',Users:[
+        {UserId:me,DisplayName:'Me',Reasons:['Watchlisted'],AddedAtUtc:'not a date'}]}],'mine',me,'all','added'),/Invalid interest/);
+});
+
+test('Watchlist dates survive activity merge and never masquerade as playback history',()=>{
+    const {mergeInterest}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const date='2026-10-18T11:30:00Z', played='2026-10-17T09:00:00Z';
+    const explicit=[{ItemId:'6'.repeat(32),Name:'Date example',Users:[{
+        UserId:me,DisplayName:'Me',Reasons:['Watchlisted'],LastPlayedDate:null,AddedAtUtc:date}]}];
+    const activity=[{ItemId:'6'.repeat(32),Name:'Date example',Users:[{
+        UserId:me,DisplayName:'Me',Reasons:['InProgress'],LastPlayedDate:played}]}];
+    const merged=mergeInterest(explicit,activity);
+    const owner=merged[0].Users[0];
+    assert.equal(owner.AddedAtUtc,date);
+    assert.equal(owner.LastPlayedDate,played);
+    assert.deepEqual(owner.Reasons,['Watchlisted','InProgress']);
+    assert.equal(selectInterest(merged,'mine',me,'all','added')[0].Name,'Date example');
+});
+
+test('Watchlist owner rows render real added dates, unknown dates, and old-server rows safely',()=>{
+    const {userLine,activityText}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const date='2026-10-18T11:30:00Z';
+    const known={UserId:me,DisplayName:'<unsafe>',Reasons:['Watchlisted'],AddedAtUtc:date};
+    const row=userLine(documentFixture().doc,known);
+    const added=row.children.find(e=>e.tag==='time');
+    assert.ok(added);assert.equal(added.dateTime,date);assert.match(added.textContent,/Added /);
+    assert.match(added.attributes['aria-label'],/Added to Watchlist:/);
+    assert.match(activityText(known,true),/Added:/);
+    const unknown=userLine(documentFixture().doc,{...known,AddedAtUtc:null});
+    assert.equal(unknown.children.at(-1).textContent,'Added: unknown');
+    const old=userLine(documentFixture().doc,{UserId:me,DisplayName:'Me',Reasons:['Watchlisted']});
+    assert.equal(old.children.length,2,'Old API fixture has no timestamp field and must remain renderable');
+    assert.equal(known.DisplayName,'<unsafe>','No user text is interpreted as HTML');
+});
+
+test('Recently added can be bookmarked but cannot write an incompatible schema-1 preference',async()=>{
+    const f=progressiveFixture(true,true,null);
+    await turn();f.calls[0].resolve({Owner:'mine',Statuses:['watchlisted'],Sort:'title'});await turn();
+    assert.equal(f.calls[1].o.url,'WatchGuard/Watchlist');
+    f.calls[1].resolve([{ItemId:'c'.repeat(32),Name:'Known',AddedAtUtc:'2026-10-18T11:30:00Z'}]);await turn();
+    assert.equal(f.calls[2].o.url,'WatchGuard/ActivityOverview/Me');
+    f.calls[2].resolve({Items:[],IsComplete:false,LimitReached:false,Notice:'Not exhaustive'});await turn();
+    f.page.updateFilters('mine','watchlisted','added');
+    const toolbar=f.page.children[1],sort=toolbar.children[2].children[1];
+    assert.equal(sort.value,'added');
+    const filterPanel=toolbar.children[1].children[1],save=filterPanel.children[4];
+    const before=f.calls.length;
+    await save.onclick();
+    assert.equal(f.calls.length,before,'No invalid persisted preferences PUT');
+    assert.match(f.page.children[6].textContent,/cannot be saved as a default/);
+});

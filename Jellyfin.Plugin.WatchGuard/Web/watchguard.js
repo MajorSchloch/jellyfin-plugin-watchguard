@@ -309,6 +309,17 @@
             progress.textContent = ' · ' + owner.WatchedEpisodes + '/' + owner.AvailableEpisodes;
             progress.title = owner.WatchedEpisodes + ' of ' + owner.AvailableEpisodes + ' episodes'; progress.setAttribute('aria-label', progress.title); line.append(progress);
         }
+        if (owner.Reasons.includes('Watchlisted') && Object.hasOwn(owner, 'AddedAtUtc')) {
+            if (owner.AddedAtUtc && Number.isFinite(Date.parse(owner.AddedAtUtc))) {
+                const added = document.createElement('time'); added.dateTime = owner.AddedAtUtc; added.tabIndex = 0;
+                added.textContent = 'Added ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(new Date(owner.AddedAtUtc));
+                added.title = 'Added to Watchlist: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(owner.AddedAtUtc));
+                added.setAttribute('aria-label', added.title); line.append(added);
+            } else if (owner.AddedAtUtc === null) {
+                const unknown = document.createElement('span'); unknown.className = 'watchguard-added-unknown';
+                unknown.textContent = 'Added: unknown'; line.append(unknown);
+            }
+        }
         if (owner.LastPlayedDate && owner.Reasons.some(r => r === 'InProgress' || r === 'Watched' || r === 'CaughtUp')) {
             const date = document.createElement('time'); date.dateTime = owner.LastPlayedDate; date.tabIndex = 0;
             date.textContent = new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(new Date(owner.LastPlayedDate));
@@ -320,6 +331,10 @@
     function activityText(owner, showName) {
         let text = (showName ? owner.DisplayName + ' — ' : '') + owner.Reasons.map(r => activityReasons[r] + (r === 'CurrentlyPlaying' ? ' ●' : '')).join(' · ');
         if (owner.AvailableEpisodes != null) text += ' · ' + owner.WatchedEpisodes + '/' + owner.AvailableEpisodes + ' episodes';
+        if (owner.Reasons.includes('Watchlisted') && Object.hasOwn(owner, 'AddedAtUtc'))
+            text += owner.AddedAtUtc && Number.isFinite(Date.parse(owner.AddedAtUtc))
+                ? ' · Added: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(new Date(owner.AddedAtUtc))
+                : ' · Added: unknown';
         if (owner.LastPlayedDate && owner.Reasons.some(r => r === 'InProgress' || r === 'Watched' || r === 'CaughtUp'))
             text += ' · Last played: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'medium', timeStyle: 'short'}).format(new Date(owner.LastPlayedDate));
         return text;
@@ -337,7 +352,9 @@
             for (const u of entry.Users) {
                 if (!u || !/^[0-9a-f]{32}$/i.test(key(u.UserId)) || owners.has(key(u.UserId)) || typeof u.DisplayName !== 'string' ||
                     !Array.isArray(u.Reasons) || !u.Reasons.length || u.Reasons.some(r => !Object.hasOwn(activityReasons, r)) ||
-                    (u.LastPlayedDate != null && (typeof u.LastPlayedDate !== 'string' || !Number.isFinite(Date.parse(u.LastPlayedDate))))) throw new Error('Invalid interest');
+                    (u.LastPlayedDate != null && (typeof u.LastPlayedDate !== 'string' || !Number.isFinite(Date.parse(u.LastPlayedDate)))) ||
+                    (u.AddedAtUtc != null && (typeof u.AddedAtUtc !== 'string' || !Number.isFinite(Date.parse(u.AddedAtUtc)) ||
+                        !u.Reasons.includes('Watchlisted')))) throw new Error('Invalid interest');
                 if ((u.AvailableEpisodes == null) !== (u.WatchedEpisodes == null) ||
                     (u.AvailableEpisodes != null && (!Number.isSafeInteger(u.AvailableEpisodes) || !Number.isSafeInteger(u.WatchedEpisodes) || u.AvailableEpisodes < 0 || u.WatchedEpisodes < 0 || u.WatchedEpisodes > u.AvailableEpisodes))) throw new Error('Invalid progress');
                 owners.add(key(u.UserId));
@@ -348,7 +365,10 @@
                 IsWatchlistedByMe: entry.Users.some(u => key(u.UserId) === key(user) && u.Reasons.includes('Watchlisted')) });
         }
         const recent = item => Math.max(0, ...item.Users.map(u => u.LastPlayedDate ? Date.parse(u.LastPlayedDate) : 0));
-        return selected.sort((a, b) => (sort === 'recent' ? recent(b) - recent(a) : 0) || a.Name.localeCompare(b.Name) || a.ItemId.localeCompare(b.ItemId));
+        const added = item => Math.max(0, ...item.Users.map(u =>
+            u.Reasons.includes('Watchlisted') && u.AddedAtUtc ? Date.parse(u.AddedAtUtc) : 0));
+        return selected.sort((a, b) => (sort === 'recent' ? recent(b) - recent(a) : sort === 'added' ? added(b) - added(a) : 0) ||
+            a.Name.localeCompare(b.Name) || a.ItemId.localeCompare(b.ItemId));
     }
 
     // Merge independent snapshots by stable IDs; automatic interest never becomes membership.
@@ -366,6 +386,11 @@
                         previous.Reasons = [...new Set([...previous.Reasons, ...owner.Reasons])];
                         if (owner.AvailableEpisodes != null) { previous.AvailableEpisodes = owner.AvailableEpisodes; previous.WatchedEpisodes = owner.WatchedEpisodes; }
                         if (owner.LastPlayedDate && (!previous.LastPlayedDate || Date.parse(owner.LastPlayedDate) > Date.parse(previous.LastPlayedDate))) previous.LastPlayedDate = owner.LastPlayedDate;
+                        if (owner.Reasons.includes('Watchlisted') && Object.hasOwn(owner, 'AddedAtUtc')) {
+                            if (Object.hasOwn(previous, 'AddedAtUtc') && previous.AddedAtUtc !== owner.AddedAtUtc)
+                                throw new Error('Conflicting watchlist dates');
+                            previous.AddedAtUtc = owner.AddedAtUtc;
+                        }
                     }
                 }
             }
@@ -433,7 +458,7 @@
         let raw = {owner: filter, interest: options.interest, sort: options.sort};
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
         let kind = selectedStatuses(options.interest);
-        let sort = options.sort === 'recent' ? 'recent' : 'title';
+        let sort = ['title', 'recent', 'added'].includes(options.sort) ? options.sort : 'title';
         const page = document.createElement('section'); page.className = 'watchguard-page padded-left padded-right';
         page.setAttribute('role', 'region'); page.setAttribute('aria-label', 'Watchlists');
         const heading = document.createElement('h1'); heading.className = 'sectionTitle'; heading.textContent = 'Watchlists';
@@ -474,6 +499,10 @@
         const save = document.createElement('button'); save.type = 'button'; save.className = 'emby-button button-flat'; save.textContent = 'Save view as defaults';
         save.onclick = async () => {
             if (!active()) return;
+            if (sort === 'added') {
+                preferenceMessage.textContent = 'Recently added cannot be saved as a default in the older preferences format. Bookmark this view instead.';
+                return;
+            }
             save.disabled = true;
             try {
                 const result = await preferenceRequest(api, 'PUT', {Owner: admin ? filter || 'mine' : 'mine', Statuses: [...kind], Sort: sort});
@@ -485,8 +514,8 @@
         choicesPanel.append(reset); interestFilter.append(summary, choicesPanel);
         interestFilter.addEventListener('keydown', event => { if (event.key === 'Escape') { interestFilter.open = false; summary.focus(); event.preventDefault(); } });
         document.addEventListener?.('pointerdown', event => { if (!interestFilter.contains(event.target)) interestFilter.open = false; }, {signal});
-        const order = dropdown('Sort by', [['title', 'Title'], ['recent', 'Playback recency'], ['added', 'Watchlist date — not recorded', true]]); order.value = sort;
-        order.title = 'Playback recency uses available native dates; unknown dates sort last. Watchlist add dates are not stored.';
+        const order = dropdown('Sort by', [['title', 'Title'], ['recent', 'Playback recency'], ['added', 'Recently added']]); order.value = sort;
+        order.title = 'Recently added uses recorded watchlist dates for the selected owners; older/unknown dates sort last. Playback recency uses native viewing dates.';
         const refresh = document.createElement('button'); refresh.className = 'emby-button button-flat watchguard-refresh'; refresh.type = 'button'; refresh.title = 'Refresh'; refresh.setAttribute('aria-label', 'Refresh');
         const refreshIcon = document.createElement('span'); refreshIcon.className = 'material-icons'; refreshIcon.textContent = 'refresh'; refreshIcon.setAttribute('aria-hidden', 'true'); refresh.append(refreshIcon);
         const ownerGroup = document.createElement('label'); ownerGroup.className = 'watchguard-toolbar-field';
@@ -610,7 +639,7 @@
                     if (!current()) return;
                     preferencesLoaded = true;
                     const view = preferenceView(saved, raw.owner, raw.interest, raw.sort);
-                    filter = view.owner; kind = selectedStatuses(view.interest); sort = view.sort === 'recent' ? 'recent' : 'title';
+                    filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
                 }
                 const scope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
                 loadedScope = scope;
@@ -624,7 +653,10 @@
                     const result = await request(api, scope === 'mine' ? 'Watchlist' : scope === 'all' ? 'Watchlists' : 'Watchlists/' + encodeURIComponent(scope));
                     if (!current()) return;
                     if (!Array.isArray(result)) throw new Error('Invalid memberships');
-                    const entries = result.map(e => ({ ...e, Users: (scope !== 'mine' ? e.Users : [{ UserId: user, DisplayName: account.Name || 'You' }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
+                    const entries = result.map(e => ({ ...e, Users: (scope !== 'mine' ? e.Users : [{
+                        UserId: user, DisplayName: account.Name || 'You',
+                        ...(Object.hasOwn(e, 'AddedAtUtc') ? { AddedAtUtc: e.AddedAtUtc } : {})
+                    }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
                     selectInterest(entries, 'all', user); explicit = entries;
                 } catch { if (!current()) return; explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
                 automatic = []; render(); // Paint memberships before issuing expensive discovery.
@@ -643,7 +675,7 @@
         page.updateFilters = (owner, interest, sorting) => {
             raw = {owner, interest, sort: sorting};
             const view = preferenceView(saved, owner, interest, sorting);
-            filter = view.owner; kind = selectedStatuses(view.interest); sort = view.sort === 'recent' ? 'recent' : 'title';
+            filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
             if (loadedScope && nextScope !== loadedScope) { explicit = []; automatic = []; pending = true; render(); load(); } else render();
         };
@@ -887,7 +919,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-page .watchguard-user-line:last-child {border-bottom:0}
         .watchguard-page .watchguard-user {overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
         .watchguard-page .watchguard-status-icons {flex-wrap:wrap;max-width:2.8rem;border-radius:.25rem;background:#252a30;padding:.15rem}
-        .watchguard-page .watchguard-user-line time {font-size:.85em;opacity:.8;margin-inline-start:.15rem}
+        .watchguard-page .watchguard-user-line :is(time,.watchguard-added-unknown) {grid-column:1/-1;font-size:.85em;opacity:.8;margin-inline-start:.15rem}
         .watchguard-page .watchguard-progress {font-variant-numeric:tabular-nums;font-size:.9em}
         .watchguard-page .watchguard-remove {width:44px;height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;border:1px solid #ffffff40}
         .watchguard-page .watchguard-remove:hover {background:#00668b}
