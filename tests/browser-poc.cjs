@@ -198,6 +198,17 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.waitForFunction(()=>!document.querySelector('.watchguard-card'));
         assert.ok(!(await myList().innerText()).includes('No matching interest'));
         await setStatuses('all');
+        if (fixture.standalone) {
+            const memberships=await api('/WatchGuard/Watchlist');
+            assert.equal(memberships.length,2);
+            assert.ok(memberships.every(e=>typeof e.AddedAtUtc==='string' && Number.isFinite(Date.parse(e.AddedAtUtc))),
+                'New candidate memberships must record actual UTC add dates');
+            const addedSort=myList().getByRole('combobox',{name:'Sort by'});
+            await addedSort.selectOption('added');
+            assert.match(page.url(),/sort=added/);
+            assert.ok((await myList().locator('.watchguard-user-line time').allInnerTexts()).some(t=>t.startsWith('Added ')),
+                'Known add dates are shown on owner rows');
+        }
         await myList().getByRole('combobox',{name:'Sort by'}).selectOption('recent');
         await myList().getByRole('combobox',{name:'Sort by'}).selectOption('title');
         assert.equal(overviewRequests,2,'filter/sort changes must not repeat discovery');
