@@ -204,7 +204,7 @@ public sealed class BackendTests : IDisposable
         {
             Directory.CreateDirectory(directory);
             // A real schema-1 membership without any v0.5.0 metadata.
-            File.WriteAllText(Path.Combine(directory, "watchlists.json"),
+            await File.WriteAllTextAsync(Path.Combine(directory, "watchlists.json"),
                 System.Text.Json.JsonSerializer.Serialize(new WatchlistDocument(1,
                     [new(alice.Id, movie.Id), new(bob.Id, movie.Id)])));
         }
