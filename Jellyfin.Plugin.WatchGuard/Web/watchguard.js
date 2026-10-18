@@ -919,7 +919,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-page .watchguard-user-line:last-child {border-bottom:0}
         .watchguard-page .watchguard-user {overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
         .watchguard-page .watchguard-status-icons {flex-wrap:wrap;max-width:2.8rem;border-radius:.25rem;background:#252a30;padding:.15rem}
-        .watchguard-page .watchguard-user-line time {font-size:.85em;opacity:.8;margin-inline-start:.15rem}
+        .watchguard-page .watchguard-user-line :is(time,.watchguard-added-unknown) {grid-column:1/-1;font-size:.85em;opacity:.8;margin-inline-start:.15rem}
         .watchguard-page .watchguard-progress {font-variant-numeric:tabular-nums;font-size:.9em}
         .watchguard-page .watchguard-remove {width:44px;height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;border:1px solid #ffffff40}
         .watchguard-page .watchguard-remove:hover {background:#00668b}
