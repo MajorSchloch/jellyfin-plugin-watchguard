@@ -21,6 +21,11 @@ Start with the repository [README](../README.md) for features, installation, lim
 - [v0.5.0 watchlist-added timestamp design](watchlist-dates-v050.md) — sidecar provenance, schema-1 rollback compatibility, unknown old dates, URL sorting and migration hazards.
 - [v0.5.0 published release notes](release-v050.md) — available through the public Jellyfin catalog; includes verified release results.
 
+## Unreleased candidate
+
+- [v0.5.1 saved Recently added defaults](saved-sort-v051.md): compatible sidecar, downgrade fallback, corruption and partial-write behavior.
+- [v0.5.1 candidate validation](release-v051.md): unpublished; public catalog remains v0.5.0.
+
 ## Maintainer and developer notes
 
 - [Build/package/catalog history](plugin-repository.md): includes historical candidate-specific procedures; use current `.github/workflows/build.yaml`, `.github/workflows/release.yaml` and `scripts/build-release.py` as the executable source of truth.

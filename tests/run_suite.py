@@ -13,7 +13,7 @@ parser.add_argument('suite',choices=['standalone-caddy','migration','basepath','
 parser.add_argument('--injector-dll',default='/tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll')
 a=parser.parse_args()
 commands={
- 'standalone-caddy':[(['tests/docker-smoke.py','--linuxserver','--catalog','--caddy'],{})],
+ 'standalone-caddy':[(['tests/docker-smoke.py','--linuxserver','--catalog','--caddy','--preference-roundtrip'],{})],
  'migration':[(['tests/docker-smoke.py','--linuxserver','--migration','--injector-dll',a.injector_dll],{})],
  'basepath':[(['tests/docker-smoke.py','--base-path','/jellyfin','--proxy'],{})],
  'legacy':[(['tests/docker-smoke.py','--legacy-injector','--catalog','--injector-dll',a.injector_dll],{}),(['tests/docker-smoke.py','--legacy-injector','--injector-dll',a.injector_dll],{})],

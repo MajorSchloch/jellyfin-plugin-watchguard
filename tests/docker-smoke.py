@@ -33,6 +33,7 @@ def main():
     parser.add_argument('--standalone', action='store_true', help='Compatibility alias; standalone is the default')
     parser.add_argument('--legacy-injector', action='store_true', help='Retained published v0.3.1 regression only')
     parser.add_argument('--qualification-upgrade', action='store_true')
+    parser.add_argument('--preference-roundtrip', action='store_true', help='Qualify saved added sort against published v0.5.0/v0.4.10')
     parser.add_argument('--standalone-catalog', action='store_true')
     parser.add_argument('--artifact', type=Path)
     parser.add_argument('--base-path', default='')
@@ -203,6 +204,9 @@ def main():
             if options.qualification_upgrade or options.migration:
                 assert options.standalone
                 installed_folder = runpy.run_path(str(ROOT/'tests/standalone-upgrade.py'))['run'](call,restart,docker,name,root,plugins,token,next(i['Id'] for i in items if i['Type']=='Movie' and i['Name']=='PoC Movie Detail'),installed_folder)
+            if options.preference_roundtrip:
+                assert options.standalone
+                runpy.run_path(str(ROOT/'tests/preference-roundtrip.py'))['run'](call,restart,docker,name,root,plugins,token,installed_folder)
             browser_base = base
             if options.proxy:
                 proxy = runpy.run_path(str(ROOT/'tests/standalone-proxy.py'))['start'](base)
@@ -244,7 +248,7 @@ def main():
                     print('Deployment checks passed: v0.3.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
             if options.standalone:
                 saved = {p:p.read_bytes() for p in (plugins/'Jellyfin.Plugin.WatchGuard').glob('*.json')}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.5.0.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.5.1.0','DELETE',token=token,expected=204)
                 restart()
                 assert 'watchguard-standalone-loader' not in call('/web/index.html',raw=True)
                 call('/WatchGuard/Standalone/bootstrap.js',expected=404)

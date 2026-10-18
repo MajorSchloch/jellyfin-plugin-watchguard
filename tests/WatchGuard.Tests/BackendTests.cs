@@ -80,6 +80,31 @@ public sealed class BackendTests : IDisposable
         SignIn(alice, true); Assert.IsType<UnauthorizedResult>(await c.Put(ViewPreferences.Defaults));
     }
     [Fact]
+    public async Task AddedPreferencesPersistWithAuthorizationAndVisibleSidecarFailures()
+    {
+        var c = Preferences();
+        Assert.IsType<OkObjectResult>(await c.Put(new("mine", ["watchlisted"], "added")));
+        c = Preferences(); // New controller/store after restart.
+        Assert.Equal("added", Assert.IsType<ViewPreferences>(Assert.IsType<OkObjectResult>(await c.Get()).Value).Sort);
+        SignIn(bob);
+        Assert.Equal("title", Assert.IsType<ViewPreferences>(Assert.IsType<OkObjectResult>(await c.Get()).Value).Sort);
+        Assert.IsType<ForbidResult>(await c.Put(new("all", [], "added")));
+        bob.SetPermission(PermissionKind.IsDisabled, true);
+        Assert.IsType<UnauthorizedResult>(await c.Put(new("mine", [], "added")));
+        Assert.IsType<UnauthorizedResult>(await c.Reset());
+        SignIn(alice, true); Assert.IsType<UnauthorizedResult>(await c.Put(new("mine", [], "added")));
+        SignIn(null); Assert.IsType<UnauthorizedResult>(await c.Put(new("mine", [], "added")));
+        SignIn(alice);
+        var primary = await File.ReadAllBytesAsync(Path.Combine(directory, "preferences.json"));
+        var sidecar = Path.Combine(directory, "preference-sorts.json");
+        await File.WriteAllTextAsync(sidecar, "corrupt");
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await c.Get()).StatusCode);
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await c.Put(ViewPreferences.Defaults)).StatusCode);
+        Assert.Equal(503, Assert.IsType<ObjectResult>(await c.Reset()).StatusCode);
+        Assert.Equal("corrupt", await File.ReadAllTextAsync(sidecar));
+        Assert.Equal(primary, await File.ReadAllBytesAsync(Path.Combine(directory, "preferences.json")));
+    }
+    [Fact]
     public async Task PreferencesRevalidateRemovedDisabledOwnersAndRevokedAdmin()
     {
         var c = Preferences(); alice.SetPermission(PermissionKind.IsAdministrator, true);
@@ -447,7 +472,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 5, 0, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 5, 1, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.True(new Configuration().ProtectCaughtUpSeries);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());

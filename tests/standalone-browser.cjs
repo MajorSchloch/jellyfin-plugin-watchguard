@@ -31,7 +31,7 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
                 // Chromium is navigating. Retry only this transient transport error.
                 if (!String(error).includes('net::ERR_NETWORK_CHANGED')) throw error;
                 console.warn('Chromium network changed on initial navigation; retrying once');
-                await readiness.setupRetry(page,{...fixture,output},restricted?'csp-login-retry':'login-retry');
+                await readiness.setupRetry(page,{...fixture,output},restricted?'csp-login-retry':'login-retry',error);
                 await page.goto('about:blank');
                 await page.goto(fixture.base+'/web/');
             }
@@ -45,7 +45,7 @@ assert.equal(fixture.standalone,true);assert.match(fixture.base,/^https?:\/\/(?:
                 const networkChanged=browserErrors.some(message=>message.includes('net::ERR_NETWORK_CHANGED'));
                 if (networkChanged) {
                     console.warn('Chromium network changed during Jellyfin Web bootstrap; retrying native login navigation once');
-                    await readiness.setupRetry(page,{...fixture,output},restricted?'csp-login-retry':'login-retry');
+                    await readiness.setupRetry(page,{...fixture,output},restricted?'csp-login-retry':'login-retry',error);
                     await page.goto('about:blank');
                     await page.goto(fixture.base+'/web/');
                     try {

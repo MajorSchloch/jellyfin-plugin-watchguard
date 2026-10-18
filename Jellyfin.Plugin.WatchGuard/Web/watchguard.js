@@ -499,10 +499,6 @@
         const save = document.createElement('button'); save.type = 'button'; save.className = 'emby-button button-flat'; save.textContent = 'Save view as defaults';
         save.onclick = async () => {
             if (!active()) return;
-            if (sort === 'added') {
-                preferenceMessage.textContent = 'Recently added cannot be saved as a default in the older preferences format. Bookmark this view instead.';
-                return;
-            }
             save.disabled = true;
             try {
                 const result = await preferenceRequest(api, 'PUT', {Owner: admin ? filter || 'mine' : 'mine', Statuses: [...kind], Sort: sort});
@@ -633,7 +629,7 @@
                     try {
                         const result = await preferenceRequest(api);
                         if (!current()) return;
-                        if (!result || typeof result.Owner !== 'string' || !Array.isArray(result.Statuses) || result.Statuses.some(s => !activityFilters[s]) || !['title','recent'].includes(result.Sort)) throw new Error('Invalid preferences');
+                        if (!result || typeof result.Owner !== 'string' || !Array.isArray(result.Statuses) || result.Statuses.some(s => !activityFilters[s]) || !['title','recent','added'].includes(result.Sort)) throw new Error('Invalid preferences');
                         saved = result;
                     } catch { if (current()) preferenceMessage.textContent = 'Saved defaults unavailable. Using URL or built-in defaults; stored data was not changed.'; }
                     if (!current()) return;
