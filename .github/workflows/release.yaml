@@ -197,6 +197,11 @@ jobs:
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.9/Jellyfin.Plugin.WatchGuard-v0.4.9.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
           echo '5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip' | sha256sum -c -
+      - name: Download and verify immutable published v0.4.10 rollback baseline
+        if: matrix.suite == 'standalone-caddy'
+        run: |
+          curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.10/Jellyfin.Plugin.WatchGuard-v0.4.10.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip
+          echo '471d99364db520a0990e4a624d73e26ae4c9f1c50404c2902c9691516667bf3e  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip' | sha256sum -c -
       - name: Complete disposable regression suite
         env:
           WATCHGUARD_PROXY_MATRIX: ${{ matrix.suite == 'server-enforcement' && inputs.proxy_matrix && '1' || '0' }}
