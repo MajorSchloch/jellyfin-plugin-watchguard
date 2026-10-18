@@ -4,6 +4,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const observations = new WeakMap();
 const setupAttempts = new WeakMap();
+const setupErrors = new WeakMap();
+const safe = text => String(text)
+    .replace(/(?:Bearer\s+|Token[=\s:]*|password[=:]\s*|api_key[=:]\s*|X-WatchGuard-Approval[=:]\s*)["']?[^\s,"']+/gi,'[REDACTED]')
+    .replace(/https?:\/\/[^\s"'<>]+/gi, value => {try {const url=new URL(value);return url.origin+url.pathname;} catch {return '[URL]';}})
+    .replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,1000);
+const errorInfo = error => error ? {name:safe(error.name || 'Error'),message:safe(error.message || error)} : undefined;
 const key = value => String(value || '').replaceAll('-', '').toLowerCase();
 async function identity(page, fixture) {
     await page.waitForFunction(() => window.ApiClient?.getCurrentUserId?.() && window.WatchGuardPoc?.isInstalled(), null, {timeout: 15000});
@@ -48,7 +54,7 @@ async function login(page, fixture) {
     // is attached. Observe real Chromium transport failures; retry only this
     // pre-authentication navigation, never an approval or DELETE.
     const observeFailure=request=>{
-        if (String(request.failure()||'').includes('ERR_NETWORK_CHANGED')) networkChanged=true;
+        if (String(request.failure()?.errorText||'').includes('ERR_NETWORK_CHANGED')) networkChanged=true;
     };
     const observeConsole=message=>{
         if (message.type()==='error' && message.text().includes('ERR_NETWORK_CHANGED')) networkChanged=true;
@@ -71,10 +77,14 @@ async function login(page, fixture) {
                 await revealManualLogin(page);
                 break;
             } catch (error) {
-                if (attempt !== 0 || !(networkChanged || String(error.message).includes('ERR_NETWORK_CHANGED'))) throw error;
+                if (attempt !== 0 || !(networkChanged || String(error.message).includes('ERR_NETWORK_CHANGED'))) {
+                    const initial=setupErrors.get(page);
+                    if(initial && error!==initial && !error.cause) error.cause=initial;
+                    throw error;
+                }
                 // Preserve screenshots, sanitized traces and timing of the
                 // initial network failure before the one permitted navigation retry.
-                await setupRetry(page,fixture,'login-network-changed');
+                await setupRetry(page,fixture,'login-network-changed',error);
                 networkChanged=false;
             }
         }
@@ -120,7 +130,6 @@ async function capture(page) {
     const events=[];
     observations.set(page,events);
     const add=event=>{if(events.length===200)events.shift();events.push({ms:Date.now(),...event});};
-    const safe=text=>String(text).replace(/(?:Bearer|Token[=\s]*|password[=:]\s*)[^\s,]+/gi,'[REDACTED]').replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,300);
     page.on('pageerror',error=>add({kind:'pageerror',message:safe(error.message)}));
     page.on('console',message=>{if(message.type()==='error')add({kind:'console-error',message:safe(message.text())});});
     page.on('framenavigated',frame=>{if(frame===page.mainFrame())add({kind:'navigation',route:new URL(frame.url()).hash.split('?')[0]});});
@@ -133,8 +142,24 @@ async function capture(page) {
     await page.context().tracing.start({screenshots:true, snapshots:false, sources:false});
 }
 async function failure(page, fixture, label, error) {
-    if (!page || !fixture.output) return;
-    const state = await page.evaluate(() => ({
+    const output=fixture.output || fixture.reportDirectory;
+    const state={failure:errorInfo(error),initialNavigationFailure:errorInfo(setupErrors.get(page)),
+        expectedBase:fixture.base ? safe(fixture.base) : undefined,
+        expectedIdentity:{userId:fixture.userId||null,serverId:fixture.serverId||null},
+        chronology:observations.get(page)||[],diagnosticFailures:[],traceStopped:false};
+    const attempt=async (stage,action)=>{
+        try {await action();return true;} catch (diagnosticError) {
+            // Report diagnostic stages separately; never replace the test error
+            // or copy exception text that may contain request credentials.
+            state.diagnosticFailures.push({stage,name:safe(diagnosticError.name || 'Error')});
+            console.warn('Browser diagnostic failed: '+stage);
+            return false;
+        }
+    };
+    if(!page)return state;
+    let ready=false,temp;
+    if(output)ready=await attempt('output-directory',()=>fs.mkdirSync(output,{recursive:true}));
+    await attempt('page-state',async()=>Object.assign(state,await page.evaluate(() => ({
         route: location.hash.split('?')[0],
         redactedUrl:location.origin+location.pathname+location.hash.split('?')[0],
         authenticated: Boolean(window.ApiClient?.getCurrentUserId?.()),
@@ -144,29 +169,45 @@ async function failure(page, fixture, label, error) {
             tag: el.tagName, classes: el.className, visible: !!el.getClientRects().length,
             open: el.open === true
         }))
-    }));
-    if(error)state.failure={name:error.name,message:String(error.message).replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]').slice(0,1000)};
-    state.expectedBase=fixture.base;
-    state.expectedIdentity={userId:fixture.userId||null,serverId:fixture.serverId||null};
-    state.chronology=observations.get(page)||[];
-    fs.mkdirSync(fixture.output, {recursive: true});
-    fs.writeFileSync(path.join(fixture.output, label + '-readiness.json'), JSON.stringify(state, null, 2));
-    await page.screenshot({path: path.join(fixture.output, label + '-failure.png')});
-    const temp=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'watchguard-trace-'));
+    }))));
+    if(ready)await attempt('screenshot',()=>page.screenshot({path:path.join(output,label+'-failure.png')}));
     try {
-        const raw=path.join(temp,'raw.zip');
-        await page.context().tracing.stop({path:raw});
-        require('node:child_process').execFileSync('python3',[path.join(__dirname,'sanitize_trace.py'),raw,path.join(fixture.output,label+'-trace.zip')]);
-    } finally { fs.rmSync(temp,{recursive:true,force:true}); }
+        if(ready)await attempt('trace-directory',()=>{temp=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'watchguard-trace-'));});
+        const raw=temp && path.join(temp,'raw.zip');
+        // Always attempt stop, including failed page capture, unwritable output,
+        // and temporary-directory failures. A rejected stop is not a clean stop.
+        state.traceStopped=await attempt('trace-stop',()=>page.context().tracing.stop(raw ? {path:raw} : undefined));
+        if(state.traceStopped && raw)await attempt('trace-sanitize',()=>{
+            const sanitized=path.join(temp,'sanitized.zip');
+            require('node:child_process').execFileSync('python3',[path.join(__dirname,'sanitize_trace.py'),raw,sanitized],{stdio:'pipe'});
+            // Never publish a raw or partially sanitized trace.
+            fs.copyFileSync(sanitized,path.join(output,label+'-trace.zip'));
+        });
+    } finally {
+        if(temp)await attempt('trace-cleanup',()=>fs.rmSync(temp,{recursive:true,force:true}));
+    }
+    if(ready)await attempt('readiness-report',()=>fs.writeFileSync(path.join(output,label+'-readiness.json'),JSON.stringify(state,null,2)));
+    return state;
 }
-async function setupRetry(page,fixture,label) {
+async function setupRetry(page,fixture,label,error) {
     const attempt=(setupAttempts.get(page)||0)+1;
-    assert.ok(attempt<=2,'Bounded pre-authentication navigation retries exhausted');
+    if(attempt>1)throw setupErrors.get(page) || error || new Error('Single pre-authentication navigation retry exhausted');
     setupAttempts.set(page,attempt);
+    if(error)setupErrors.set(page,error);
+    console.warn('Initial login navigation failure: '+safe(error?.message || 'ERR_NETWORK_CHANGED'));
     label+='-'+attempt;
-    await failure(page,fixture,label).catch(()=>console.warn('Initial setup failure capture unavailable'));
-    const output=fixture.output;
-    if(output)fs.writeFileSync(path.join(output,label+'-attempt.json'),JSON.stringify({retry:true,operation:'login-navigation',cause:'ERR_NETWORK_CHANGED'}));
-    await page.context().tracing.start({screenshots:true,snapshots:false,sources:false});
+    const result=await failure(page,fixture,label,error);
+    let traceRestarted=false;
+    if(result.traceStopped) {
+        try {await page.context().tracing.start({screenshots:true,snapshots:false,sources:false});traceRestarted=true;}
+        catch {result.diagnosticFailures.push({stage:'trace-restart'});console.warn('Browser diagnostic failed: trace-restart');}
+    }
+    const output=fixture.output || fixture.reportDirectory;
+    if(output) {
+        try {fs.writeFileSync(path.join(output,label+'-attempt.json'),JSON.stringify({retry:true,operation:'login-navigation',cause:'ERR_NETWORK_CHANGED',
+            failure:errorInfo(error),traceStopped:result.traceStopped,traceRestarted,diagnosticFailures:result.diagnosticFailures}));}
+        catch {console.warn('Browser diagnostic failed: retry-report');}
+    }
+    return {...result,traceRestarted};
 }
 module.exports = {identity, login, revealManualLogin, detail, failure, capture, setupRetry, timing};

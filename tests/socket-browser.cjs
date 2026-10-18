@@ -24,20 +24,20 @@ assert.match(fixture.base,/^https?:\/\/(?:localhost|127\.0\.0\.1):\d+(?:\/jellyf
   // immediately after the disposable Caddy network is attached. Catch the
   // navigation rejection itself (not just later console messages). Only this
   // pre-login GET is eligible for a bounded retry; no mutation or DELETE is.
-  for (let attempt=0; attempt<3; attempt++) {
+  for (let attempt=0; attempt<2; attempt++) {
    try {
     await page.goto(fixture.base+'/web/');
     await page.locator('#txtManualName').waitFor({state:'visible',timeout:15000});
     break;
    } catch(error) {
     const networkChanged=String(error?.message||error).includes('net::ERR_NETWORK_CHANGED');
-    if (!networkChanged || attempt===2) {
+    if (!networkChanged || attempt===1) {
      const state=await page.evaluate(()=>({title:document.title,ready:document.readyState,loginPresent:Boolean(document.querySelector('#txtManualName')),scriptCount:document.scripts.length})).catch(e=>({evaluationError:String(e)}));
      console.error('Socket probe native login diagnostic:',JSON.stringify({networkChanged,state,browserErrors:browserErrors.slice(-15)}));
      throw error;
     }
     console.warn('Chromium network changed during initial Jellyfin login navigation; recording first failure and retrying safe GET, attempt '+(attempt+1));
-    await readiness.setupRetry(page,{...fixture,output:fixture.reportDirectory},'socket-login-retry');
+    await readiness.setupRetry(page,{...fixture,output:fixture.reportDirectory},'socket-login-retry',error);
    }
   }
   await page.locator('#txtManualName').fill(fixture.username);await page.locator('#txtManualPassword').fill(fixture.password);

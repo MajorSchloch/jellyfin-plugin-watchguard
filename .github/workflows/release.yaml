@@ -39,7 +39,7 @@ jobs:
         env:
           WATCHGUARD_BENCHMARK_OUTPUT: /tmp/discovery-model-v048.json
           WATCHGUARD_VERIFICATION_MODEL_OUTPUT: /tmp/verification-model-v048.json
-      - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs
+      - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs tests/browser-readiness.test.cjs
       - uses: actions/upload-artifact@v6
         with:
           name: discovery-model-v048
