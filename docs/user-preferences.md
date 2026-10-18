@@ -1,3 +1,5 @@
+> **v0.5.1 candidate:** [Saved Recently added sorting](saved-sort-v051.md) adds a backward-compatible preference sidecar. The historical v0.3.1 persistence description below applies to legacy sorts; current public v0.5.0 still cannot save added. The candidate keeps the same routes, owner/status rules and URL precedence.
+
 # Personal Watchlists preferences — v0.3.1
 
 Open the existing filter popover and choose **Save view as defaults** to save the current owner scope, enabled statuses and sort. Ordinary filter changes remain URL navigation and do not write defaults. This avoids unexpected preference changes from shared links/history and adds no permanent toolbar row.

@@ -24,7 +24,7 @@ public sealed class PreferencesController(IAuthorizationContext authorization, I
         catch (Exception ex)
         {
             logger.LogWarning("WatchGuard preferences/status unavailable ({ErrorType})", ex.GetType().Name);
-            return Problem(statusCode: 503, title: "WatchGuard preferences/status unavailable. Stored data preserved.");
+            return Problem(statusCode: 503, title: "WatchGuard preferences/status unavailable. Reload to check saved state; corrupt data is preserved.");
         }
     }
     private ViewPreferences Effective(ViewPreferences value, Jellyfin.Database.Implementations.Entities.User caller)

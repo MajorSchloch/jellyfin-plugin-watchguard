@@ -93,7 +93,8 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         await region.getByText('Defaults restored.').waitFor();
         await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
         await region.locator('.watchguard-filter summary').click(); assert.equal(await region.locator('input:checked').count(),3);
-        const report={result:'PASS',nativeConfiguration:true,settingsPersistence:true,serverAndBrowserStatus:true,saveDefaults:true,urlPrecedence:true,reset:true};
+        if(fixture.standalone) await require('./preference-browser.cjs')(page,fixture);
+        const report={result:'PASS',nativeConfiguration:true,settingsPersistence:true,serverAndBrowserStatus:true,saveDefaults:true,urlPrecedence:true,reset:true,savedRecentlyAdded:fixture.standalone,preferenceAccountSwitching:fixture.standalone};
         fs.mkdirSync('artifacts',{recursive:true});fs.writeFileSync('artifacts/settings-validation.json',JSON.stringify(report,null,2)+'\n');
         console.log('Settings/preferences browser checks passed.');
     } catch (error) { await readiness.failure(page,{...fixture,output:fixture.reportDirectory},'settings',error).catch(()=>console.warn('Diagnostic capture failed')); throw error; }

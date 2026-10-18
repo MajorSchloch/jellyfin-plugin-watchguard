@@ -610,7 +610,7 @@ test('Watchlist owner rows render real added dates, unknown dates, and old-serve
     assert.equal(known.DisplayName,'<unsafe>','No user text is interpreted as HTML');
 });
 
-test('Recently added can be bookmarked but cannot write an incompatible schema-1 preference',async()=>{
+test('Recently added saves explicitly, reloads, and URL fields override independently',async()=>{
     const f=progressiveFixture(true,true,null);
     await turn();f.calls[0].resolve({Owner:'mine',Statuses:['watchlisted'],Sort:'title'});await turn();
     assert.equal(f.calls[1].o.url,'WatchGuard/Watchlist');
@@ -620,9 +620,43 @@ test('Recently added can be bookmarked but cannot write an incompatible schema-1
     f.page.updateFilters('mine','watchlisted','added');
     const toolbar=f.page.children[1],sort=toolbar.children[2].children[1];
     assert.equal(sort.value,'added');
-    const filterPanel=toolbar.children[1].children[1],save=filterPanel.children[4];
-    const before=f.calls.length;
-    await save.onclick();
-    assert.equal(f.calls.length,before,'No invalid persisted preferences PUT');
-    assert.match(f.page.children[6].textContent,/cannot be saved as a default/);
+    const filterPanel=toolbar.children[1].children[1],save=filterPanel.children[4],reset=filterPanel.children[5];
+    assert.ok(f.calls.every(c=>c.o.type==='GET'),'Links/filter changes never write defaults');
+    const saving=save.onclick();
+    assert.equal(f.calls[3].o.type,'PUT');
+    const stored=JSON.parse(f.calls[3].o.data);
+    assert.deepEqual(stored,{Owner:'mine',Statuses:['watchlisted'],Sort:'added'});
+    f.calls[3].resolve(stored);await saving;
+    assert.match(f.page.children[6].textContent,/View saved/);
+    const reload=progressiveFixture(true,true,null);await turn();reload.calls[0].resolve(stored);await turn();
+    reload.calls[1].resolve([]);await turn();
+    assert.equal(reload.page.children[1].children[2].children[1].value,'added');
+    const {preferenceView}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    assert.deepEqual(preferenceView(stored,'all',null,null),{owner:'all',interest:'watchlisted',sort:'added'});
+    assert.deepEqual(preferenceView(stored,null,'none',null),{owner:'mine',interest:'none',sort:'added'});
+    assert.deepEqual(preferenceView(stored,null,null,'recent'),{owner:'mine',interest:'watchlisted',sort:'recent'});
+    for(const next of ['title','recent']) {
+        f.page.updateFilters('mine','watchlisted',next);
+        const i=f.calls.length,p=save.onclick();assert.equal(f.calls[i].o.type,'PUT');
+        assert.equal(JSON.parse(f.calls[i].o.data).Sort,next);
+        f.calls[i].resolve(JSON.parse(f.calls[i].o.data));await p;
+    }
+    const i=f.calls.length,p=reset.onclick();assert.equal(f.calls[i].o.type,'DELETE');
+    f.calls[i].resolve({Owner:'mine',Statuses:['watchlisted','watching','playing'],Sort:'title'});await p;
+    assert.deepEqual(f.navigation.at(-1),['mine','watchlisted,watching,playing','title']);
+});
+
+test('Preference save/reset errors stay visible and late writes cannot affect another account',async()=>{
+    for(const operation of ['save','reset']) {
+        const f=progressiveFixture(false,true,null);await turn();
+        f.calls[0].resolve({Owner:'mine',Statuses:[],Sort:'added'});await turn();
+        f.calls[1].resolve([]);await turn();f.calls[2].resolve({Items:[],IsComplete:false,LimitReached:false,Notice:'Bounded'});await turn();
+        const button=f.page.children[1].children[1].children[1].children[operation==='save'?4:5];
+        const first=button.onclick();f.calls.at(-1).reject(new Error('disk failure'));await first;
+        assert.match(f.page.children[6].textContent,/Could not (save|reset)/);
+        const prior=f.page.children[6].textContent, second=button.onclick();
+        f.changeAccount();f.calls.at(-1).resolve({Owner:'all',Statuses:['watched'],Sort:'added'});await second;
+        assert.equal(f.page.children[6].textContent,prior);assert.equal(f.navigation.length,0);
+        const before=f.calls.length;await button.onclick();assert.equal(f.calls.length,before);
+    }
 });

@@ -63,6 +63,10 @@ The supported Web integration is version-specific. Future Jellyfin Server/Web ve
 
 New memberships record per-user **Added** dates, with a **Recently added** sort in the Watchlists overview. Legacy timestamps remain unknown. The new sort is retained in URLs and browser bookmarks but cannot be saved as an account default without changing the rollback-compatible preference schema. Back up the new `watchlist-dates.json` sidecar together with `watchlists.json` while Jellyfin is stopped. See [storage and rollback details](docs/watchlist-dates-v050.md) and the [published release notes and qualification results](docs/release-v050.md).
 
+## Unreleased v0.5.1 candidate
+
+The candidate adds **Recently added** to **Save view as defaults**, with a separate, revision-bound `preference-sorts.json` so older releases still read `preferences.json`. Downgrade falls back to Title; legacy saves/resets invalidate old added overrides. See [design and compatibility limits](docs/saved-sort-v051.md) and [candidate checks](docs/release-v051.md). The public catalog and current-release instructions above remain v0.5.0.
+
 ## Development and verification
 
 Build using the SDK pinned in [global.json](global.json) (**10.0.302**):
@@ -73,7 +77,7 @@ dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release
 node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs
 python3 scripts/build-release.py
 python3 tests/catalog_test.py
-python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.5.0.zip
+python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.5.1.zip
 ```
 
 The release packager produces a deterministic ZIP containing only the WatchGuard DLL and LICENSE; Web resources are embedded. Building and testing do **not** publish releases or modify the public catalog. The optional full GitHub Actions release workflow defaults to `publish=false`; it tests disposable Jellyfin instances and generated media. **Do not point fixture scripts at production media.**
