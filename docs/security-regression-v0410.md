@@ -1,8 +1,12 @@
 # v0.4.10 security regression evidence
 
+**Published status (2026-10-18):** [v0.4.10](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.4.10) passed the final master-branch [qualification and publication run #39111459009](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39111459009). Build, all ten integration suites and publication completed successfully; the official server-enforcement suite had the optional proxy matrix enabled. Its published ZIP SHA-256 is `471d99364db520a0990e4a624d73e26ae4c9f1c50404c2902c9691516667bf3e`. The native client-IP/remote-access regression described below is included in that final success. See [current validation](validation.md).
+
+**Historical pre-release evidence (retained below):** The older run, pending review wording, branch names and candidate ZIP checksum below describe *earlier qualification milestones*, not the public v0.4.10 release. Their original results are preserved for audit.
+
 Status: **full hosted release qualification PASS** on commit `6582dd7933200eb3233ae63531f52589feb6ef96`. [Run 39035305677](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39035305677) used `publish=false`, `proxy_matrix=true`; all eleven required jobs passed and publication was skipped. No publication or production deployment is authorized by these results.
 
-## Follow-up: native Jellyfin network-policy qualification (pending)
+## Historical follow-up: native Jellyfin network-policy qualification
 
 The previous hosted qualification below establishes **WatchGuard approval compatibility and deletion-security behavior**, not the correctness of Jellyfin's own client-IP forwarding and remote-access restrictions. The follow-up branch `docs/v0410-native-proxy-boundary` adds a separate native-policy regression and dashboard disclosure. **Those new assertions are not covered by the historical run listed below.** They require a fresh hosted `publish=false`, `proxy_matrix=true` run on the final branch/merged source before release approval.
 
