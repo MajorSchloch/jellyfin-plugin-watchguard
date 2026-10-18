@@ -42,9 +42,10 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         var user = await CurrentUser();
         if (user is null) return Unauthorized();
         using var timing = OverviewTiming.Begin("ExplicitMemberships", logger);
-        var items = store.Read().Where(e => e.UserId == user.Id)
-            .Select(e => library.GetItemById<BaseItem>(e.ItemId, user))
-            .Where(InterestService.Supported).Select(i => new { ItemId = i!.Id, Name = i.Name }).ToArray();
+        var items = store.ReadDated().Where(e => e.UserId == user.Id)
+            .Select(e => new { Membership = e, Item = library.GetItemById<BaseItem>(e.ItemId, user) })
+            .Where(e => InterestService.Supported(e.Item))
+            .Select(e => new { ItemId = e.Item!.Id, Name = e.Item.Name, e.Membership.AddedAtUtc }).ToArray();
         return Ok(items);
     });
 
@@ -77,7 +78,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
         if (!caller.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         using var timing = OverviewTiming.Begin("ExplicitMemberships", logger);
         var result = new List<SharedWatchlistItem>();
-        foreach (var group in store.Read().Where(e => !userId.HasValue || e.UserId == userId).GroupBy(e => e.ItemId))
+        foreach (var group in store.ReadDated().Where(e => !userId.HasValue || e.UserId == userId).GroupBy(e => e.ItemId))
         {
             var item = library.GetItemById<BaseItem>(group.Key, caller);
             if (!InterestService.Supported(item)) continue;
@@ -87,7 +88,7 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
                 var owner = users.GetUserById(entry.UserId);
                 if (owner is null || owner.HasPermission(PermissionKind.IsDisabled)) continue;
                 if (!InterestService.Supported(library.GetItemById<BaseItem>(entry.ItemId, owner))) continue;
-                owners.Add(new(owner.Id, owner.Username));
+                owners.Add(new(owner.Id, owner.Username, entry.AddedAtUtc));
             }
             if (owners.Count > 0) result.Add(new(item!.Id, item.Name,
                 owners.OrderBy(o => o.DisplayName, StringComparer.OrdinalIgnoreCase).ThenBy(o => o.UserId).ToArray()));
@@ -162,5 +163,5 @@ public sealed class WatchGuardController(IAuthorizationContext authorization, IU
     });
 }
 
-public sealed record WatchlistOwner(Guid UserId, string DisplayName);
+public sealed record WatchlistOwner(Guid UserId, string DisplayName, DateTimeOffset? AddedAtUtc = null);
 public sealed record SharedWatchlistItem(Guid ItemId, string Name, WatchlistOwner[] Users);
