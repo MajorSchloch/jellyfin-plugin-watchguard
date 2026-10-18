@@ -158,6 +158,34 @@ public sealed class BackendTests : IDisposable
     public void Dispose() { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
 
     [Fact]
+    public async Task AddedDatesAreExposedOnlyThroughAuthorizedExplicitMemberships()
+    {
+        store.Set(alice.Id, movie.Id, true);
+        var ownResponse = Assert.IsType<OkObjectResult>(await Controller().List());
+        var own = System.Text.Json.JsonSerializer.SerializeToElement(ownResponse.Value);
+        var first = Assert.Single(own.EnumerateArray());
+        Assert.Equal(movie.Id, first.GetProperty("ItemId").GetGuid());
+        Assert.Equal(System.Text.Json.JsonValueKind.String, first.GetProperty("AddedAtUtc").ValueKind);
+
+        SignIn(bob);
+        var otherResponse = Assert.IsType<OkObjectResult>(await Controller().List());
+        Assert.Empty(System.Text.Json.JsonSerializer.SerializeToElement(otherResponse.Value).EnumerateArray());
+        Assert.IsType<ForbidResult>(await Controller().AllWatchlists());
+
+        store.Set(bob.Id, movie.Id, true);
+        SignIn(alice);
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var all = Assert.Single(Assert.IsType<SharedWatchlistItem[]>(
+            Assert.IsType<OkObjectResult>(await Controller().AllWatchlists()).Value));
+        Assert.All(all.Users, owner => Assert.NotNull(owner.AddedAtUtc));
+        Assert.Equal(new[] {alice.Id, bob.Id}.Order(), all.Users.Select(o => o.UserId).Order());
+
+        // Supplemental dates never affect authoritative watchlist interest.
+        Assert.True(Status().HasInterest);
+        Assert.Equal(2, store.Read().Length);
+    }
+
+    [Fact]
     public async Task CrudIsIdempotentAndIsolated()
     {
         var controller = Controller();
