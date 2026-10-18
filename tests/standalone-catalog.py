@@ -154,6 +154,14 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
                     'versionFolders':sorted(p.name for p in plugins.glob('WatchGuard_*'))
                 }),flush=True)
             assert len(active)==1 and active[0]['Version']==version
+            if version=='0.4.10.0':
+                # The published old plugin can remove and re-add the same
+                # membership while leaving the JSON bytes unchanged. Its
+                # replacement file identity must invalidate v0.5.0 timestamps.
+                call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
+                call('/WatchGuard/Watchlist/'+movie,'PUT',token=token,expected=204)
+                assert all(p.read_bytes()==original for p,original in saved.items())
+        assert call('/WatchGuard/Watchlist',token=token)[0]['AddedAtUtc'] is None
         # Normal catalog update: leave the native versioned v0.4.8 folder in place.
         # The installer/PluginManager must select v0.5.0 without manual DLL retirement.
         call('/Plugins/'+guid+'/0.5.0.0','DELETE',token=token,expected=204);restart()
@@ -178,6 +186,10 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
         if any(p['Version']=='0.4.8.0' and p['Id'].replace('-','')==guid.replace('-','') for p in call('/Plugins',token=token)):
             call('/Plugins/'+guid+'/0.4.8.0','DELETE',token=token,expected=204);restart()
         print('Normal native v0.4.8 -> v0.5.0 catalog update passed without manual assembly operations; existing XML values and JSON preserved; enforcement off.',flush=True)
+        assert call('/WatchGuard/Watchlist',token=token)[0]['AddedAtUtc'] is None
+        call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
+        call('/WatchGuard/Watchlist/'+movie,'PUT',token=token,expected=204)
+        assert call('/WatchGuard/Watchlist',token=token)[0]['AddedAtUtc'] is not None
         call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
         call('/WatchGuard/Preferences','DELETE',token=token)
         report={'result':'PASS','baselineSha256':hashlib.sha256(baseline.read_bytes()).hexdigest(),'roundTrip':'0.5.0 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5 -> 0.4.6 -> 0.4.7 -> 0.4.8 -> 0.4.9 -> 0.4.10 -> 0.5.0','roundTripStoresAndConfigBytesPreserved':True,'normalCatalogUpgradeWithoutManualAssemblyOperations':True,'existingConfigValuesPreserved':True,'noInjector':True,'singleActiveAssembly':True}
