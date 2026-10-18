@@ -1,6 +1,6 @@
 # Jellyfin WatchGuard
 
-**Current release: [v0.5.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.0)** · Target: **Jellyfin Server/Web 12.2.0 / .NET 10** · [Plugin catalog](manifest.json)
+**Current release: [v0.5.1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.1)** · Target: **Jellyfin Server/Web 12.2.0 / .NET 10** · [Plugin catalog](manifest.json)
 
 WatchGuard adds personal watchlists, shared viewing-interest indicators and deletion warnings to Jellyfin. An optional **server-side guard** prevents protected media from being deleted through the two qualified native HTTP item-deletion routes without an explicit administrator approval.
 
@@ -21,13 +21,13 @@ WatchGuard is a **single Jellyfin plugin** with an authenticated, standalone Web
 
    `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
 
-2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.5.0.0`).
+2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.5.1.0`).
 3. **Restart Jellyfin**, then **fully reload Jellyfin Web** in each browser.
 4. Open **Dashboard → Plugins → WatchGuard**. Confirm the installed plugin version, standalone loader, the current browser's installed adapter and the active server-guard state. The approval **POST readiness** check is non-mutating.
 
 Use the native catalog installer; do **not** copy DLLs into multiple plugin discovery folders. Existing memberships/preferences and configuration use the same plugin GUID and data schema when upgrading from recent standalone releases. Migrating an older Injector-based installation requires [explicit cleanup of only the old WatchGuard Injector entry](docs/migration-v040.md).
 
-**Back up before upgrading.** On LinuxServer.io, the usual locations under `/config/data/plugins` are `Jellyfin.Plugin.WatchGuard/watchlists.json`, `Jellyfin.Plugin.WatchGuard/watchlist-dates.json` (where present), `Jellyfin.Plugin.WatchGuard/preferences.json` (where present), the versioned `WatchGuard_0.5.0.0` directory and `configurations/Jellyfin.Plugin.WatchGuard.xml`. Back up the actual paths used by your installation. Never delete the unversioned WatchGuard data directory to remove a version.
+**Back up before upgrading.** On LinuxServer.io, the usual locations under `/config/data/plugins` are `Jellyfin.Plugin.WatchGuard/watchlists.json`, `Jellyfin.Plugin.WatchGuard/watchlist-dates.json` (where present), `Jellyfin.Plugin.WatchGuard/preferences.json` and `Jellyfin.Plugin.WatchGuard/preference-sorts.json` (where present), the versioned `WatchGuard_0.5.1.0` directory and `configurations/Jellyfin.Plugin.WatchGuard.xml`. Back up the actual paths used by your installation. Never delete the unversioned WatchGuard data directory to remove a version.
 
 ## Server-side deletion protection
 
@@ -63,9 +63,9 @@ The supported Web integration is version-specific. Future Jellyfin Server/Web ve
 
 New memberships record per-user **Added** dates, with a **Recently added** sort in the Watchlists overview. Legacy timestamps remain unknown. The new sort is retained in URLs and browser bookmarks but cannot be saved as an account default without changing the rollback-compatible preference schema. Back up the new `watchlist-dates.json` sidecar together with `watchlists.json` while Jellyfin is stopped. See [storage and rollback details](docs/watchlist-dates-v050.md) and the [published release notes and qualification results](docs/release-v050.md).
 
-## Unreleased v0.5.1 candidate
+## Saved Recently added defaults (v0.5.1)
 
-The candidate adds **Recently added** to **Save view as defaults**, with a separate, revision-bound `preference-sorts.json` so older releases still read `preferences.json`. Downgrade falls back to Title; legacy saves/resets invalidate old added overrides. See [design and compatibility limits](docs/saved-sort-v051.md) and [candidate checks](docs/release-v051.md). The public catalog and current-release instructions above remain v0.5.0.
+Save **Recently added** with **Save view as defaults**. This release adds **Recently added** to **Save view as defaults**, with a separate, revision-bound `preference-sorts.json` so older releases still read `preferences.json`. Downgrade falls back to Title; legacy saves/resets invalidate old added overrides. See [design and compatibility limits](docs/saved-sort-v051.md) and [published release checks](docs/release-v051.md).
 
 ## Development and verification
 

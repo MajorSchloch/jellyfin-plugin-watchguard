@@ -1,6 +1,6 @@
 # WatchGuard documentation index
 
-**Current published version: [v0.5.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.0)** · Qualified target: Jellyfin Server/Web 12.2.0 and .NET 10.
+**Current published version: [v0.5.1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.1)** · Qualified target: Jellyfin Server/Web 12.2.0 and .NET 10.
 
 Start with the repository [README](../README.md) for features, installation, limitations, and the non-mutating status/approval checks. The repository includes historical design experiments and release-candidate reports. Their *as-of-version* statements (for example, “not published” or “requires Injector”) describe historical candidates, **not the current public release**.
 
@@ -14,17 +14,17 @@ Start with the repository [README](../README.md) for features, installation, lim
 | How should Jellyfin proxies be configured safely? | [v0.4.10 proxy matrix and limitations](proxy-compatibility-v0410.md), [Jellyfin reverse-proxy guide](https://jellyfin.org/docs/general/post-install/networking/reverse-proxy/) |
 | What has actually been validated? | [Current verification summary](validation.md), [v0.4.10 security-regression evidence](security-regression-v0410.md) |
 | Why aren't all activity or episode results complete? | [Interest discovery and limits](interest-overview.md), [episode query performance](episode-query-performance-v048.md), [Caught Up coverage](caught-up-protection.md) |
-| What are the published v0.5.0 changes? | [v0.5.0 release overview and qualification](release-v050.md) |
+| What are the published v0.5.1 changes? | [v0.5.1 release overview and qualification](release-v051.md) |
 
 ## Watchlist-added dates
 
 - [v0.5.0 watchlist-added timestamp design](watchlist-dates-v050.md) — sidecar provenance, schema-1 rollback compatibility, unknown old dates, URL sorting and migration hazards.
 - [v0.5.0 published release notes](release-v050.md) — available through the public Jellyfin catalog; includes verified release results.
 
-## Unreleased candidate
+## Saved Recently added defaults
 
 - [v0.5.1 saved Recently added defaults](saved-sort-v051.md): compatible sidecar, downgrade fallback, corruption and partial-write behavior.
-- [v0.5.1 candidate validation](release-v051.md): unpublished; public catalog remains v0.5.0.
+- [v0.5.1 published release validation](release-v051.md): publication and all ten integration suites passed.
 
 ## Maintainer and developer notes
 
