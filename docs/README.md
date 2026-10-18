@@ -16,6 +16,11 @@ Start with the repository [README](../README.md) for features, installation, lim
 | Why aren't all activity or episode results complete? | [Interest discovery and limits](interest-overview.md), [episode query performance](episode-query-performance-v048.md), [Caught Up coverage](caught-up-protection.md) |
 | What are the published v0.4.10 changes? | [v0.4.10 release overview](release-v0410.md) |
 
+## Unreleased feature development
+
+- [v0.5.0 watchlist-added timestamp design](watchlist-dates-v050.md) — sidecar provenance, schema-1 rollback compatibility, unknown old dates, URL sorting and migration hazards.
+- [v0.5.0 draft release notes](release-v050.md) — candidate only, not available from the public Jellyfin catalog.
+
 ## Maintainer and developer notes
 
 - [Build/package/catalog history](plugin-repository.md): includes historical candidate-specific procedures; use current `.github/workflows/build.yaml`, `.github/workflows/release.yaml` and `scripts/build-release.py` as the executable source of truth.
