@@ -1,6 +1,6 @@
 # Watchlist-added dates — v0.5.0 implementation and safety
 
-**Unreleased**. See [draft v0.5.0 release notes](release-v050.md) and the [currently published v0.4.10](release-v0410.md).
+**Published 2026-10-18.** See [v0.5.0 release notes and qualification](release-v050.md). [v0.4.10](release-v0410.md) remains the supported rollback baseline.
 
 ## Why a sidecar instead of adding a field to watchlists.json?
 

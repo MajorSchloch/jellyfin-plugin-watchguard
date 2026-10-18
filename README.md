@@ -1,6 +1,6 @@
 # Jellyfin WatchGuard
 
-**Current release: [v0.4.10](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.4.10)** · Target: **Jellyfin Server/Web 12.2.0 / .NET 10** · [Plugin catalog](manifest.json)
+**Current release: [v0.5.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.0)** · Target: **Jellyfin Server/Web 12.2.0 / .NET 10** · [Plugin catalog](manifest.json)
 
 WatchGuard adds personal watchlists, shared viewing-interest indicators and deletion warnings to Jellyfin. An optional **server-side guard** prevents protected media from being deleted through the two qualified native HTTP item-deletion routes without an explicit administrator approval.
 
@@ -21,13 +21,13 @@ WatchGuard is a **single Jellyfin plugin** with an authenticated, standalone Web
 
    `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
 
-2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.4.10.0`).
+2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.5.0.0`).
 3. **Restart Jellyfin**, then **fully reload Jellyfin Web** in each browser.
 4. Open **Dashboard → Plugins → WatchGuard**. Confirm the installed plugin version, standalone loader, the current browser's installed adapter and the active server-guard state. The approval **POST readiness** check is non-mutating.
 
 Use the native catalog installer; do **not** copy DLLs into multiple plugin discovery folders. Existing memberships/preferences and configuration use the same plugin GUID and data schema when upgrading from recent standalone releases. Migrating an older Injector-based installation requires [explicit cleanup of only the old WatchGuard Injector entry](docs/migration-v040.md).
 
-**Back up before upgrading.** On LinuxServer.io, the usual locations under `/config/data/plugins` are `Jellyfin.Plugin.WatchGuard/watchlists.json`, `Jellyfin.Plugin.WatchGuard/preferences.json` (where present), the versioned `WatchGuard_0.4.10.0` directory and `configurations/Jellyfin.Plugin.WatchGuard.xml`. Back up the actual paths used by your installation. Never delete the unversioned WatchGuard data directory to remove a version.
+**Back up before upgrading.** On LinuxServer.io, the usual locations under `/config/data/plugins` are `Jellyfin.Plugin.WatchGuard/watchlists.json`, `Jellyfin.Plugin.WatchGuard/watchlist-dates.json` (where present), `Jellyfin.Plugin.WatchGuard/preferences.json` (where present), the versioned `WatchGuard_0.5.0.0` directory and `configurations/Jellyfin.Plugin.WatchGuard.xml`. Back up the actual paths used by your installation. Never delete the unversioned WatchGuard data directory to remove a version.
 
 ## Server-side deletion protection
 
@@ -59,9 +59,9 @@ Playback-derived interest is a **bounded snapshot, not an exhaustive library aud
 
 The supported Web integration is version-specific. Future Jellyfin Server/Web versions, custom Web bundles, native TV/mobile apps, nonstandard proxies and restrictive CSPs require separate compatibility testing. The loader uses Blob scripts; successful server delivery alone does not prove that the current browser executed the adapter.
 
-## Unreleased v0.5.0 development
+## Watchlist-added dates (v0.5.0)
 
-The `feature/v050-watchlist-timestamps` branch builds a **v0.5.0 release candidate**, not the current published v0.4.10. It adds newly recorded, per-user Watchlist-added dates and the URL/bookmarkable **Recently added** sort. Legacy timestamps remain unknown, and the existing `preferences.json` schema cannot persist that new sort as a saved default. See [v0.5.0 storage and rollback design](docs/watchlist-dates-v050.md) and the [draft release notes](docs/release-v050.md). Do **not** publish or deploy until the separate candidate qualification and approval pass.
+New memberships record per-user **Added** dates, with a **Recently added** sort in the Watchlists overview. Legacy timestamps remain unknown. The new sort is retained in URLs and browser bookmarks but cannot be saved as an account default without changing the rollback-compatible preference schema. Back up the new `watchlist-dates.json` sidecar together with `watchlists.json` while Jellyfin is stopped. See [storage and rollback details](docs/watchlist-dates-v050.md) and the [published release notes and qualification results](docs/release-v050.md).
 
 ## Development and verification
 
