@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "0.5.1.0",
+        "changelog": "See the matching release notes.",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.5.1/Jellyfin.Plugin.WatchGuard-v0.5.1.zip",
+        "checksum": "4128639bfb6cf717f26cac8fcaf2906a",
+        "timestamp": "2026-10-18T22:59:54Z"
+      },
+      {
         "version": "0.5.0.0",
         "changelog": "See the matching release notes.",
         "targetAbi": "12.2.0.0",
