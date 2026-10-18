@@ -1,0 +1,79 @@
+{
+  "kind": "local-disposable-qualification",
+  "version": "0.5.2.0",
+  "date": "2026-10-19",
+  "published": false,
+  "environment": {
+    "dotnet": "10.0.302",
+    "python": "3.12.0",
+    "playwright": "1.56.1",
+    "node": "24.22.0",
+    "initialOfficialBrowserNode": "25.9.0"
+  },
+  "unitTests": {
+    "backend": 212,
+    "javascript": 112,
+    "python": 14,
+    "catalog": 4
+  },
+  "zipSha256": "62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec",
+  "reproducibleBuild": true,
+  "publishedV047InterfaceComparison": "PASS: all original Items/Coverage and work fields; new EpisodeProgress excluded only",
+  "notRun": [
+    "full hosted release matrix",
+    "base-path/migration/rollback suites",
+    "native discovery/verification performance profiles"
+  ],
+  "officialBrowser": {
+    "result": "PASS",
+    "paths": 28,
+    "orderingViolations": 0,
+    "extraEpisodes": {
+      "status": "PASS",
+      "viewports": [
+        1280,
+        390
+      ],
+      "keyboard": [
+        "Enter",
+        "Space",
+        "Escape"
+      ],
+      "nativeDates": [
+        "Future",
+        "ReleaseDay",
+        "UnknownDate"
+      ],
+      "protectionUnchanged": true
+    }
+  },
+  "linuxserverCaddyBrowser": {
+    "result": "PASS",
+    "paths": 28,
+    "orderingViolations": 0,
+    "extraEpisodes": {
+      "status": "PASS",
+      "viewports": [
+        1280,
+        390
+      ],
+      "keyboard": [
+        "Enter",
+        "Space",
+        "Escape"
+      ],
+      "nativeDates": [
+        "Future",
+        "ReleaseDay",
+        "UnknownDate"
+      ],
+      "protectionUnchanged": true
+    }
+  },
+  "serverEnforcement": {
+    "result": "PASS",
+    "cases": 77,
+    "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+    "basePath": ""
+  }
+}

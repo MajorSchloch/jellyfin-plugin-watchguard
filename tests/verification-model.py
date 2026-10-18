@@ -28,9 +28,17 @@ with tempfile.TemporaryDirectory(prefix='watchguard-model-') as temporary:
     subprocess.run(['dotnet','test',str(root/'Baseline.csproj'),'-c','Release'],env=env,cwd=ROOT,check=True)
     after=Path(os.environ.get('WATCHGUARD_VERIFICATION_MODEL_OUTPUT','/tmp/verification-model-v048.json'))
     before=json.loads(output.read_text()); current=json.loads(after.read_text())
+    def legacy_items(items):
+        # Compare every pre-existing field; v0.5.2's separate informational DTO has
+        # dedicated API/UI tests and cannot affect these classification assertions.
+        copy=json.loads(json.dumps(items))
+        for item in copy:
+            for owner in item['Users']:
+                owner.pop('EpisodeProgress',None)
+        return copy
     for old,new in zip(before,current,strict=True):
         for key in ['users','titles','returned','episodeRows','LimitReached','Items','Coverage']:
-            assert old[key]==new[key],(key,old[key],new[key])
+            assert (legacy_items(old[key])==legacy_items(new[key]) if key=='Items' else old[key]==new[key]),key
         assert new['nativePlaybackBatches']==old['nativePlaybackBatches']
         assert new['Diagnostics']['EpisodeHydrationQueryCount']==100
         assert new['Diagnostics']['EpisodeQueryCount']==old['Diagnostics']['EpisodeQueryCount']
@@ -39,5 +47,5 @@ with tempfile.TemporaryDirectory(prefix='watchguard-model-') as temporary:
     large_after=json.loads(Path(os.environ.get('WATCHGUARD_BENCHMARK_OUTPUT','/tmp/discovery-model-v048.json')).read_text())
     for old,new in zip(large_before,large_after,strict=True):
         for key in ['episodeCount','episodeRows','nativePlaybackBatches','Items','Coverage']:
-            assert old[key]==new[key],key
+            assert (legacy_items(old[key])==legacy_items(new[key]) if key=='Items' else old[key]==new[key]),key
     print('Published/candidate model results and episode work match; native hydration occurs once per series; playback calls unchanged.')

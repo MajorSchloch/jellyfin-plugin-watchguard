@@ -174,6 +174,74 @@
     }
 
     const key = id => typeof id === 'string' ? id.replaceAll('-', '').toLowerCase() : '';
+    function episodeProgress(owner) {
+        const progress = owner.EpisodeProgress;
+        if (progress == null) return null; // Older servers retain their existing counts/labels.
+        if (!Number.isSafeInteger(progress.AiredAvailable) || !Number.isSafeInteger(progress.AiredWatched) ||
+            progress.AiredWatched < 0 || progress.AiredAvailable < progress.AiredWatched ||
+            !Array.isArray(progress.ExtraEpisodes) || progress.ExtraEpisodes.length > 1000) throw new Error('Invalid episode progress');
+        const seen = new Set();
+        for (const e of progress.ExtraEpisodes) {
+            if (!e || !/^[0-9a-f]{32}$/i.test(key(e.ItemId)) || seen.has(key(e.ItemId)) || typeof e.Name !== 'string' ||
+                typeof e.Watched !== 'boolean' || !['Future','ReleaseDay','UnknownDate'].includes(e.ReleaseStatus) ||
+                [e.SeasonNumber,e.EpisodeNumber,e.EpisodeNumberEnd].some(n => n != null && (!Number.isSafeInteger(n) || n < 0)) ||
+                (e.ReleaseStatus === 'UnknownDate' ? e.PremiereDate != null : typeof e.PremiereDate !== 'string' || !Number.isFinite(Date.parse(e.PremiereDate))))
+                throw new Error('Invalid extra episode');
+            seen.add(key(e.ItemId));
+        }
+        return progress;
+    }
+    function viewingLabel(owner, reason, fallback) {
+        return reason === 'CaughtUp' && episodeProgress(owner)?.ExtraEpisodes.some(e => !e.Watched)
+            ? 'Caught up on aired episodes' : fallback;
+    }
+    let extraDialogSequence = 0;
+    function appendEpisodeProgress(document, container, owner, suffix = '') {
+        const progress = episodeProgress(owner);
+        const watched = progress?.AiredWatched ?? owner.WatchedEpisodes, available = progress?.AiredAvailable ?? owner.AvailableEpisodes;
+        const count = document.createElement('span'); count.textContent = watched + '/' + available + (progress?.ExtraEpisodes.length ? '' : suffix);
+        if (progress) count.setAttribute('aria-label', watched + ' of ' + available + ' aired episodes');
+        container.append(count);
+        if (!progress?.ExtraEpisodes.length) return;
+        const button = document.createElement('button'); button.type = 'button'; button.className = 'emby-button watchguard-extra-button';
+        button.textContent = '+' + progress.ExtraEpisodes.length;
+        button.setAttribute('aria-haspopup', 'dialog');
+        button.setAttribute('aria-label', owner.DisplayName + ': ' + progress.ExtraEpisodes.length + ' additional available episodes; show dates and watched status');
+        button.title = 'Additional available episodes';
+        container.append(button);
+        let open = false;
+        button.onclick = event => {
+            event?.preventDefault(); event?.stopPropagation();
+            if (open) return;
+            open = true;
+            const dialog = document.createElement('dialog'); dialog.className = 'watchguard-extras-dialog';
+            const heading = document.createElement('h3'); heading.id = 'watchguard-extras-' + (++extraDialogSequence);
+            heading.textContent = owner.DisplayName + ' — Additional available episodes';
+            dialog.setAttribute('aria-labelledby', heading.id);
+            const description = document.createElement('p'); description.id = heading.id + '-description';
+            description.textContent = 'These playable episodes are outside the aired fraction. Dates and watched status come from Jellyfin; unknown dates do not establish complete coverage.';
+            dialog.setAttribute('aria-describedby', description.id);
+            const list = document.createElement('ul');
+            for (const e of progress.ExtraEpisodes) {
+                const row = document.createElement('li'), title = document.createElement('strong'), info = document.createElement('span');
+                title.textContent = 'Season ' + (e.SeasonNumber ?? '?') + ' · Episode ' + (e.EpisodeNumber ?? '?') +
+                    (e.EpisodeNumberEnd != null && e.EpisodeNumberEnd !== e.EpisodeNumber ? '–' + e.EpisodeNumberEnd : '') + ' · ' + e.Name;
+                const release = e.ReleaseStatus === 'UnknownDate' ? 'Date unknown' :
+                    (e.ReleaseStatus === 'ReleaseDay' ? 'Release day' : 'Future-dated') + ' · ' + new Date(e.PremiereDate).toLocaleDateString();
+                info.textContent = release + ' · ' + (e.Watched ? 'Watched' : 'Unwatched');
+                row.append(title, info); list.append(row);
+            }
+            const close = document.createElement('button'); close.type = 'button'; close.className = 'emby-button raised'; close.textContent = 'Close';
+            const finish = () => { open = false; dialog.remove(); if (button.isConnected) button.focus(); };
+            close.onclick = finish;
+            dialog.addEventListener('cancel', event => { event.preventDefault(); finish(); });
+            dialog.addEventListener('close', finish);
+            dialog.append(heading, description, list, close);
+            // Keep the dialog owned by this rendered view: navigation/account teardown removes it.
+            container.append(dialog);
+            try { dialog.showModal(); close.focus(); } catch (error) { finish(); throw error; }
+        };
+    }
     function renderSeriesActivity(document, target, status, itemId, user, seriesLabel = '') {
         if (!status || key(status.ItemId) !== key(itemId) || !Array.isArray(status.Users) ||
             typeof status.IsComplete !== 'boolean' || typeof status.Notice !== 'string') throw new Error('Invalid series activity');
@@ -184,6 +252,7 @@
                 !Array.isArray(owner.Reasons) || !owner.Reasons.length || owner.Reasons.some(r => !Object.hasOwn(labels, r)) ||
                 typeof owner.CoverageComplete !== 'boolean' || !Number.isInteger(owner.AvailableEpisodes) || !Number.isInteger(owner.WatchedEpisodes) ||
                 owner.WatchedEpisodes < 0 || owner.AvailableEpisodes < owner.WatchedEpisodes) throw new Error('Invalid series activity user');
+            episodeProgress(owner);
             seen.add(key(owner.UserId));
         }
         target.replaceChildren();
@@ -196,7 +265,7 @@
             const count = status.Users.filter(u => u.Reasons.includes(reason)).length;
             if (!count) continue;
             const chip = document.createElement('span'); chip.className = 'watchguard-chip watchguard-state-' + reason;
-            chip.textContent = count + ' ' + label; summary.append(chip); hasCounts = true;
+            chip.textContent = count + ' ' + (reason === 'CaughtUp' && status.Users.some(u => u.Reasons.includes(reason) && episodeProgress(u)?.ExtraEpisodes.some(e => !e.Watched)) ? 'Caught up on aired episodes' : label); summary.append(chip); hasCounts = true;
         }
         if (!hasCounts || !status.IsComplete) {
             const note = document.createElement('span'); note.className = 'watchguard-coverage';
@@ -212,16 +281,18 @@
             const detail = document.createElement('div'); detail.className = 'watchguard-viewer-states';
             for (const reason of new Set(owner.Reasons)) {
                 const chip = document.createElement('span'); chip.className = 'watchguard-chip watchguard-state-' + reason;
-                chip.textContent = labels[reason]; detail.append(chip);
+                chip.textContent = viewingLabel(owner, reason, labels[reason]); detail.append(chip);
             }
             const metrics = document.createElement('div'); metrics.className = 'watchguard-viewer-metrics';
             const count = document.createElement('span');
-            count.textContent = owner.WatchedEpisodes + '/' + owner.AvailableEpisodes + ' episodes' + (owner.CoverageComplete ? '' : ' (incomplete coverage)');
+            appendEpisodeProgress(document, count, owner, ' episodes');
+            if (!owner.CoverageComplete) { const note = document.createElement('span'); note.textContent = ' (incomplete coverage)'; count.append(note); }
             metrics.append(count);
-            if (owner.CoverageComplete && owner.AvailableEpisodes > 0) {
-                const progress = document.createElement('progress'); progress.max = owner.AvailableEpisodes; progress.value = owner.WatchedEpisodes;
+            const aired = episodeProgress(owner);
+            if (owner.CoverageComplete && (aired?.AiredAvailable ?? owner.AvailableEpisodes) > 0) {
+                const progress = document.createElement('progress'); progress.max = aired?.AiredAvailable ?? owner.AvailableEpisodes; progress.value = aired?.AiredWatched ?? owner.WatchedEpisodes;
                 progress.className = 'watchguard-viewer-progress watchguard-state-' + (owner.Reasons.includes('CaughtUp') ? 'CaughtUp' : owner.Reasons.includes('Watched') ? 'Watched' : 'InProgress');
-                progress.setAttribute('aria-label', owner.DisplayName + ': ' + count.textContent); metrics.append(progress);
+                progress.setAttribute('aria-label', owner.DisplayName + ': ' + progress.value + '/' + progress.max + ' episodes'); metrics.append(progress);
             }
             row.append(name, detail, metrics);
             const date = new Date(owner.LastPlayedDate);
@@ -300,14 +371,13 @@
         const icons = document.createElement('span'); icons.className = 'watchguard-status-icons';
         for (const reason of Object.keys(activityReasons).filter(r => owner.Reasons.includes(r))) {
             const icon = document.createElement('span'); icon.className = 'material-icons watchguard-state-' + reason; icon.textContent = statusIcons[reason];
-            icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', activityReasons[reason]); icon.title = activityReasons[reason]; icons.append(icon);
+            icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', viewingLabel(owner, reason, activityReasons[reason])); icon.title = viewingLabel(owner, reason, activityReasons[reason]); icons.append(icon);
         }
         const name = document.createElement('span'); name.className = 'watchguard-user'; name.textContent = owner.DisplayName; name.title = owner.DisplayName; name.tabIndex = 0;
         line.append(icons, name);
         if (owner.AvailableEpisodes != null) {
             const progress = document.createElement('span'); progress.className = 'watchguard-progress';
-            progress.textContent = ' · ' + owner.WatchedEpisodes + '/' + owner.AvailableEpisodes;
-            progress.title = owner.WatchedEpisodes + ' of ' + owner.AvailableEpisodes + ' episodes'; progress.setAttribute('aria-label', progress.title); line.append(progress);
+            appendEpisodeProgress(document, progress, owner); line.append(progress);
         }
         if (owner.Reasons.includes('Watchlisted') && Object.hasOwn(owner, 'AddedAtUtc')) {
             if (owner.AddedAtUtc && Number.isFinite(Date.parse(owner.AddedAtUtc))) {
@@ -329,8 +399,9 @@
         return line;
     }
     function activityText(owner, showName) {
-        let text = (showName ? owner.DisplayName + ' — ' : '') + owner.Reasons.map(r => activityReasons[r] + (r === 'CurrentlyPlaying' ? ' ●' : '')).join(' · ');
-        if (owner.AvailableEpisodes != null) text += ' · ' + owner.WatchedEpisodes + '/' + owner.AvailableEpisodes + ' episodes';
+        let text = (showName ? owner.DisplayName + ' — ' : '') + owner.Reasons.map(r => viewingLabel(owner, r, activityReasons[r]) + (r === 'CurrentlyPlaying' ? ' ●' : '')).join(' · ');
+        const progress = episodeProgress(owner);
+        if (owner.AvailableEpisodes != null) text += ' · ' + (progress?.AiredWatched ?? owner.WatchedEpisodes) + '/' + (progress?.AiredAvailable ?? owner.AvailableEpisodes) + ' episodes' + (progress?.ExtraEpisodes.length ? ' +' + progress.ExtraEpisodes.length : '');
         if (owner.Reasons.includes('Watchlisted') && Object.hasOwn(owner, 'AddedAtUtc'))
             text += owner.AddedAtUtc && Number.isFinite(Date.parse(owner.AddedAtUtc))
                 ? ' · Added: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(new Date(owner.AddedAtUtc))
@@ -357,6 +428,7 @@
                         !u.Reasons.includes('Watchlisted')))) throw new Error('Invalid interest');
                 if ((u.AvailableEpisodes == null) !== (u.WatchedEpisodes == null) ||
                     (u.AvailableEpisodes != null && (!Number.isSafeInteger(u.AvailableEpisodes) || !Number.isSafeInteger(u.WatchedEpisodes) || u.AvailableEpisodes < 0 || u.WatchedEpisodes < 0 || u.WatchedEpisodes > u.AvailableEpisodes))) throw new Error('Invalid progress');
+                episodeProgress(u);
                 owners.add(key(u.UserId));
             }
             const matches = entry.Users.filter(u => (owner === 'all' || key(u.UserId) === key(owner === 'mine' ? user : owner)) &&
@@ -385,6 +457,7 @@
                     else {
                         previous.Reasons = [...new Set([...previous.Reasons, ...owner.Reasons])];
                         if (owner.AvailableEpisodes != null) { previous.AvailableEpisodes = owner.AvailableEpisodes; previous.WatchedEpisodes = owner.WatchedEpisodes; }
+                        if (owner.EpisodeProgress != null) previous.EpisodeProgress = owner.EpisodeProgress;
                         if (owner.LastPlayedDate && (!previous.LastPlayedDate || Date.parse(owner.LastPlayedDate) > Date.parse(previous.LastPlayedDate))) previous.LastPlayedDate = owner.LastPlayedDate;
                         if (owner.Reasons.includes('Watchlisted') && Object.hasOwn(owner, 'AddedAtUtc')) {
                             if (Object.hasOwn(previous, 'AddedAtUtc') && previous.AddedAtUtc !== owner.AddedAtUtc)
@@ -809,7 +882,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
 }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
+        module.exports = { episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -889,7 +962,18 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-status-icons .material-icons {font-size:1.1em}
         .watchguard-user-line .watchguard-user {flex-shrink:1;min-width:0}
         .watchguard-status .watchguard-user {max-width:100%}
-        .watchguard-progress {white-space:nowrap}
+        .watchguard-progress {white-space:nowrap;display:inline-flex;align-items:center;gap:.2em}
+        .watchguard-extra-button {display:inline-flex;align-items:center;justify-content:center;min-width:2.75rem;min-height:2.75rem;padding:.25rem;margin:0 .15rem;border:1px solid #8886;border-radius:.4rem;color:var(--jf-palette-primary-main,#82c4ff);background:#8881;font:inherit;vertical-align:middle;cursor:pointer}
+        .watchguard-extra-button:hover {background:#8883}
+        .watchguard-extra-button:focus-visible,.watchguard-extras-dialog button:focus-visible {outline:2px solid #82c4ff;outline-offset:2px}
+        .watchguard-extras-dialog {width:min(34rem,calc(100vw - 2rem));max-height:80dvh;box-sizing:border-box;overflow:auto;padding:1.2rem;border:1px solid #8888;border-radius:.6rem;background:var(--jf-palette-background-paper,#202020);color:var(--jf-palette-text-primary,#eee);white-space:normal;text-align:start;overflow-wrap:anywhere}
+        .watchguard-extras-dialog::backdrop {background:#0009}
+        .watchguard-extras-dialog h3 {font-size:1.1rem;margin:0 0 .6rem}
+        .watchguard-extras-dialog p {font-size:.85rem;line-height:1.5;opacity:.85}
+        .watchguard-extras-dialog ul {padding:0;list-style:none}
+        .watchguard-extras-dialog li {display:grid;gap:.4rem;padding:.8rem 0;border-top:1px solid #8884;font-size:.9rem;line-height:1.5}
+        .watchguard-extras-dialog li span {opacity:.85}
+        .watchguard-extras-dialog button {min-height:2.75rem}
         .watchguard-user-line time {grid-column:1/-1;font-size:.9em;opacity:.85}
         .watchguard-status {font-size:.8em;line-height:1.5}
         .watchguard-page {color:var(--jf-palette-text-primary,#eee)}
@@ -943,7 +1027,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-series-activity summary>* {margin-inline-end:.5rem}
         .watchguard-activity-heading {font-weight:600;color:var(--jf-palette-text-primary,#eee)}
         .watchguard-series-viewers {list-style:none;padding:0 1rem;margin:0;max-height:28rem;overflow:auto}
-        .watchguard-series-viewers li {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);gap:.4rem .8rem;padding:.9rem 0;border-top:1px solid #ffffff1c;align-items:center;overflow-wrap:anywhere}
+        .watchguard-series-viewers>li {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);gap:.4rem .8rem;padding:.9rem 0;border-top:1px solid #ffffff1c;align-items:center;overflow-wrap:anywhere}
         .watchguard-viewer-name {color:var(--jf-palette-text-primary,#eee);min-width:0}
         .watchguard-viewer-states {display:flex;flex-wrap:wrap;gap:.3rem}
         .watchguard-viewer-metrics {display:grid;gap:.4rem;font-size:.85em}
@@ -958,7 +1042,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-series-section .watchguard-interest {display:block;max-height:none}
         @media(max-width:50em) {
             .detailPagePrimaryContent:has(>.watchguard-series-section) {padding-inline:5%}
-            .watchguard-series-viewers li {grid-template-columns:minmax(0,1fr)}
+            .watchguard-series-viewers>li {grid-template-columns:minmax(0,1fr)}
             .watchguard-series-activity summary {padding:.7rem .8rem}
             .watchguard-series-viewers {padding:0 .8rem}
         }

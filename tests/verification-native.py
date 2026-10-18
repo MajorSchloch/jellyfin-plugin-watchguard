@@ -106,7 +106,13 @@ done''')
                 for _ in range(3):
                     started = time.perf_counter()
                     response = call(route, token=token, timeout=60)
-                    canonical = json.dumps({'items':response['Items'],'coverage':response['Coverage']}, sort_keys=True)
+                    # Only the additive v0.5.2 presentation is absent from v0.4.7.
+                    # Keep exact equality for all original playback/visibility/coverage fields.
+                    comparable = json.loads(json.dumps(response['Items']))
+                    for item in comparable:
+                        for owner in item['Users']:
+                            owner.pop('EpisodeProgress', None)
+                    canonical = json.dumps({'items':comparable,'coverage':response['Coverage']}, sort_keys=True)
                     if scope not in snapshots: snapshots[scope] = canonical
                     assert canonical == snapshots[scope], 'Playback classifications or title coverage changed'
                     assert len(response['Items']) == 100

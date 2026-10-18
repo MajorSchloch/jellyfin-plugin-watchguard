@@ -26,6 +26,11 @@ Start with the repository [README](../README.md) for features, installation, lim
 - [v0.5.1 saved Recently added defaults](saved-sort-v051.md): compatible sidecar, downgrade fallback, corruption and partial-write behavior.
 - [v0.5.1 published release validation](release-v051.md): publication and all ten integration suites passed.
 
+## Unreleased v0.5.2 candidate
+
+- [Additional available episode progress](extra-episodes-v052.md): aired counts, user-specific extras, date boundary, compatibility and validation.
+- [v0.5.2 candidate notes](release-v052.md). Public catalog remains v0.5.1.
+
 ## Maintainer and developer notes
 
 - [Build/package/catalog history](plugin-repository.md): includes historical candidate-specific procedures; use current `.github/workflows/build.yaml`, `.github/workflows/release.yaml` and `scripts/build-release.py` as the executable source of truth.

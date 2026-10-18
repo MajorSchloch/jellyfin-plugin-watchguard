@@ -374,7 +374,7 @@ test('Compact rows use safe names, distinct accessible icons, calendar dates and
     const line=userLine(documentFixture().doc,owner);
     assert.deepEqual(line.children[0].children.map(i=>i.textContent),['bookmark','play_circle','sensors','check_circle']);
     assert.deepEqual(line.children[0].children.map(i=>i.attributes['aria-label']),['Watchlist','Watching','Currently Playing','Watched']);
-    assert.equal(line.children[1].textContent,'<Tom>');assert.equal(line.children[2].textContent,' · 7/12');
+    assert.equal(line.children[1].textContent,'<Tom>');assert.match(textOf(line.children[2]),/7\/12/);
     const time=line.children[3];assert.equal(time.tag,'time');assert.equal(time.dateTime,date);
     assert.equal(time.textContent,new Intl.DateTimeFormat(undefined,{dateStyle:'medium'}).format(new Date(date)));
     assert.equal(time.attributes['aria-label'],'Last played: '+new Intl.DateTimeFormat(undefined,{dateStyle:'full',timeStyle:'long'}).format(new Date(date)));
@@ -502,7 +502,7 @@ test('targeted series panel safely renders deduplicated users, coverage and nati
     renderSeriesActivity(doc,target,status,me,me);
     assert.match(textOf(target),/1 Watchlisted.*1 Watching.*1 Currently Playing.*1 Caught Up.*Incomplete/);
     assert.match(textOf(target),/You · <img onerror=evil\(\)>/);
-    assert.match(textOf(target),/7\/12 episodes \(incomplete coverage\)/);
+    assert.match(textOf(target),/7\/12 episodes\s+\(incomplete coverage\)/);
     const list=descendants(target).find(n=>n.tag==='ul');assert.equal(list.children.length,2);assert.equal(list.children[0].children[0].textContent,'Other');
     assert.equal(descendants(target).some(n=>n.tag==='img'||n.tag==='script'),false);
     const bars=descendants(target).filter(n=>n.tag==='progress');assert.equal(bars.length,1);assert.equal(bars[0].max,12);assert.equal(bars[0].value,12);
@@ -659,4 +659,45 @@ test('Preference save/reset errors stay visible and late writes cannot affect an
         assert.equal(f.page.children[6].textContent,prior);assert.equal(f.navigation.length,0);
         const before=f.calls.length;await button.onclick();assert.equal(f.calls.length,before);
     }
+});
+
+const extraProgress = () => ({AiredAvailable:3,AiredWatched:3,ExtraEpisodes:[
+    {ItemId:'d'.repeat(32),SeasonNumber:1,EpisodeNumber:4,EpisodeNumberEnd:null,Name:'<img onerror=evil()>',PremiereDate:'2026-10-24T00:00:00Z',ReleaseStatus:'Future',Watched:false},
+    {ItemId:'e'.repeat(32),SeasonNumber:1,EpisodeNumber:5,Name:'Release day',PremiereDate:'2026-10-19T00:00:00Z',ReleaseStatus:'ReleaseDay',Watched:true},
+    {ItemId:'f'.repeat(32),SeasonNumber:null,EpisodeNumber:null,Name:'Unknown',PremiereDate:null,ReleaseStatus:'UnknownDate',Watched:false}
+]});
+test('Additional episodes render an accessible button and safe per-user details with explicit date states',()=>{
+    const {userLine,activityText}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const f=documentFixture(), owner={UserId:me,DisplayName:'Tom <script>',Reasons:['CaughtUp'],AvailableEpisodes:3,WatchedEpisodes:3,EpisodeProgress:extraProgress()};
+    const row=userLine(f.doc,owner), more=button(row,'+3');more.isConnected=true;
+    assert.match(activityText(owner,true),/Caught up on aired episodes.*3\/3 episodes \+3/);
+    assert.equal(more.attributes['aria-haspopup'],'dialog');assert.match(more.attributes['aria-label'],/Tom <script>.*3 additional available/);
+    more.onclick();more.onclick();assert.equal(descendants(row).filter(n=>n.tag==='dialog').length,1);
+    const dialog=descendants(row).find(n=>n.tag==='dialog');assert.equal(button(dialog,'Close').focused,true);
+    assert.match(textOf(dialog),/Season 1 · Episode 4.*<img onerror=evil\(\)>/);
+    assert.match(textOf(dialog),/Future-dated.*Unwatched/);assert.match(textOf(dialog),/Release day.*Watched/);assert.match(textOf(dialog),/Date unknown.*Unwatched/);
+    assert.equal(descendants(dialog).some(n=>n.tag==='img'||n.tag==='script'),false);
+    dialog.events.cancel({preventDefault(){}});assert.equal(dialog.removed,true);assert.equal(more.focused,true);
+    more.onclick();button(descendants(row).find(n=>n.tag==='dialog'),'Close').onclick();assert.equal(descendants(row).filter(n=>n.tag==='dialog').length,0);
+    owner.EpisodeProgress.ExtraEpisodes.forEach(e=>e.Watched=true);assert.match(activityText(owner),/^Caught Up/);
+});
+test('Series panel and progressive merge preserve additive progress, older payloads and incomplete coverage',()=>{
+    const {renderSeriesActivity,mergeInterest}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const f=documentFixture(), target=f.doc.createElement('div');target.replaceChildren=()=>{target.children=[];};
+    const owner={UserId:me,DisplayName:'Tom',Reasons:['CaughtUp'],AvailableEpisodes:4,WatchedEpisodes:3,CoverageComplete:false,EpisodeProgress:extraProgress()};
+    renderSeriesActivity(f.doc,target,{ItemId:me,IsComplete:true,Notice:'Metadata incomplete',Users:[owner]},me,me);
+    assert.ok(button(target,'+3'));assert.match(textOf(target),/Caught up on aired episodes/);assert.match(textOf(target),/3\/3/);
+    assert.equal(descendants(target).filter(n=>n.tag==='progress').length,0);assert.match(textOf(target),/incomplete coverage/);
+    const item={...overviewItems[0],Users:[owner]}, merged=mergeInterest(overviewItems,[item]);
+    assert.deepEqual(merged[0].Users.find(u=>u.UserId===me).EpisodeProgress,owner.EpisodeProgress);
+    delete owner.EpisodeProgress;renderSeriesActivity(f.doc,target,{ItemId:me,IsComplete:true,Notice:'Old payload',Users:[owner]},me,me);
+    assert.equal(descendants(target).filter(n=>n.className==='emby-button watchguard-extra-button').length,0);assert.match(textOf(target),/3\/4 episodes/);
+});
+test('Malformed extras fail validation without executing metadata or affecting protection validation',()=>{
+    const {episodeProgress}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    for(const change of [p=>p.AiredWatched=4,p=>p.ExtraEpisodes.push(p.ExtraEpisodes[0]),p=>p.ExtraEpisodes[0].ReleaseStatus='Aired',p=>p.ExtraEpisodes[0].Watched='yes',p=>p.ExtraEpisodes[0].PremiereDate=null]) {
+        const p=extraProgress();change(p);assert.throws(()=>episodeProgress({EpisodeProgress:p}));
+    }
+    const owner={UserId:me,DisplayName:'Tom',Reasons:['CaughtUp'],EpisodeProgress:'invalid informational data'};
+    assert.deepEqual(validateStatus({ItemId:me,HasInterest:true,HasOtherInterestedUsers:false,Users:[owner]},me,me),[owner]);
 });

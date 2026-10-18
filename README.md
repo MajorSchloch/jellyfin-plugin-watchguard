@@ -65,7 +65,11 @@ New memberships record per-user **Added** dates, with a **Recently added** sort 
 
 ## Saved Recently added defaults (v0.5.1)
 
-Save **Recently added** with **Save view as defaults**. This release adds **Recently added** to **Save view as defaults**, with a separate, revision-bound `preference-sorts.json` so older releases still read `preferences.json`. Downgrade falls back to Title; legacy saves/resets invalidate old added overrides. See [design and compatibility limits](docs/saved-sort-v051.md) and [published release checks](docs/release-v051.md).
+Save **Recently added** with **Save view as defaults**, with a separate, revision-bound `preference-sorts.json` so older releases still read `preferences.json`. Downgrade falls back to Title; legacy saves/resets invalidate old added overrides. See [design and compatibility limits](docs/saved-sort-v051.md) and [published release checks](docs/release-v051.md).
+
+## Unreleased v0.5.2 candidate
+
+Series progress keeps aired episodes in the main fraction and exposes additional available episodes with an accessible **+N** button, for example **3/3 +1**. Details include each episode’s date and that user’s watched state. See [design, limits and validation](docs/extra-episodes-v052.md). Deletion protection and stored preferences are unchanged. The public release/catalog remains v0.5.1.
 
 ## Development and verification
 
@@ -77,7 +81,7 @@ dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release
 node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs
 python3 scripts/build-release.py
 python3 tests/catalog_test.py
-python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.5.1.zip
+python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.5.2.zip
 ```
 
 The release packager produces a deterministic ZIP containing only the WatchGuard DLL and LICENSE; Web resources are embedded. Building and testing do **not** publish releases or modify the public catalog. The optional full GitHub Actions release workflow defaults to `publish=false`; it tests disposable Jellyfin instances and generated media. **Do not point fixture scripts at production media.**

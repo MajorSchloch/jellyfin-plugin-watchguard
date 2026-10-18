@@ -12,7 +12,11 @@ using MediaBrowser.Model.Entities;
 
 namespace Jellyfin.Plugin.WatchGuard;
 
-public sealed record OverviewUser(Guid UserId, string DisplayName, string[] Reasons, DateTime? LastPlayedDate, int? AvailableEpisodes = null, int? WatchedEpisodes = null);
+public sealed record OverviewUser(Guid UserId, string DisplayName, string[] Reasons, DateTime? LastPlayedDate, int? AvailableEpisodes = null, int? WatchedEpisodes = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public EpisodeProgress? EpisodeProgress { get; init; }
+}
 public sealed record OverviewItem(Guid ItemId, string Name, OverviewUser[] Users);
 public sealed record InterestOverview(OverviewItem[] Items, bool IsComplete, bool LimitReached, string Notice)
 {
@@ -58,6 +62,7 @@ public sealed class OverviewDiagnostics
 
 internal sealed record OverviewPlayback(string DisplayName, DateTime? LastPlayedDate, bool Completed, int? AvailableEpisodes, int? WatchedEpisodes)
 {
+    public EpisodeProgress? EpisodeProgress { get; init; }
     public bool CaughtUp { get; init; }
     public bool CoverageComplete { get; init; }
     public bool Started { get; init; }
@@ -74,6 +79,7 @@ internal sealed class OverviewBudget(WatchlistEntry[] entries, User[] accounts)
     public IEnumerable<SessionInfo>? SessionSnapshot { get; init; }
     public bool IncludeActivity { get; init; }
     public bool TargetedSeries { get; init; }
+    public bool IncludeEpisodeProgress { get; init; }
     public Dictionary<Guid, string[]> TargetedReasons { get; } = new();
     public bool IncompleteCoverage { get; set; }
     public HashSet<WatchlistEntry> Entries { get; } = entries.ToHashSet();
@@ -111,7 +117,7 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
         if (enabled.Length > UserLimit) throw new InvalidOperationException("Overview user budget exceeded.");
         WatchlistEntry[] entries;
         using (OverviewTiming.Begin("StoreRead", logger)) entries = automaticOnly ? [] : store.Read().Where(e => !ownOnly || e.UserId == caller.Id).ToArray();
-        var budget = new OverviewBudget(entries, enabled) { IncludeActivity = activityDays.HasValue, Cancellation = cancellation,
+        var budget = new OverviewBudget(entries, enabled) { IncludeActivity = activityDays.HasValue, IncludeEpisodeProgress = activityDays.HasValue, Cancellation = cancellation,
             SessionSnapshot = sessions.Sessions.Where(s => s.IsActive && s.NowPlayingItem is not null).Take(DiscoveryLimit + 1).ToArray() };
         var diagnostics = budget.Diagnostics;
         var causes = new HashSet<string>(StringComparer.Ordinal);
@@ -264,7 +270,7 @@ public sealed class InterestOverviewService(WatchlistStore store, ILibraryManage
                     {
                         var playback = budget.Playback.GetValueOrDefault(u.UserId);
                         return new OverviewUser(u.UserId, u.DisplayName, u.Reasons, budget.PlaybackDates.GetValueOrDefault(u.UserId),
-                            activityDays.HasValue ? playback?.AvailableEpisodes : null, activityDays.HasValue ? playback?.WatchedEpisodes : null);
+                            activityDays.HasValue ? playback?.AvailableEpisodes : null, activityDays.HasValue ? playback?.WatchedEpisodes : null) { EpisodeProgress = playback?.EpisodeProgress };
                     }).ToArray()));
                 }
                 catch (OverviewLimitException)
