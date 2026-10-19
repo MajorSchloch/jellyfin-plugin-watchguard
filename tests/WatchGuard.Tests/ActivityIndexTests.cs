@@ -241,6 +241,7 @@ public sealed class ActivityIndexTests : IDisposable
         try { for(var n=0;n<4 && !once;n++) await worker.RunSlice(CancellationToken.None);
             Assert.True(once); Assert.Empty(Read().Items);
             Assert.True(worker.Status().StaleResultsDiscarded>0);
+            Assert.Equal(0, Read().Freshness.StaleResultsDiscarded); // Aggregate worker counters are administrator-only.
             clock.Advance(TimeSpan.FromSeconds(3)); await Populate(); Assert.Single(Read().Items);
         } finally { await worker.StopAsync(CancellationToken.None); }
     }

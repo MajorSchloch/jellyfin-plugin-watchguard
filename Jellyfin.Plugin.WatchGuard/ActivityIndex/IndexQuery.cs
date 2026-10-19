@@ -170,6 +170,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
             EpisodeRows = caller.HasPermission(PermissionKind.IsAdministrator) ? state.EpisodeRows : 0,
             PlaybackBatches = caller.HasPermission(PermissionKind.IsAdministrator) ? state.PlaybackBatches : 0,
             TitlesVerified = caller.HasPermission(PermissionKind.IsAdministrator) ? state.TitlesVerified : 0,
+            StaleResultsDiscarded = caller.HasPermission(PermissionKind.IsAdministrator) ? state.StaleResultsDiscarded : 0,
             VerificationMs = caller.HasPermission(PermissionKind.IsAdministrator) ? state.VerificationMs : 0,
             RetainedSerializedBytes = caller.HasPermission(PermissionKind.IsAdministrator) ? state.RetainedSerializedBytes : 0 };
         return new(result.ToArray(), false, causes.Any(c => c.EndsWith("Limit", StringComparison.Ordinal) || c.EndsWith("Failure", StringComparison.Ordinal) || c.EndsWith("Budget", StringComparison.Ordinal) || c.EndsWith("Capacity", StringComparison.Ordinal)),
