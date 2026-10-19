@@ -107,6 +107,23 @@ public sealed class ActivityIndexTests : IDisposable
     }
 
     [Fact]
+    public async Task CurrentInterestIsNotBuriedBehindCompletedHistoryPages()
+    {
+        for (var n = 0; n < 30; n++) AddMovie();
+        var live = new Movie { Id = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), Name = "Live fixture" };
+        var older = new Movie { Id = Guid.Parse("ffffffff-ffff-ffff-ffff-fffffffffffe"), Name = "Older unfinished" };
+        items.Add(live.Id, live); items.Add(older.Id, older);
+        playback[(alice.Id, older.Id)] = new() { Key = "test", PlaybackPositionTicks = 100, LastPlayedDate = DateTime.UtcNow.AddDays(-150) };
+        await Populate();
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = alice.Id, NowPlayingItem = new MediaBrowser.Model.Dto.BaseItemDto { Id = live.Id } }]);
+        var page = Read(7, true);
+        Assert.Equal(live.Id, page.Items[0].ItemId);
+        Assert.Equal(older.Id, page.Items[1].ItemId);
+        Assert.NotNull(page.Continuation);
+    }
+
+    [Fact]
     public async Task NativeCountsDatesAndExtrasMatchFreshClassifier()
     {
         var series = AddSeries(); var extra = new AvailableEpisode { Id = Guid.NewGuid(), Name = "<unsafe>", SeriesId = series.Id, PremiereDate = DateTime.Now.Date.AddDays(1) };

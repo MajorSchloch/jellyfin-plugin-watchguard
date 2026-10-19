@@ -74,9 +74,18 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
                 if (!snapshots.TryGetValue(continuation, out page!) || page.Caller != caller.Id || page.Owner != owner || page.Days != days || page.Older != older)
                     throw new ArgumentException("Continuation expired or does not match this view; reload the index.");
             }
-            else page = new(caller.Id, owner, days, older,
-                candidates.Where(r => r.Failure == null && r.Activity.Reasons.Length > 0 && InRange(r.Activity, days, older, now))
-                    .Select(r => r.Key.ItemId).Concat(live.Keys.Select(k => k.ItemId)).Distinct().Order().ToArray(), now.AddMinutes(2), 0);
+            else
+            {
+                var eligible = candidates.Where(r => r.Failure == null && r.Activity.Reasons.Length > 0 && InRange(r.Activity, days, older, now)).ToArray();
+                var playing = live.Keys.Select(k => k.ItemId).ToHashSet();
+                var current = eligible.Where(r => r.Activity.Reasons.Any(reason => reason is "InProgress" or "CaughtUp")).Select(r => r.Key.ItemId).ToHashSet();
+                // Preserve active-interest discovery priority before freezing the
+                // snapshot. Completed history cannot bury live/unfinished titles
+                // behind arbitrary ID pages; Web sorting remains local to loaded cards.
+                page = new(caller.Id, owner, days, older,
+                    eligible.Select(r => r.Key.ItemId).Concat(playing).Distinct()
+                        .OrderBy(id => playing.Contains(id) ? 0 : current.Contains(id) ? 1 : 2).ThenBy(id => id).ToArray(), now.AddMinutes(2), 0);
+            }
         }
         var result = new List<OverviewItem>();
         var causes = new HashSet<string>(worker.Status().Causes);
