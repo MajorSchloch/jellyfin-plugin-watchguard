@@ -31,6 +31,7 @@ public sealed class Guard(Identity identity, Evaluator evaluator, ApprovalStore 
         IDisposable? admission = null, reservation = null;
         Principal? principal = null;
         string? id = null;
+        Operation? matchedApproval = null;
         var outcome = "ProtectionUnavailable";
         var proceed = false;
         try
@@ -49,6 +50,7 @@ public sealed class Guard(Identity identity, Evaluator evaluator, ApprovalStore 
                 if (!principal.IsAdmin) throw new GuardFailure(403, "NativePermissionDenied");
                 var ticket = store.Read(id, principal.Owner); // Reject retries before looking up an already-deleted target.
                 if (ticket.State != ApprovalState.Approved || ticket.Operation.Key != operation.Key) throw new GuardFailure(409, "ApprovalInvalid");
+                matchedApproval = operation;
             }
             var evaluated = evaluator.Read(operation, principal.User, context.HttpContext.RequestAborted);
             if (id is null && evaluated.Protected)
@@ -69,6 +71,23 @@ public sealed class Guard(Identity identity, Evaluator evaluator, ApprovalStore 
         catch (Exception error)
         {
             var failure = error as GuardFailure ?? new GuardFailure(503, "ProtectionUnavailable");
+            // Both requests may pass Read before one consumes and removes the targets.
+            // Only that specific missing-target failure gets consumed-ticket precedence.
+            // Revalidate identity first; never mask permission failures, cancellation,
+            // lookup exceptions, or exceptions from the native action (outside this catch).
+            if (failure is { Status: 404, Code: "TargetUnavailable" } && matchedApproval is not null && id is not null && principal is not null)
+            {
+                try
+                {
+                    var current = await identity.Read(context.HttpContext, administrator: true);
+                    if (current.Owner != principal.Owner) throw new GuardFailure(409, "ApprovalInvalid");
+                    if (store.WasConsumed(id, current.Owner, matchedApproval)) failure = new GuardFailure(409, "ApprovalAlreadyUsed");
+                }
+                catch (Exception recheckError)
+                {
+                    failure = recheckError as GuardFailure ?? new GuardFailure(503, "ProtectionUnavailable");
+                }
+            }
             if (id is not null && principal is not null) store.Revoke(id, principal.Owner);
             outcome = failure.Code;
             context.Result = Responses.Error(context.HttpContext, failure);
