@@ -22,7 +22,8 @@ internal sealed class IndexVisibilityLimitException : Exception;
 public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUserManager users, ISessionManager sessions, TimeProvider? clock = null)
 {
     private readonly TimeProvider time = clock ?? TimeProvider.System;
-    private sealed record PageSnapshot(Guid Caller, Guid? Owner, int Days, bool Older, Guid[] Items, DateTimeOffset Expires, int Offset);
+    private sealed record PageTitle(Guid Id, Guid[] Owners);
+    private sealed record PageSnapshot(Guid Caller, Guid? Owner, int Days, bool Older, PageTitle[] Items, DateTimeOffset Expires, int Offset, int OwnerOffset);
     private readonly object gate = new();
     private readonly Dictionary<string, PageSnapshot> snapshots = new(StringComparer.Ordinal);
 
@@ -58,6 +59,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
         var now = time.GetUtcNow();
         var snapshot = worker.Snapshot();
         var candidates = snapshot.Rows.Where(r => !owner.HasValue || r.Key.UserId == owner).ToArray();
+        var titleRows = candidates.ToLookup(r => r.Key.ItemId);
         var accounts = new Dictionary<Guid, User?> { [caller.Id] = caller };
         User? Account(Guid id)
         {
@@ -84,7 +86,8 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
                 // behind arbitrary ID pages; Web sorting remains local to loaded cards.
                 page = new(caller.Id, owner, days, older,
                     eligible.Select(r => r.Key.ItemId).Concat(playing).Distinct()
-                        .OrderBy(id => playing.Contains(id) ? 0 : current.Contains(id) ? 1 : 2).ThenBy(id => id).ToArray(), now.AddMinutes(2), 0);
+                        .OrderBy(id => playing.Contains(id) ? 0 : current.Contains(id) ? 1 : 2).ThenBy(id => id)
+                        .Select(id => new PageTitle(id, titleRows[id].Select(r => r.Key.UserId).Order().ToArray())).ToArray(), now.AddMinutes(2), 0, 0);
             }
         }
         var result = new List<OverviewItem>();
@@ -96,17 +99,23 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
         var ownerEpisodes = new Dictionary<IndexKey, HashSet<Guid>>();
         var policies = new Dictionary<Guid, string>();
         var consumedTitles = 0;
-        foreach (var id in page.Items.Skip(page.Offset).Take(25))
+        var ownerOffset = page.OwnerOffset;
+        var currentRows = candidates.ToDictionary(r => r.Key);
+        foreach (var title in page.Items.Skip(page.Offset).Take(25))
         {
             if (visibilityRows > 20000 - (InterestOverviewService.EpisodeLimit + 1)) { causes.Add("VisibilityBudget"); break; }
-            consumedTitles++;
+            var id = title.Id;
             cancellation.ThrowIfCancellationRequested();
             var item = library.GetItemById<BaseItem>(id, caller);
-            if (!InterestService.Supported(item)) continue;
+            if (!InterestService.Supported(item)) { consumedTitles++; ownerOffset = 0; continue; }
             var people = new Dictionary<Guid, OverviewUser>();
-            foreach (var row in candidates.Where(r => r.Key.ItemId == id))
+            var exhausted = false;
+            // Freeze owner identities, never authorization or playback data. Resume
+            // the first unfinished owner using fresh rows and native permissions.
+            for (; ownerOffset < title.Owners.Length; ownerOffset++)
             {
                 cancellation.ThrowIfCancellationRequested();
+                if (!currentRows.TryGetValue(new(title.Owners[ownerOffset], id), out var row)) continue;
                 var account = Account(row.Key.UserId);
                 if (account is null || account.HasPermission(PermissionKind.IsDisabled)) continue;
                 if (!worker.StillValid(row, snapshot.Generation)) { causes.Add("PendingVerification"); continue; }
@@ -136,7 +145,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
                     if (!requesterEpisodes.TryGetValue(id, out var visible)) requesterEpisodes[id] = visible = caller.Id == account.Id ? authorized : Visible(caller);
                     if (!authorized.IsSubsetOf(visible)) { causes.Add("RequesterEpisodeVisibility"); continue; }
                 }
-                } catch (IndexVisibilityLimitException) { causes.Add("VisibilityBudget"); continue; }
+                } catch (IndexVisibilityLimitException) { causes.Add("VisibilityBudget"); exhausted = true; break; }
                 if (!worker.StillValid(row, snapshot.Generation)) { causes.Add("PendingVerification"); continue; }
                 if (!row.MetadataComplete) causes.Add("EpisodeMetadataIncomplete");
                 if (row.Activity.Reasons.Length > 0 && InRange(row.Activity, days, older, now)) people[account.Id] = row.Activity with { DisplayName = account.Username };
@@ -144,19 +153,21 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
             foreach (var (key, value) in live.Where(p => p.Key.ItemId == id))
                 people[key.UserId] = people.TryGetValue(key.UserId, out var existing) ? existing with { Reasons = [.. existing.Reasons, "CurrentlyPlaying"] } : value;
             if (people.Count > 0) result.Add(new(id, item!.Name, people.Values.ToArray()));
+            if (exhausted) break;
+            consumedTitles++; ownerOffset = 0;
         }
         string? next = null;
         if (page.Offset + consumedTitles < page.Items.Length)
         {
             lock (gate)
             {
+                if (continuation is not null) snapshots.Remove(continuation);
                 if (snapshots.Count >= 128 || snapshots.Values.Count(p => p.Caller == caller.Id) >= 8) causes.Add("PaginationCapacity");
                 else
                 {
                     next = Convert.ToHexString(RandomNumberGenerator.GetBytes(24));
-                    snapshots.Add(next, page with { Offset = page.Offset + consumedTitles });
+                    snapshots.Add(next, page with { Offset = page.Offset + consumedTitles, OwnerOffset = ownerOffset });
                 }
-                if (continuation is not null) snapshots.Remove(continuation);
             }
         }
         if (continuation is not null) { lock (gate) snapshots.Remove(continuation); }

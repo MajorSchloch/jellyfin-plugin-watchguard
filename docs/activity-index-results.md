@@ -1,8 +1,19 @@
 # Activity index qualification
 
-Review branch after published v0.5.2; no publication or production deployment. Final runtime: `66733b0`. The supplied 7,772.52 ms / 680 episode queries / seven-account production observation is not our benchmark. Existing protection/approval services and standalone loading remain unchanged.
+Review branch after published v0.5.2; no publication or production deployment. Pre-review qualified runtime: `66733b0`; the PR #39 corrections below require a new full matrix. The supplied 7,772.52 ms / 680 episode queries / seven-account production observation is not our benchmark. Existing protection/approval services and standalone loading remain unchanged.
 
-## Final native comparison
+## PR #39 review corrections
+
+Review baseline: `c638515`. Focused tests reproduced incomplete owner pagination (three 1,000-episode series, seven owners and a separate administrator; also one series with 25 owners), idle checkpoint writes, a poll/Load more race and 401/403 retention of cross-user results. These defects were not covered by the earlier passing matrix.
+
+- Continuations now preserve the first unfinished owner, with a bounded title/owner identity snapshot. Every page rechecks current rows, native policy and episode visibility. The 20,000-row visibility budget is unchanged; oversized titles progress over multiple pages without dropping eligible owners.
+- Poll replacement and Load more use one in-flight slot. Explicit refresh fences old responses. Deferred-response tests cover both operation orders and both refresh/old-page response orders; repeated titles merge owners without replacing posters.
+- Authorization denial clears every protected result, owner directory and continuation, invalidates competing responses and stops polling. Tests cover initial load, refresh, polling and pagination with both 401 and 403, including denial before/after a concurrent refresh response. Ordinary service failure retains usable results.
+- Persisted-state revisions prevent idle rewrites. Tests use actual checkpoint files to verify unchanged idle timestamps/bytes, cursor-only deadlines/final flush, row/queue consistency across restart, debounced queue recovery and dirty state after a failed atomic write.
+
+Local checks after the corrections: **250 backend, 132 JavaScript/bootstrap/approval/readiness, 14 Python and 4 catalog tests passed**. Full hosted qualification on the corrected runtime is pending; the results below describe earlier commits only. No deletion, approval, protection or standalone-loader code was changed.
+
+## Pre-review native comparison
 
 [Measured evidence](evidence/activity-index/native-final-summary.json): exact checksum-verified published v0.5.2 DLL versus the candidate on the same disposable database, official pinned Jellyfin 12.2 image, .NET 10, Docker Desktop. Seven accounts, 120 completed movies and one continuing 300-episode series; six accounts have playback data. One warm-up and three measured first-page requests; full pagination measured separately once.
 
@@ -21,7 +32,7 @@ Warm reads performed no playback batches or classification. Full pagination stil
 
 A native manual unplayed update settled in **3,004.55 ms**, without Refresh. The scheduled task was discovered, started, observed running, cancelled and observed idle. Uninstall retained personal JSON and the stopped worker's derived checkpoint, removed the loader/asset endpoint, and left Web files unchanged. Full-view repeated-run variation and heterogeneous large-library heap usage remain unmeasured.
 
-### Final hosted repetition
+### Pre-review hosted repetition
 
 [Independent hosted evidence](evidence/activity-index/hosted-final-summary.json), same `66733b0` runtime and fixture, Ubuntu runner:
 
@@ -38,7 +49,7 @@ Cold population: 279.96 s; incremental manual unplayed update: 2.89 s. Exact cla
 - JavaScript/bootstrap/approval/readiness: **116 passed**. New indexed cases cover range URLs, no implicit preference saves, local sorting, stable cards, late account responses, loading, malformed status, retained cards on refresh failure and clearing denied activity. Existing deletion assertions remain unchanged.
 - Python infrastructure/hygiene: **14 passed**. Catalog: **4 passed**.
 - Local LinuxServer/Caddy WebSocket and stopped-worker uninstall checks passed. Local official-image base-path browser scenarios passed native movie/series/context/bulk deletion, fresh checks, zero-delete cancellation and the new range controls; its subsequently exposed uninstall-test race is documented below.
-- [Final hosted matrix 39244025441](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39244025441), runtime `66733b0`, `publish=false`, `proxy_matrix=true`: **build and all eleven integration suites passed; publication skipped**. This is the complete final runtime validation, including all fixes below.
+- [Final hosted matrix 39244025441](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39244025441), runtime `66733b0`, `publish=false`, `proxy_matrix=true`: **build and all eleven integration suites passed; publication skipped**. This qualified the pre-review runtime; it does not qualify the subsequent PR #39 corrections.
 
 The matrix retains official/LinuxServer, Caddy HTTPS, base path, native catalog, migration/rollback, WebSocket, discovery and verification suites, plus the new activity-index job. Earlier [39239256322](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39239256322) passed the build and all eleven integration suites on `05e0c0a`, publication skipped. That pass includes batching/policy/account-cache changes, but is not attributed retroactively to the subsequent fixes. [39235289437](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39235289437) also passed all eleven suites on the earlier `fcdaa81` implementation. Superseded queued/running validations were cancelled and are not counted as passes.
 

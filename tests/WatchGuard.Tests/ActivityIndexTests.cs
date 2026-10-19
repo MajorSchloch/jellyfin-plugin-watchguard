@@ -93,6 +93,119 @@ public sealed class ActivityIndexTests : IDisposable
         Assert.True(worker.Status().PlaybackBatches < 2 * 137, "Background slices must retain native per-account batching.");
         Assert.False(Read().IsComplete); // A completed pass is not an exhaustive audit.
     }
+    [Theory]
+    [InlineData(3, 7)]
+    [InlineData(1, 25)]
+    public async Task VisibilityBudgetResumesEveryOwnerIncludingTitlesLargerThanOnePage(int titleCount, int ownerCount)
+    {
+        var owners = Enumerable.Range(0, ownerCount).Select(n => new User("Owner" + n, "test", "test") { Id = Guid.NewGuid() }).ToArray();
+        bob.SetPermission(PermissionKind.IsAdministrator, true);
+        var accounts = owners.Append(bob).ToArray();
+        users.Setup(u => u.GetUsers()).Returns(accounts);
+        users.Setup(u => u.GetUserById(It.IsAny<Guid>())).Returns((Guid id) => accounts.SingleOrDefault(u => u.Id == id));
+        var titles = Enumerable.Range(0, titleCount).Select(_ => AddSeries(1000)).ToArray();
+        playback.Clear();
+        foreach (var title in titles)
+        foreach (var owner in owners)
+        {
+            var episode = items.Values.OfType<Episode>().First(e => e.SeriesId == title.Id);
+            playback[(owner.Id, episode.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-1) };
+        }
+        await Populate(slices: 100);
+        Assert.Equal(titleCount * ownerCount, worker.Snapshot().Rows.Length);
+        var seen = new HashSet<IndexKey>();
+        string? cursor = null;
+        var pages = 0;
+        do
+        {
+            var page = query.Read(bob, null, 30, true, cursor, CancellationToken.None);
+            Assert.InRange(page.ReadDiagnostics!.EpisodeRows, 0, 20000);
+            Assert.NotEmpty(page.Items); // Even one oversized title must make progress.
+            foreach (var title in page.Items)
+            foreach (var owner in title.Users) Assert.True(seen.Add(new(owner.UserId, title.ItemId)));
+            cursor = page.Continuation;
+            Assert.True(++pages <= 4, "Continuation must finish, not repeat an unaffordable title forever.");
+        } while (cursor != null);
+        Assert.True(pages > 1);
+        Assert.Equal(titleCount * ownerCount, seen.Count);
+        foreach (var title in titles)
+        foreach (var owner in owners) Assert.Contains(new IndexKey(owner.Id, title.Id), seen);
+    }
+
+    [Fact]
+    public async Task SettledIdleSlicesNeverRewriteCheckpoint()
+    {
+        AddMovie(); await Populate();
+        var file = Path.Combine(path, "activity-index.json");
+        var before = await File.ReadAllBytesAsync(file);
+        var modified = File.GetLastWriteTimeUtc(file);
+        for (var n = 0; n < 5; n++) { clock.Advance(TimeSpan.FromSeconds(31)); await worker.RunSlice(CancellationToken.None); }
+        Assert.Equal(modified, File.GetLastWriteTimeUtc(file));
+        Assert.Equal(before, await File.ReadAllBytesAsync(file));
+        Assert.Empty(Directory.GetFiles(path, "*.replaced-*"));
+    }
+
+    [Fact]
+    public async Task CursorOnlyProgressFlushesWithinThirtySecondsAndAtEndOfPass()
+    {
+        users.Setup(u => u.GetUsers()).Returns([alice]);
+        AddSeries(300);
+        for (var n = 0; n < 4 && store.Read().Rows.Length == 0; n++) await worker.RunSlice(CancellationToken.None);
+        var file = Path.Combine(path, "activity-index.json");
+        var before = store.Read(); var modified = File.GetLastWriteTimeUtc(file);
+        var verified = worker.Status().TitlesVerified;
+        await worker.RunSlice(CancellationToken.None);
+        Assert.Equal(verified, worker.Status().TitlesVerified); // Discovery revisits an already deduplicated title.
+        Assert.Equal(modified, File.GetLastWriteTimeUtc(file));
+        clock.Advance(TimeSpan.FromSeconds(30)); await worker.RunSlice(CancellationToken.None);
+        Assert.True(store.Read().Positions.Sum(p => p.Offset) > before.Positions.Sum(p => p.Offset));
+        await Populate();
+        Assert.All(store.Read().Positions, p => Assert.True(p.Finished)); // Flush final cursor even before next deadline.
+    }
+
+    [Fact]
+    public async Task ChangedRowsAndRemainingQueueAreCheckpointedTogetherAndResumeAfterRestart()
+    {
+        for (var n = 0; n < 40; n++) AddMovie();
+        for (var n = 0; n < 4 && store.Read().Rows.Length == 0; n++) await worker.RunSlice(CancellationToken.None);
+        var first = store.Read();
+        Assert.Equal(8, first.Rows.Length); Assert.Equal(32, first.Pending.Length);
+        await worker.RunSlice(CancellationToken.None);
+        var second = store.Read();
+        Assert.Equal(16, second.Rows.Length); Assert.Equal(24, second.Pending.Length);
+        Assert.Equal(40, second.Rows.Select(r => r.Key).Concat(second.Pending).Distinct().Count());
+        using var restored = Worker(); await Populate(restored);
+        Assert.Equal(40, store.Read().Rows.Length); Assert.Empty(store.Read().Pending);
+    }
+
+    [Fact]
+    public async Task DebouncedQueueOnlyChangeIsPersistedAndRecovered()
+    {
+        await Populate(); clock.Advance(TimeSpan.FromSeconds(31));
+        var movie = AddMovie(); var key = new IndexKey(alice.Id, movie.Id);
+        worker.Invalidate(key); // Due in two seconds; this slice cannot evaluate it yet.
+        await worker.RunSlice(CancellationToken.None);
+        Assert.Contains(key, store.Read().Pending); Assert.Empty(store.Read().Rows);
+        using var restored = Worker(); await Populate(restored);
+        Assert.Single(store.Read().Rows); Assert.Empty(store.Read().Pending);
+    }
+
+    [Fact]
+    public async Task FailedCheckpointStaysDirtyUntilSavedEvenAfterWorkHasSettled()
+    {
+        var movie = AddMovie(); await Populate();
+        playback[(alice.Id, movie.Id)].Played = false;
+        worker.Invalidate(new(alice.Id, movie.Id)); clock.Advance(TimeSpan.FromSeconds(3));
+        var temporary = Path.Combine(path, "activity-index.json.tmp");
+        Directory.CreateDirectory(temporary); // Fail the real atomic write, not a mocked dirty check.
+        Assert.NotNull(await Record.ExceptionAsync(() => worker.RunSlice(CancellationToken.None)));
+        Assert.Single(store.Read().Rows); Assert.Contains("CheckpointFailure", worker.Status().Causes);
+        Directory.Delete(temporary);
+        await worker.RunSlice(CancellationToken.None);
+        Assert.Empty(store.Read().Rows); Assert.Empty(store.Read().Pending);
+        Assert.DoesNotContain("CheckpointFailure", worker.Status().Causes);
+    }
+
     [Fact]
     public async Task FinishedBoundedPassStillReportsDiscoveryCoverageLimits()
     {

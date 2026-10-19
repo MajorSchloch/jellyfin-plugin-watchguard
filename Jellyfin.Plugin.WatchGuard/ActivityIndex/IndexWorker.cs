@@ -48,6 +48,10 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
     private readonly HashSet<string> causes = new();
     private bool initialized, resetDiscovery;
     private long generation, revision;
+    // Only persisted rows, cursor positions and queue membership dirty the
+    // checkpoint. Capture its revision with the document so concurrent events
+    // during disk I/O cannot accidentally be marked as saved.
+    private long persistedRevision, checkpointRevision;
     private int pages, turn;
     private long episodeQueries, episodeRows, playbackBatches, titlesVerified, staleResults;
     private double verificationMs;
@@ -103,6 +107,7 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
     {
         if (changed) { valid.Remove(key); visited.Remove(key); }
         if (pending.Count >= QueueLimit && !pending.ContainsKey(key)) { causes.Add("QueueLimit"); resetDiscovery = true; return; }
+        if (!pending.ContainsKey(key)) persistedRevision++;
         pending[key] = time.GetUtcNow().AddSeconds(changed ? 2 : 0);
         if (changed) urgent.Add(key);
     }
@@ -166,7 +171,7 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
             lock (gate)
             {
                 foreach (var row in document.Rows) { rows.Add(row.Key, row); var size = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(row).Length; sizes[row.Key] = size; retainedBytes += size; refreshRemaining.Add(row.Key); }
-                foreach (var key in document.Pending) Enqueue(key, false);
+                foreach (var key in document.Pending) pending.TryAdd(key, time.GetUtcNow());
                 foreach (var p in document.Positions) positions.Add((p.UserId, p.Source), p);
                 if (store.RecoveredCorruption) causes.Add("CorruptIndexRebuilt");
                 initialized = true; localDay = time.GetLocalNow().Date; nextReconcile = time.GetUtcNow().AddHours(6);
@@ -179,13 +184,13 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
         lock (gate)
         {
             if (accounts.Length > 50) causes.Add("UserLimit"); else causes.Remove("UserLimit");
-            foreach (var key in rows.Keys.Where(k => !enabled.ContainsKey(k.UserId)).ToArray()) { rows.Remove(key); retainedBytes -= sizes.GetValueOrDefault(key); sizes.Remove(key); valid.Remove(key); visited.Remove(key); pending.Remove(key); refreshRemaining.Remove(key); urgent.Remove(key); }
-            foreach (var key in positions.Keys.Where(k => !enabled.ContainsKey(k.User)).ToArray()) positions.Remove(key);
-            foreach (var key in pending.Keys.Where(k => !enabled.ContainsKey(k.UserId)).ToArray()) pending.Remove(key);
+            foreach (var key in rows.Keys.Where(k => !enabled.ContainsKey(k.UserId)).ToArray()) { rows.Remove(key); retainedBytes -= sizes.GetValueOrDefault(key); sizes.Remove(key); valid.Remove(key); visited.Remove(key); pending.Remove(key); refreshRemaining.Remove(key); urgent.Remove(key); persistedRevision++; }
+            foreach (var key in positions.Keys.Where(k => !enabled.ContainsKey(k.User)).ToArray()) { positions.Remove(key); persistedRevision++; }
+            foreach (var key in pending.Keys.Where(k => !enabled.ContainsKey(k.UserId)).ToArray()) { pending.Remove(key); persistedRevision++; }
             if (localDay != time.GetLocalNow().Date) { generation++; valid.Clear(); visited.Clear(); localDay = time.GetLocalNow().Date; }
             if (time.GetUtcNow() >= nextReconcile) { visited.Clear(); refreshRemaining.UnionWith(rows.Keys); resetDiscovery = true; nextReconcile = time.GetUtcNow().AddHours(6); }
-            if (resetDiscovery) { positions.Clear(); resetDiscovery = false; causes.ExceptWith(["QueueLimit", "DiscoveryWorkLimit", "DeduplicationLimit"]); }
-            foreach (var id in enabled.Keys) for (var source = 0; source < 2; source++) positions.TryAdd((id, source), new(id, source, 0, false));
+            if (resetDiscovery) { if (positions.Count > 0) persistedRevision++; positions.Clear(); resetDiscovery = false; causes.ExceptWith(["QueueLimit", "DiscoveryWorkLimit", "DeduplicationLimit"]); }
+            foreach (var id in enabled.Keys) for (var source = 0; source < 2; source++) if (positions.TryAdd((id, source), new(id, source, 0, false))) persistedRevision++;
             foreach (var key in refreshRemaining.OrderByDescending(k => rows.GetValueOrDefault(k)?.Activity.LastPlayedDate).Take(8).ToArray()) { Enqueue(key, false); refreshRemaining.Remove(key); }
             foreach (var key in rows.Keys.Where(k => !valid.Contains(k) && !pending.ContainsKey(k)).Take(8)) Enqueue(key, false);
         }
@@ -197,7 +202,7 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
         {
             foreach (var pair in pending.Where(p => p.Value <= time.GetUtcNow()).OrderByDescending(p => urgent.Contains(p.Key)).ThenBy(p => p.Value).Take(8).ToArray())
             {
-                pending.Remove(pair.Key); urgent.Remove(pair.Key);
+                pending.Remove(pair.Key); urgent.Remove(pair.Key); persistedRevision++;
                 work.Add((pair.Key, generation, ownerChanges.GetValueOrDefault(pair.Key.UserId)));
             }
         }
@@ -216,18 +221,27 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
             {
                 if (epoch != generation || ownerGeneration != ownerChanges.GetValueOrDefault(key.UserId)) { staleResults++; Enqueue(key, false); continue; }
                 var size = calculated is null ? 0 : System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(calculated).Length;
-                if (calculated is null) { rows.Remove(key); retainedBytes -= sizes.GetValueOrDefault(key); sizes.Remove(key); valid.Remove(key); }
+                if (calculated is null) { if (rows.Remove(key)) persistedRevision++; retainedBytes -= sizes.GetValueOrDefault(key); sizes.Remove(key); valid.Remove(key); }
                 else if ((rows.Count < IndexStore.MaxRows || rows.ContainsKey(key)) && retainedBytes - sizes.GetValueOrDefault(key) + size < IndexStore.MaxBytes - 1024 * 1024)
-                { retainedBytes += size - sizes.GetValueOrDefault(key); sizes[key] = size; rows[key] = calculated; valid.Add(key); }
+                { retainedBytes += size - sizes.GetValueOrDefault(key); sizes[key] = size; rows[key] = calculated; valid.Add(key); persistedRevision++; }
                 else { causes.Add("StorageLimit"); continue; }
                 if (visited.Count < IndexStore.MaxRows) visited.Add(key); else causes.Add("DeduplicationLimit"); changed = true; lastUpdate = time.GetUtcNow(); revision++;
             }
         }
-        if (changed || time.GetUtcNow() - lastCheckpoint > TimeSpan.FromSeconds(30))
+        IndexDocument? documentToSave = null;
+        long savingRevision = 0;
+        lock (gate)
         {
-            IndexDocument document;
-            lock (gate) document = new(1, rows.Values.ToArray(), positions.Values.ToArray(), pending.Keys.ToArray());
-            try { store.Write(document); lastCheckpoint = time.GetUtcNow(); lock (gate) { causes.Remove("CheckpointFailure"); causes.Remove("WorkerFailure"); if (store.RecoveredCorruption) causes.Add("CorruptIndexRebuilt"); } }
+            var settled = pending.Count == 0 && refreshRemaining.Count == 0 && !resetDiscovery && positions.Values.All(p => p.Finished);
+            if (persistedRevision != checkpointRevision && (changed || settled || time.GetUtcNow() - lastCheckpoint >= TimeSpan.FromSeconds(30)))
+            {
+                documentToSave = new(1, rows.Values.ToArray(), positions.Values.ToArray(), pending.Keys.ToArray());
+                savingRevision = persistedRevision;
+            }
+        }
+        if (documentToSave is not null)
+        {
+            try { store.Write(documentToSave); lastCheckpoint = time.GetUtcNow(); lock (gate) { checkpointRevision = savingRevision; causes.Remove("CheckpointFailure"); causes.Remove("WorkerFailure"); if (store.RecoveredCorruption) causes.Add("CorruptIndexRebuilt"); } }
             catch { lock (gate) causes.Add("CheckpointFailure"); throw; }
         }
     }
@@ -258,6 +272,7 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
             pages++;
             foreach (var key in keys) if (!visited.Contains(key) && !pending.ContainsKey(key)) Enqueue(key, false);
             if (cursor.Offset >= 1000000 - PageSize) causes.Add("DiscoveryWorkLimit");
+            persistedRevision++;
             positions[(user.Id, cursor.Source)] = cursor with { Offset = Math.Min(1000000, cursor.Offset + found.Count), Finished = found.Count < PageSize || cursor.Offset >= 1000000 - PageSize };
             revision++;
         }

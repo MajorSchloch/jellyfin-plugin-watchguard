@@ -706,6 +706,20 @@
                 grid.append(record.card); // Reuse the card/image node, including when sorting.
             }
         }
+        function authorizationDenied(failure) {
+            if (!active() || ![401, 403].includes(failure?.status)) return false;
+            // Even a superseded request's denial invalidates this captured
+            // account's protected view. No concurrent response may restore it.
+            generation++;
+            if (pollTimer) clearTimeout(pollTimer);
+            explicit = []; automatic = []; directory = []; continuation = null;
+            loadedPages = 1; indexPopulating = false; pending = false;
+            coverage = ''; coverageLimited = false; coverageInfo = null;
+            grid.replaceChildren(); cards.clear(); freshness.textContent = '';
+            failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
+            refresh.disabled = false; render();
+            return true;
+        }
         async function load(prioritize = false) {
             if (!active()) return;
             const revision = ++generation;
@@ -722,7 +736,7 @@
                         if (!current()) return;
                         if (!result || typeof result.Owner !== 'string' || !Array.isArray(result.Statuses) || result.Statuses.some(s => !activityFilters[s]) || !['title','recent','added'].includes(result.Sort)) throw new Error('Invalid preferences');
                         saved = result;
-                    } catch { if (current()) preferenceMessage.textContent = 'Saved defaults unavailable. Using URL or built-in defaults; stored data was not changed.'; }
+                    } catch (failure) { if (authorizationDenied(failure)) return; if (current()) preferenceMessage.textContent = 'Saved defaults unavailable. Using URL or built-in defaults; stored data was not changed.'; }
                     if (!current()) return;
                     preferencesLoaded = true;
                     const view = preferenceView(saved, raw.owner, raw.interest, raw.sort);
@@ -745,7 +759,7 @@
                         ...(Object.hasOwn(e, 'AddedAtUtc') ? { AddedAtUtc: e.AddedAtUtc } : {})
                     }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
                     selectInterest(entries, 'all', user); explicit = entries;
-                } catch { if (!current()) return; explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
+                } catch (failure) { if (authorizationDenied(failure) || !current()) return; if (!options.indexedActivity || !prioritize) explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
                 if (!options.indexedActivity) automatic = [];
                 render(); // Paint memberships before activity is available.
                 try {
@@ -757,15 +771,15 @@
                     if (options.indexedActivity) { indexState(result); loadedPages = 1; }
                     automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
                 } catch (failure) {
-                    if (!current()) return;
+                    if (authorizationDenied(failure) || !current()) return;
                     // Keep a same-view refresh usable on transport/lookup failure.
                     // Native authorization failures must clear previously shown activity.
-                    if (!options.indexedActivity || !prioritize || [401,403].includes(failure?.status)) automatic = [];
+                    if (!options.indexedActivity || !prioritize) automatic = [];
                     if (options.indexedActivity) freshness.textContent = 'Activity update unavailable; displayed results may be stale. Refresh to retry.';
                     failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.');
                 }
                 pending = false; render();
-            } catch { if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; render(); } }
+            } catch (failure) { if (authorizationDenied(failure)) return; if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; directory = []; continuation = null; render(); } }
             finally { if (current()) { refresh.disabled = false; schedulePoll(); } }
         }
         function indexRoute(scope, cursor, prioritize = false) {
@@ -787,6 +801,10 @@
                 if (document.hidden || pending) { schedulePoll(); return; }
                 if (loadedPages > 4) { freshness.textContent = 'Automatic updates paused after four loaded pages to bound server work. Refresh to update this view.'; schedulePoll(); return; }
                 const revision = generation;
+                // Poll replacement and pagination own the same request slot.
+                // A page and its cursor are committed together, never mixed
+                // with an append from the previous snapshot.
+                pending = true; render();
                 try {
                     let result = await request(api, indexRoute(loadedScope));
                     let items = result.Items;
@@ -799,17 +817,16 @@
                     if (!active() || revision !== generation) return;
                     selectInterest(result.Items, 'all', user);
                     if (result.Items.some(e => e.Users.some(u => loadedScope !== 'all' && key(u.UserId) !== key(loadedScope === 'mine' ? user : loadedScope)))) throw new Error('Invalid scope');
-                    if (result.Freshness) {
-                        automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
-                        indexState(result); render();
-                    }
+                    indexState(result);
+                    automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
                 } catch (failure) {
+                    if (authorizationDenied(failure)) return;
                     if (active() && revision === generation) {
-                        if ([401,403].includes(failure?.status)) { explicit = []; automatic = []; render(); }
                         freshness.textContent = 'Activity update unavailable; displayed results may be stale. Refresh to retry.';
                     }
+                } finally {
+                    if (active() && revision === generation) { pending = false; render(); schedulePoll(); }
                 }
-                schedulePoll();
             }, 30000);
             pollTimer.unref?.();
         }
@@ -822,9 +839,10 @@
                 if (!active() || revision !== generation) return;
                 selectInterest(result.Items, 'all', user);
                 if (result.Items.some(e => e.Users.some(u => loadedScope !== 'all' && key(u.UserId) !== key(loadedScope === 'mine' ? user : loadedScope)))) throw new Error('Invalid scope');
-                automatic = mergeInterest(automatic, result.Items); loadedPages++; indexState(result);
+                const merged = mergeInterest(automatic, result.Items);
+                indexState(result); automatic = merged; loadedPages++;
                 coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
-            } catch { if (active() && revision === generation) failures = ['Could not load the next activity page. Refresh if its continuation expired.']; }
+            } catch (failure) { if (authorizationDenied(failure)) return; if (active() && revision === generation) failures = ['Could not load the next activity page. Refresh if its continuation expired.']; }
             finally { if (active() && revision === generation) { pending = false; render(); } }
         };
         page.updateFilters = (owner, interest, sorting, days, older) => {
@@ -835,7 +853,7 @@
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-            if (loadedScope && (nextScope !== loadedScope || timeChanged)) { explicit = []; automatic = []; pending = true; render(); load(); } else render();
+            if (loadedScope && (nextScope !== loadedScope || timeChanged)) { explicit = []; automatic = []; continuation = null; pending = true; render(); load(); } else render();
         };
         const change = () => { if (active()) { const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked)); navigate(...args); } };
         select.onchange = change; order.onchange = change; rangeSelect.onchange = change; olderToggle.onchange = change;
