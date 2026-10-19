@@ -653,7 +653,7 @@
             spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
             const info = coveragePresentation(coverage, coverageLimited, coverageInfo);
             notice.hidden = !coverage && !coverageLimited;
-            coverageSummary.textContent = options.indexedActivity ? 'Activity: last ' + range + ' days' + (includeOlder ? ' + older current interest' : '') + ' · Coverage details' : info.summary;
+            coverageSummary.textContent = options.indexedActivity ? 'Activity: last ' + range + ' days' + (includeOlder ? ' + older current interest' : '') + ' · not exhaustive' : info.summary;
             coverageText.textContent = coverage; // Keep the complete server explanation verbatim.
             coverageWarning.textContent = info.warning;
             coverageWarning.hidden = !info.warning;

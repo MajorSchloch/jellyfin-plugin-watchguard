@@ -106,6 +106,34 @@ public sealed class ActivityIndexTests : IDisposable
         Assert.DoesNotContain("CurrentlyPlaying", store.Read().Rows.Single().Activity.Reasons);
     }
     [Fact]
+    public async Task LiveSessionsAreFreshAndRespectBothAccountsWithoutDurablePlayingState()
+    {
+        var series = AddSeries(); var episode = items.Values.OfType<Episode>().First();
+        playback.Clear(); await Populate();
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = alice.Id, NowPlayingItem = new MediaBrowser.Model.Dto.BaseItemDto { Id = episode.Id } }]);
+        Assert.Equal(new[] { "CurrentlyPlaying" }, Assert.Single(Read(7, false).Items).Users.Single().Reasons);
+        Assert.Empty(store.Read().Rows);
+        bob.SetPermission(PermissionKind.IsAdministrator, true);
+        hidden.Add((bob.Id, episode.Id));
+        Assert.Empty(query.Read(bob, null, 7, false, null, CancellationToken.None).Items);
+        hidden.Clear(); hidden.Add((alice.Id, episode.Id)); Assert.Empty(Read().Items);
+        hidden.Clear(); alice.SetPermission(PermissionKind.IsDisabled, true);
+        Assert.Empty(query.Read(bob, null, 7, false, null, CancellationToken.None).Items);
+        alice.SetPermission(PermissionKind.IsDisabled, false);
+        sessions.Setup(s => s.Sessions).Returns(Array.Empty<SessionInfo>());
+        Assert.Empty(Read().Items); Assert.Empty(store.Read().Rows);
+    }
+
+    [Fact]
+    public async Task HistoryExpiresAtReadTimeWithoutPlaybackEventOrBackgroundSlice()
+    {
+        AddMovie(6); await Populate(); Assert.Single(Read(7, false).Items);
+        clock.Advance(TimeSpan.FromDays(2));
+        Assert.Empty(Read(7, false).Items);
+    }
+
+    [Fact]
     public async Task OwnerAndRequesterEpisodeVisibilityChangesSuppressCountsEvenWithoutEvents()
     {
         var series = AddSeries(); await Populate();

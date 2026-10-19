@@ -712,7 +712,7 @@ test('Indexed view time controls query stored activity, preserve local sorts and
     f.calls[2].resolve([overviewItems[0]]);await turn();
     assert.equal(f.calls[3].o.url,'WatchGuard/ActivityIndex?owner=all&days=7&older=false');
     f.calls[3].resolve(indexedResult());await turn();
-    assert.equal(f.page.children[3].children[0].children[0].textContent,'Activity: last 7 days · Coverage details');
+    assert.equal(f.page.children[3].children[0].children[0].textContent,'Activity: last 7 days · not exhaustive');
     assert.equal(f.page.children[1].children.at(-1).className,'watchguard-older-interest');
     assert.ok(f.calls.every(c=>c.o.type==='GET'));f.abort.abort();
 });

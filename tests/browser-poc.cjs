@@ -192,7 +192,10 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await detail('PoC Movie Detail');
         const myList = () => page.getByRole('region',{name:'Watchlists',exact:true});
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
-        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor();
+        // The new account can start background discovery. Verify that an open
+        // page picks up completion on its documented 30-second poll; ten seconds
+        // would incorrectly demand a false empty state during population.
+        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor({timeout:fixture.activityIndex ? 45000 : 10000});
         for (const title of ['PoC Movie Detail','PoC Series Detail']) await api('/WatchGuard/Watchlist/' + fixture.items[title],'PUT');
         let releaseDiscovery;
         let overviewRequests = 0;
@@ -298,13 +301,19 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.locator('#itemDetailPage').getByText('PoC Series Detail',{exact:true}).first().waitFor();
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
         await myList().getByRole('button',{name:'Remove PoC Series Detail from Watchlist',exact:true}).click();
-        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor();
+        // The new account can start background discovery. Verify that an open
+        // page picks up completion on its documented 30-second poll; ten seconds
+        // would incorrectly demand a false empty state during population.
+        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor({timeout:fixture.activityIndex ? 45000 : 10000});
         await page.route(mineActivity, route => route.fulfill({status:503,body:'unavailable'}));
         await myList().getByRole('button',{name:'Refresh',exact:true}).click();
         await myList().getByRole('alert').filter({hasText:'Viewing activity unavailable'}).waitFor();
         await page.unroute(mineActivity);
         await myList().getByRole('button',{name:'Refresh',exact:true}).click();
-        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor();
+        // The new account can start background discovery. Verify that an open
+        // page picks up completion on its documented 30-second poll; ten seconds
+        // would incorrectly demand a false empty state during population.
+        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor({timeout:fixture.activityIndex ? 45000 : 10000});
         await page.goBack();
         report.paths.push({path:'My Watchlist',result:'empty/list, movie and series links, removal, failed removal/load and refresh recovery passed'});
         report.phase = 'Playback-only series overview';
@@ -322,7 +331,10 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await myList().getByRole('combobox',{name:'Sort by'}).selectOption('title');
         await page.waitForFunction(()=>document.querySelector('.watchguard-card .cardText')?.textContent==='PoC Movie Detail');
         await selectOwner('mine');
-        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor();
+        // The new account can start background discovery. Verify that an open
+        // page picks up completion on its documented 30-second poll; ten seconds
+        // would incorrectly demand a false empty state during population.
+        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor({timeout:fixture.activityIndex ? 45000 : 10000});
         await selectOwner(member.User.Id.replaceAll('-',''));
         await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).waitFor();
         assert.equal(await myList().getByRole('button',{name:'Remove PoC Parent Clear from Watchlist',exact:true}).count(),0);
@@ -574,7 +586,10 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         for(const name of ['Watchlist','Watched']) await myList().locator('.watchguard-card').filter({hasText:'PoC Movie Detail'}).getByRole('img',{name,exact:true}).waitFor();
         await page.screenshot({path:path.join(output,'activity-watched.png')});
         await selectOwner('mine');
-        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor();
+        // The new account can start background discovery. Verify that an open
+        // page picks up completion on its documented 30-second poll; ten seconds
+        // would incorrectly demand a false empty state during population.
+        await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor({timeout:fixture.activityIndex ? 45000 : 10000});
         await selectOwner(member.User.Id.replaceAll('-',''));
         assert.equal(await myList().locator('.watchguard-card').count(),3);
         await api('/Sessions/Playing','POST',{ItemId:historyMovie,PlayMethod:'DirectPlay',PositionTicks:0},member.AccessToken);
