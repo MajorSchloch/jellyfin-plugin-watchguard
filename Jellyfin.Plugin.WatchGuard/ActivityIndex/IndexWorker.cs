@@ -251,7 +251,8 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
             OrderBy = [(ItemSortBy.DatePlayed, SortOrder.Descending), (ItemSortBy.SortName, SortOrder.Ascending)],
             StartIndex = cursor.Offset, Limit = PageSize, EnableTotalRecordCount = false
         });
-        var keys = found.Select(item => new IndexKey(user.Id, item is Episode e ? e.SeriesId : item.Id)).Where(k => k.ItemId != Guid.Empty).Distinct().ToArray();
+        var keys = found.Select(item => { cancellation.ThrowIfCancellationRequested(); return IndexTargets.Primary(library, user, item); }).OfType<BaseItem>()
+            .Select(item => new IndexKey(user.Id, item is Episode e ? e.SeriesId : item.Id)).Where(k => k.ItemId != Guid.Empty).Distinct().ToArray();
         lock (gate)
         {
             pages++;

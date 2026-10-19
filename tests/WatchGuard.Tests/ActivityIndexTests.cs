@@ -119,6 +119,37 @@ public sealed class ActivityIndexTests : IDisposable
         Assert.DoesNotContain("CurrentlyPlaying", store.Read().Rows.Single().Activity.Reasons);
     }
     [Fact]
+    public async Task LiveAlternateVersionsUseTheSamePrimaryTitleAsNativeOverview()
+    {
+        var primary = AddMovie(); var alternate = AddMovie(); alternate.PrimaryVersionId = primary.Id;
+        playback.Remove((alice.Id, alternate.Id)); await Populate();
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = alice.Id, NowPlayingItem = new MediaBrowser.Model.Dto.BaseItemDto { Id = alternate.Id } }]);
+        var shown = Assert.Single(Read().Items);
+        Assert.Equal(primary.Id, shown.ItemId);
+        Assert.Contains("CurrentlyPlaying", shown.Users.Single().Reasons);
+        hidden.Add((alice.Id, primary.Id)); Assert.Empty(Read().Items);
+    }
+
+    [Fact]
+    public async Task DiscoveryResolvesAlternateEpisodesThroughPrimaryAncestry()
+    {
+        var primary = AddSeries(); var other = AddSeries();
+        playback.Clear();
+        var episode = items.Values.OfType<Episode>().First(e => e.SeriesId == primary.Id);
+        var alternate = items.Values.OfType<Episode>().First(e => e.SeriesId == other.Id);
+        alternate.PrimaryVersionId = episode.Id;
+        playback[(alice.Id, alternate.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow };
+        await Populate();
+        Assert.DoesNotContain(worker.Snapshot().Rows, r => r.Key.ItemId == other.Id);
+        Assert.Contains(primary.Id, data.Invocations.Where(i => i.Method.Name == nameof(IUserDataManager.GetUserDataBatch))
+            .SelectMany(i => (IReadOnlyList<BaseItem>)i.Arguments[0]).OfType<Episode>().Select(e => e.SeriesId));
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = alice.Id, NowPlayingItem = new MediaBrowser.Model.Dto.BaseItemDto { Id = alternate.Id } }]);
+        Assert.Equal(primary.Id, Assert.Single(Read().Items).ItemId);
+    }
+
+    [Fact]
     public async Task LiveSessionsAreFreshAndRespectBothAccountsWithoutDurablePlayingState()
     {
         var series = AddSeries(); var episode = items.Values.OfType<Episode>().First();

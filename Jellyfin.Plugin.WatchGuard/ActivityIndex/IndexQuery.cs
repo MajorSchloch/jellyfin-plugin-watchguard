@@ -199,7 +199,9 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
                 if (user is null || user.HasPermission(PermissionKind.IsDisabled)) continue;
                 var media = library.GetItemById<BaseItem>(session.NowPlayingItem!.Id, user);
                 if (media is null || library.GetItemById<BaseItem>(media.Id, caller) is null) continue;
-                var title = media is Episode episode ? library.GetItemById<BaseItem>(episode.SeriesId, user) : media;
+                var primary = IndexTargets.Primary(library, user, media);
+                if (primary is null || (primary.Id != media.Id && library.GetItemById<BaseItem>(primary.Id, caller) is null)) continue;
+                var title = primary is Episode episode ? library.GetItemById<BaseItem>(episode.SeriesId, user) : primary;
                 if (!InterestService.Supported(title) || !InterestService.Supported(library.GetItemById<BaseItem>(title!.Id, caller))) continue;
                 result[new(user.Id, title.Id)] = new(user.Id, user.Username, ["CurrentlyPlaying"], null);
             }
