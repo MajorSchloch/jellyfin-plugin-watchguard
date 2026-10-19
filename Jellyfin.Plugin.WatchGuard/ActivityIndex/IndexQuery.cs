@@ -21,6 +21,26 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
     private readonly object gate = new();
     private readonly Dictionary<string, PageSnapshot> snapshots = new(StringComparer.Ordinal);
 
+    public IndexStatus Status(User caller, Guid? owner)
+    {
+        if (!caller.HasPermission(PermissionKind.IsAdministrator) && owner != caller.Id) throw new UnauthorizedAccessException();
+        var state = worker.Status();
+        var snapshot = worker.Snapshot();
+        var rows = snapshot.Rows.Where(r => !owner.HasValue || r.Key.UserId == owner).ToArray();
+        var verified = rows.Where(r => snapshot.Valid.Contains(r.Key)).ToArray();
+        return state with { Stored = rows.Length, Validated = verified.Length,
+            Pending = caller.HasPermission(PermissionKind.IsAdministrator) ? state.Pending : rows.Length - verified.Length,
+            LastUpdate = verified.Select(r => (DateTimeOffset?)r.CheckedAt).DefaultIfEmpty().Max(),
+            DiscoveryPages = caller.HasPermission(PermissionKind.IsAdministrator) ? state.DiscoveryPages : 0,
+            EpisodeQueries = caller.HasPermission(PermissionKind.IsAdministrator) ? state.EpisodeQueries : 0,
+            EpisodeRows = caller.HasPermission(PermissionKind.IsAdministrator) ? state.EpisodeRows : 0,
+            PlaybackBatches = caller.HasPermission(PermissionKind.IsAdministrator) ? state.PlaybackBatches : 0,
+            TitlesVerified = caller.HasPermission(PermissionKind.IsAdministrator) ? state.TitlesVerified : 0,
+            StaleResultsDiscarded = caller.HasPermission(PermissionKind.IsAdministrator) ? state.StaleResultsDiscarded : 0,
+            VerificationMs = caller.HasPermission(PermissionKind.IsAdministrator) ? state.VerificationMs : 0,
+            RetainedSerializedBytes = caller.HasPermission(PermissionKind.IsAdministrator) ? state.RetainedSerializedBytes : 0 };
+    }
+
     public static bool InRange(OverviewUser activity, int days, bool older, DateTimeOffset now) =>
         (activity.LastPlayedDate is { } date && date.ToUniversalTime() <= now.UtcDateTime && date.ToUniversalTime() >= now.AddDays(-days).UtcDateTime) ||
         (older && activity.Reasons.Any(r => r is "InProgress" or "CaughtUp"));

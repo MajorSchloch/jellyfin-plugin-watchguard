@@ -78,7 +78,7 @@ done''')
         progress = []
         deadline = time.monotonic() + 600
         while True:
-            value = call('/WatchGuard/ActivityIndex?owner=all', token=token, timeout=60)
+            value = call('/WatchGuard/ActivityIndex/Status?owner=all', token=token, timeout=60)
             state = value['Freshness']; progress.append({k:state[k] for k in ('Stored','Validated','Pending','DiscoveryPages','DiscoveryFinished')})
             if state['DiscoveryFinished'] and state['Pending'] == 0 and state['Stored'] == state['Validated']: break
             assert time.monotonic() < deadline, state
@@ -105,12 +105,13 @@ done''')
         call('/UserItems/' + target + '/UserData?userId=' + owner, 'POST', {'Played': False, 'PlaybackPositionTicks': 0}, token)
         deadline = time.monotonic() + 30
         while True:
-            page = call('/WatchGuard/ActivityIndex?owner=' + owner, token=token)
+            page = call('/WatchGuard/ActivityIndex/Status?owner=' + owner, token=token)
             if page['Freshness']['Pending'] == 0 and page['Freshness']['Stored'] == page['Freshness']['Validated']: break
             assert time.monotonic() < deadline, page['Freshness']
             time.sleep(.2)
         result['incrementalSettledMs'] = (time.perf_counter()-start)*1000
         # Check the entire paginated owner view, not merely the first page.
+        page = call('/WatchGuard/ActivityIndex?owner=' + owner, token=token)
         items = page['Items']; cursor = page.get('Continuation')
         while cursor:
             page = call('/WatchGuard/ActivityIndex?owner=' + owner + '&continuation=' + cursor, token=token)

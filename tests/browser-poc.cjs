@@ -53,7 +53,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             const deadline = Date.now() + 90000;
             let state;
             do {
-                state = await api('/WatchGuard/ActivityIndex?owner=all');
+                state = await api('/WatchGuard/ActivityIndex/Status?owner=all');
                 if (state.Freshness.DiscoveryFinished && state.Freshness.Pending === 0 && state.Freshness.Stored === state.Freshness.Validated) break;
                 if (Date.now() >= deadline) throw new Error('Activity index did not settle: ' + JSON.stringify(state.Freshness));
                 await new Promise(resolve => setTimeout(resolve, 250));

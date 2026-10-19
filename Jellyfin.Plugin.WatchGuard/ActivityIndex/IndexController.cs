@@ -12,9 +12,12 @@ namespace Jellyfin.Plugin.WatchGuard.ActivityIndex;
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public sealed class IndexController(IAuthorizationContext auth, IUserManager users, IndexQuery query, IndexWorker worker) : ControllerBase
 {
+    [HttpGet("Status")]
+    public Task<IActionResult> Status([FromQuery] string owner = "mine") => Get(owner: owner, statusOnly: true);
+
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] string owner = "mine", [FromQuery] int days = 30,
-        [FromQuery] bool older = true, [FromQuery] string? continuation = null, [FromQuery] bool refresh = false)
+        [FromQuery] bool older = true, [FromQuery] string? continuation = null, [FromQuery] bool refresh = false, bool statusOnly = false)
     {
         var identity = await auth.GetAuthorizationInfo(HttpContext);
         if (!identity.IsAuthenticated || identity.IsApiKey || identity.UserId == Guid.Empty) return Unauthorized();
@@ -28,6 +31,7 @@ public sealed class IndexController(IAuthorizationContext auth, IUserManager use
         if (scope != user.Id && !user.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         try
         {
+            if (statusOnly) return Ok(new { Freshness = query.Status(user, scope) });
             if (refresh) worker.RequestRefresh(scope);
             return Ok(query.Read(user, scope, days, older, continuation, HttpContext.RequestAborted));
         }
