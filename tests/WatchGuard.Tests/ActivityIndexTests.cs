@@ -94,6 +94,19 @@ public sealed class ActivityIndexTests : IDisposable
         Assert.False(Read().IsComplete); // A completed pass is not an exhaustive audit.
     }
     [Fact]
+    public async Task FinishedBoundedPassStillReportsDiscoveryCoverageLimits()
+    {
+        users.Setup(u => u.GetUsers()).Returns(new[] { alice, bob }.Concat(
+            Enumerable.Range(0, 49).Select(n => new User("Fixture" + n, "test", "test") { Id = Guid.NewGuid() })).ToArray());
+        await Populate(slices: 120);
+        Assert.True(worker.Status().DiscoveryFinished);
+        var page = Read();
+        Assert.True(page.Coverage.DiscoveryLimited);
+        Assert.Contains("UserLimit", page.Coverage.Causes);
+        Assert.True(page.LimitReached); Assert.False(page.IsComplete);
+    }
+
+    [Fact]
     public async Task NativeCountsDatesAndExtrasMatchFreshClassifier()
     {
         var series = AddSeries(); var extra = new AvailableEpisode { Id = Guid.NewGuid(), Name = "<unsafe>", SeriesId = series.Id, PremiereDate = DateTime.Now.Date.AddDays(1) };

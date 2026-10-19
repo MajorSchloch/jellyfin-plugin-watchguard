@@ -175,7 +175,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
         return new(result.ToArray(), false, causes.Any(c => c.EndsWith("Limit", StringComparison.Ordinal) || c.EndsWith("Failure", StringComparison.Ordinal) || c.EndsWith("Budget", StringComparison.Ordinal) || c.EndsWith("Capacity", StringComparison.Ordinal)),
             $"Native activity in the last {days} days" + (older ? ", plus older current interest" : "") +
             ". Explicit watchlists and current sessions are independent. Background discovery is not an exhaustive library audit.",
-            new(1, days, !state.DiscoveryFinished, causes.Contains("EpisodeMetadataIncomplete"), causes.Contains("EpisodeLimit") || causes.Contains("VisibilityBudget"), false, next != null, causes.Order().ToArray(), warnings), freshness, next) { ReadDiagnostics = new(System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds, visibilityQueries, visibilityRows) };
+            new(1, days, !state.DiscoveryFinished || causes.Overlaps(["DiscoveryWorkLimit", "UserLimit", "DeduplicationLimit", "QueueLimit", "StorageLimit", "WorkerFailure"]), causes.Contains("EpisodeMetadataIncomplete"), causes.Contains("EpisodeLimit") || causes.Contains("VisibilityBudget"), false, next != null, causes.Order().ToArray(), warnings), freshness, next) { ReadDiagnostics = new(System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds, visibilityQueries, visibilityRows) };
     }
 
     private Dictionary<IndexKey, OverviewUser> Live(User caller, Guid? owner, CancellationToken cancellation, Func<Guid, User?> account, out bool limited)
