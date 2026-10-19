@@ -215,6 +215,41 @@ public sealed class ActivityIndexTests : IDisposable
         AddMovie(); data.Setup(d=>d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),It.IsAny<User>())).Returns(new Dictionary<Guid,UserItemData>());
         await Populate(); Assert.Empty(Read().Items); Assert.Contains("NativeLookupFailure",Read().Coverage.Causes);
     }
+    [Fact]
+    public async Task IndexApiRejectsAnonymousApiKeysDisabledAndCrossUserCallers()
+    {
+        var auth=new Mock<MediaBrowser.Controller.Net.IAuthorizationContext>();
+        var controller=new IndexController(auth.Object,users.Object,query,worker) {ControllerContext=new(){HttpContext=new Microsoft.AspNetCore.Http.DefaultHttpContext()}};
+        auth.Setup(a=>a.GetAuthorizationInfo(It.IsAny<Microsoft.AspNetCore.Http.HttpContext>())).ReturnsAsync(new MediaBrowser.Controller.Net.AuthorizationInfo());
+        Assert.IsType<Microsoft.AspNetCore.Mvc.UnauthorizedResult>(await controller.Get());
+        auth.Setup(a=>a.GetAuthorizationInfo(It.IsAny<Microsoft.AspNetCore.Http.HttpContext>())).ReturnsAsync(new MediaBrowser.Controller.Net.AuthorizationInfo {User=alice,IsAuthenticated=true,IsApiKey=true});
+        Assert.IsType<Microsoft.AspNetCore.Mvc.UnauthorizedResult>(await controller.Get());
+        auth.Setup(a=>a.GetAuthorizationInfo(It.IsAny<Microsoft.AspNetCore.Http.HttpContext>())).ReturnsAsync(new MediaBrowser.Controller.Net.AuthorizationInfo {User=alice,IsAuthenticated=true});
+        Assert.IsType<Microsoft.AspNetCore.Mvc.ForbidResult>(await controller.Get("all"));
+        Assert.IsType<Microsoft.AspNetCore.Mvc.ForbidResult>(await controller.Get(bob.Id.ToString()));
+        Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(await controller.Get());
+        Assert.IsType<Microsoft.AspNetCore.Mvc.BadRequestObjectResult>(await controller.Get(days:8));
+        alice.SetPermission(PermissionKind.IsDisabled,true);
+        Assert.IsType<Microsoft.AspNetCore.Mvc.UnauthorizedResult>(await controller.Get());
+    }
+    [Fact]
+    public async Task ReconciliationRepairsMissedUnplayedEventAndRemovedItem()
+    {
+        var movie=AddMovie(); await Populate(); Assert.Single(Read().Items);
+        playback[(alice.Id,movie.Id)].Played=false; // Simulate missed event, not a new history entry.
+        clock.Advance(TimeSpan.FromHours(7)); await Populate(); Assert.Empty(Read().Items);
+        items.Remove(movie.Id);worker.RequestRefresh(alice.Id);await Populate();
+        Assert.Empty(worker.Snapshot().Rows);
+    }
+    [Fact]
+    public void FailedAtomicCheckpointRetainsPreviousDocument()
+    {
+        store.Write(new(1,[],[],[]));var before=File.ReadAllBytes(Path.Combine(path,"activity-index.json"));
+        Assert.Throws<InvalidDataException>(()=>store.Write(new(2,[],[],[])));
+        Assert.Equal(before,File.ReadAllBytes(Path.Combine(path,"activity-index.json")));
+        File.WriteAllText(Path.Combine(path,"activity-index.json"),"{\"Version\":1,\"Rows\":null,\"Positions\":[],\"Pending\":[]}");
+        Assert.Empty(store.Read().Rows);Assert.True(store.RecoveredCorruption);
+    }
     private sealed class TestClock : TimeProvider {
         private DateTimeOffset now=DateTimeOffset.UtcNow;
         public override DateTimeOffset GetUtcNow()=>now;

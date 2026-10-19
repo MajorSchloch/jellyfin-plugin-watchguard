@@ -108,6 +108,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
                 if (continuation is not null) snapshots.Remove(continuation);
             }
         }
+        if (continuation is not null) { lock (gate) snapshots.Remove(continuation); }
         var state = worker.Status();
         var scoped = candidates.Where(r => snapshot.Valid.Contains(r.Key)).ToArray();
         if (!state.DiscoveryFinished) causes.Add("PopulationInProgress");

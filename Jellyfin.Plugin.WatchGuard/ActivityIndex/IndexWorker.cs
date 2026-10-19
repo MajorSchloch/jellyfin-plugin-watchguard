@@ -180,7 +180,7 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
             foreach (var key in pending.Keys.Where(k => !enabled.ContainsKey(k.UserId)).ToArray()) pending.Remove(key);
             if (localDay != time.GetLocalNow().Date) { generation++; valid.Clear(); visited.Clear(); localDay = time.GetLocalNow().Date; }
             if (time.GetUtcNow() >= nextReconcile) { visited.Clear(); refreshRemaining.UnionWith(rows.Keys); resetDiscovery = true; nextReconcile = time.GetUtcNow().AddHours(6); }
-            if (resetDiscovery) { positions.Clear(); resetDiscovery = false; }
+            if (resetDiscovery) { positions.Clear(); resetDiscovery = false; causes.ExceptWith(["QueueLimit", "DiscoveryWorkLimit", "DeduplicationLimit"]); }
             foreach (var id in enabled.Keys) for (var source = 0; source < 2; source++) positions.TryAdd((id, source), new(id, source, 0, false));
             foreach (var key in refreshRemaining.OrderByDescending(k => rows.GetValueOrDefault(k)?.Activity.LastPlayedDate).Take(8).ToArray()) { Enqueue(key, false); refreshRemaining.Remove(key); }
             foreach (var key in rows.Keys.Where(k => !valid.Contains(k) && !pending.ContainsKey(k)).Take(8)) Enqueue(key, false);
@@ -293,6 +293,12 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
         var playback = budget.Playback.GetValueOrDefault(owner.Id) ?? throw new InvalidDataException();
         var reasons = status.Users.SingleOrDefault()?.Reasons.Where(r => r == "InProgress").ToList() ?? [];
         if (playback.CaughtUp) reasons.Add("CaughtUp"); else if (playback.Completed) reasons.Add("Watched");
+        // Do not let expired completed movies fill the store and displace older
+        // unfinished series. Native dates are never invented for manual marking.
+        var current = reasons.Any(r => r is "InProgress" or "CaughtUp");
+        var datedHistory = playback.LastPlayedDate is { } date && date.ToUniversalTime() >= time.GetUtcNow().AddDays(-90).UtcDateTime && date.ToUniversalTime() <= time.GetUtcNow().UtcDateTime;
+        if (!current && !datedHistory && !budget.IncompleteCoverage) return null;
+        if (reasons.Count == 0 && !budget.IncompleteCoverage) return null;
         var episodes = item is Series ? budget.VerificationReads!.Episodes(item.Id, owner.Id).Select(e => e.Id).Distinct().Order().ToArray() : [];
         return new(key, new(owner.Id, "", reasons.ToArray(), playback.LastPlayedDate, playback.AvailableEpisodes, playback.WatchedEpisodes)
             { EpisodeProgress = playback.EpisodeProgress }, episodes, item is Series { Status: SeriesStatus.Continuing }, !budget.IncompleteCoverage,
