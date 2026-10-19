@@ -599,7 +599,7 @@
         if (options.indexedActivity) {
             const field = document.createElement('label'); field.className = 'watchguard-toolbar-field';
             const label = document.createElement('span'); label.textContent = 'Activity range'; field.append(label, rangeSelect);
-            const olderLabel = document.createElement('label'); olderLabel.className = 'watchguard-toolbar-field';
+            const olderLabel = document.createElement('label'); olderLabel.className = 'watchguard-older-interest';
             const olderText = document.createElement('span'); olderText.textContent = 'Include older current interest'; olderLabel.append(olderToggle, olderText);
             toolbar.append(field, olderLabel);
         }
@@ -653,7 +653,7 @@
             spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
             const info = coveragePresentation(coverage, coverageLimited, coverageInfo);
             notice.hidden = !coverage && !coverageLimited;
-            coverageSummary.textContent = info.summary;
+            coverageSummary.textContent = options.indexedActivity ? 'Activity: last ' + range + ' days' + (includeOlder ? ' + older current interest' : '') + ' · Coverage details' : info.summary;
             coverageText.textContent = coverage; // Keep the complete server explanation verbatim.
             coverageWarning.textContent = info.warning;
             coverageWarning.hidden = !info.warning;
@@ -769,7 +769,7 @@
             if (!result.Freshness || !Number.isInteger(result.Freshness.Revision) || (result.Continuation != null && typeof result.Continuation !== 'string')) throw new Error('Invalid index status');
             continuation = result.Continuation || null; indexPopulating = !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
             const date = result.Freshness.LastUpdate && new Date(result.Freshness.LastUpdate);
-            freshness.textContent = (date && Number.isFinite(date.getTime()) ? 'Last verified: ' + date.toLocaleString() : 'Waiting for background verification.') +
+            freshness.textContent = (date && Number.isFinite(date.getTime()) ? 'Last verified: ' + date.toLocaleString() : indexPopulating ? 'Waiting for background verification.' : 'No verified activity timestamp available.') +
                 (result.Freshness.DiscoveryFinished ? ' · Native discovery pass finished; coverage limits still apply.' : ' · Background population in progress.');
         }
         function schedulePoll() {
@@ -1056,6 +1056,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-page {color:var(--jf-palette-text-primary,#eee)}
         .watchguard-page .watchguard-toolbar-field, .watchguard-page .watchguard-status, .watchguard-toolbar .emby-button {color:inherit}
         .watchguard-toolbar {gap:.75rem;align-items:flex-end;margin:1rem 0}
+        .watchguard-older-interest {display:flex;align-items:center;gap:.5rem;min-height:44px;max-width:100%;font-size:.85rem;cursor:pointer}
+        .watchguard-older-interest input {flex:none;min-width:20px;min-height:20px}
         .watchguard-toolbar-field {display:flex;flex-direction:column;gap:.3rem;min-width:0;flex:0 1 15rem}
         .watchguard-toolbar-field>span {font-size:.75rem;opacity:.8;padding-inline:.2rem}
         .watchguard-toolbar-field select {width:100%;min-height:44px;margin:0;box-sizing:border-box}
