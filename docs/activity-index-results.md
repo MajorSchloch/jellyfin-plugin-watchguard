@@ -1,6 +1,6 @@
 # Activity index qualification
 
-Review branch after published v0.5.2; no publication or production deployment. Pre-review qualified runtime: `66733b0`; the PR #39 corrections below require a new full matrix. The supplied 7,772.52 ms / 680 episode queries / seven-account production observation is not our benchmark. Existing protection/approval services and standalone loading remain unchanged.
+Review branch after published v0.5.2; no publication or production deployment. Corrected runtime: `50039a0793c7fa666d3c1e9cc6090ca392780db6`. Its full qualification is recorded below; pre-review evidence on `66733b0` remains separately labelled. The supplied 7,772.52 ms / 680 episode queries / seven-account production observation is not our benchmark. Existing protection/approval services and standalone loading remain unchanged.
 
 ## PR #39 review corrections
 
@@ -11,7 +11,18 @@ Review baseline: `c638515`. Focused tests reproduced incomplete owner pagination
 - Authorization denial clears every protected result, owner directory and continuation, invalidates competing responses and stops polling. Tests cover initial load, refresh, polling and pagination with both 401 and 403, including denial before/after a concurrent refresh response. Ordinary service failure retains usable results.
 - Persisted-state revisions prevent idle rewrites. Tests use actual checkpoint files to verify unchanged idle timestamps/bytes, cursor-only deadlines/final flush, row/queue consistency across restart, debounced queue recovery and dirty state after a failed atomic write.
 
-Local checks after the corrections: **250 backend, 132 JavaScript/bootstrap/approval/readiness, 14 Python and 4 catalog tests passed**. Full hosted qualification on the corrected runtime is pending; the results below describe earlier commits only. No deletion, approval, protection or standalone-loader code was changed.
+Local checks after the corrections: **250 backend, 132 JavaScript/bootstrap/approval/readiness, 14 Python and 4 catalog tests passed**. **Build and all eleven hosted integration suites passed** in [39250890240](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39250890240) on exact commit `50039a0793c7fa666d3c1e9cc6090ca392780db6`, with `publish=false`, `proxy_matrix=true`; publication was skipped. [Structured qualification evidence](evidence/activity-index/review-fixes-qualification.json) records every job outcome and focused regression. No qualification jobs were retried; a local status-monitor connection timeout was resolved by resuming read-only monitoring of the same run. No deletion, approval, protection or standalone-loader code was changed.
+
+### Corrected-runtime native comparison
+
+The completed [activity-index suite evidence](evidence/activity-index/hosted-review-summary.json) is from commit `50039a0793c7fa666d3c1e9cc6090ca392780db6`, run [39250890240](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39250890240). The fixture and exact published v0.5.2 checksum are unchanged: seven accounts, 120 completed movies and one 300-episode continuing series, on the same disposable native database.
+
+| Scope | Published v0.5.2 median / 100 titles | Indexed first-page median / 25 titles | All 121 indexed titles |
+| --- | ---: | ---: | ---: |
+| One viewing user | 149.44 ms | 12.42 ms | 55.15 ms |
+| All users | 765.12 ms | 29.58 ms | 115.35 ms |
+
+Cold population took **278.51 s**, with 62 discovery pages, 726 verified pairs, six episode queries, 1,800 episode rows and 228 playback batches. Manual unplayed activity settled in **3.25 s**. Exact overlapping item/owner IDs, reasons, counts, dates and extras matched the published baseline; all 121 indexed titles were reached. Native scheduled-task start/cancel and uninstall passed. This is a movie-heavy native regression fixture, not a reproduction of the three-series visibility-budget model or a production performance guarantee. Three measured first-page samples follow one warm-up; full pagination is measured once.
 
 ## Pre-review native comparison
 
@@ -43,7 +54,7 @@ A native manual unplayed update settled in **3,004.55 ms**, without Refresh. The
 
 Cold population: 279.96 s; incremental manual unplayed update: 2.89 s. Exact classification comparison, native task cancellation and uninstall passed. Different host load and native timings produce different absolute numbers; these repeated fixtures still do not establish production latency.
 
-## Automated results
+## Pre-review automated results
 
 - Local backend: **243 passed**, including 31 index cases (theory rows included): later discovery, exact fresh classifications/progress/dates/extras, native policy and episode visibility changes, live sessions, primary versions and ancestry, active-first paging, history expiry, corruption, atomic-write failure, restart, cancellation, overlapping worker calls, repeated/missed events, stale-result fencing, removed items/accounts, pagination binding/expiry and truthful coverage flags.
 - JavaScript/bootstrap/approval/readiness: **116 passed**. New indexed cases cover range URLs, no implicit preference saves, local sorting, stable cards, late account responses, loading, malformed status, retained cards on refresh failure and clearing denied activity. Existing deletion assertions remain unchanged.
