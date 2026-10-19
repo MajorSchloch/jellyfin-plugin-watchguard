@@ -249,8 +249,18 @@ def main():
                     assert docker('exec', name, 'sha256sum', web_index).split()[0] == pristine_web_hash
                     print('Deployment checks passed: v0.3.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
             if options.standalone:
-                saved = {p:p.read_bytes() for p in (plugins/'Jellyfin.Plugin.WatchGuard').glob('*.json')}
+                data_folder = plugins/'Jellyfin.Plugin.WatchGuard'
+                derived = data_folder/'activity-index.json'
+                derived_present = derived.exists()
+                # Personal data is immutable across the entire uninstall. The
+                # background projection may legitimately checkpoint until the
+                # loaded plugin stops; snapshot it at that lifecycle boundary.
+                saved = {p:p.read_bytes() for p in data_folder.glob('*.json') if p != derived}
                 call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.5.2.0','DELETE',token=token,expected=204)
+                docker('stop', name)
+                if derived_present:
+                    assert derived.exists(), 'Uninstall must retain the derived index'
+                    saved[derived] = derived.read_bytes()
                 restart()
                 assert 'watchguard-standalone-loader' not in call('/web/index.html',raw=True)
                 call('/WatchGuard/Standalone/bootstrap.js',expected=404)
