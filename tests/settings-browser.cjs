@@ -88,11 +88,11 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         await page.goto(fixture.base+'/web/#/home?watchguard=watchlists&owner=mine&interest=none&sort=title');
         await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('data-watchguard-scope')==='mine');
         assert.equal(await region.getByRole('combobox',{name:'Sort by'}).inputValue(),'title');
-        await region.locator('.watchguard-filter summary').click(); assert.equal(await region.locator('input:checked').count(),0);
+        await region.locator('.watchguard-filter summary').click(); assert.equal(await region.locator('.watchguard-filter input:checked').count(),0);
         await region.getByRole('button',{name:'Reset to Defaults',exact:true}).click();
         await region.getByText('Defaults restored.').waitFor();
         await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
-        await region.locator('.watchguard-filter summary').click(); assert.equal(await region.locator('input:checked').count(),3);
+        await region.locator('.watchguard-filter summary').click(); assert.equal(await region.locator('.watchguard-filter input:checked').count(),3);
         if(fixture.standalone) await require('./preference-browser.cjs')(page,fixture);
         const report={result:'PASS',nativeConfiguration:true,settingsPersistence:true,serverAndBrowserStatus:true,saveDefaults:true,urlPrecedence:true,reset:true,savedRecentlyAdded:fixture.standalone,preferenceAccountSwitching:fixture.standalone};
         fs.mkdirSync('artifacts',{recursive:true});fs.writeFileSync('artifacts/settings-validation.json',JSON.stringify(report,null,2)+'\n');

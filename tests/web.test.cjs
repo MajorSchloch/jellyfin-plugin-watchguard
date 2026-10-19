@@ -269,7 +269,7 @@ test('Personal overview rejects cross-user payloads even with forged owner filte
     assert.match(page.children[4].textContent,/Viewing activity unavailable/);
 });
 
-function progressiveFixture(admin = true, preferences = false, owner = 'all') {
+function progressiveFixture(admin = true, preferences = false, owner = 'all', indexedActivity = false) {
     const f = documentFixture(), create = f.doc.createElement, calls = [];
     f.doc.createElement = tag => { const n = create(tag); n.replaceChildren = () => { for(const child of [...n.children]) child.remove(); }; n.classList = {add(){}}; return n; };
     let token = 'first';
@@ -277,7 +277,7 @@ function progressiveFixture(admin = true, preferences = false, owner = 'all') {
         ajax:o=>o.url==='WatchGuard/Users'?Promise.resolve(overviewItems[0].Users):new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
     const abort = new AbortController();
     const navigation=[];
-    const page = watchlistsPage(f.doc,api,abort.signal,owner,(...args)=>{navigation.push(args);page.updateFilters(...args);},{preferences});
+    const page = watchlistsPage(f.doc,api,abort.signal,owner,(...args)=>{navigation.push(args);page.updateFilters(...args);},{preferences,indexedActivity});
     return {page,calls,abort,navigation,changeAccount(){token='second';}};
 }
 const turn = () => new Promise(resolve=>setImmediate(resolve));
@@ -700,4 +700,36 @@ test('Malformed extras fail validation without executing metadata or affecting p
     }
     const owner={UserId:me,DisplayName:'Tom',Reasons:['CaughtUp'],EpisodeProgress:'invalid informational data'};
     assert.deepEqual(validateStatus({ItemId:me,HasInterest:true,HasOtherInterestedUsers:false,Users:[owner]},me,me),[owner]);
+});
+
+const indexedResult = (items = [], continuation = null) => ({Items:items,IsComplete:false,LimitReached:false,Notice:'Indexed; not exhaustive',Coverage:{Version:1,ActivityWindowDays:30,Warnings:[]},Freshness:{Revision:1,DiscoveryFinished:true,Pending:0,LastUpdate:null},Continuation:continuation});
+test('Indexed view time controls query stored activity, preserve local sorts and never save preferences implicitly',async()=>{
+    const f=progressiveFixture(true,false,'all',true);await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    assert.equal(f.calls[1].o.url,'WatchGuard/ActivityIndex?owner=all&days=30&older=true');
+    f.calls[1].resolve(indexedResult());await turn();
+    const before=f.calls.length;f.page.updateFilters('all','watchlisted','added','30','true');assert.equal(f.calls.length,before);
+    f.page.updateFilters('all','watchlisted','added','7','false');await turn();
+    f.calls[2].resolve([overviewItems[0]]);await turn();
+    assert.equal(f.calls[3].o.url,'WatchGuard/ActivityIndex?owner=all&days=7&older=false');
+    f.calls[3].resolve(indexedResult());await turn();
+    assert.ok(f.calls.every(c=>c.o.type==='GET'));f.abort.abort();
+});
+test('Indexed pagination preserves poster identity and refuses late account results',async()=>{
+    const f=progressiveFixture(true,false,'all',true);await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    f.calls[1].resolve(indexedResult(automaticResult.Items,'opaque'));await turn();
+    const grid=f.page.children[5],card=grid.children[0],more=f.page.children.at(-1);
+    const loading=more.onclick();assert.match(f.calls[2].o.url,/continuation=opaque/);
+    f.calls[2].resolve(indexedResult(automaticResult.Items));await loading;
+    assert.equal(grid.children.length,1);assert.equal(grid.children[0],card);
+    f.page.updateFilters('mine','watching','recent','90','true');await turn();
+    const last=f.calls.at(-1);f.changeAccount();last.resolve([overviewItems[0]]);await turn();
+    assert.equal(grid.children.length,0);f.abort.abort();
+});
+test('Indexed initial population is not a false empty result and malformed status remains an error',async()=>{
+    const f=progressiveFixture(false,false,'mine',true);await turn();f.calls[0].resolve([]);await turn();
+    const result=indexedResult();result.Freshness.DiscoveryFinished=false;f.calls[1].resolve(result);await turn();
+    assert.match(f.page.children[2].textContent,/Background discovery/);
+    const refresh=f.page.children[1].children[3].onclick();await turn();f.calls[2].resolve([]);await turn();
+    f.calls[3].resolve({...result,Freshness:null});await refresh;
+    assert.match(f.page.children[4].textContent,/unavailable/);f.abort.abort();
 });

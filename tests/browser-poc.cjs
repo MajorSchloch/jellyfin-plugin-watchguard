@@ -9,6 +9,8 @@ assert.match(fixture.base, /^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jelly
 assert.equal(fixture.username, 'WatchGuardPoCTest');
 const output = path.resolve(fixture.reportDirectory || 'artifacts/poc'); fs.mkdirSync(output, { recursive: true });
 const errorText = 'There was an error deleting the item from the server. Please check that Jellyfin has write access to the media folder and try again.';
+const mineActivity = fixture.activityIndex ? '**/WatchGuard/ActivityIndex?owner=mine&*' : '**/WatchGuard/ActivityOverview/Me';
+const allActivity = fixture.activityIndex ? '**/WatchGuard/ActivityIndex?owner=all&*' : '**/WatchGuard/ActivityOverview';
 const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [], orderingViolations: 0 };
 (async () => {
     const browser = await chromium.launch({ headless: true });
@@ -46,7 +48,18 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             headers: { Authorization: 'MediaBrowser Client="WatchGuardBrowser", Device="Disposable", DeviceId="browser-seed", Version="1", Token="' + token + '"', 'Content-Type': 'application/json' },
             body: body === undefined ? undefined : JSON.stringify(body) });
         assert.ok(response.ok, 'fixture API ' + method + ' ' + route + ': ' + response.status);
-        return response.status === 204 ? undefined : response.json();
+        const result = response.status === 204 ? undefined : await response.json();
+        if (fixture.activityIndex && method === 'POST' && /^\/(?:UserItems|Items)\//.test(route)) {
+            const deadline = Date.now() + 90000;
+            let state;
+            do {
+                state = await api('/WatchGuard/ActivityIndex?owner=all');
+                if (state.Freshness.DiscoveryFinished && state.Freshness.Pending === 0 && state.Freshness.Stored === state.Freshness.Validated) break;
+                if (Date.now() >= deadline) throw new Error('Activity index did not settle: ' + JSON.stringify(state.Freshness));
+                await new Promise(resolve => setTimeout(resolve, 250));
+            } while (true);
+        }
+        return result;
     }
     async function exists(id, expected = 200) {
         const response = await fetch(fixture.base + '/Items/' + id,
@@ -183,9 +196,9 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         for (const title of ['PoC Movie Detail','PoC Series Detail']) await api('/WatchGuard/Watchlist/' + fixture.items[title],'PUT');
         let releaseDiscovery;
         let overviewRequests = 0;
-        const countOverview = r => { if (/\/WatchGuard\/(?:Watchlist|Watchlists|ActivityOverview)(?:\/Me)?(?:\?|$)/.test(r.url())) overviewRequests++; };
+        const countOverview = r => { if (/\/WatchGuard\/(?:Watchlist|Watchlists|ActivityOverview|ActivityIndex)(?:\/Me)?(?:\?|$)/.test(r.url())) overviewRequests++; };
         page.on('request', countOverview);
-        await page.route('**/WatchGuard/ActivityOverview/Me', async route => {
+        await page.route(mineActivity, async route => {
             await new Promise(resolve => { releaseDiscovery = resolve; }); await route.continue();
         });
         await myList().getByRole('button',{name:'Refresh',exact:true}).click();
@@ -216,8 +229,28 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
         assert.equal(await myList().locator('.watchguard-spinner').count(),0);
         assert.equal(await originalCard.evaluate(e=>e===document.querySelector('.watchguard-card')),true);
-        await page.unroute('**/WatchGuard/ActivityOverview/Me'); page.off('request',countOverview);
+        await page.unroute(mineActivity); page.off('request',countOverview);
         report.paths.push({path:'Progressive overview',result:'explicit cards rendered with discovery held; no false empty state; local filtering/sorting sent zero requests; card node preserved on completion'});
+        if (fixture.activityIndex) {
+            const range = myList().getByRole('combobox', {name:'Activity range',exact:true});
+            for (const days of ['7','90','30']) {
+                await range.selectOption(days);
+                await page.waitForFunction(() => document.querySelector('.watchguard-page')?.getAttribute('aria-busy') === 'false');
+                assert.match(page.url(),new RegExp('days='+days));
+            }
+            const older=myList().getByRole('checkbox',{name:'Include older current interest',exact:true});
+            await older.uncheck(); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+            assert.match(page.url(),/older=false/);
+            await older.check(); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+            await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+            assert.equal(await range.inputValue(),'30'); assert.equal(await older.isChecked(),true);
+            for(const width of [1280,390]) { await page.setViewportSize({width,height:900});
+                assert.equal(await myList().evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+                await page.screenshot({path:path.join(output,'indexed-overview-'+width+'.png')}); }
+            await page.setViewportSize({width:1280,height:900});
+            report.paths.push({path:'Indexed time filters',result:'7/30/90-day URL selection, older-interest toggle, reload, native-sized controls and no overflow at 1280/390'});
+        }
+
         assert.equal(await myList().locator('.watchguard-card').count(),2);
         await page.waitForFunction(()=>Array.from(document.querySelectorAll('.watchguard-poster img')).some(img=>img.naturalWidth>0));
         await selectOwner('all');
@@ -266,10 +299,10 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
         await myList().getByRole('button',{name:'Remove PoC Series Detail from Watchlist',exact:true}).click();
         await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor();
-        await page.route('**/WatchGuard/ActivityOverview/Me', route => route.fulfill({status:503,body:'unavailable'}));
+        await page.route(mineActivity, route => route.fulfill({status:503,body:'unavailable'}));
         await myList().getByRole('button',{name:'Refresh',exact:true}).click();
         await myList().getByRole('alert').filter({hasText:'Viewing activity unavailable'}).waitFor();
-        await page.unroute('**/WatchGuard/ActivityOverview/Me');
+        await page.unroute(mineActivity);
         await myList().getByRole('button',{name:'Refresh',exact:true}).click();
         await myList().getByText('No matching activity in this overview.',{exact:true}).waitFor();
         await page.goBack();
@@ -350,7 +383,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
                 }
 
             }
-            const endpoint='**/WatchGuard/ActivityOverview';
+            const endpoint=allActivity;
             const warning=' Some continuing series lack episode or air-date coverage; Caught Up is not inferred for them. A safety limit was reached; some items are omitted.';
             await page.route(endpoint,async route=>{
                 const response=await route.fetch();const data=await response.json();
