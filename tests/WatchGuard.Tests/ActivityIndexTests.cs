@@ -55,7 +55,7 @@ public sealed class ActivityIndexTests : IDisposable
         data.Setup(d => d.GetResumeUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(), It.IsAny<User>())).Returns(new Dictionary<Guid, VersionResumeData>());
         sessions.Setup(s => s.Sessions).Returns(Array.Empty<SessionInfo>());
         interest = new(new WatchlistStore(path), library.Object, users.Object, data.Object, sessions.Object);
-        worker = Worker(); query = new(worker, library.Object, users.Object, sessions.Object);
+        worker = Worker(); query = new(worker, library.Object, users.Object, sessions.Object, clock);
     }
     private IndexWorker Worker() => new(store, library.Object, users.Object, data.Object, interest, NullLogger<IndexWorker>.Instance, clock);
     private Movie AddMovie(int age = 1)
@@ -89,6 +89,7 @@ public sealed class ActivityIndexTests : IDisposable
         var ids = new HashSet<Guid>(); var page = Read();
         do { Assert.All(page.Items, i => Assert.True(ids.Add(i.ItemId))); page = page.Continuation is null ? null : Read(cursor: page.Continuation); } while (page != null);
         Assert.Equal(137, ids.Count); Assert.Equal(reads, playbackReads);
+        Assert.True(worker.Status().PlaybackBatches < 2 * 137, "Background slices must retain native per-account batching.");
         Assert.False(Read().IsComplete); // A completed pass is not an exhaustive audit.
     }
     [Fact]
@@ -249,6 +250,53 @@ public sealed class ActivityIndexTests : IDisposable
         Assert.Equal(before,File.ReadAllBytes(Path.Combine(path,"activity-index.json")));
         File.WriteAllText(Path.Combine(path,"activity-index.json"),"{\"Version\":1,\"Rows\":null,\"Positions\":[],\"Pending\":[]}");
         Assert.Empty(store.Read().Rows);Assert.True(store.RecoveredCorruption);
+    }
+    [Fact]
+    public async Task AlternateMoviePlaybackInvalidatesPrimaryTitle()
+    {
+        var primary=AddMovie();var alternate=new Movie {Id=Guid.NewGuid(),Name="Alternate",PrimaryVersionId=primary.Id};items.Add(alternate.Id,alternate);
+        await worker.StartAsync(CancellationToken.None);
+        try {await Populate();Assert.Single(Read().Items);
+            playback[(alice.Id,primary.Id)].Played=false;playback[(alice.Id,primary.Id)].PlaybackPositionTicks=1000;
+            data.Raise(d=>d.UserDataSaved+=null,new UserDataSaveEventArgs {UserId=alice.Id,Item=alternate});
+            Assert.Empty(Read().Items);clock.Advance(TimeSpan.FromSeconds(3));await Populate();
+            Assert.Equal(["InProgress"],Read().Items.Single().Users.Single().Reasons);
+        } finally {await worker.StopAsync(CancellationToken.None);}
+    }
+    [Fact]
+    public void CorruptionBetweenCheckpointsIsPreservedAndRecoveryFilesAreBounded()
+    {
+        store.Write(new(1,[],[],[]));
+        for(var n=0;n<5;n++) { File.WriteAllText(Path.Combine(path,"activity-index.json"),"damaged-"+n); store.Write(new(1,[],[],[])); }
+        Assert.Equal(5,Directory.GetFiles(path,"*.replaced-*").Length);
+        File.WriteAllText(Path.Combine(path,"activity-index.json"),"sixth");
+        Assert.Throws<IOException>(()=>store.Write(new(1,[],[],[])));
+        Assert.Equal("sixth",File.ReadAllText(Path.Combine(path,"activity-index.json")));
+    }
+    [Fact]
+    public async Task PaginationExpiryAndPermissionRevocationRejectSavedCursor()
+    {
+        for(var n=0;n<30;n++)AddMovie();await Populate();
+        var first=Read();Assert.NotNull(first.Continuation);clock.Advance(TimeSpan.FromMinutes(3));
+        Assert.Throws<ArgumentException>(()=>Read(cursor:first.Continuation));
+        alice.SetPermission(PermissionKind.IsAdministrator,true);
+        first=query.Read(alice,null,30,true,null,CancellationToken.None);
+        alice.SetPermission(PermissionKind.IsAdministrator,false);
+        Assert.Throws<UnauthorizedAccessException>(()=>query.Read(alice,null,30,true,first.Continuation,CancellationToken.None));
+    }
+    [Fact]
+    public void OversizeInterruptedSerializationPreservesPriorCheckpoint()
+    {
+        store.Write(new(1,[],[],[]));var before=File.ReadAllBytes(Path.Combine(path,"activity-index.json"));
+        var longName=new string('x',1024*1024);
+        var records=Enumerable.Range(0,35).Select(_=>{
+            var key=new IndexKey(alice.Id,Guid.NewGuid());var episode=Guid.NewGuid();
+            var activity=new OverviewUser(alice.Id,"",["CaughtUp"],DateTime.UtcNow) {EpisodeProgress=new(0,0,[new(episode,1,1,null,longName,null,"UnknownDate",false)])};
+            return new IndexRow(key,activity,[episode],true,false,null,DateTimeOffset.UtcNow);
+        }).ToArray();
+        Assert.Throws<InvalidDataException>(()=>store.Write(new(1,records,[],[])));
+        Assert.Equal(before,File.ReadAllBytes(Path.Combine(path,"activity-index.json")));
+        Assert.False(File.Exists(Path.Combine(path,"activity-index.json.tmp")));
     }
     private sealed class TestClock : TimeProvider {
         private DateTimeOffset now=DateTimeOffset.UtcNow;

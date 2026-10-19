@@ -18,6 +18,15 @@ public sealed class IndexStore(string directory)
     private readonly string path = Path.Combine(directory, "activity-index.json");
     private static readonly JsonSerializerOptions Options = new() { UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
     public bool RecoveredCorruption { get; private set; }
+    private (long Length, DateTime Changed)? checkpoint;
+    private (long, DateTime)? Stamp() => File.Exists(path) ? (new FileInfo(path).Length, File.GetLastWriteTimeUtc(path)) : null;
+    private void Preserve(string suffix)
+    {
+        if (Directory.EnumerateFiles(directory, "activity-index.json.*-*").Take(5).Count() >= 5)
+            throw new IOException("Activity index recovery files require administrator cleanup.");
+        File.Move(path, path + suffix + Guid.NewGuid().ToString("N"));
+        RecoveredCorruption = true; checkpoint = null;
+    }
 
     public IndexDocument Read()
     {
@@ -27,13 +36,13 @@ public sealed class IndexStore(string directory)
             if (new FileInfo(path).Length > MaxBytes) throw new InvalidDataException();
             var value = JsonSerializer.Deserialize<IndexDocument>(File.ReadAllBytes(path), Options);
             Validate(value);
+            checkpoint = Stamp();
             return value!;
         }
         catch (Exception e) when (e is JsonException or InvalidDataException or ArgumentException)
         {
             // Failure to preserve the file is fatal. Never overwrite an unreadable store.
-            File.Move(path, path + ".corrupt-" + Guid.NewGuid().ToString("N"));
-            RecoveredCorruption = true;
+            Preserve(".corrupt-");
             return new(1, [], [], []);
         }
     }
@@ -42,17 +51,25 @@ public sealed class IndexStore(string directory)
     {
         Validate(document);
         Directory.CreateDirectory(directory);
-        var temporary = path + ".tmp-" + Guid.NewGuid().ToString("N");
+        if (File.Exists(path) && checkpoint != Stamp())
+        {
+            // An external replacement/corruption must not disappear under a
+            // later successful checkpoint. Preserve it; derived rows in memory
+            // were independently verified against native Jellyfin.
+            Preserve(".replaced-");
+        }
+        var temporary = path + ".tmp";
         try
         {
             // Bound allocation before serializing the complete document into memory.
-            using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var file = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 using var bounded = new BoundedStream(file);
                 JsonSerializer.Serialize(bounded, document, Options);
                 file.Flush(true);
             }
             File.Move(temporary, path, true);
+            checkpoint = Stamp();
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }

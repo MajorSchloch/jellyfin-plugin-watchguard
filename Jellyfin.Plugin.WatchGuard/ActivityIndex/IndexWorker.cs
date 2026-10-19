@@ -74,7 +74,11 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
         lock (gate)
         {
             ownerChanges[e.UserId] = ownerChanges.GetValueOrDefault(e.UserId) + 1;
-            var title = e.Item is Episode episode ? episode.SeriesId : e.Item?.Id ?? Guid.Empty;
+            var title = e.Item is Episode episode ? episode.SeriesId :
+                e.Item is Video { PrimaryVersionId: { } primary } ? primary : e.Item?.Id ?? Guid.Empty;
+            // A linked episode can belong to a different primary ancestry.
+            // Resolve that native item in the worker, never in this callback.
+            if (e.Item is Episode { PrimaryVersionId: { } linked }) Enqueue(new(e.UserId, linked), true);
             if (title != Guid.Empty) Enqueue(new(e.UserId, title), true);
             else { valid.RemoveWhere(k => k.UserId == e.UserId); resetDiscovery = true; }
             revision++;
@@ -140,8 +144,8 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { break; }
             catch (Exception e)
             {
-                lock (gate) causes.Add("WorkerFailure");
-                logger.LogWarning("WatchGuard activity worker unavailable ({Type}); existing index retained", e.GetType().Name);
+                bool first; lock (gate) first = causes.Add("WorkerFailure");
+                if (first) logger.LogWarning("WatchGuard activity worker unavailable ({Type}); existing index retained", e.GetType().Name);
             }
             await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
         }
@@ -197,22 +201,17 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
                 work.Add((pair.Key, generation, ownerChanges.GetValueOrDefault(pair.Key.UserId)));
             }
         }
+        Dictionary<IndexKey, IndexRow?> calculations;
+        try { calculations = EvaluateBatch(work.Select(w => w.Key).ToArray(), cancellation); }
+        catch (OperationCanceledException)
+        {
+            lock (gate) foreach (var queued in work) Enqueue(queued.Key, false);
+            throw;
+        }
         var changed = false;
         foreach (var (key, epoch, ownerGeneration) in work)
         {
-            if (cancellation.IsCancellationRequested)
-            {
-                lock (gate) foreach (var queued in work) if (!visited.Contains(queued.Key)) Enqueue(queued.Key, false);
-                cancellation.ThrowIfCancellationRequested();
-            }
-            IndexRow? calculated;
-            try { calculated = Evaluate(key, cancellation); }
-            catch (OperationCanceledException) { lock (gate) foreach (var queued in work) if (!visited.Contains(queued.Key)) Enqueue(queued.Key, false); throw; }
-            catch (Exception e)
-            {
-                calculated = new(key, new(key.UserId, "", [], null), [], false, false,
-                    e is OverviewLimitException ? "EpisodeLimit" : "NativeLookupFailure", time.GetUtcNow());
-            }
+            var calculated = calculations[key];
             lock (gate)
             {
                 if (epoch != generation || ownerGeneration != ownerChanges.GetValueOrDefault(key.UserId)) { staleResults++; Enqueue(key, false); continue; }
@@ -228,7 +227,7 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
         {
             IndexDocument document;
             lock (gate) document = new(1, rows.Values.ToArray(), positions.Values.ToArray(), pending.Keys.ToArray());
-            try { store.Write(document); lastCheckpoint = time.GetUtcNow(); lock (gate) causes.Remove("CheckpointFailure"); }
+            try { store.Write(document); lastCheckpoint = time.GetUtcNow(); lock (gate) { causes.Remove("CheckpointFailure"); causes.Remove("WorkerFailure"); if (store.RecoveredCorruption) causes.Add("CorruptIndexRebuilt"); } }
             catch { lock (gate) causes.Add("CheckpointFailure"); throw; }
         }
     }
@@ -263,33 +262,60 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
         }
     }
 
-    private IndexRow? Evaluate(IndexKey key, CancellationToken cancellation)
+    private Dictionary<IndexKey, IndexRow?> EvaluateBatch(IndexKey[] keys, CancellationToken cancellation)
     {
-        var owner = users.GetUserById(key.UserId);
-        if (owner is null || owner.HasPermission(PermissionKind.IsDisabled)) return null;
-        var item = library.GetItemById<BaseItem>(key.ItemId, owner);
-        if (!InterestService.Supported(item)) return null;
-        // Empty membership/session snapshots keep these independent live sources
-        // out of durable storage. The same bounded native classifier is reused.
-        var budget = new OverviewBudget([], [owner]) { IncludeActivity = true, IncludeEpisodeProgress = true, SessionSnapshot = [], Cancellation = cancellation };
-        var started = System.Diagnostics.Stopwatch.GetTimestamp();
-        ProtectionStatus status;
-        try
+        var results = new Dictionary<IndexKey, IndexRow?>();
+        IndexRow Failure(IndexKey key, Exception e) => new(key, new(key.UserId, "", [], null), [], false, false,
+            e is OverviewLimitException ? "EpisodeLimit" : "NativeLookupFailure", time.GetUtcNow());
+        foreach (var group in keys.GroupBy(k => k.UserId))
         {
-            interest.PrepareOverviewVerification([item!], budget);
-            status = interest.GetForOverview(item!, owner.Id, budget);
-            lock (gate) titlesVerified++;
-        }
-        finally
-        {
-            lock (gate)
+            cancellation.ThrowIfCancellationRequested();
+            var started = System.Diagnostics.Stopwatch.GetTimestamp();
+            OverviewBudget? budget = null;
+            try
             {
-                episodeQueries += budget.Diagnostics.EpisodeQueryCount;
-                episodeRows += budget.Diagnostics.EpisodeRowsProcessed;
-                playbackBatches += budget.Diagnostics.NativePlaybackBatches;
-                verificationMs += System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+                var owner = users.GetUserById(group.Key);
+                if (owner is null || owner.HasPermission(PermissionKind.IsDisabled)) { foreach (var key in group) results[key] = null; continue; }
+                var titles = new Dictionary<IndexKey, BaseItem>();
+                foreach (var key in group)
+                {
+                    var item = library.GetItemById<BaseItem>(key.ItemId, owner);
+                    if (item is Episode episode && episode.SeriesId != Guid.Empty) { lock (gate) Enqueue(new(owner.Id, episode.SeriesId), true); }
+                    if (InterestService.Supported(item)) titles[key] = item!; else results[key] = null;
+                }
+                if (titles.Count == 0) continue;
+                // Reuse the v0.4.7 bounded native playback batching across this
+                // account's titles, without expanding to an account/title cross product.
+                budget = new OverviewBudget([], [owner]) { IncludeActivity = true, IncludeEpisodeProgress = true, SessionSnapshot = [], Cancellation = cancellation };
+                interest.PrepareOverviewVerification(titles.Values.ToArray(), budget);
+                foreach (var (key, item) in titles)
+                {
+                    cancellation.ThrowIfCancellationRequested();
+                    budget.Playback.Clear(); budget.PlaybackDates.Clear(); budget.IncompleteCoverage = false;
+                    try { results[key] = Evaluate(key, item, owner, budget); lock (gate) titlesVerified++; }
+                    catch (OperationCanceledException) { throw; }
+                    catch (Exception e) { results[key] = Failure(key, e); }
+                }
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception e) { foreach (var key in group) results[key] = Failure(key, e); }
+            finally
+            {
+                lock (gate)
+                {
+                    episodeQueries += budget?.Diagnostics.EpisodeQueryCount ?? 0;
+                    episodeRows += budget?.Diagnostics.EpisodeRowsProcessed ?? 0;
+                    playbackBatches += budget?.Diagnostics.NativePlaybackBatches ?? 0;
+                    verificationMs += System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+                }
             }
         }
+        return results;
+    }
+
+    private IndexRow? Evaluate(IndexKey key, BaseItem item, User owner, OverviewBudget budget)
+    {
+        var status = interest.GetForOverview(item, owner.Id, budget);
         var playback = budget.Playback.GetValueOrDefault(owner.Id) ?? throw new InvalidDataException();
         var reasons = status.Users.SingleOrDefault()?.Reasons.Where(r => r == "InProgress").ToList() ?? [];
         if (playback.CaughtUp) reasons.Add("CaughtUp"); else if (playback.Completed) reasons.Add("Watched");

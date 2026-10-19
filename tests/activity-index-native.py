@@ -90,15 +90,17 @@ done''')
             samples = []
             for _ in range(4):
                 start = time.perf_counter(); first = call(route, token=token, timeout=60); samples.append((time.perf_counter()-start)*1000)
+            page_started = time.perf_counter(); visibility_queries = first.get('ReadDiagnostics',{}).get('EpisodeVisibilityQueries',0)
             all_items = list(first['Items']); cursor = first.get('Continuation')
             while cursor:
                 page = call(route + '&continuation=' + cursor, token=token, timeout=60)
                 all_items += page['Items']; cursor = page.get('Continuation')
+                visibility_queries += page.get('ReadDiagnostics',{}).get('EpisodeVisibilityQueries',0)
             actual = normalized(all_items)
             assert len(actual) == len(all_items), 'Duplicate cards across stable pages'
             assert len(actual) == 121, (scope, len(actual), first['Coverage'])
             for item, people in old_results[scope].items(): assert actual[item] == people, (scope, item, actual[item], people)
-            result['measurements']['index-' + scope] = {'milliseconds': samples[1:], 'medianMs': statistics.median(samples[1:]), 'firstPageItems': len(first['Items']), 'totalItems':len(actual),'freshness':first['Freshness']}
+            result['measurements']['index-' + scope] = {'milliseconds': samples[1:], 'medianMs': statistics.median(samples[1:]), 'firstPageItems': len(first['Items']), 'totalItems':len(actual),'allPagesMs': samples[-1]+(time.perf_counter()-page_started)*1000,'allPagesVisibilityQueries': visibility_queries,'freshness':first['Freshness']}
         # Native manual unplayed event removes a completed movie without any Refresh request.
         target = movies[0]['Id']; owner = owners[0]
         start = time.perf_counter()

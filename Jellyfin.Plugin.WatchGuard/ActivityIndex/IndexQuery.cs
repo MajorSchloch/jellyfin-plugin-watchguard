@@ -11,12 +11,17 @@ using MediaBrowser.Controller.Session;
 namespace Jellyfin.Plugin.WatchGuard.ActivityIndex;
 
 public sealed record IndexPage(OverviewItem[] Items, bool IsComplete, bool LimitReached, string Notice,
-    OverviewCoverage Coverage, IndexStatus Freshness, string? Continuation);
+    OverviewCoverage Coverage, IndexStatus Freshness, string? Continuation)
+{
+    public IndexReadDiagnostics? ReadDiagnostics { get; init; }
+}
+public sealed record IndexReadDiagnostics(double DurationMs, int EpisodeVisibilityQueries, int EpisodeRows);
 
 internal sealed class IndexVisibilityLimitException : Exception;
 
-public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUserManager users, ISessionManager sessions)
+public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUserManager users, ISessionManager sessions, TimeProvider? clock = null)
 {
+    private readonly TimeProvider time = clock ?? TimeProvider.System;
     private sealed record PageSnapshot(Guid Caller, Guid? Owner, int Days, bool Older, Guid[] Items, DateTimeOffset Expires, int Offset);
     private readonly object gate = new();
     private readonly Dictionary<string, PageSnapshot> snapshots = new(StringComparer.Ordinal);
@@ -47,12 +52,13 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
 
     public IndexPage Read(User caller, Guid? owner, int days, bool older, string? continuation, CancellationToken cancellation)
     {
+        var started = System.Diagnostics.Stopwatch.GetTimestamp();
         if (days is not (7 or 30 or 90)) throw new ArgumentException("Activity range must be 7, 30 or 90 days.");
         if (!caller.HasPermission(PermissionKind.IsAdministrator) && owner != caller.Id) throw new UnauthorizedAccessException();
-        var now = DateTimeOffset.UtcNow;
+        var now = time.GetUtcNow();
         var snapshot = worker.Snapshot();
         var candidates = snapshot.Rows.Where(r => !owner.HasValue || r.Key.UserId == owner).ToArray();
-        var live = Live(caller, owner, cancellation);
+        var live = Live(caller, owner, cancellation, out var sessionLimited);
         PageSnapshot page;
         lock (gate)
         {
@@ -68,11 +74,16 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
         }
         var result = new List<OverviewItem>();
         var causes = new HashSet<string>(worker.Status().Causes);
+        if (sessionLimited) causes.Add("LiveSessionLimit");
         var requesterEpisodes = new Dictionary<Guid, HashSet<Guid>>();
         var visibilityRows = 0;
+        var visibilityQueries = 0;
         var ownerEpisodes = new Dictionary<IndexKey, HashSet<Guid>>();
+        var consumedTitles = 0;
         foreach (var id in page.Items.Skip(page.Offset).Take(25))
         {
+            if (visibilityRows > 20000 - (InterestOverviewService.EpisodeLimit + 1)) { causes.Add("VisibilityBudget"); break; }
+            consumedTitles++;
             cancellation.ThrowIfCancellationRequested();
             var item = library.GetItemById<BaseItem>(id, caller);
             if (!InterestService.Supported(item)) continue;
@@ -92,6 +103,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
                     HashSet<Guid> Visible(User user)
                     {
                         if (visibilityRows > 20000 - (InterestOverviewService.EpisodeLimit + 1)) throw new IndexVisibilityLimitException();
+                        visibilityQueries++;
                         var ids = library.GetItemIds(new InternalItemsQuery(user)
                     {
                         Recursive = true, AncestorIds = [id], IncludeItemTypes = [BaseItemKind.Episode],
@@ -115,7 +127,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
             if (people.Count > 0) result.Add(new(id, item!.Name, people.Values.ToArray()));
         }
         string? next = null;
-        if (page.Offset + 25 < page.Items.Length)
+        if (page.Offset + consumedTitles < page.Items.Length)
         {
             lock (gate)
             {
@@ -123,7 +135,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
                 else
                 {
                     next = Convert.ToHexString(RandomNumberGenerator.GetBytes(24));
-                    snapshots.Add(next, page with { Offset = page.Offset + 25 });
+                    snapshots.Add(next, page with { Offset = page.Offset + consumedTitles });
                 }
                 if (continuation is not null) snapshots.Remove(continuation);
             }
@@ -150,17 +162,22 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
             TitlesVerified = caller.HasPermission(PermissionKind.IsAdministrator) ? state.TitlesVerified : 0,
             VerificationMs = caller.HasPermission(PermissionKind.IsAdministrator) ? state.VerificationMs : 0,
             RetainedSerializedBytes = caller.HasPermission(PermissionKind.IsAdministrator) ? state.RetainedSerializedBytes : 0 };
-        return new(result.ToArray(), false, causes.Any(c => c.EndsWith("Limit", StringComparison.Ordinal) || c.EndsWith("Failure", StringComparison.Ordinal)),
+        return new(result.ToArray(), false, causes.Any(c => c.EndsWith("Limit", StringComparison.Ordinal) || c.EndsWith("Failure", StringComparison.Ordinal) || c.EndsWith("Budget", StringComparison.Ordinal) || c.EndsWith("Capacity", StringComparison.Ordinal)),
             $"Native activity in the last {days} days" + (older ? ", plus older current interest" : "") +
             ". Explicit watchlists and current sessions are independent. Background discovery is not an exhaustive library audit.",
-            new(1, days, !state.DiscoveryFinished, causes.Contains("EpisodeMetadataIncomplete"), causes.Contains("EpisodeLimit"), false, next != null, causes.Order().ToArray(), warnings), freshness, next);
+            new(1, days, !state.DiscoveryFinished, causes.Contains("EpisodeMetadataIncomplete"), causes.Contains("EpisodeLimit") || causes.Contains("VisibilityBudget"), false, next != null, causes.Order().ToArray(), warnings), freshness, next) { ReadDiagnostics = new(System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds, visibilityQueries, visibilityRows) };
     }
 
-    private Dictionary<IndexKey, OverviewUser> Live(User caller, Guid? owner, CancellationToken cancellation)
+    private Dictionary<IndexKey, OverviewUser> Live(User caller, Guid? owner, CancellationToken cancellation, out bool limited)
     {
         var result = new Dictionary<IndexKey, OverviewUser>();
-        foreach (var session in sessions.Sessions.Where(s => s.IsActive && s.NowPlayingItem != null).Take(100))
-            foreach (var id in session.AdditionalUsers.Select(u => u.UserId).Append(session.UserId).Distinct().Take(50))
+        var playing = sessions.Sessions.Where(s => s.IsActive && s.NowPlayingItem != null).Take(101).ToArray();
+        limited = playing.Length > 100;
+        foreach (var session in playing.Take(100))
+        {
+            var identities = new[] { session.UserId }.Concat(session.AdditionalUsers.Select(u => u.UserId)).Distinct().Take(51).ToArray();
+            if (identities.Length > 50) limited = true;
+            foreach (var id in identities.Take(50))
             {
                 cancellation.ThrowIfCancellationRequested();
                 if (owner.HasValue && id != owner) continue;
@@ -172,6 +189,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
                 if (!InterestService.Supported(title) || !InterestService.Supported(library.GetItemById<BaseItem>(title!.Id, caller))) continue;
                 result[new(user.Id, title.Id)] = new(user.Id, user.Username, ["CurrentlyPlaying"], null);
             }
+        }
         return result;
     }
 }
