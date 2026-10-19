@@ -1,6 +1,6 @@
 # WatchGuard documentation index
 
-**Current published version: [v0.5.1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.1)** · Qualified target: Jellyfin Server/Web 12.2.0 and .NET 10.
+**Current published version: [v0.5.2](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.2)** · Qualified target: Jellyfin Server/Web 12.2.0 and .NET 10.
 
 Start with the repository [README](../README.md) for features, installation, limitations, and the non-mutating status/approval checks. The repository includes historical design experiments and release-candidate reports. Their *as-of-version* statements (for example, “not published” or “requires Injector”) describe historical candidates, **not the current public release**.
 
@@ -26,10 +26,10 @@ Start with the repository [README](../README.md) for features, installation, lim
 - [v0.5.1 saved Recently added defaults](saved-sort-v051.md): compatible sidecar, downgrade fallback, corruption and partial-write behavior.
 - [v0.5.1 published release validation](release-v051.md): publication and all ten integration suites passed.
 
-## Unreleased v0.5.2 candidate
+## Additional available episode progress (v0.5.2)
 
 - [Additional available episode progress](extra-episodes-v052.md): aired counts, user-specific extras, date boundary, compatibility and validation.
-- [v0.5.2 candidate notes](release-v052.md). Public catalog remains v0.5.1.
+- [v0.5.2 published release notes](release-v052.md).
 
 ## Maintainer and developer notes
 

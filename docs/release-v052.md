@@ -1,6 +1,6 @@
 # WatchGuard v0.5.2 — Additional available episode progress
 
-**Unreleased candidate.** Public release/catalog remains v0.5.1. Merging and publication require review.
+**Published v0.5.2.** [Publication run 39219433132](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39219433132) succeeded on commit `9a3aa7d046863687b671f316da0a138cb4f6be21`: build, all ten integration suites and publication passed.
 
 Target: Jellyfin Server/Web 12.2.0, .NET 10; stable GUID and ABI unchanged.
 
@@ -21,7 +21,7 @@ See [design, API fields, limits and rollback](extra-episodes-v052.md). No storag
 - The complete disposable official-image server-enforcement suite passed 77 cases, including Caddy HTTPS, old Web tabs, expiry/replay/concurrency, permission and session changes, native single/bulk continuations and preservation of files/records on veto.
 - Two Release builds produced identical ZIP SHA-256 `62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec` (`Jellyfin.Plugin.WatchGuard-v0.5.2.zip`, plugin DLL + LICENSE only).
 
-The full hosted ten-suite release matrix, base-path/migration/rollback suites and native performance profiles have not been rerun for this candidate. The existing parallel release matrix remains required before publication. No production deployment or publication occurred.
+The hosted publication run also passed base-path, migration, legacy/rollback, WebSocket, discovery, verification, standalone/Caddy and all three server-enforcement profiles. Local results above precede that successful full qualification; published assets and checksums remain unchanged.
 
 Environment: .NET SDK 10.0.302, Python 3.12.0 and Playwright 1.56.1. The initial direct official-image run used local Node 25.9.0; the JavaScript suite, LinuxServer/Caddy browser suite and complete server-enforcement suite were also run with CI’s pinned Node 24.22.0. See [structured local evidence](evidence/v052-validation.json).
 
