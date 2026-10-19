@@ -37,7 +37,7 @@ Atomic same-directory temp-file replacement; validate version, structure, counts
 
 Last 7/30/90 days (default 30) filters valid native LastPlayedDate values, excluding unknown/future values. Include older current interest defaults on and retains InProgress/CaughtUp independently of history. Live CurrentlyPlaying and explicit memberships remain independent. Time controls do not rewrite saved owner/status/sort defaults or trigger discovery.
 
-Stable pages use short-lived opaque server-held snapshot identifiers bound to caller, scope and query; every page reauthorizes results. Bound snapshots and expiry, reject invalid/expired continuation. Report separate freshness, population progress, metadata gaps, safety limits, lookup failures and more-pages state. A fresh subset is never described as exhaustive.
+Stable pages prioritize live sessions, then eligible Watching/Caught Up, then completed history, with an ID tie-breaker frozen for that view. They use short-lived opaque server-held snapshot identifiers bound to caller, scope and query; every page reauthorizes results. Bound snapshots and expiry, reject invalid/expired continuation. Report separate freshness, population progress, metadata gaps, safety limits, lookup failures and more-pages state. A fresh subset is never described as exhaustive.
 
 Refresh queues prioritized work while keeping usable rows visible. A visible open page polls bounded index state, stops on navigation/account changes, and discards late responses. No unbounded automatic pagination. Preserve poster identity, local owner/status/sort behavior and accessible +N details.
 
@@ -81,3 +81,11 @@ Back up personal data as before. Backing up the derived index is optional; it ca
 Warm read responses include `ReadDiagnostics.DurationMs`, `EpisodeVisibilityQueries` and `EpisodeRows`. These exclude response serialization/network time; fixture wall-clock latency includes them. Worker diagnostics are cumulative background work, not work caused by a warm read. The benchmark reports first-page latency and full manually paginated view latency separately because they return different quantities than the old capped overview.
 
 Owner snapshots also carry a SHA-256 fingerprint of the complete native policy/configuration DTO and parental-rating fields. Any change suppresses the cached row and queues verification, even if the primary episode-ID set is identical (for example, access to a linked media version changed). This is a conservative invalidation check, never permission equivalence or a replacement for native visibility checks. Routine logs never contain the policy or fingerprint.
+
+## UI and reconciliation limits to review
+
+Status filtering and title/date sorting remain local to the loaded cards, including explicit memberships. They are not a global sort of unloaded pages. The page distinguishes no matches on loaded pages from a finished view and offers explicit Load more; active interest has snapshot priority so default active-status filters do not start behind arbitrary completed-history IDs. A newly playing title enters the next fresh view rather than changing an existing continuation's ordering.
+
+The new range controls default to 30 days and use the fixed 7/30/90 choices. Existing `ActivityWindowDays` and `ActivityLimit` still govern the unchanged legacy overview API; they do not change the index's 90-day retained completed-history bound or 25-title page size. No configuration values are rewritten.
+
+Missed events and reordering can leave newly discovered titles waiting for the next reconciliation pass. Startup resumes unfinished offsets and revalidates known rows; if a persisted discovery pass was already finished, undiscovered changes made while WatchGuard was absent may wait until the next six-hour pass or manual task execution. Freshness/coverage must not be interpreted as proof that no other title has interest. Refresh prioritizes known rows; the native scheduled task requests a new discovery pass. Other clients' manual watchlist edits are fetched on explicit Refresh/navigation; the thirty-second poll refreshes automatic activity and live sessions.
