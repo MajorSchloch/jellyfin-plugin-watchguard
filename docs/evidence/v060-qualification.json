@@ -1,0 +1,259 @@
+{
+  "testedCommit": "b42e565da8d2cb8ed86841c378dd0e928b587bd9",
+  "baseMaster": "092bcb18cafb69b7051e01769febaa191241b2e5",
+  "inputs": {
+    "publish": false,
+    "proxy_matrix": true
+  },
+  "hostedQualification": {
+    "conclusion": "success",
+    "headSha": "b42e565da8d2cb8ed86841c378dd0e928b587bd9",
+    "jobs": [
+      {
+        "completedAt": "2026-10-19T12:59:09Z",
+        "conclusion": "success",
+        "name": "build",
+        "startedAt": "2026-10-19T12:58:09Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072011245"
+      },
+      {
+        "completedAt": "2026-10-19T13:06:29Z",
+        "conclusion": "success",
+        "name": "Integration / activity-index",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479672"
+      },
+      {
+        "completedAt": "2026-10-19T13:05:09Z",
+        "conclusion": "success",
+        "name": "Integration / legacy",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479703"
+      },
+      {
+        "completedAt": "2026-10-19T13:04:10Z",
+        "conclusion": "success",
+        "name": "Integration / discovery",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479738"
+      },
+      {
+        "completedAt": "2026-10-19T13:03:25Z",
+        "conclusion": "success",
+        "name": "Integration / websocket",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479744"
+      },
+      {
+        "completedAt": "2026-10-19T13:12:36Z",
+        "conclusion": "success",
+        "name": "Integration / verification",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479777"
+      },
+      {
+        "completedAt": "2026-10-19T13:18:05Z",
+        "conclusion": "success",
+        "name": "Integration / standalone-caddy",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479791"
+      },
+      {
+        "completedAt": "2026-10-19T13:04:20Z",
+        "conclusion": "success",
+        "name": "Integration / server-enforcement",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479854"
+      },
+      {
+        "completedAt": "2026-10-19T13:11:57Z",
+        "conclusion": "success",
+        "name": "Integration / migration",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479857"
+      },
+      {
+        "completedAt": "2026-10-19T13:03:33Z",
+        "conclusion": "success",
+        "name": "Integration / server-enforcement-basepath",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479861"
+      },
+      {
+        "completedAt": "2026-10-19T13:09:26Z",
+        "conclusion": "success",
+        "name": "Integration / basepath",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479888"
+      },
+      {
+        "completedAt": "2026-10-19T13:06:27Z",
+        "conclusion": "success",
+        "name": "Integration / server-enforcement-linuxserver",
+        "startedAt": "2026-10-19T12:59:12Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118072479910"
+      },
+      {
+        "completedAt": "2026-10-19T13:18:06Z",
+        "conclusion": "skipped",
+        "name": "publish",
+        "startedAt": "2026-10-19T13:18:06Z",
+        "status": "completed",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177/job/118081370000"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39255014177"
+  },
+  "localAndHostedTests": {
+    "backendPassed": 250,
+    "javascriptPassed": 132,
+    "pythonPassed": 15,
+    "catalogPassed": 4
+  },
+  "artifact": {
+    "name": "Jellyfin.Plugin.WatchGuard-v0.6.0.zip",
+    "sha256": "c967e12538558ad168be5242faf366f14484b074afdef10483483b3c2453a232",
+    "entries": [
+      "Jellyfin.Plugin.WatchGuard.dll",
+      "LICENSE"
+    ],
+    "twoCleanLocalBuildsIdentical": true,
+    "hostedBuildIdenticalToLocal": true,
+    "hostedArtifact": "WatchGuard-v0.6.0-validated"
+  },
+  "nativeIndexEvidence": "activity-index/v060-summary.json",
+  "catalogRoundTrip": {
+    "result": "PASS",
+    "baselineSha256": "439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d",
+    "publishedV052Sha256": "62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec",
+    "roundTrip": "0.6.0 -> 0.5.2 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5 -> 0.4.6 -> 0.4.7 -> 0.4.8 -> 0.4.9 -> 0.4.10 -> 0.6.0",
+    "roundTripStoresAndConfigBytesPreserved": true,
+    "normalCatalogUpgradeWithoutManualAssemblyOperations": true,
+    "existingConfigValuesPreserved": true,
+    "noInjector": true,
+    "singleActiveAssembly": true
+  },
+  "preferenceRoundTrip": {
+    "result": "PASS",
+    "restart": true,
+    "publishedBaselines": {
+      "0.5.0": "a9ff9255785761aed574e0ac0d14535445461a3de6da5f4d3eb32f5dd300332b",
+      "0.4.10": "471d99364db520a0990e4a624d73e26ae4c9f1c50404c2902c9691516667bf3e"
+    },
+    "operations": [
+      "unchanged",
+      "save-identical",
+      "recent",
+      "reset"
+    ],
+    "corruptDataPreserved": true,
+    "watchlistsUnchanged": true
+  },
+  "serverEnforcement": {
+    "status": "PASS",
+    "unrelatedRequestsEvaluations": 0,
+    "caddyNoKnownProxies": "PASS: real browser approval and one native deletion over HTTPS to HTTP backend",
+    "caddy": "PASS: trusted HTTPS same-origin challenge/approval/redemption; gzip/zstd and WebSocket unaffected",
+    "portableProxies": [
+      {
+        "profile": "nginx",
+        "image": "nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+        "knownProxies": false,
+        "readiness": {
+          "Authenticated": true,
+          "OriginStatus": "HttpsProxySameOrigin",
+          "BrowserRequestVerified": true,
+          "GuardActive": true,
+          "ApprovalRequestsReady": true,
+          "Scope": "Request authentication and origin only; target permissions and fresh protection are checked per operation"
+        },
+        "vetoFilesAndRecordsPreserved": true,
+        "states": [
+          "Created",
+          "Presented",
+          "Approved",
+          "Consumed"
+        ],
+        "nativeContinuations": 1,
+        "replayRejected": true
+      },
+      {
+        "profile": "traefik",
+        "image": "traefik:v3.6@sha256:31267173a15b4944e797a76ffd9c419707c8d8b32fe5b610f80cd0cfa05f372d",
+        "knownProxies": false,
+        "readiness": {
+          "Authenticated": true,
+          "OriginStatus": "HttpsProxySameOrigin",
+          "BrowserRequestVerified": true,
+          "GuardActive": true,
+          "ApprovalRequestsReady": true,
+          "Scope": "Request authentication and origin only; target permissions and fresh protection are checked per operation"
+        },
+        "vetoFilesAndRecordsPreserved": true,
+        "states": [
+          "Created",
+          "Presented",
+          "Approved",
+          "Consumed"
+        ],
+        "nativeContinuations": 1,
+        "replayRejected": true
+      },
+      {
+        "profile": "tunnel",
+        "image": "nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+        "knownProxies": false,
+        "readiness": {
+          "Authenticated": true,
+          "OriginStatus": "HttpsProxySameOrigin",
+          "BrowserRequestVerified": true,
+          "GuardActive": true,
+          "ApprovalRequestsReady": true,
+          "Scope": "Request authentication and origin only; target permissions and fresh protection are checked per operation"
+        },
+        "vetoFilesAndRecordsPreserved": true,
+        "states": [
+          "Created",
+          "Presented",
+          "Approved",
+          "Consumed"
+        ],
+        "nativeContinuations": 1,
+        "replayRejected": true
+      }
+    ],
+    "optOut": "PASS: startup-disabled filter passes through without protection work; approval endpoints unavailable",
+    "rollback": "native deletion restored after replacing the single assembly with verified published v0.4.8 and restart",
+    "watchlistsAndPreferences": "byte-identical; approved deletion did not clear memberships"
+  },
+  "concurrentBulkApproval": {
+    "case": "concurrent-bulk-approval",
+    "nativeContinuations": 1,
+    "filesAndRecordsRemoved": true
+  },
+  "separateMasterFailure": {
+    "runUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39253745693/job/118064182974",
+    "commit": "092bcb18cafb69b7051e01769febaa191241b2e5",
+    "case": "concurrent-bulk-approval",
+    "observed": "404 TargetUnavailable instead of asserted 409 ApprovalAlreadyUsed on competing request",
+    "logEvidence": "One ContinueNative; winning request removed both disposable targets before competing request returned TargetUnavailable. Test aborted before final file/database assertions.",
+    "assessment": "Unresolved error-contract race; no demonstrated double deletion. Candidate pass does not resolve preceding failure. Separate review needed.",
+    "assertionsRelaxed": false,
+    "productionCodeChanged": false
+  },
+  "monitoring": "Local gh run watch ended with an api.github.com connection error; completed job outcomes were retrieved independently. No qualification job was rerun.",
+  "scope": "Release metadata, version expectations, documentation and evidence only. Public catalog/history and plugin runtime sources unchanged. No merge, release publication or production deployment."
+}
