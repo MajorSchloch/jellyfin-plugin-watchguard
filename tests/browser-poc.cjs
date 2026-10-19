@@ -527,7 +527,13 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
         assert.equal(await myList().locator('.watchguard-card').count(),3);
         const completedCard=myList().locator('.watchguard-card').filter({hasText:'PoC Parent Clear'});
-        assert.match(await completedCard.innerText(),/BrowserMember/); assert.match(await completedCard.innerText(),/4\/4/);
+        assert.match(await completedCard.innerText(),/BrowserMember/);
+        if(fixture.standalone) {
+            assert.match(await completedCard.innerText(),/0\/0\s*\+4/);
+            await completedCard.getByRole('button',{name:/BrowserMember: 4 additional available episodes/}).click();
+            assert.equal(await page.locator('.watchguard-extras-dialog').getByText('Date unknown · Watched',{exact:true}).count(),4);
+            await page.locator('.watchguard-extras-dialog').getByRole('button',{name:'Close',exact:true}).click();
+        } else assert.match(await completedCard.innerText(),/4\/4/);
         await completedCard.getByRole('img',{name:'Watched',exact:true}).waitFor();
         const nativeDate=(await api('/WatchGuard/ActivityOverview')).Items.find(i=>i.ItemId.replaceAll('-','')===historySeries.replaceAll('-','')).Users.find(u=>u.DisplayName==='BrowserMember').LastPlayedDate;
         const displayed=await page.evaluate(date=>new Intl.DateTimeFormat(undefined,{dateStyle:'medium'}).format(new Date(date)),nativeDate);
@@ -549,7 +555,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         // Ensure the later native clear-deletion regression targets recent completed history.
         await api('/UserItems/'+historyMovie+'/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:activityDate},member.AccessToken);
         assert.equal((await api('/WatchGuard/Protection/'+historyMovie)).HasInterest,false);
-        report.paths.push({path:'Recent viewing activity',result:'completed movie and whole series, exact native date, 4/4 progress, explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false'});
+        report.paths.push({path:'Recent viewing activity',result:'completed movie and whole series, exact native date, four available episodes (undated extras in current UI), explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false'});
         if (fixture.standalone) {
             report.phase = 'Caught Up';
             const originalSeries=await api('/Items/'+historySeries);
@@ -650,6 +656,62 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             await api('/Items/'+latest,'POST',{...originals.at(-1),PremiereDate:new Date(Date.now()+7*86400000).toISOString()});
             assert.deepEqual(owner(await activity()).Reasons,['CaughtUp']);
             assert.equal(owner(await activity()).AvailableEpisodes,3);
+            // v0.5.2 informational extras: actual file, no permanent membership or protection change.
+            const extraOwner=owner(await activity());
+            assert.equal(extraOwner.EpisodeProgress.AiredAvailable,3);assert.equal(extraOwner.EpisodeProgress.AiredWatched,3);
+            assert.equal(extraOwner.EpisodeProgress.ExtraEpisodes.length,1);
+            assert.equal(extraOwner.EpisodeProgress.ExtraEpisodes[0].ReleaseStatus,'Future');
+            assert.equal(extraOwner.EpisodeProgress.ExtraEpisodes[0].Watched,false);
+            const protectionBeforeExtras=await api('/WatchGuard/Protection/'+historySeries);
+            const extraButton=scope=>scope.getByRole('button',{name:/BrowserMember: 1 additional available episodes/});
+            for(const width of [1280,390]) {
+                await page.setViewportSize({width,height:900});
+                await page.goto(fixture.base+'/web/#/home?watchguard=watchlists&owner=all&interest=watching');
+                await myList().waitFor();
+                // Fixture metadata changed through native APIs; local filter changes deliberately do not rediscover activity.
+                await myList().getByRole('button',{name:'Refresh',exact:true}).click();
+                await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+                const card=myList().locator('.watchguard-card').filter({hasText:'PoC Parent Clear'});
+                await extraButton(card).waitFor();
+                await card.getByRole('img',{name:'Caught up on aired episodes',exact:true}).waitFor();
+                assert.match(await card.innerText(),/3\/3\s*\+1/);
+                const poster=await card.locator('img').first().elementHandle();
+                await extraButton(card).focus();await page.keyboard.press('Enter');
+                const extras=page.locator('.watchguard-extras-dialog');await extras.waitFor();
+                await extras.getByText(/Future-dated.*Unwatched/).waitFor();
+                assert.equal(await extras.evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+                await page.screenshot({path:path.join(output,'extra-card-'+width+'.png')});
+                await page.keyboard.press('Escape');await extras.waitFor({state:'detached'});
+                assert.equal(await extraButton(card).evaluate(e=>e===document.activeElement),true);
+                assert.equal(await poster.evaluate(e=>e.isConnected),true);
+                await extraButton(card).click();await page.locator('.watchguard-extras-dialog').getByRole('button',{name:'Close',exact:true}).click();
+                await page.goto(fixture.base+'/web/#/details?id='+historySeries+'&serverId='+fixture.serverId);
+                const panel=page.locator('.watchguard-series-activity');await panel.locator('summary').click();
+                await extraButton(panel).waitFor();await extraButton(panel).focus();await page.keyboard.press('Space');
+                await page.locator('.watchguard-extras-dialog').getByText(/Future-dated.*Unwatched/).waitFor();
+                await page.screenshot({path:path.join(output,'extra-series-'+width+'.png')});
+                await page.locator('.watchguard-extras-dialog').getByRole('button',{name:'Close',exact:true}).click();
+                assert.equal(await panel.evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+                await page.screenshot({path:path.join(output,'extra-series-inline-'+width+'.png')});
+            }
+            await page.setViewportSize({width:1280,height:900});
+            assert.deepEqual(await api('/WatchGuard/Protection/'+historySeries),protectionBeforeExtras);
+            // Per-user watched flag updates, while the same available episode remains outside aired progress.
+            await api('/UserItems/'+latest+'/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:activityDate},member.AccessToken);
+            assert.equal(owner(await activity()).EpisodeProgress.ExtraEpisodes[0].Watched,true);
+            // Native IsUnaired includes release day. Classification must not call that future-dated.
+            const releaseDay=new Date();releaseDay.setUTCHours(0,0,0,0);
+            await api('/Items/'+latest,'POST',{...originals.at(-1),PremiereDate:releaseDay.toISOString()});
+            assert.equal(owner(await activity()).EpisodeProgress.ExtraEpisodes[0].ReleaseStatus,'ReleaseDay');
+            await api('/Items/'+latest,'POST',{...originals.at(-1),PremiereDate:null});
+            const unknownExtras=await api('/WatchGuard/SeriesActivity/'+historySeries);
+            const unknownViewer=unknownExtras.Users.find(u=>u.UserId.replaceAll('-','')===member.User.Id.replaceAll('-',''));
+            assert.equal(unknownViewer.CoverageComplete,false);assert.ok(!unknownViewer.Reasons.includes('CaughtUp'));
+            assert.equal(unknownViewer.EpisodeProgress.ExtraEpisodes[0].ReleaseStatus,'UnknownDate');
+            await assert.rejects(api('/WatchGuard/Protection/'+historySeries));
+            await api('/Items/'+latest,'POST',{...originals.at(-1),PremiereDate:new Date(Date.now()+7*86400000).toISOString()});
+            report.extraEpisodes={status:'PASS',viewports:[1280,390],keyboard:['Enter','Space','Escape'],nativeDates:['Future','ReleaseDay','UnknownDate'],protectionUnchanged:true};
+
             // Fresh deletion protection deliberately keeps its original all-available episode policy.
             assert.equal((await api('/WatchGuard/Protection/'+historySeries)).HasInterest,true);
             await api('/UserItems/'+latest+'/UserData','POST',{Played:true,PlaybackPositionTicks:0,LastPlayedDate:activityDate},member.AccessToken);

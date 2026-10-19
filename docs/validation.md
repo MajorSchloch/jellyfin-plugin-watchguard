@@ -1,10 +1,10 @@
 # Validation and release qualification
 
-**Current published version:** [WatchGuard v0.5.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.0) · Qualified Jellyfin Server/Web **12.2.0**, .NET 10.
+**Current published version:** [WatchGuard v0.5.1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.1) · Qualified Jellyfin Server/Web **12.2.0**, .NET 10.
 
-The release qualification completed successfully on source commit `a1a5b877f9dcad9f6d354977ffa52adc976fcfb6`: [GitHub Actions #39134889908](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39134889908). Its build, ten integration jobs and gated publish job all passed; the official native server-enforcement suite ran with `WATCHGUARD_PROXY_MATRIX=1`. The resulting release package is SHA-256 `a9ff9255785761aed574e0ac0d14535445461a3de6da5f4d3eb32f5dd300332b`.
+The release qualification completed successfully on source commit `925a4fba061c8ecc79f01fa4626fd7aa4e5e3989`: [GitHub Actions #39173529151](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39173529151). Its build, ten integration jobs and gated publish job all passed; the official native server-enforcement suite ran with `WATCHGUARD_PROXY_MATRIX=1`. The resulting release package is SHA-256 `61148bd7db0ac4d3f309b2a3e05d633aed893800b4092fa78c1d400f15b8d2bc`.
 
-The release build passed 188 backend tests, 95 JavaScript tests, 14 Python infrastructure checks and 4 catalog tests, and reproduced the ZIP checksum in a second build. See [v0.5.0 results and resolved fixture failure](release-v050.md#verified-release-results). These are the published release’s results, not a claim that this documentation-only update reran the Docker matrix.
+The release build passed 207 backend tests, 109 JavaScript tests, 14 Python infrastructure checks and 4 catalog tests, and reproduced the ZIP checksum in a second build. See [v0.5.1 results and resolved fixture failure](release-v051.md#verified-qualification). These are the published release’s results, not a claim that this documentation-only update reran the Docker matrix.
 
 ## Test boundaries
 

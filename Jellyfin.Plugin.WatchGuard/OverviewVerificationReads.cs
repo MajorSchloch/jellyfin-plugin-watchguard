@@ -114,7 +114,7 @@ internal sealed class OverviewVerificationReads
                 if (!playback.TryGetValue(user.Id, out var owner))
                     playback.Add(user.Id, owner = (user, new()));
                 foreach (var row in rows.Where(i => !inspectCoverage ||
-                    (!i.IsUnaired && !i.IsVirtualItem && i is Episode { IsMissingEpisode: false })))
+                    ((budget.IncludeEpisodeProgress || !i.IsUnaired) && !i.IsVirtualItem && i is Episode { IsMissingEpisode: false })))
                     owner.Items.TryAdd(row.Id, row);
             }
             if (exhausted) break;

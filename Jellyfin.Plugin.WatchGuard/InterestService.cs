@@ -23,7 +23,7 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
     public ProtectionStatus Get(BaseItem item, Guid requester)
     {
         if (item is not Series series) return GetCore(item, requester, null);
-        var activity = GetSeriesActivity(series, requester);
+        var activity = ReadSeriesActivity(series, requester, includeEpisodeProgress: false);
         if (!activity.IsComplete) throw new InvalidDataException("Series safety budget exceeded.");
         var protectCaughtUp = Plugin.Instance?.Configuration.ProtectCaughtUpSeries ?? true;
         if (protectCaughtUp && series.Status == SeriesStatus.Continuing && activity.Users.Any(u =>
@@ -35,12 +35,14 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
         return new(item.Id, owners.Length > 0, owners.Any(u => u.UserId != requester), owners);
     }
 
-    public SeriesActivity GetSeriesActivity(Series series, Guid requester)
+    public SeriesActivity GetSeriesActivity(Series series, Guid requester) => ReadSeriesActivity(series, requester, includeEpisodeProgress: true);
+
+    private SeriesActivity ReadSeriesActivity(Series series, Guid requester, bool includeEpisodeProgress)
     {
         var accounts = users.GetUsers().Where(u => !u.HasPermission(PermissionKind.IsDisabled))
             .Take(InterestOverviewService.UserLimit + 1).ToArray();
         var budget = new OverviewBudget(store.Read(), accounts.Take(InterestOverviewService.UserLimit).ToArray())
-            { IncludeActivity = true, TargetedSeries = true };
+            { IncludeActivity = true, TargetedSeries = true, IncludeEpisodeProgress = includeEpisodeProgress };
         ProtectionStatus? status = null;
         var limited = accounts.Length > InterestOverviewService.UserLimit;
         try { status = GetCore(series, requester, budget); }
@@ -56,7 +58,7 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
             else if (playback.Started && !reasons.Contains("InProgress")) reasons = [.. reasons, "Unknown"];
             else if ((playback.Started || playback.ProtectionInProgress) && reasons.Length == 0) reasons = ["Unknown"];
             return new SeriesViewer(pair.Key, playback.DisplayName, reasons, playback.AvailableEpisodes ?? 0,
-                playback.WatchedEpisodes ?? 0, playback.LastPlayedDate, playback.CoverageComplete) { ProtectionInProgress = playback.ProtectionInProgress };
+                playback.WatchedEpisodes ?? 0, playback.LastPlayedDate, playback.CoverageComplete) { ProtectionInProgress = playback.ProtectionInProgress, EpisodeProgress = playback.EpisodeProgress };
         }).Where(u => u.Reasons.Length > 0 || u.ProtectionInProgress).ToArray();
         return new(series.Id, series.Name, series.Status is SeriesStatus.Continuing or SeriesStatus.Ended ? series.Status.ToString()! : "Unknown",
             !limited, limited, rows, limited ? "Safety limit reached; some users or episodes were not evaluated." :
@@ -115,6 +117,8 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
             // classification is restricted to aired episodes in the activity overview.
             var ids = items.Where(i => !inspectCoverage || (!i.IsVirtualItem && i is Episode { IsMissingEpisode: false }))
                 .Select(i => i.Id).ToHashSet();
+            var progressItems = budget?.IncludeEpisodeProgress == true && item is Series
+                ? items.Where(i => !i.IsVirtualItem && i is Episode { IsMissingEpisode: false }).ToArray() : null;
             var coverageComplete = true;
             if (inspectCoverage)
             {
@@ -127,9 +131,10 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
             // Only the overview populates prepared reads. Targeted checks keep
             // their original native read sequence and authorization checks.
             var playbackStarted = Stopwatch.GetTimestamp();
+            IReadOnlyList<BaseItem> readItems = progressItems ?? items;
             var (states, resumes) = budget?.VerificationReads is { } preparedPlayback
-                ? preparedPlayback.Read(items, user.Id, budget)
-                : (data.GetUserDataBatch(items, user), data.GetResumeUserDataBatch(items, user));
+                ? preparedPlayback.Read(readItems, user.Id, budget)
+                : (data.GetUserDataBatch(readItems, user), data.GetResumeUserDataBatch(readItems, user));
             if (budget is not null && budget.VerificationReads is null)
             {
                 budget.Diagnostics.NativePlaybackBatches += 2;
@@ -158,8 +163,8 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
                 reasons.Add("InProgress");
             if (budget is not null)
             {
-                budget.PlaybackDates[user.Id] = states.Values.Select(s => s.LastPlayedDate)
-                    .Concat(resumes.Values.Select(r => r.UserData.LastPlayedDate)).Max();
+                budget.PlaybackDates[user.Id] = items.Select(i => states[i.Id].LastPlayedDate)
+                    .Concat(items.Where(i => resumes.ContainsKey(i.Id)).Select(i => resumes[i.Id].UserData.LastPlayedDate)).DefaultIfEmpty().Max();
                 // Overview-only observations reuse these reads. Completed history is never a protection reason.
                 budget.Playback[user.Id] = new(user.Username, budget.PlaybackDates[user.Id],
                     !continuingActivity && effective.Length > 0 && effective.All(s => s.Played),
@@ -168,6 +173,7 @@ public sealed class InterestService(WatchlistStore store, ILibraryManager librar
                     CaughtUp = continuingActivity && coverageComplete && effective.Length > 0 && effective.All(s => s.Played),
                     CoverageComplete = coverageComplete && effective.Length > 0,
                     Started = effective.Any(s => s.Played || s.PlaybackPositionTicks > 0),
+                    EpisodeProgress = progressItems is null ? null : EpisodeProgress.From(progressItems, states, resumes, DateTime.Now.Date),
                     ProtectionInProgress = protectionInProgress
                 };
             }
@@ -188,6 +194,8 @@ public sealed record SeriesViewer(Guid UserId, string DisplayName, string[] Reas
 {
     [System.Text.Json.Serialization.JsonIgnore]
     public bool ProtectionInProgress { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public EpisodeProgress? EpisodeProgress { get; init; }
     public bool Watchlisted => Reasons.Contains("Watchlisted");
     public bool CurrentlyPlaying => Reasons.Contains("CurrentlyPlaying");
 }

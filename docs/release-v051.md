@@ -1,5 +1,7 @@
 # WatchGuard v0.5.1 — Saved Recently added sorting
 
+**Published [v0.5.1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.1).**
+
 WatchGuard v0.5.1 adds persistent **Recently added** sorting to personal Watchlists defaults.
 
 Target: Jellyfin Server/Web 12.2.0, .NET 10; stable plugin GUID and ABI unchanged.
@@ -16,6 +18,8 @@ Target: Jellyfin Server/Web 12.2.0, .NET 10; stable plugin GUID and ABI unchange
 Back up both preference files with Jellyfin stopped. Reload clients after any version change. Downgrade uses Title with saved owner/status fields; untouched re-upgrade restores added, while a legacy save/reset requires explicitly saving added again. Corrupt data blocks reads/writes and is preserved. Interrupted writes can lose added overrides or partially commit legacy preferences and report an error. See [storage design and filesystem limitations](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/5da0d56be6324326b5826e303fbbe583f12f0de6/docs/saved-sort-v051.md).
 
 ## Verified qualification
+
+[Publication run 39173529151](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39173529151) passed on commit `925a4fba061c8ecc79f01fa4626fd7aa4e5e3989`: build, all ten integration suites and publication succeeded. The catalog now lists 0.5.1.0; the checksums below are unchanged.
 
 [Release qualification run 39156214258](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39156214258) passed on [commit `5da0d56be6324326b5826e303fbbe583f12f0de6`](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/commit/5da0d56be6324326b5826e303fbbe583f12f0de6), with `proxy_matrix` enabled. The build and all ten integration suites passed; the publish job was skipped.
 

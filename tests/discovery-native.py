@@ -110,7 +110,12 @@ done
                 for _ in range(3):
                     start=time.perf_counter();response=call(route,token=token)
                     if baseline_version in ('0.4.6','0.4.7'):
-                        canonical=json.dumps({'items':response['Items'],'coverage':response['Coverage']},sort_keys=True)
+                        # Preserve exact equality of legacy fields; only v0.5.2's new informational DTO is absent in the baseline.
+                        comparable=json.loads(json.dumps(response['Items']))
+                        for item in comparable:
+                            for owner in item['Users']:
+                                owner.pop('EpisodeProgress',None)
+                        canonical=json.dumps({'items':comparable,'coverage':response['Coverage']},sort_keys=True)
                         if scope not in snapshots: snapshots[scope]=canonical
                         assert snapshots[scope]==canonical, 'Large-series classifications or coverage changed'
                     samples.append((time.perf_counter()-start)*1000)
