@@ -2,6 +2,8 @@
 
 **Current published version:** [WatchGuard v0.5.2](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.2) · Qualified Jellyfin Server/Web **12.2.0**, .NET 10.
 
+**Release preparation (unpublished):** [v0.6.0 candidate notes and exact-commit qualification](release-v060.md). Public catalog entries and published v0.5.2 evidence remain unchanged.
+
 The release qualification completed successfully on source commit `9a3aa7d046863687b671f316da0a138cb4f6be21`: [GitHub Actions #39219433132](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39219433132). Its build, ten integration jobs and gated publish job all passed; the official native server-enforcement suite ran with `WATCHGUARD_PROXY_MATRIX=1`. The resulting release package is SHA-256 `62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec`.
 
 The release build passed 212 backend tests, 112 JavaScript tests, 14 Python infrastructure checks and 4 catalog tests, and reproduced the ZIP checksum in a second build. See [v0.5.2 validation](release-v052.md#validation). These are the published release’s results, not a claim that this documentation-only update reran the Docker matrix.

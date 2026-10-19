@@ -30,10 +30,10 @@ jobs:
       - run: python3 -m unittest discover -s tests -p 'test_*.py'
       - run: python3 scripts/build-release.py
       - run: python3 tests/catalog_test.py
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.5.2.zip
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.6.0.zip
       - uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-v0.5.2
+          name: WatchGuard-v0.6.0
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.5.2.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.5.2.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.6.0.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.6.0.zip.sha256
