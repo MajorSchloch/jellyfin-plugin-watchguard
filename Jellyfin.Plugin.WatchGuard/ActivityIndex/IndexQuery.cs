@@ -58,7 +58,13 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
         var now = time.GetUtcNow();
         var snapshot = worker.Snapshot();
         var candidates = snapshot.Rows.Where(r => !owner.HasValue || r.Key.UserId == owner).ToArray();
-        var live = Live(caller, owner, cancellation, out var sessionLimited);
+        var accounts = new Dictionary<Guid, User?> { [caller.Id] = caller };
+        User? Account(Guid id)
+        {
+            if (!accounts.TryGetValue(id, out var value)) accounts[id] = value = users.GetUserById(id);
+            return value;
+        }
+        var live = Live(caller, owner, cancellation, Account, out var sessionLimited);
         PageSnapshot page;
         lock (gate)
         {
@@ -92,7 +98,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
             foreach (var row in candidates.Where(r => r.Key.ItemId == id))
             {
                 cancellation.ThrowIfCancellationRequested();
-                var account = users.GetUserById(row.Key.UserId);
+                var account = Account(row.Key.UserId);
                 if (account is null || account.HasPermission(PermissionKind.IsDisabled)) continue;
                 if (!worker.StillValid(row, snapshot.Generation)) { causes.Add("PendingVerification"); continue; }
                 if (row.Failure != null) { causes.Add(row.Failure); continue; }
@@ -172,9 +178,10 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
             new(1, days, !state.DiscoveryFinished, causes.Contains("EpisodeMetadataIncomplete"), causes.Contains("EpisodeLimit") || causes.Contains("VisibilityBudget"), false, next != null, causes.Order().ToArray(), warnings), freshness, next) { ReadDiagnostics = new(System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds, visibilityQueries, visibilityRows) };
     }
 
-    private Dictionary<IndexKey, OverviewUser> Live(User caller, Guid? owner, CancellationToken cancellation, out bool limited)
+    private Dictionary<IndexKey, OverviewUser> Live(User caller, Guid? owner, CancellationToken cancellation, Func<Guid, User?> account, out bool limited)
     {
         var result = new Dictionary<IndexKey, OverviewUser>();
+        var liveOwners = new HashSet<Guid>();
         var playing = sessions.Sessions.Where(s => s.IsActive && s.NowPlayingItem != null).Take(101).ToArray();
         limited = playing.Length > 100;
         foreach (var session in playing.Take(100))
@@ -185,7 +192,9 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
             {
                 cancellation.ThrowIfCancellationRequested();
                 if (owner.HasValue && id != owner) continue;
-                var user = users.GetUserById(id);
+                if (!liveOwners.Contains(id) && liveOwners.Count == 50) { limited = true; continue; }
+                liveOwners.Add(id);
+                var user = account(id);
                 if (user is null || user.HasPermission(PermissionKind.IsDisabled)) continue;
                 var media = library.GetItemById<BaseItem>(session.NowPlayingItem!.Id, user);
                 if (media is null || library.GetItemById<BaseItem>(media.Id, caller) is null) continue;
