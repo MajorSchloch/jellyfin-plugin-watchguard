@@ -276,6 +276,7 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
             {
                 var owner = users.GetUserById(group.Key);
                 if (owner is null || owner.HasPermission(PermissionKind.IsDisabled)) { foreach (var key in group) results[key] = null; continue; }
+                var policy = IndexAuthorization.Fingerprint(users, owner);
                 var titles = new Dictionary<IndexKey, BaseItem>();
                 foreach (var key in group)
                 {
@@ -292,7 +293,8 @@ public sealed class IndexWorker(IndexStore store, ILibraryManager library, IUser
                 {
                     cancellation.ThrowIfCancellationRequested();
                     budget.Playback.Clear(); budget.PlaybackDates.Clear(); budget.IncompleteCoverage = false;
-                    try { results[key] = Evaluate(key, item, owner, budget); lock (gate) titlesVerified++; }
+                    try { results[key] = Evaluate(key, item, owner, budget);
+                        if (results[key] is { } row) results[key] = row with { AuthorizationFingerprint = policy }; lock (gate) titlesVerified++; }
                     catch (OperationCanceledException) { throw; }
                     catch (Exception e) { results[key] = Failure(key, e); }
                 }

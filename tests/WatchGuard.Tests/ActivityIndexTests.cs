@@ -37,6 +37,7 @@ public sealed class ActivityIndexTests : IDisposable
     {
         store = new(path);
         users.Setup(u => u.GetUsers()).Returns([alice, bob]);
+        users.Setup(u => u.GetUserDto(It.IsAny<User>(), It.IsAny<string?>())).Returns(new MediaBrowser.Model.Dto.UserDto { Policy = new(), Configuration = new() });
         users.Setup(u => u.GetUserById(It.IsAny<Guid>())).Returns((Guid id) => id == alice.Id ? alice : id == bob.Id ? bob : null);
         library.Setup(l => l.GetItemById<BaseItem>(It.IsAny<Guid>(), It.IsAny<User>()))
             .Returns((Guid id, User user) => hidden.Contains((user.Id, id)) ? null : items.GetValueOrDefault(id));
@@ -297,6 +298,14 @@ public sealed class ActivityIndexTests : IDisposable
         Assert.Throws<InvalidDataException>(()=>store.Write(new(1,records,[],[])));
         Assert.Equal(before,File.ReadAllBytes(Path.Combine(path,"activity-index.json")));
         Assert.False(File.Exists(Path.Combine(path,"activity-index.json.tmp")));
+    }
+    [Fact]
+    public async Task PolicyChangeSuppressesCountsEvenWhenPrimaryEpisodeIdsAreIdentical()
+    {
+        AddSeries();await Populate();Assert.Single(Read().Items);
+        users.Setup(u=>u.GetUserDto(It.IsAny<User>(),It.IsAny<string?>())).Returns(new MediaBrowser.Model.Dto.UserDto {Policy=new(){BlockedTags=["alternate-version-only"]},Configuration=new()});
+        var result=Read();Assert.Empty(result.Items);Assert.Contains("PolicyChanged",result.Coverage.Causes);
+        clock.Advance(TimeSpan.FromSeconds(3));await Populate();Assert.Single(Read().Items);
     }
     private sealed class TestClock : TimeProvider {
         private DateTimeOffset now=DateTimeOffset.UtcNow;

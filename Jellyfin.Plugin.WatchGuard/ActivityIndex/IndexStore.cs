@@ -5,7 +5,10 @@ namespace Jellyfin.Plugin.WatchGuard.ActivityIndex;
 
 public sealed record IndexKey(Guid UserId, Guid ItemId);
 public sealed record IndexRow(IndexKey Key, OverviewUser Activity, Guid[] Episodes, bool Continuing,
-    bool MetadataComplete, string? Failure, DateTimeOffset CheckedAt);
+    bool MetadataComplete, string? Failure, DateTimeOffset CheckedAt)
+{
+    public string AuthorizationFingerprint { get; init; } = "";
+}
 public sealed record DiscoveryPosition(Guid UserId, int Source, int Offset, bool Finished);
 public sealed record IndexDocument(int Version, IndexRow[] Rows, DiscoveryPosition[] Positions, IndexKey[] Pending);
 
@@ -80,6 +83,7 @@ public sealed class IndexStore(string directory)
             value.Pending.Any(k => k is null || k.UserId == Guid.Empty || k.ItemId == Guid.Empty) ||
             value.Rows.Length > MaxRows || value.Positions.Length > 100 ||
             value.Rows.Any(r => r is null || r.Key is null || r.Key.UserId == Guid.Empty || r.Key.ItemId == Guid.Empty ||
+                r.AuthorizationFingerprint is null || r.AuthorizationFingerprint.Length is not (0 or 64) ||
                 r.Activity is null || r.Activity.UserId != r.Key.UserId || r.Activity.Reasons is null ||
                 r.Activity.Reasons.Any(s => s is not ("InProgress" or "CaughtUp" or "Watched")) ||
                 r.Episodes is null || r.Episodes.Length > 1000 || r.Episodes.Any(id => id == Guid.Empty) ||

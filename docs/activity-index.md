@@ -79,3 +79,5 @@ Back up personal data as before. Backing up the derived index is optional; it ca
 
 
 Warm read responses include `ReadDiagnostics.DurationMs`, `EpisodeVisibilityQueries` and `EpisodeRows`. These exclude response serialization/network time; fixture wall-clock latency includes them. Worker diagnostics are cumulative background work, not work caused by a warm read. The benchmark reports first-page latency and full manually paginated view latency separately because they return different quantities than the old capped overview.
+
+Owner snapshots also carry a SHA-256 fingerprint of the complete native policy/configuration DTO and parental-rating fields. Any change suppresses the cached row and queues verification, even if the primary episode-ID set is identical (for example, access to a linked media version changed). This is a conservative invalidation check, never permission equivalence or a replacement for native visibility checks. Routine logs never contain the policy or fingerprint.

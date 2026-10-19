@@ -79,6 +79,7 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
         var visibilityRows = 0;
         var visibilityQueries = 0;
         var ownerEpisodes = new Dictionary<IndexKey, HashSet<Guid>>();
+        var policies = new Dictionary<Guid, string>();
         var consumedTitles = 0;
         foreach (var id in page.Items.Skip(page.Offset).Take(25))
         {
@@ -95,6 +96,9 @@ public sealed class IndexQuery(IndexWorker worker, ILibraryManager library, IUse
                 if (account is null || account.HasPermission(PermissionKind.IsDisabled)) continue;
                 if (!worker.StillValid(row, snapshot.Generation)) { causes.Add("PendingVerification"); continue; }
                 if (row.Failure != null) { causes.Add(row.Failure); continue; }
+                if (!policies.TryGetValue(account.Id, out var policy)) policies[account.Id] = policy = IndexAuthorization.Fingerprint(users, account);
+                if (!string.Equals(row.AuthorizationFingerprint, policy, StringComparison.Ordinal))
+                { worker.Invalidate(row.Key); causes.Add("PolicyChanged"); continue; }
                 if (!InterestService.Supported(library.GetItemById<BaseItem>(id, account))) { worker.Invalidate(row.Key); causes.Add("VisibilityChanged"); continue; }
                 try
                 {
