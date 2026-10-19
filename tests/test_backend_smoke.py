@@ -21,6 +21,7 @@ def status(version):
         'PluginLoaded': True,
         'BrowserExecutionVerified': False,
         'Standalone': {
+            'ScriptVersion': version,
             'Enabled': True,
             'LoaderActive': True,
             'AuthenticatedScriptResponsesCompleted': 1,
@@ -78,7 +79,7 @@ class BackendSmokeStatusTests(unittest.TestCase):
                 with self.assertRaises(AssertionError):
                     run_to_status(response)
         for field, value in [('Enabled', False), ('LoaderActive', False),
-                             ('AuthenticatedScriptResponsesCompleted', 0), ('BrowserExecutionVerified', True)]:
+                             ('AuthenticatedScriptResponsesCompleted', 0), ('BrowserExecutionVerified', True), ('ScriptVersion', '0.5.2')]:
             with self.subTest(field=field):
                 response = status(CANDIDATE_VERSION)
                 response['Standalone'][field] = value

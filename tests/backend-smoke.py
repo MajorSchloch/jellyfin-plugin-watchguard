@@ -37,6 +37,7 @@ def run(call, admin_token, items, plugins, standalone=True):
         assert status['PluginLoaded'] and status['Standalone']['Enabled'] and status['Standalone']['LoaderActive']
         assert status['Standalone']['AuthenticatedScriptResponsesCompleted'] >= 1
         assert status['Standalone']['BrowserExecutionVerified'] is False
+        assert status['Standalone']['ScriptVersion'] == expected_version, 'Standalone script version differs from candidate assembly'
     defaults = call('/WatchGuard/Preferences', token=admin_token)
     assert defaults == {'Owner':'mine', 'Statuses':['watchlisted','watching','playing'], 'Sort':'title'}
     call('/WatchGuard/Preferences','PUT',{'Owner':'all','Statuses':['watched'],'Sort':'recent'},admin_token)

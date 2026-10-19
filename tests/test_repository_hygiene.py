@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import re
 import unittest
+import xml.etree.ElementTree as ET
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -10,7 +11,11 @@ CATALOG = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
 CURRENT_VERSION = CATALOG[0]["versions"][0]["version"]
 RELEASE_VERSION = CURRENT_VERSION.removesuffix(".0")
 CURRENT_RELEASE_DOC = ROOT / "docs" / f"release-v{RELEASE_VERSION.replace('.', '')}.md"
+BUILD_METADATA = ET.parse(ROOT / "Directory.Build.props")
+BUILD_VERSION = BUILD_METADATA.findtext("./PropertyGroup/Version")
+CANDIDATE_DOC = ROOT / "docs" / f"release-v{BUILD_VERSION.replace('.', '')}.md"
 DOCS = [
+    CANDIDATE_DOC,
     ROOT / "README.md",
     ROOT / "docs/README.md",
     CURRENT_RELEASE_DOC,
@@ -32,6 +37,20 @@ class RepositoryHygieneTests(unittest.TestCase):
             with self.subTest(document=name):
                 source = (ROOT / name).read_text(encoding="utf-8")
                 self.assertRegex(source, rf"Current published version:.*\[.*v{re.escape(RELEASE_VERSION)}\]")
+
+    def test_candidate_metadata_and_notes_are_separate_from_published_release(self):
+        for field in ["AssemblyVersion", "FileVersion"]:
+            self.assertEqual(BUILD_METADATA.findtext("./PropertyGroup/" + field), BUILD_VERSION + ".0")
+        self.assertTrue(CANDIDATE_DOC.is_file())
+        notes = CANDIDATE_DOC.read_text(encoding="utf-8")
+        self.assertTrue(notes.startswith(f"# WatchGuard v{BUILD_VERSION} —"))
+        if BUILD_VERSION != RELEASE_VERSION:
+            self.assertIn("**Unpublished release candidate.**", notes)
+        for workflow in ["build.yaml", "release.yaml"]:
+            source = (ROOT / ".github/workflows" / workflow).read_text(encoding="utf-8")
+            self.assertIn(f"Jellyfin.Plugin.WatchGuard-v{BUILD_VERSION}.zip", source)
+        source = (ROOT / ".github/workflows/release.yaml").read_text(encoding="utf-8")
+        self.assertIn(f"--notes-file docs/{CANDIDATE_DOC.name}", source)
 
     def test_historical_template_artifacts_are_not_tracked(self):
         for name in [

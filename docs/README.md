@@ -2,6 +2,8 @@
 
 **Current published version: [v0.5.2](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.2)** · Qualified target: Jellyfin Server/Web 12.2.0 and .NET 10.
 
+**Release preparation (unpublished):** [v0.6.0 candidate notes and exact-commit qualification](release-v060.md). Public catalog entries and published v0.5.2 evidence remain unchanged.
+
 Start with the repository [README](../README.md) for features, installation, limitations, and the non-mutating status/approval checks. The repository includes historical design experiments and release-candidate reports. Their *as-of-version* statements (for example, “not published” or “requires Injector”) describe historical candidates, **not the current public release**.
 
 ## Current reference material
