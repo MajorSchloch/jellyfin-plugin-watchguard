@@ -45,6 +45,10 @@ public sealed class ServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddSingleton(_ => new PreferenceStore(Plugin.Instance!.DataFolderPath));
         serviceCollection.AddSingleton<InterestService>();
         serviceCollection.AddSingleton<InterestOverviewService>();
+        serviceCollection.AddSingleton(_ => new ActivityIndex.IndexStore(Plugin.Instance!.DataFolderPath));
+        serviceCollection.AddSingleton<ActivityIndex.IndexWorker>();
+        serviceCollection.AddSingleton<Microsoft.Extensions.Hosting.IHostedService>(sp => sp.GetRequiredService<ActivityIndex.IndexWorker>());
+        serviceCollection.AddSingleton<ActivityIndex.IndexQuery>();
         serviceCollection.AddSingleton<StandaloneMode>();
         serviceCollection.AddSingleton<IStartupFilter, StandaloneStartupFilter>();
     }
