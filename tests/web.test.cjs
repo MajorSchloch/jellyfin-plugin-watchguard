@@ -735,3 +735,14 @@ test('Indexed initial population is not a false empty result and malformed statu
     f.calls[3].resolve({...result,Freshness:null});await refresh;
     assert.match(f.page.children[4].textContent,/unavailable/);f.abort.abort();
 });
+
+test('Indexed refresh failure retains usable cards but authorization denial clears activity',async()=>{
+    const f=progressiveFixture(true,false,'all',true);await turn();f.calls[0].resolve([]);await turn();
+    f.calls[1].resolve(indexedResult(automaticResult.Items));await turn();
+    const grid=f.page.children[5],card=grid.children[0];assert.ok(card);
+    let refresh=f.page.children[1].children[3].onclick();await turn();f.calls[2].resolve([]);await turn();
+    assert.match(f.calls[3].o.url,/refresh=true/);f.calls[3].reject({status:503});await refresh;
+    assert.equal(grid.children[0],card);assert.match(f.page.children[4].textContent,/unavailable/);
+    refresh=f.page.children[1].children[3].onclick();await turn();f.calls[4].resolve([]);await turn();
+    f.calls[5].reject({status:403});await refresh;assert.equal(grid.children.length,0);f.abort.abort();
+});

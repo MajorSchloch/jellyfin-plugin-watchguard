@@ -754,9 +754,16 @@
                     if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
                     selectInterest(result.Items, 'all', user);
                     if (result.Items.some(e => e.Users.some(u => (scope !== 'all' && key(u.UserId) !== key(scope === 'mine' ? user : scope)) || u.Reasons.includes('Watchlisted')))) throw new Error('Invalid automatic scope');
+                    if (options.indexedActivity) { indexState(result); loadedPages = 1; }
                     automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
-                    if (options.indexedActivity) { loadedPages = 1; indexState(result); }
-                } catch { if (!current()) return; automatic = []; failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.'); }
+                } catch (failure) {
+                    if (!current()) return;
+                    // Keep a same-view refresh usable on transport/lookup failure.
+                    // Native authorization failures must clear previously shown activity.
+                    if (!options.indexedActivity || !prioritize || [401,403].includes(failure?.status)) automatic = [];
+                    if (options.indexedActivity) freshness.textContent = 'Activity update unavailable; displayed results may be stale. Refresh to retry.';
+                    failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.');
+                }
                 pending = false; render();
             } catch { if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; render(); } }
             finally { if (current()) { refresh.disabled = false; schedulePoll(); } }
@@ -796,7 +803,12 @@
                         automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
                         indexState(result); render();
                     }
-                } catch { if (active() && revision === generation) freshness.textContent = 'Activity update unavailable; displayed results may be stale. Refresh to retry.'; }
+                } catch (failure) {
+                    if (active() && revision === generation) {
+                        if ([401,403].includes(failure?.status)) { explicit = []; automatic = []; render(); }
+                        freshness.textContent = 'Activity update unavailable; displayed results may be stale. Refresh to retry.';
+                    }
+                }
                 schedulePoll();
             }, 30000);
             pollTimer.unref?.();
