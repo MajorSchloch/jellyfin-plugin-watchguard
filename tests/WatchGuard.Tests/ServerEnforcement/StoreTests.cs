@@ -34,6 +34,26 @@ public class StoreTests
         Failure("ApprovalAlreadyUsed", () => store.Consume(t.Id, Alice, Operation, "state"));
         Failure("ApprovalAlreadyUsed", () => store.Read(t.Id, Alice));
     }
+    [Fact] public void ConsumedLookupIsReadOnlyAndBindsOwnerSessionAndOrderedOperation()
+    {
+        var store = new ApprovalStore(new Clock());
+        var operation = Operation.Create("DeleteItems", [Item, Guid.NewGuid()]);
+        var ticket = store.Create(Alice, operation, "state", operation.Targets);
+        foreach (var state in new[] { ApprovalState.Presented, ApprovalState.Approved })
+        {
+            Assert.False(store.WasConsumed(ticket.Id, Alice, operation));
+            store.Transition(ticket.Id, Alice, operation, "state", state);
+        }
+        Assert.False(store.WasConsumed(ticket.Id, Alice, operation));
+        using var lease = store.Consume(ticket.Id, Alice, operation, "state");
+        Assert.True(store.WasConsumed(ticket.Id, Alice, operation));
+        foreach (var owner in new[] { Bob, new Owner(Alice.UserId, "other-session") })
+            Assert.False(store.WasConsumed(ticket.Id, owner, operation));
+        Assert.False(store.WasConsumed(ticket.Id, Alice, Operation.Create("DeleteItems", operation.Targets.Reverse().ToArray())));
+        Assert.False(store.WasConsumed(ticket.Id, Alice, Operation.Create("DeleteItem", [Item])));
+        Assert.False(store.WasConsumed("unknown", Alice, operation));
+        Failure("ApprovalAlreadyUsed", () => store.Read(ticket.Id, Alice));
+    }
     [Fact] public void OwnershipAndSessionAreCheckedBeforeStateDisclosure()
     {
         var store = new ApprovalStore(new Clock()); var t = Create(store); Approve(store, t);

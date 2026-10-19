@@ -56,29 +56,159 @@ public sealed class BoundaryTests : IDisposable
     }
     private Owner Owner => new(user.Id, approvals.SessionDigest("token"));
     private Operation Operation => Operation.Create("DeleteItem", [movie.Id]);
-    private string Approved()
+    private string Approved(Operation? operation = null)
     {
+        operation ??= Operation;
         watchlists.Set(user.Id, movie.Id, true);
-        var state = evaluator.Read(Operation, user, default);
-        var t = approvals.Create(Owner, Operation, state.Fingerprint, state.Resources);
-        approvals.Transition(t.Id, Owner, Operation, state.Fingerprint, ApprovalState.Presented);
-        approvals.Transition(t.Id, Owner, Operation, state.Fingerprint, ApprovalState.Approved);
+        var state = evaluator.Read(operation, user, default);
+        var t = approvals.Create(Owner, operation, state.Fingerprint, state.Resources);
+        approvals.Transition(t.Id, Owner, operation, state.Fingerprint, ApprovalState.Presented);
+        approvals.Transition(t.Id, Owner, operation, state.Fingerprint, ApprovalState.Approved);
         return t.Id;
     }
-    private async Task<(int Calls, IActionResult? Result)> Invoke(string? id, bool nativeFailure = false, bool cancelled = false, bool enabled = true)
+    private async Task<(int Calls, IActionResult? Result)> Invoke(string? id, bool nativeFailure = false, bool cancelled = false, bool enabled = true,
+        Operation? operation = null, DefaultHttpContext? http = null, Action? native = null)
     {
-        var http = Context(); if (id is not null) http.Request.Headers[Guard.ApprovalHeader] = id;
+        operation ??= Operation;
+        http ??= Context(); if (id is not null) http.Request.Headers[Guard.ApprovalHeader] = id;
         if (cancelled) http.RequestAborted = new CancellationToken(true);
         var context = new ActionContext(http, new RouteData(), new ActionDescriptor());
-        var executing = new ActionExecutingContext(context, [], new Dictionary<string, object?> { ["itemId"] = movie.Id }, new object());
+        var arguments = operation.Action == "DeleteItem"
+            ? new Dictionary<string, object?> { ["itemId"] = operation.Targets.Single() }
+            : new Dictionary<string, object?> { ["ids"] = operation.Targets };
+        var executing = new ActionExecutingContext(context, [], arguments, new object());
         var calls = 0;
         var guard = new Guard(identity, evaluator, approvals, work, new Attachment { Supported = true, EnabledAtStartup = enabled }, NullLogger<Guard>.Instance);
         await guard.OnActionExecutionAsync(executing, () =>
         {
-            calls++; if (nativeFailure) throw new InvalidOperationException("native");
+            calls++; native?.Invoke(); if (nativeFailure) throw new InvalidOperationException("native");
             return Task.FromResult(new ActionExecutedContext(context, [], new object()) { Result = new NoContentResult() });
         });
         return (calls, executing.Result);
+    }
+    [Theory]
+    [InlineData(false, false, "none", 409, "ApprovalAlreadyUsed")]
+    [InlineData(true, false, "none", 409, "ApprovalAlreadyUsed")]
+    [InlineData(false, true, "none", 409, "ApprovalAlreadyUsed")]
+    [InlineData(true, true, "none", 409, "ApprovalAlreadyUsed")]
+    [InlineData(true, false, "disabled", 401, "NativePermissionDenied")]
+    [InlineData(false, false, "administrator", 403, "NativePermissionDenied")]
+    [InlineData(true, false, "session", 409, "ApprovalInvalid")]
+    [InlineData(false, false, "revoked", 401, "NativePermissionDenied")]
+    [InlineData(true, false, "origin", 403, "ApprovalInvalid")]
+    [InlineData(false, false, "cancel", 503, "ProtectionUnavailable")]
+    [InlineData(true, true, "permission", 403, "NativePermissionDenied")]
+    [InlineData(false, true, "lookup", 503, "ProtectionUnavailable")]
+    public async Task DuplicateAfterReadAndWinnerRemovalReportsAlreadyUsed(bool bulk, bool beforeFinalPermissionCheck, string boundary, int expectedStatus, string expectedCode)
+    {
+        // Real guard/evaluator/store; native library records are an interface model.
+        // Docker qualification separately retains actual native database/file assertions.
+        Directory.CreateDirectory(directory);
+        movie.Path = Path.Combine(directory, "first.mp4");
+        var second = new MovieFixture { Id = Guid.NewGuid(), Path = Path.Combine(directory, "second.mp4") };
+        var targets = bulk ? new[] { movie, second } : new[] { movie };
+        var records = new System.Collections.Concurrent.ConcurrentDictionary<Guid, BaseItem>(targets.Select(t => new KeyValuePair<Guid, BaseItem>(t.Id, t)));
+        foreach (var target in targets) await File.WriteAllTextAsync(target.Path, "disposable fixture");
+        var untouched = Path.Combine(directory, "untouched.mp4"); await File.WriteAllTextAsync(untouched, "retain");
+        library.Setup(l => l.GetItemById<BaseItem>(It.IsAny<Guid>(), user))
+            .Returns((Guid id, User _) => records.GetValueOrDefault(id));
+        var operation = Operation.Create(bulk ? "DeleteItems" : "DeleteItem", targets.Select(t => t.Id).ToArray());
+        var id = Approved(operation);
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var loserContext = Context();
+        using var cancellation = new CancellationTokenSource();
+        loserContext.RequestAborted = cancellation.Token;
+        var token = "token";
+        var authenticated = true;
+        var winnerFinished = false;
+        var loserReads = 0;
+        var firstLookup = 0;
+        auth.Setup(a => a.GetAuthorizationInfo(It.IsAny<HttpRequest>())).Returns(async (HttpRequest request) =>
+        {
+            if (ReferenceEquals(request, loserContext.Request) && Interlocked.Increment(ref loserReads) == 2 && beforeFinalPermissionCheck)
+            {
+                entered.SetResult();
+                await release.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            }
+            return new AuthorizationInfo { IsAuthenticated = authenticated, User = user, Token = token };
+        });
+        library.Setup(l => l.GetItemById<BaseItem>(It.IsAny<Guid>(), user)).Returns((Guid key, User _) =>
+        {
+            if (!beforeFinalPermissionCheck && Interlocked.Increment(ref firstLookup) == 1)
+            {
+                entered.SetResult(); // First lookup is after the loser's successful store.Read.
+                Assert.True(release.Task.Wait(TimeSpan.FromSeconds(10)), "Winner must finish before releasing the loser");
+            }
+            if (winnerFinished && boundary == "permission") throw new GuardFailure(403, "NativePermissionDenied");
+            if (winnerFinished && boundary == "lookup") throw new IOException("native lookup failure");
+            return records.GetValueOrDefault(key);
+        });
+        var loser = Task.Run(() => Invoke(id, operation: operation, http: loserContext));
+        try
+        {
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            Assert.Equal(ApprovalState.Approved, approvals.Read(id, Owner).State);
+            Assert.All(targets, target => { Assert.True(records.ContainsKey(target.Id)); Assert.True(File.Exists(target.Path)); });
+            var winner = await Invoke(id, operation: operation, native: () =>
+            {
+                Assert.Equal("ApprovalAlreadyUsed", Assert.Throws<GuardFailure>(() => approvals.Read(id, Owner)).Code);
+                foreach (var target in targets) { Assert.True(records.TryRemove(target.Id, out _)); File.Delete(target.Path); }
+            });
+            Assert.Equal(1, winner.Calls); Assert.Null(winner.Result);
+            winnerFinished = true;
+            switch (boundary)
+            {
+                case "disabled": user.SetPermission(PermissionKind.IsDisabled, true); break;
+                case "administrator": user.SetPermission(PermissionKind.IsAdministrator, false); break;
+                case "session": token = "new-session"; loserContext.Request.Headers.Authorization = "MediaBrowser Token=\"new-session\""; break;
+                case "revoked": authenticated = false; break;
+                case "origin": loserContext.Request.Headers.Origin = "https://other.invalid"; break;
+                case "cancel": await cancellation.CancelAsync(); break;
+            }
+        }
+        finally { release.TrySetResult(); await loser.WaitAsync(TimeSpan.FromSeconds(10)); }
+        var rejected = await loser.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal(0, rejected.Calls);
+        AssertFailure(rejected.Result, expectedStatus, expectedCode);
+        Assert.Equal("no-store", loserContext.Response.Headers.CacheControl);
+        Assert.All(targets, target => { Assert.False(records.ContainsKey(target.Id)); Assert.False(File.Exists(target.Path)); });
+        Assert.True(File.Exists(untouched));
+        user.SetPermission(PermissionKind.IsDisabled, false);
+        user.SetPermission(PermissionKind.IsAdministrator, true);
+        token = "token"; authenticated = true;
+        var replay = await Invoke(id, operation: operation);
+        Assert.Equal(0, replay.Calls); AssertFailure(replay.Result, 409, "ApprovalAlreadyUsed");
+    }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task MissingTargetWithoutConsumedTicketRemains404(bool bulk)
+    {
+        var operation = Operation.Create(bulk ? "DeleteItems" : "DeleteItem", [movie.Id]);
+        var id = Approved(operation);
+        library.Setup(l => l.GetItemById<BaseItem>(movie.Id, user)).Returns((BaseItem?)null);
+        var result = await Invoke(id, operation: operation);
+        Assert.Equal(0, result.Calls); AssertFailure(result.Result, 404, "TargetUnavailable");
+        Assert.Equal("ApprovalRevoked", Assert.Throws<GuardFailure>(() => approvals.Read(id, Owner)).Code);
+    }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task NativeTargetUnavailableExceptionIsNotRewrittenOrRetried(bool bulk)
+    {
+        var operation = Operation.Create(bulk ? "DeleteItems" : "DeleteItem", [movie.Id]);
+        var id = Approved(operation); var failure = new GuardFailure(404, "TargetUnavailable"); var calls = 0;
+        Assert.Same(failure, await Assert.ThrowsAsync<GuardFailure>(() => Invoke(id, operation: operation, native: () => { calls++; throw failure; })));
+        Assert.Equal(1, calls);
+        var replay = await Invoke(id, operation: operation);
+        Assert.Equal(0, replay.Calls); AssertFailure(replay.Result, 409, "ApprovalAlreadyUsed");
+    }
+    private static void AssertFailure(IActionResult? result, int status, string code)
+    {
+        var response = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(status, response.StatusCode);
+        Assert.Equal(code, JsonSerializer.SerializeToElement(response.Value).GetProperty("Code").GetString());
     }
     [Theory]
     [InlineData("Origin", "https://other.invalid")]

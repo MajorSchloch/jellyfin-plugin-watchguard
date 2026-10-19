@@ -87,6 +87,14 @@ public sealed class ApprovalStore
         }
     }
     public Ticket Read(string id, Owner owner) { lock (gate) { Cleanup(); return Copy(id, Find(id, owner)); } }
+    // Diagnostic precedence only: this never grants permission, consumes, or renews a ticket.
+    // Require the same identity and exact ordered operation even when reading a tombstone.
+    public bool WasConsumed(string id, Owner owner, Operation operation)
+    {
+        lock (gate)
+            return entries.TryGetValue(id, out var entry) && entry.Owner == owner &&
+                entry.Operation.Key == operation.Key && entry.State == ApprovalState.Consumed;
+    }
     private Entry Match(string id, Owner owner, Operation operation, string fingerprint)
     {
         var entry = Find(id, owner);
