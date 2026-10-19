@@ -307,6 +307,18 @@ public sealed class ActivityIndexTests : IDisposable
         var result=Read();Assert.Empty(result.Items);Assert.Contains("PolicyChanged",result.Coverage.Causes);
         clock.Advance(TimeSpan.FromSeconds(3));await Populate();Assert.Single(Read().Items);
     }
+    [Fact]
+    public async Task ConcurrentSlicesUseOneNativeWorker()
+    {
+        for(var n=0;n<24;n++)AddMovie();var active=0;var maximum=0;
+        data.Setup(d=>d.GetUserDataBatch(It.IsAny<IReadOnlyList<BaseItem>>(),It.IsAny<User>())).Returns((IReadOnlyList<BaseItem> list,User u)=>{
+            var count=Interlocked.Increment(ref active);maximum=Math.Max(maximum,count);
+            try{return list.ToDictionary(i=>i.Id,i=>playback.GetValueOrDefault((u.Id,i.Id))??new UserItemData{Key="test"});}
+            finally{Interlocked.Decrement(ref active);}
+        });
+        await Task.WhenAll(Enumerable.Range(0,20).Select(_=>worker.RunSlice(CancellationToken.None)));
+        Assert.Equal(1,maximum);Assert.Equal(24,worker.Snapshot().Rows.Length);
+    }
     private sealed class TestClock : TimeProvider {
         private DateTimeOffset now=DateTimeOffset.UtcNow;
         public override DateTimeOffset GetUtcNow()=>now;

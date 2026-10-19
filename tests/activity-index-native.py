@@ -122,6 +122,23 @@ done''')
         tasks = call('/ScheduledTasks', token=token)
         task = next(t for t in tasks if t['Key'] == 'WatchGuardActivityIndex')
         result['nativeTaskDiscovered'] = bool(task['Id'])
+        call('/ScheduledTasks/Running/' + task['Id'], 'POST', token=token, expected=204)
+        deadline = time.monotonic() + 15
+        while True:
+            running = next(t for t in call('/ScheduledTasks', token=token) if t['Id'] == task['Id'])
+            if running['State'] == 'Running': break
+            assert time.monotonic() < deadline, running['State']
+            time.sleep(.1)
+        # Native cancellation stops the scheduled loop, not the shared hosted
+        # coordinator. This is not a media DELETE and performs no approval.
+        call('/ScheduledTasks/Running/' + task['Id'], 'DELETE', token=token, expected=204)
+        deadline = time.monotonic() + 15
+        while True:
+            stopped = next(t for t in call('/ScheduledTasks', token=token) if t['Id'] == task['Id'])
+            if stopped['State'] == 'Idle': break
+            assert time.monotonic() < deadline, stopped['State']
+            time.sleep(.1)
+        result['nativeTaskStartCancel'] = True
         result['result'] = 'PASS'
     finally:
         (evidence / 'results.json').write_text(json.dumps(result, indent=2) + '\n')
