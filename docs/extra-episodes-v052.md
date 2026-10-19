@@ -1,4 +1,4 @@
-# Additional available episodes — v0.5.2 candidate
+# Additional available episodes — v0.5.2
 
 Watchlists cards and the administrator Series viewing panel retain an aired fraction and show a compact **+N** button for additional available episodes: **3/3 +1**. Click/tap, Enter or Space opens a native modal with season, episode/range, title, release date and **that user's** Watched/Unwatched state. Escape or Close dismisses it and restores focus. Removing the owning view on navigation/account change also removes its dialog. Text is constructed with DOM text nodes; no title or username is interpreted as HTML.
 
@@ -57,8 +57,8 @@ A bounded or incomplete response is still bounded or incomplete. Extra counts de
 
 ## Upgrade and rollback
 
-This is an **unreleased v0.5.2 candidate**, not a public catalog change. Public/current release remains v0.5.1. Normal upgrade/rollback uses the existing single plugin assembly and a full Web reload. No new preference, storage file or configuration setting is introduced. Existing v0.5.1 preferences and the saved-sort downgrade limitations still apply; see [saved sorting](saved-sort-v051.md).
+Published v0.5.2 is the current release. [Publication run 39219433132](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39219433132) passed; published assets and catalog history remain unchanged. Normal upgrade/rollback uses the existing single plugin assembly and a full Web reload. No new preference, storage file or configuration setting is introduced. Existing v0.5.1 preferences and the saved-sort downgrade limitations still apply; see [saved sorting](saved-sort-v051.md).
 
 ## Validation
 
-Results and screenshot links are recorded in [candidate notes](release-v052.md). Legacy native benchmark comparisons exclude only the new `EpisodeProgress` object; every original item/user/playback/date/count/coverage field is still compared exactly. Dedicated regressions validate the new object independently.
+Results and screenshot links are recorded in [release notes](release-v052.md). Legacy native benchmark comparisons exclude only the new `EpisodeProgress` object; every original item/user/playback/date/count/coverage field is still compared exactly. Dedicated regressions validate the new object independently.

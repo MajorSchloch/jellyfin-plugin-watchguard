@@ -57,7 +57,7 @@ module.exports=async function(page,fixture) {
         await open('&owner=mine');assert.equal(await sort().inputValue(),'added');
         assert.equal(await region.getAttribute('data-watchguard-scope'),'mine');
         await open('&interest=none');assert.equal(await sort().inputValue(),'added');
-        assert.equal(await region.locator('input:checked').count(),0);
+        assert.equal(await region.locator('.watchguard-filter input:checked').count(),0);
         await open('&sort=recent');assert.equal(await sort().inputValue(),'recent');
         assert.equal(await region.getAttribute('data-watchguard-scope'),'all');
         await sort().selectOption('title');
@@ -91,7 +91,7 @@ module.exports=async function(page,fixture) {
         assert.deepEqual(await request('WatchGuard/Preferences'),added,'Other account reset must not change admin defaults');
         await reset();await open();assert.equal(await sort().inputValue(),'title');
         assert.equal(await region.getAttribute('data-watchguard-scope'),'mine');
-        assert.equal(await region.locator('input:checked').count(),3);
+        assert.equal(await region.locator('.watchguard-filter input:checked').count(),3);
         console.log('Saved Recently added browser persistence, per-field URL overrides, replacement, reset, failures and account switching passed.');
     } finally {page.off('request',observe);}
 };

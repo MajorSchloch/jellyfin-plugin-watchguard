@@ -9,7 +9,7 @@ import time
 import uuid
 
 parser=argparse.ArgumentParser()
-parser.add_argument('suite',choices=['standalone-caddy','migration','basepath','legacy','websocket','discovery','verification','server-enforcement','server-enforcement-basepath','server-enforcement-linuxserver'])
+parser.add_argument('suite',choices=['standalone-caddy','migration','basepath','legacy','websocket','discovery','verification','activity-index','server-enforcement','server-enforcement-basepath','server-enforcement-linuxserver'])
 parser.add_argument('--injector-dll',default='/tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll')
 a=parser.parse_args()
 commands={
@@ -18,6 +18,7 @@ commands={
  'basepath':[(['tests/docker-smoke.py','--base-path','/jellyfin','--proxy'],{})],
  'legacy':[(['tests/docker-smoke.py','--legacy-injector','--catalog','--injector-dll',a.injector_dll],{}),(['tests/docker-smoke.py','--legacy-injector','--injector-dll',a.injector_dll],{})],
  'websocket':[(['tests/docker-smoke.py','--linuxserver','--caddy','--measure'],{})],
+ 'activity-index':[(['tests/docker-smoke.py','--profile','activity-index'],{})],
  'discovery':[(['tests/docker-smoke.py','--profile','discovery'],{})],
  'verification':[(['tests/docker-smoke.py','--profile','verification'],{}),(['tests/docker-smoke.py','--profile','verification'],{'WATCHGUARD_VERIFICATION_POLICIES':'1','WATCHGUARD_VERIFICATION_OUTPUT':'artifacts/verification-native-v048-policies.json'}),(['tests/docker-smoke.py','--profile','discovery'],{'WATCHGUARD_DISCOVERY_BASELINE':'0.4.7'})],
  'server-enforcement':[(['tests/server-enforcement.py'],{})],

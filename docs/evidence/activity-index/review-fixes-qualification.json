@@ -1,0 +1,137 @@
+{
+  "reviewBaseline": "c638515d059b86b140c0b9126ee9b46dd4c01bab",
+  "testedCommit": "50039a0793c7fa666d3c1e9cc6090ca392780db6",
+  "local": {
+    "backendPassed": 250,
+    "javascriptPassed": 132,
+    "pythonPassed": 14,
+    "catalogPassed": 4
+  },
+  "regressions": {
+    "pagination": [
+      "three 1000-episode series, seven owners plus separate administrator: all 21 owner/title pairs returned across bounded pages",
+      "one 1000-episode series, 25 owners plus separate administrator: all owners returned, continuation terminates",
+      "every page stays at or below 20000 native episode rows"
+    ],
+    "browser": [
+      "poll-first and pagination-first requests serialize",
+      "refresh and old-page responses in either order retain only current snapshot and cursor",
+      "partial-title pages merge owners and retain poster identity",
+      "initial load, refresh, poll and pagination clear protected view on both 401 and 403",
+      "denial before or after an overlapping refresh invalidates the view",
+      "ordinary 503 pagination failure retains usable card and continuation"
+    ],
+    "checkpoint": [
+      "settled idle slices leave real file modification time and bytes unchanged",
+      "cursor-only progress flushes at 30 seconds and pass completion",
+      "verified rows and remaining queue persist together and recover on restart",
+      "debounced pending-only work survives restart",
+      "failed real atomic write retains dirty state until retry succeeds"
+    ]
+  },
+  "hostedRun": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39250890240",
+  "publish": false,
+  "proxy_matrix": true,
+  "scope": "No production deployment, release/catalog modification, merge, deletion-policy change or destructive retry.",
+  "hostedQualification": {
+    "conclusion": "success",
+    "headSha": "50039a0793c7fa666d3c1e9cc6090ca392780db6",
+    "jobs": [
+      {
+        "completedAt": "2026-10-19T12:18:30Z",
+        "conclusion": "success",
+        "name": "build",
+        "startedAt": "2026-10-19T12:17:25Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:23:35Z",
+        "conclusion": "success",
+        "name": "Integration / server-enforcement",
+        "startedAt": "2026-10-19T12:18:32Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:29:36Z",
+        "conclusion": "success",
+        "name": "Integration / migration",
+        "startedAt": "2026-10-19T12:18:33Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:35:35Z",
+        "conclusion": "success",
+        "name": "Integration / standalone-caddy",
+        "startedAt": "2026-10-19T12:18:32Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:20:46Z",
+        "conclusion": "success",
+        "name": "Integration / websocket",
+        "startedAt": "2026-10-19T12:18:33Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:28:25Z",
+        "conclusion": "success",
+        "name": "Integration / basepath",
+        "startedAt": "2026-10-19T12:18:33Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:30:06Z",
+        "conclusion": "success",
+        "name": "Integration / verification",
+        "startedAt": "2026-10-19T12:18:32Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:23:29Z",
+        "conclusion": "success",
+        "name": "Integration / server-enforcement-linuxserver",
+        "startedAt": "2026-10-19T12:18:32Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:22:32Z",
+        "conclusion": "success",
+        "name": "Integration / server-enforcement-basepath",
+        "startedAt": "2026-10-19T12:18:33Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:24:28Z",
+        "conclusion": "success",
+        "name": "Integration / legacy",
+        "startedAt": "2026-10-19T12:18:32Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:23:34Z",
+        "conclusion": "success",
+        "name": "Integration / discovery",
+        "startedAt": "2026-10-19T12:18:33Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:25:45Z",
+        "conclusion": "success",
+        "name": "Integration / activity-index",
+        "startedAt": "2026-10-19T12:18:33Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-19T12:35:35Z",
+        "conclusion": "skipped",
+        "name": "publish",
+        "startedAt": "2026-10-19T12:35:36Z",
+        "status": "completed"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39250890240"
+  },
+  "nativeEvidence": "hosted-review-summary.json",
+  "monitoringNote": "One local gh run watch connection timed out; read-only monitoring resumed. No qualification job was rerun."
+}

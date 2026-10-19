@@ -1,0 +1,205 @@
+{
+  "baselineSha256": "62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec",
+  "fixture": {
+    "users": 7,
+    "completedMovies": 120,
+    "seriesEpisodes": 300
+  },
+  "measurements": {
+    "v052-single": {
+      "milliseconds": [
+        149.4401479999965,
+        138.62052399997538,
+        161.45555700001069
+      ],
+      "medianMs": 149.4401479999965,
+      "items": 100,
+      "diagnostics": {
+        "CandidatesDiscovered": 202,
+        "UniqueCandidates": 101,
+        "CandidatesVerified": 100,
+        "UsersEvaluated": 100,
+        "EpisodeRowsProcessed": 300,
+        "NativePlaybackBatches": 2,
+        "NativeDiscoveryQueries": 4,
+        "QueryDurationMs": 144.918,
+        "DiscoveryDurationMs": 120.3559,
+        "EpisodeQueryDurationMs": 16.9064,
+        "VisibilityDurationMs": 5.658800000000032,
+        "PlaybackBatchDurationMs": 1.1424,
+        "UserDataBatchDurationMs": 0.1444,
+        "ResumeBatchDurationMs": 0.9972,
+        "ClassificationDurationMs": 0.27210000000000056,
+        "TotalVerificationDurationMs": 24.5612,
+        "EpisodeQueryCount": 1,
+        "EpisodeIdQueryCount": 0,
+        "EpisodeHydrationQueryCount": 1,
+        "EpisodeHydratedRows": 300,
+        "EpisodeMetadataReusedRows": 0,
+        "PlaybackBatchCount": 2,
+        "PlaybackCacheHits": 100,
+        "PlaybackCacheMisses": 1,
+        "PreparedVisibilityHits": 100,
+        "PreparedVisibilityMisses": 100,
+        "AccountCacheHits": 199,
+        "AccountCacheMisses": 1
+      },
+      "causes": [
+        "CompletedMovieDiscoveryLimit",
+        "RawEpisodeDiscoveryLimit",
+        "ResultLimit"
+      ]
+    },
+    "v052-all": {
+      "milliseconds": [
+        765.1220340000009,
+        750.8785219999936,
+        811.6934210000011
+      ],
+      "medianMs": 765.1220340000009,
+      "items": 100,
+      "diagnostics": {
+        "CandidatesDiscovered": 1209,
+        "UniqueCandidates": 101,
+        "CandidatesVerified": 100,
+        "UsersEvaluated": 700,
+        "EpisodeRowsProcessed": 2100,
+        "NativePlaybackBatches": 14,
+        "NativeDiscoveryQueries": 28,
+        "QueryDurationMs": 795.4253,
+        "DiscoveryDurationMs": 699.2611,
+        "EpisodeQueryDurationMs": 30.512500000000003,
+        "VisibilityDurationMs": 28.68379999999976,
+        "PlaybackBatchDurationMs": 32.4801,
+        "UserDataBatchDurationMs": 28.8498,
+        "ResumeBatchDurationMs": 3.6266,
+        "ClassificationDurationMs": 1.5095999999999603,
+        "TotalVerificationDurationMs": 96.1631,
+        "EpisodeQueryCount": 7,
+        "EpisodeIdQueryCount": 6,
+        "EpisodeHydrationQueryCount": 1,
+        "EpisodeHydratedRows": 300,
+        "EpisodeMetadataReusedRows": 1800,
+        "PlaybackBatchCount": 14,
+        "PlaybackCacheHits": 700,
+        "PlaybackCacheMisses": 7,
+        "PreparedVisibilityHits": 700,
+        "PreparedVisibilityMisses": 700,
+        "AccountCacheHits": 1393,
+        "AccountCacheMisses": 7
+      },
+      "causes": [
+        "CompletedMovieDiscoveryLimit",
+        "RawEpisodeDiscoveryLimit",
+        "ResultLimit"
+      ]
+    },
+    "index-single": {
+      "milliseconds": [
+        13.212583999973049,
+        12.299798000015016,
+        12.417351999999937
+      ],
+      "medianMs": 12.417351999999937,
+      "firstPageItems": 25,
+      "totalItems": 121,
+      "allPagesMs": 55.15404400000534,
+      "allPagesVisibilityQueries": 2,
+      "freshness": {
+        "Revision": 789,
+        "Stored": 121,
+        "Validated": 121,
+        "Pending": 0,
+        "DiscoveryPages": 62,
+        "DiscoveryFinished": true,
+        "LastUpdate": "2026-10-19T12:24:40.8271929+00:00",
+        "Causes": [],
+        "EpisodeQueries": 6,
+        "EpisodeRows": 1800,
+        "PlaybackBatches": 228,
+        "TitlesVerified": 726,
+        "StaleResultsDiscarded": 0,
+        "VerificationMs": 782.5960999999999,
+        "RetainedSerializedBytes": 444393
+      }
+    },
+    "index-all": {
+      "milliseconds": [
+        29.725068999994164,
+        27.78006800002686,
+        29.57601700001078
+      ],
+      "medianMs": 29.57601700001078,
+      "firstPageItems": 25,
+      "totalItems": 121,
+      "allPagesMs": 115.3486599999951,
+      "allPagesVisibilityQueries": 7,
+      "freshness": {
+        "Revision": 789,
+        "Stored": 726,
+        "Validated": 726,
+        "Pending": 0,
+        "DiscoveryPages": 62,
+        "DiscoveryFinished": true,
+        "LastUpdate": "2026-10-19T12:25:31.3094102+00:00",
+        "Causes": [],
+        "EpisodeQueries": 6,
+        "EpisodeRows": 1800,
+        "PlaybackBatches": 228,
+        "TitlesVerified": 726,
+        "StaleResultsDiscarded": 0,
+        "VerificationMs": 782.5960999999999,
+        "RetainedSerializedBytes": 444393
+      }
+    }
+  },
+  "coldPopulationMs": 278505.928771,
+  "incrementalSettledMs": 3251.5383719999704,
+  "nativeTaskDiscovered": true,
+  "nativeTaskStartCancel": true,
+  "result": "PASS",
+  "progressSampleCount": 272,
+  "progressFirst": {
+    "Stored": 0,
+    "Validated": 0,
+    "Pending": 0,
+    "DiscoveryPages": 0,
+    "DiscoveryFinished": false
+  },
+  "progressLast": {
+    "Stored": 726,
+    "Validated": 726,
+    "Pending": 0,
+    "DiscoveryPages": 62,
+    "DiscoveryFinished": true
+  },
+  "suite": {
+    "suite": "activity-index",
+    "attempts": [
+      {
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "activity-index"
+        ],
+        "elapsedSeconds": 344.165,
+        "exitCode": 0,
+        "retry": false
+      }
+    ],
+    "status": "PASS",
+    "python": "3.12.0",
+    "node": "v24.22.0",
+    "commit": "50039a0793c7fa666d3c1e9cc6090ca392780db6",
+    "dotnet": "10.0.302",
+    "host": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "playwright": "1.56.1",
+    "chromium": {
+      "name": "chromium",
+      "revision": "1194",
+      "installByDefault": true,
+      "browserVersion": "141.0.7390.37"
+    }
+  },
+  "runUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39250890240"
+}

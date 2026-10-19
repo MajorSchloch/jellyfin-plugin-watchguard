@@ -43,7 +43,7 @@ def main():
     mode.add_argument('--measure', action='store_true')
     mode.add_argument('--migration', action='store_true')
     mode.add_argument('--catalog', action='store_true', help='Exercise native catalog install, manual upgrade and missing Injector.')
-    mode.add_argument('--profile', choices=['before', 'after', 'activity', 'v030-before', 'v030-after', 'discovery', 'verification'], help='Run isolated performance measurements instead of destructive browser tests.')
+    mode.add_argument('--profile', choices=['before', 'after', 'activity', 'v030-before', 'v030-after', 'discovery', 'verification', 'activity-index'], help='Run isolated performance measurements instead of destructive browser tests.')
     options = parser.parse_args()
     options.standalone = not options.legacy_injector
     if options.catalog and options.standalone: options.standalone_catalog = True
@@ -218,7 +218,7 @@ def main():
                 caddy.verify(token)
             fixture = root / 'fixture.json'
             fixture.write_text(json.dumps({'base': browser_base, 'username': username, 'password': password,
-                'standalone':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')/name), 'token': token, 'userId': admin['User']['Id'], 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
+                'standalone':options.standalone, 'activityIndex':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')/name), 'token': token, 'userId': admin['User']['Id'], 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
             fixture.chmod(0o600)
             if caddy: os.environ['NODE_EXTRA_CA_CERTS'] = str(caddy.ca)
             print('READY fixture=' + str(fixture), flush=True)
@@ -229,6 +229,8 @@ def main():
                 runpy.run_path(str(ROOT / 'tests/catalog-smoke.py'))['run'](call, restart, docker, name, root, plugins, token, next(i['Id'] for i in items if i['Type']=='Movie' and i['Name']=='PoC Movie Detail'))
             elif options.profile == 'discovery':
                 runpy.run_path(str(ROOT/'tests/discovery-native.py'))['run'](call, restart, docker, name, root, plugins, token)
+            elif options.profile == 'activity-index':
+                runpy.run_path(str(ROOT/'tests/activity-index-native.py'))['run'](call, restart, docker, name, plugins, token)
             elif options.profile == 'verification':
                 runpy.run_path(str(ROOT/'tests/verification-native.py'))['run'](call, restart, docker, name, plugins, token)
             elif options.serve:
@@ -247,8 +249,18 @@ def main():
                     assert docker('exec', name, 'sha256sum', web_index).split()[0] == pristine_web_hash
                     print('Deployment checks passed: v0.3.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
             if options.standalone:
-                saved = {p:p.read_bytes() for p in (plugins/'Jellyfin.Plugin.WatchGuard').glob('*.json')}
+                data_folder = plugins/'Jellyfin.Plugin.WatchGuard'
+                derived = data_folder/'activity-index.json'
+                derived_present = derived.exists()
+                # Personal data is immutable across the entire uninstall. The
+                # background projection may legitimately checkpoint until the
+                # loaded plugin stops; snapshot it at that lifecycle boundary.
+                saved = {p:p.read_bytes() for p in data_folder.glob('*.json') if p != derived}
                 call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.5.2.0','DELETE',token=token,expected=204)
+                docker('stop', name)
+                if derived_present:
+                    assert derived.exists(), 'Uninstall must retain the derived index'
+                    saved[derived] = derived.read_bytes()
                 restart()
                 assert 'watchguard-standalone-loader' not in call('/web/index.html',raw=True)
                 call('/WatchGuard/Standalone/bootstrap.js',expected=404)

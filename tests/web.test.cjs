@@ -269,7 +269,7 @@ test('Personal overview rejects cross-user payloads even with forged owner filte
     assert.match(page.children[4].textContent,/Viewing activity unavailable/);
 });
 
-function progressiveFixture(admin = true, preferences = false, owner = 'all') {
+function progressiveFixture(admin = true, preferences = false, owner = 'all', indexedActivity = false) {
     const f = documentFixture(), create = f.doc.createElement, calls = [];
     f.doc.createElement = tag => { const n = create(tag); n.replaceChildren = () => { for(const child of [...n.children]) child.remove(); }; n.classList = {add(){}}; return n; };
     let token = 'first';
@@ -277,7 +277,7 @@ function progressiveFixture(admin = true, preferences = false, owner = 'all') {
         ajax:o=>o.url==='WatchGuard/Users'?Promise.resolve(overviewItems[0].Users):new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
     const abort = new AbortController();
     const navigation=[];
-    const page = watchlistsPage(f.doc,api,abort.signal,owner,(...args)=>{navigation.push(args);page.updateFilters(...args);},{preferences});
+    const page = watchlistsPage(f.doc,api,abort.signal,owner,(...args)=>{navigation.push(args);page.updateFilters(...args);},{preferences,indexedActivity});
     return {page,calls,abort,navigation,changeAccount(){token='second';}};
 }
 const turn = () => new Promise(resolve=>setImmediate(resolve));
@@ -700,4 +700,143 @@ test('Malformed extras fail validation without executing metadata or affecting p
     }
     const owner={UserId:me,DisplayName:'Tom',Reasons:['CaughtUp'],EpisodeProgress:'invalid informational data'};
     assert.deepEqual(validateStatus({ItemId:me,HasInterest:true,HasOtherInterestedUsers:false,Users:[owner]},me,me),[owner]);
+});
+
+const indexedResult = (items = [], continuation = null) => ({Items:items,IsComplete:false,LimitReached:false,Notice:'Indexed; not exhaustive',Coverage:{Version:1,ActivityWindowDays:30,Warnings:[]},Freshness:{Revision:1,DiscoveryFinished:true,Pending:0,LastUpdate:null},Continuation:continuation});
+test('Indexed view time controls query stored activity, preserve local sorts and never save preferences implicitly',async()=>{
+    const f=progressiveFixture(true,false,'all',true);await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    assert.equal(f.calls[1].o.url,'WatchGuard/ActivityIndex?owner=all&days=30&older=true');
+    f.calls[1].resolve(indexedResult());await turn();
+    const before=f.calls.length;f.page.updateFilters('all','watchlisted','added','30','true');assert.equal(f.calls.length,before);
+    f.page.updateFilters('all','watchlisted','added','7','false');await turn();
+    f.calls[2].resolve([overviewItems[0]]);await turn();
+    assert.equal(f.calls[3].o.url,'WatchGuard/ActivityIndex?owner=all&days=7&older=false');
+    f.calls[3].resolve(indexedResult());await turn();
+    assert.equal(f.page.children[3].children[0].children[0].textContent,'Activity: last 7 days · not exhaustive');
+    assert.equal(f.page.children[1].children.at(-1).className,'watchguard-older-interest');
+    assert.ok(f.calls.every(c=>c.o.type==='GET'));f.abort.abort();
+});
+test('Indexed pagination preserves poster identity and refuses late account results',async()=>{
+    const f=progressiveFixture(true,false,'all',true);await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    f.calls[1].resolve(indexedResult(automaticResult.Items,'opaque'));await turn();
+    const grid=f.page.children[5],card=grid.children[0],more=f.page.children.at(-1);
+    const loading=more.onclick();assert.match(f.calls[2].o.url,/continuation=opaque/);
+    f.calls[2].resolve(indexedResult(automaticResult.Items));await loading;
+    assert.equal(grid.children.length,1);assert.equal(grid.children[0],card);
+    f.page.updateFilters('mine','watching','recent','90','true');await turn();
+    const last=f.calls.at(-1);f.changeAccount();last.resolve([overviewItems[0]]);await turn();
+    assert.equal(grid.children.length,0);f.abort.abort();
+});
+test('Indexed initial population is not a false empty result and malformed status remains an error',async()=>{
+    const f=progressiveFixture(false,false,'mine',true);await turn();f.calls[0].resolve([]);await turn();
+    const result=indexedResult();result.Freshness.DiscoveryFinished=false;f.calls[1].resolve(result);await turn();
+    assert.match(f.page.children[2].textContent,/Background discovery/);
+    const refresh=f.page.children[1].children[3].onclick();await turn();f.calls[2].resolve([]);await turn();
+    f.calls[3].resolve({...result,Freshness:null});await refresh;
+    assert.match(f.page.children[4].textContent,/unavailable/);f.abort.abort();
+});
+
+test('Indexed refresh failure retains usable cards but authorization denial clears activity',async()=>{
+    const f=progressiveFixture(true,false,'all',true);await turn();f.calls[0].resolve([]);await turn();
+    f.calls[1].resolve(indexedResult(automaticResult.Items));await turn();
+    const grid=f.page.children[5],card=grid.children[0];assert.ok(card);
+    let refresh=f.page.children[1].children[3].onclick();await turn();f.calls[2].resolve([]);await turn();
+    assert.match(f.calls[3].o.url,/refresh=true/);f.calls[3].reject({status:503});await refresh;
+    assert.equal(grid.children[0],card);assert.match(f.page.children[4].textContent,/unavailable/);
+    refresh=f.page.children[1].children[3].onclick();await turn();f.calls[4].resolve([]);await turn();
+    f.calls[5].reject({status:403});await refresh;assert.equal(grid.children.length,0);f.abort.abort();
+});
+
+for (const first of ['poll', 'more']) test('Indexed poll and pagination serialize snapshots: ' + first + ' starts first',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(automaticResult.Items,'old-next'));await turn();
+    const more=f.page.children.at(-1),grid=f.page.children[5];
+    const second={...automaticResult.Items[0],ItemId:'9'.repeat(32),Name:'Second title'};
+    if(first==='poll') {
+        t.mock.timers.tick(30000);await turn();assert.equal(f.calls.length,3);
+        assert.equal(more.disabled,true);
+        await more.onclick();assert.equal(f.calls.length,3,'No pagination may append to a snapshot being replaced');
+        f.calls[2].resolve(indexedResult(automaticResult.Items,'fresh-next'));await turn();
+        const loading=more.onclick();assert.match(f.calls[3].o.url,/continuation=fresh-next/);
+        f.calls[3].resolve(indexedResult([second]));await loading;
+    } else {
+        const loading=more.onclick();assert.match(f.calls[2].o.url,/continuation=old-next/);
+        t.mock.timers.tick(30000);await turn();assert.equal(f.calls.length,3,'Poll must wait for pagination');
+        f.calls[2].resolve(indexedResult([second]));await loading;
+        t.mock.timers.tick(30000);await turn();assert.equal(f.calls.length,4);
+        f.calls[3].resolve(indexedResult(automaticResult.Items,'fresh-next'));await turn();
+        assert.match(f.calls[4].o.url,/continuation=fresh-next/);
+        f.calls[4].resolve(indexedResult([second]));await turn();
+    }
+    assert.equal(grid.children.length,2);assert.equal(new Set(grid.children).size,2);
+    assert.equal(more.hidden,true);const count=f.calls.length;await more.onclick();assert.equal(f.calls.length,count);
+});
+
+for(const operation of ['initial','refresh','poll','more']) for(const status of [401,403])
+test(`Indexed ${operation} ${status} clears memberships, activity, directory and continuation`,async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    if(operation==='initial') f.calls[1].reject({status});
+    else {
+        f.calls[1].resolve(indexedResult(automaticResult.Items,'private-next'));await turn();
+        if(operation==='refresh') {f.page.children[1].children[3].onclick();await turn();f.calls[2].resolve([overviewItems[0]]);await turn();}
+        if(operation==='poll') {t.mock.timers.tick(30000);await turn();}
+        if(operation==='more') f.page.children.at(-1).onclick();
+        f.calls.at(-1).reject({status});
+    }
+    await turn();
+    assert.equal(f.page.children[5].children.length,0);
+    assert.equal(f.page.children.at(-1).hidden,true);
+    assert.match(f.page.children[4].textContent,/authorization|access|authenticate/i);
+    assert.equal(textOf(f.page).includes(overviewItems[0].Users[1].DisplayName),false);
+    const before=f.calls.length;t.mock.timers.tick(30000);await turn();await f.page.children.at(-1).onclick();assert.equal(f.calls.length,before);
+});
+
+for(const denialFirst of [true,false]) test('Indexed authorization denial invalidates overlapping refresh: denial first=' + denialFirst,async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(automaticResult.Items,'private-next'));await turn();
+    const more=f.page.children.at(-1).onclick();
+    const refresh=f.page.children[1].children[3].onclick();await turn();
+    if(denialFirst) {f.calls[2].reject({status:403});await more;f.calls[3].resolve([overviewItems[0]]);await turn();if(f.calls[4]) f.calls[4].resolve(indexedResult(automaticResult.Items,'late-private-next'));await refresh;}
+    else {f.calls[3].resolve([overviewItems[0]]);await turn();f.calls[4].resolve(indexedResult(automaticResult.Items,'new-private-next'));await refresh;f.calls[2].reject({status:403});await more;}
+    assert.equal(f.page.children[5].children.length,0);assert.equal(f.page.children.at(-1).hidden,true);
+});
+
+test('Indexed pagination service failure retains usable cards and cursor',async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(automaticResult.Items,'same-next'));await turn();
+    const grid=f.page.children[5],card=grid.children[0],more=f.page.children.at(-1);
+    const loading=more.onclick();f.calls[2].reject({status:503});await loading;
+    assert.equal(grid.children[0],card);assert.equal(more.hidden,false);
+    const retry=more.onclick();assert.match(f.calls[3].o.url,/continuation=same-next/);
+    f.calls[3].resolve(indexedResult());await retry;assert.equal(grid.children[0],card);
+});
+
+for(const moreFirst of [true,false]) test('Indexed refresh supersedes pagination in either response order: pagination first=' + moreFirst,async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(automaticResult.Items,'old-next'));await turn();
+    const more=f.page.children.at(-1),grid=f.page.children[5],card=grid.children[0];
+    const loading=more.onclick(),refresh=f.page.children[1].children[3].onclick();await turn();
+    f.calls[3].resolve([]);await turn();
+    const old={...automaticResult.Items[0],ItemId:'8'.repeat(32),Name:'Old snapshot'};
+    const fresh={...automaticResult.Items[0],ItemId:'9'.repeat(32),Name:'New snapshot'};
+    if(moreFirst) {f.calls[2].resolve(indexedResult([old],'old-tail'));await loading;}
+    f.calls[4].resolve(indexedResult([...automaticResult.Items,fresh],'fresh-tail'));await refresh;
+    if(!moreFirst) {f.calls[2].resolve(indexedResult([old],'old-tail'));await loading;}
+    assert.equal(grid.children.length,2);assert.ok(grid.children.includes(card));assert.equal(textOf(grid).includes('Old snapshot'),false);
+    const next=more.onclick();assert.match(f.calls[5].o.url,/continuation=fresh-tail/);f.calls[5].resolve(indexedResult());await next;
+    assert.equal(grid.children.length,2);assert.equal(more.hidden,true);
+});
+
+test('Indexed partial-title pages merge owners without replacing poster or duplicating users',async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(automaticResult.Items,'remaining-owners'));await turn();
+    const grid=f.page.children[5],card=grid.children[0],more=f.page.children.at(-1);
+    const rest={...automaticResult.Items[0],Users:[{...automaticResult.Items[0].Users[0],UserId:me,DisplayName:'Additional owner'}]};
+    const loading=more.onclick();f.calls[2].resolve(indexedResult([rest]));await loading;
+    assert.equal(grid.children.length,1);assert.equal(grid.children[0],card);
+    assert.equal(descendants(card).filter(n=>n.className==='watchguard-user-line').length,2);
+    assert.match(textOf(card),/Additional owner/);assert.equal(more.hidden,true);
 });

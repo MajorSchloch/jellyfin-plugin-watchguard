@@ -529,6 +529,8 @@
 
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
         let raw = {owner: filter, interest: options.interest, sort: options.sort};
+        let range = [7,30,90].includes(Number(options.days)) ? Number(options.days) : 30, includeOlder = options.older !== 'false';
+        let continuation = null, pollTimer = null, loadedPages = 1, indexPopulating = false;
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
         let kind = selectedStatuses(options.interest);
         let sort = ['title', 'recent', 'added'].includes(options.sort) ? options.sort : 'title';
@@ -592,6 +594,17 @@
         const sortGroup = document.createElement('label'); sortGroup.className = 'watchguard-toolbar-field watchguard-sort';
         const sortLabel = document.createElement('span'); sortLabel.textContent = 'Sort by'; sortGroup.append(sortLabel, order);
         toolbar.append(ownerGroup, interestFilter, sortGroup, refresh);
+        const rangeSelect = dropdown('Activity range', [['7', 'Last 7 days'], ['30', 'Last 30 days'], ['90', 'Last 90 days']]);
+        const olderToggle = document.createElement('input'); olderToggle.type = 'checkbox';
+        if (options.indexedActivity) {
+            const field = document.createElement('label'); field.className = 'watchguard-toolbar-field';
+            const label = document.createElement('span'); label.textContent = 'Activity range'; field.append(label, rangeSelect);
+            const olderLabel = document.createElement('label'); olderLabel.className = 'watchguard-older-interest';
+            const olderText = document.createElement('span'); olderText.textContent = 'Include older current interest'; olderLabel.append(olderToggle, olderText);
+            toolbar.append(field, olderLabel);
+        }
+        const more = document.createElement('button'); more.type = 'button'; more.className = 'emby-button button-flat'; more.textContent = 'Load more activity'; more.hidden = true;
+        const freshness = document.createElement('p'); freshness.className = 'watchguard-notice'; freshness.setAttribute('role', 'status');
         const status = document.createElement('p'); status.setAttribute('role', 'status');
         const spinner = document.createElement('span'); spinner.className = 'material-icons watchguard-spinner'; spinner.textContent = 'sync'; spinner.setAttribute('aria-hidden', 'true');
         status.className = 'watchguard-loading-status';
@@ -606,15 +619,17 @@
         const grid = document.createElement('div'); grid.className = 'watchguard-grid';
         const preferenceMessage = document.createElement('p'); preferenceMessage.setAttribute('role', 'status'); preferenceMessage.className = 'watchguard-notice';
         page.append(heading, toolbar, status, notice, error, grid, preferenceMessage);
+        if (options.indexedActivity) { status.after?.(freshness); page.append(more); }
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
         let directory = [], loadedScope;
         let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, coverageInfo = null, failures = [];
         const cards = new Map();
-        signal.addEventListener('abort', () => { generation++; cards.clear(); page.remove(); }, { once: true });
+        signal.addEventListener('abort', () => { generation++; if (pollTimer) clearTimeout(pollTimer); cards.clear(); page.remove(); }, { once: true });
         function render() {
             if (!active()) return;
             page.setAttribute('data-watchguard-scope', loadedScope || '');
+            rangeSelect.value = String(range); olderToggle.checked = includeOlder; more.hidden = !continuation; more.disabled = pending;
             const entries = mergeInterest(explicit, automatic);
             if (!admin && entries.some(e => e.Users.some(u => key(u.UserId) !== key(user)))) throw new Error('Invalid account scope');
             const selected = selectInterest(entries, admin ? filter : 'mine', user, kind, sort);
@@ -634,11 +649,11 @@
             const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
             const count = document.createElement('span'); count.textContent = 'Status · ' + kind.length; summary.append(filterIcon, count);
             summary.title = 'Status filters (' + kind.length + ' selected)'; summary.setAttribute('aria-label', summary.title); order.value = sort;
-            status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : 'No matching activity in this overview.';
+            status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : indexPopulating ? 'Background discovery is still running; no matching verified activity yet.' : continuation ? 'No matches on loaded pages. Load more activity to continue.' : 'No matching activity in this overview.';
             spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
             const info = coveragePresentation(coverage, coverageLimited, coverageInfo);
             notice.hidden = !coverage && !coverageLimited;
-            coverageSummary.textContent = info.summary;
+            coverageSummary.textContent = options.indexedActivity ? 'Activity: last ' + range + ' days' + (includeOlder ? ' + older current interest' : '') + ' · not exhaustive' : info.summary;
             coverageText.textContent = coverage; // Keep the complete server explanation verbatim.
             coverageWarning.textContent = info.warning;
             coverageWarning.hidden = !info.warning;
@@ -663,9 +678,12 @@
                     if (admin) ownersText.classList.add('watchguard-owners');
                     card.append(ownersText); record = { card, name, ownersText }; cards.set(key(entry.ItemId), record);
                 }
-                record.name.textContent = entry.Name; record.name.title = entry.Name; record.ownersText.replaceChildren();
-                for (const owner of entry.Users) {
-                    record.ownersText.append(userLine(document, owner));
+                record.name.textContent = entry.Name; record.name.title = entry.Name;
+                const ownerSignature = JSON.stringify(entry.Users);
+                if (record.ownerSignature !== ownerSignature) {
+                    record.ownersText.replaceChildren();
+                    for (const owner of entry.Users) record.ownersText.append(userLine(document, owner));
+                    record.ownerSignature = ownerSignature;
                 }
                 record.remove?.remove(); record.remove = null;
                 if (entry.IsWatchlistedByMe) {
@@ -688,7 +706,21 @@
                 grid.append(record.card); // Reuse the card/image node, including when sorting.
             }
         }
-        async function load() {
+        function authorizationDenied(failure) {
+            if (!active() || ![401, 403].includes(failure?.status)) return false;
+            // Even a superseded request's denial invalidates this captured
+            // account's protected view. No concurrent response may restore it.
+            generation++;
+            if (pollTimer) clearTimeout(pollTimer);
+            explicit = []; automatic = []; directory = []; continuation = null;
+            loadedPages = 1; indexPopulating = false; pending = false;
+            coverage = ''; coverageLimited = false; coverageInfo = null;
+            grid.replaceChildren(); cards.clear(); freshness.textContent = '';
+            failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
+            refresh.disabled = false; render();
+            return true;
+        }
+        async function load(prioritize = false) {
             if (!active()) return;
             const revision = ++generation;
             const current = () => active() && revision === generation;
@@ -704,7 +736,7 @@
                         if (!current()) return;
                         if (!result || typeof result.Owner !== 'string' || !Array.isArray(result.Statuses) || result.Statuses.some(s => !activityFilters[s]) || !['title','recent','added'].includes(result.Sort)) throw new Error('Invalid preferences');
                         saved = result;
-                    } catch { if (current()) preferenceMessage.textContent = 'Saved defaults unavailable. Using URL or built-in defaults; stored data was not changed.'; }
+                    } catch (failure) { if (authorizationDenied(failure)) return; if (current()) preferenceMessage.textContent = 'Saved defaults unavailable. Using URL or built-in defaults; stored data was not changed.'; }
                     if (!current()) return;
                     preferencesLoaded = true;
                     const view = preferenceView(saved, raw.owner, raw.interest, raw.sort);
@@ -727,30 +759,105 @@
                         ...(Object.hasOwn(e, 'AddedAtUtc') ? { AddedAtUtc: e.AddedAtUtc } : {})
                     }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
                     selectInterest(entries, 'all', user); explicit = entries;
-                } catch { if (!current()) return; explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
-                automatic = []; render(); // Paint memberships before issuing expensive discovery.
+                } catch (failure) { if (authorizationDenied(failure) || !current()) return; if (!options.indexedActivity || !prioritize) explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
+                if (!options.indexedActivity) automatic = [];
+                render(); // Paint memberships before activity is available.
                 try {
-                    const result = await request(api, scope === 'mine' ? 'ActivityOverview/Me' : scope === 'all' ? 'ActivityOverview' : 'ActivityOverview/Users/' + encodeURIComponent(scope));
+                    const result = await request(api, options.indexedActivity ? indexRoute(scope, null, prioritize) : scope === 'mine' ? 'ActivityOverview/Me' : scope === 'all' ? 'ActivityOverview' : 'ActivityOverview/Users/' + encodeURIComponent(scope));
                     if (!current()) return;
                     if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
                     selectInterest(result.Items, 'all', user);
                     if (result.Items.some(e => e.Users.some(u => (scope !== 'all' && key(u.UserId) !== key(scope === 'mine' ? user : scope)) || u.Reasons.includes('Watchlisted')))) throw new Error('Invalid automatic scope');
+                    if (options.indexedActivity) { indexState(result); loadedPages = 1; }
                     automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
-                } catch { if (!current()) return; automatic = []; failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.'); }
+                } catch (failure) {
+                    if (authorizationDenied(failure) || !current()) return;
+                    // Keep a same-view refresh usable on transport/lookup failure.
+                    // Native authorization failures must clear previously shown activity.
+                    if (!options.indexedActivity || !prioritize) automatic = [];
+                    if (options.indexedActivity) freshness.textContent = 'Activity update unavailable; displayed results may be stale. Refresh to retry.';
+                    failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.');
+                }
                 pending = false; render();
-            } catch { if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; render(); } }
-            finally { if (current()) refresh.disabled = false; }
+            } catch (failure) { if (authorizationDenied(failure)) return; if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; directory = []; continuation = null; render(); } }
+            finally { if (current()) { refresh.disabled = false; schedulePoll(); } }
         }
-        page.updateFilters = (owner, interest, sorting) => {
+        function indexRoute(scope, cursor, prioritize = false) {
+            return 'ActivityIndex?owner=' + encodeURIComponent(scope) + '&days=' + range + '&older=' + includeOlder +
+                (cursor ? '&continuation=' + encodeURIComponent(cursor) : '') + (prioritize ? '&refresh=true' : '');
+        }
+        function indexState(result) {
+            if (!result.Freshness || !Number.isInteger(result.Freshness.Revision) || (result.Continuation != null && typeof result.Continuation !== 'string')) throw new Error('Invalid index status');
+            continuation = result.Continuation || null; indexPopulating = !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
+            const date = result.Freshness.LastUpdate && new Date(result.Freshness.LastUpdate);
+            freshness.textContent = (date && Number.isFinite(date.getTime()) ? 'Last verified: ' + date.toLocaleString() : indexPopulating ? 'Waiting for background verification.' : 'No verified activity timestamp available.') +
+                (result.Freshness.DiscoveryFinished ? ' · Native discovery pass finished; coverage limits still apply.' : ' · Background population in progress.');
+        }
+        function schedulePoll() {
+            if (!options.indexedActivity || !active()) return;
+            if (pollTimer) clearTimeout(pollTimer);
+            pollTimer = setTimeout(async () => {
+                if (!active()) return;
+                if (document.hidden || pending) { schedulePoll(); return; }
+                if (loadedPages > 4) { freshness.textContent = 'Automatic updates paused after four loaded pages to bound server work. Refresh to update this view.'; schedulePoll(); return; }
+                const revision = generation;
+                // Poll replacement and pagination own the same request slot.
+                // A page and its cursor are committed together, never mixed
+                // with an append from the previous snapshot.
+                pending = true; render();
+                try {
+                    let result = await request(api, indexRoute(loadedScope));
+                    let items = result.Items;
+                    for (let n = 1; n < loadedPages && result.Continuation; n++) {
+                        if (!active() || revision !== generation) return;
+                        result = await request(api, indexRoute(loadedScope, result.Continuation));
+                        items = mergeInterest(items, result.Items);
+                    }
+                    result = {...result, Items: items};
+                    if (!active() || revision !== generation) return;
+                    selectInterest(result.Items, 'all', user);
+                    if (result.Items.some(e => e.Users.some(u => loadedScope !== 'all' && key(u.UserId) !== key(loadedScope === 'mine' ? user : loadedScope)))) throw new Error('Invalid scope');
+                    indexState(result);
+                    automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
+                } catch (failure) {
+                    if (authorizationDenied(failure)) return;
+                    if (active() && revision === generation) {
+                        freshness.textContent = 'Activity update unavailable; displayed results may be stale. Refresh to retry.';
+                    }
+                } finally {
+                    if (active() && revision === generation) { pending = false; render(); schedulePoll(); }
+                }
+            }, 30000);
+            pollTimer.unref?.();
+        }
+        more.onclick = async () => {
+            if (!active() || pending || !continuation) return;
+            const revision = generation, cursor = continuation;
+            pending = true; render();
+            try {
+                const result = await request(api, indexRoute(loadedScope, cursor));
+                if (!active() || revision !== generation) return;
+                selectInterest(result.Items, 'all', user);
+                if (result.Items.some(e => e.Users.some(u => loadedScope !== 'all' && key(u.UserId) !== key(loadedScope === 'mine' ? user : loadedScope)))) throw new Error('Invalid scope');
+                const merged = mergeInterest(automatic, result.Items);
+                indexState(result); automatic = merged; loadedPages++;
+                coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
+            } catch (failure) { if (authorizationDenied(failure)) return; if (active() && revision === generation) failures = ['Could not load the next activity page. Refresh if its continuation expired.']; }
+            finally { if (active() && revision === generation) { pending = false; render(); } }
+        };
+        page.updateFilters = (owner, interest, sorting, days, older) => {
+            const nextRange = [7,30,90].includes(Number(days)) ? Number(days) : 30, nextOlder = older !== 'false';
+            const timeChanged = range !== nextRange || includeOlder !== nextOlder;
+            range = nextRange; includeOlder = nextOlder;
             raw = {owner, interest, sort: sorting};
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-            if (loadedScope && nextScope !== loadedScope) { explicit = []; automatic = []; pending = true; render(); load(); } else render();
+            if (loadedScope && (nextScope !== loadedScope || timeChanged)) { explicit = []; automatic = []; continuation = null; pending = true; render(); load(); } else render();
         };
-        const change = () => { if (active()) navigate(select.value || 'mine', kind.join(',') || 'none', order.value); };
-        select.onchange = change; order.onchange = change;
-        refresh.onclick = load;
+        const change = () => { if (active()) { const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked)); navigate(...args); } };
+        select.onchange = change; order.onchange = change; rangeSelect.onchange = change; olderToggle.onchange = change;
+        refresh.onclick = () => load(true);
         if (!signal.aborted) load();
         return page;
     }
@@ -979,6 +1086,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-page {color:var(--jf-palette-text-primary,#eee)}
         .watchguard-page .watchguard-toolbar-field, .watchguard-page .watchguard-status, .watchguard-toolbar .emby-button {color:inherit}
         .watchguard-toolbar {gap:.75rem;align-items:flex-end;margin:1rem 0}
+        .watchguard-older-interest {display:flex;align-items:center;gap:.5rem;min-height:44px;max-width:100%;font-size:.85rem;cursor:pointer}
+        .watchguard-older-interest input {flex:none;min-width:20px;min-height:20px}
         .watchguard-toolbar-field {display:flex;flex-direction:column;gap:.3rem;min-width:0;flex:0 1 15rem}
         .watchguard-toolbar-field>span {font-size:.75rem;opacity:.8;padding-inline:.2rem}
         .watchguard-toolbar-field select {width:100%;min-height:44px;margin:0;box-sizing:border-box}
@@ -1089,14 +1198,14 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         const header = visible(legacy) ? legacy : document.querySelector('header.MuiAppBar-root');
         if (header) document.body.style.setProperty('--watchguard-top', Math.max(0, header.getBoundingClientRect().bottom) + 'px');
         if (pagePanel?.isConnected) {
-            if (pageSignature !== hash) pagePanel.updateFilters(params.get('owner'), params.get('interest'), params.get('sort'));
+            if (pageSignature !== hash) pagePanel.updateFilters(params.get('owner'), params.get('interest'), params.get('sort'), params.get('days'), params.get('older'));
             pageSignature = hash; return;
         }
         closePage(); pageSignature = hash;
         pageLifetime = new AbortController();
-        pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner'), (owner, interest, sort) => {
-            root.location.hash = '/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort);
-        }, {interest: params.get('interest'), sort: params.get('sort'), preferences: true});
+        pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner'), (owner, interest, sort, days = 30, older = 'true') => {
+            root.location.hash = '/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort) + '&days=' + encodeURIComponent(days) + '&older=' + encodeURIComponent(older);
+        }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), indexedActivity: true, preferences: true});
         document.body.classList.add('watchguard-page-open'); document.body.append(pagePanel);
     }
 
