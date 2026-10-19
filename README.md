@@ -91,3 +91,8 @@ See the [documentation index](docs/README.md) for the current security, deployme
 ## License
 
 [GPL-3.0](LICENSE).
+
+
+## Background activity index — under review
+
+This branch adds a rebuildable activity index, native scheduled reconciliation and Last 7/30/90 days controls. Personal watchlists remain independent, and fresh deletion protection does not use the index. See [design, scheduling, limits and rollback](docs/activity-index.md) and [qualification evidence](docs/activity-index-results.md). The current published release remains v0.5.2; this work is not published or deployed.

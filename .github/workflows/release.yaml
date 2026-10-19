@@ -87,7 +87,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [standalone-caddy, migration, basepath, legacy, websocket, discovery, verification, server-enforcement, server-enforcement-basepath, server-enforcement-linuxserver]
+        suite: [standalone-caddy, migration, basepath, legacy, websocket, discovery, verification, activity-index, server-enforcement, server-enforcement-basepath, server-enforcement-linuxserver]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -166,7 +166,7 @@ jobs:
       - name: Pull pinned test image with registry backoff
         run: |
           set -euo pipefail
-          if [[ "${{ matrix.suite }}" == 'server-enforcement' || "${{ matrix.suite }}" == 'server-enforcement-basepath' || "${{ matrix.suite }}" == 'basepath' || "${{ matrix.suite }}" == 'legacy' || "${{ matrix.suite }}" == 'discovery' || "${{ matrix.suite }}" == 'verification' ]]; then
+          if [[ "${{ matrix.suite }}" == 'server-enforcement' || "${{ matrix.suite }}" == 'server-enforcement-basepath' || "${{ matrix.suite }}" == 'basepath' || "${{ matrix.suite }}" == 'legacy' || "${{ matrix.suite }}" == 'discovery' || "${{ matrix.suite }}" == 'verification' || "${{ matrix.suite }}" == 'activity-index' ]]; then
             image='jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037'
           else
             image='lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b'
@@ -242,6 +242,7 @@ jobs:
             artifacts/catalog-upgrade-v049.json
             artifacts/discovery-native-v048-*.json
             artifacts/verification-native-v048*.json
+            artifacts/activity-index/**/results.json
           if-no-files-found: warn
 
   publish:

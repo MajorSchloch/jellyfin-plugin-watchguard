@@ -162,3 +162,8 @@ ActivityOverview adds `EpisodeIdQueryCount`, `EpisodeHydrationQueryCount`, `Epis
 ## v0.4.9 opt-in HTTP deletion guard
 
 Existing watchlist, activity and Protection contracts remain unchanged. New authenticated no-store routes under `/WatchGuard/ServerApproval/` expose Capabilities, Prepare, Present, Approve and Revoke. They never replace native deletion or authorize it from overview data. The feature defaults off and requires restart to activate/deactivate. Read [the production integration contract](server-enforcement-v049.md) and [security boundaries](server-enforcement-security-v049.md), including credential, administrator, expiry and replay restrictions.
+
+
+## Background index (review branch after v0.5.2)
+
+New Web clients read `/WatchGuard/ActivityIndex`; the existing `ActivityOverview`, `SeriesActivity` and `Protection` routes retain their contracts. See [index architecture and API](activity-index.md) for authentication, pagination, time range, native episode-visibility checks, freshness versus coverage, scheduled reconciliation, rebuild and rollback. Indexed results must never be used to approve deletion.

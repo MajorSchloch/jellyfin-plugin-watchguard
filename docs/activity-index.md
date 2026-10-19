@@ -1,6 +1,6 @@
 # Background activity index — implementation design
 
-Status: review branch after published v0.5.2; not published or deployed. The supplied 7,772.52 ms / 680 episode queries / seven-account observation is production evidence supplied by the user, not our benchmark.
+Status: implementation on a review branch after published v0.5.2; not published or deployed. Qualification results are recorded separately in [activity-index-results.md](activity-index-results.md). The supplied 7,772.52 ms / 680 episode queries / seven-account observation is production evidence supplied by the user, not our benchmark.
 
 ## Boundaries and authority
 
@@ -46,3 +46,31 @@ Refresh queues prioritized work while keeping usable rows visible. A visible ope
 Older versions ignore the derived file; downgrade restores the fresh v0.5.2 overview. Re-upgrade must revalidate, never assume the old process received events. Delete only the derived index with Jellyfin stopped to request a rebuild; preserve all personal stores. No production migration or public artifact changes in this branch.
 
 Validation must separately measure cold population, warm authorized pages, event latency and reconciliation. Compare exact published v0.5.2 (`62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec`) on identical disposable data; report native authorization query cost as well as avoided hydration/playback work. Unit models do not establish native SQL performance. Required tests include later discovery pages, cancellation/restart, failed writes/corruption, event races, visibility/policy changes, date boundaries, live sessions, browser lifecycle and existing deletion regressions. Unmeasured claims remain unqualified.
+
+## Implemented limits and lifecycle
+
+- One native discovery page of 50 rows and up to eight user/title verifications per slice; two-second cooperative delay, ten-second initial startup delay. Eight maximum-size verifications remain below the existing 20,000-unit allowance. Native playback chunks and the 1,000-episode limit are unchanged. The worker does not parallelize native reads.
+- Resume/played sources advance independently per enabled account, round-robin, with DatePlayed/SortName ordering. Maximum 1,000,000 raw rows per source per pass is explicit `DiscoveryWorkLimit`; native writes can reorder offsets. This is resumable discovery, not a transactional full-library snapshot. Deduplication is bounded to 10,000 user/title pairs per pass.
+- 2,048 queued keys; changed playback keys have priority after two-second debounce. Library events invalidate all rows to cover unknown old ancestors; this is conservative and may temporarily suppress many results during metadata refresh. An active library scan can delay convergence.
+- At most 10,000 stored rows and 32 MiB serialized data, with one MiB reserved for checkpoint metadata. Rows retain only eligible recent completed history (90 days) or older current interest; metadata gaps and lookup failures remain explicit. Size saturation refuses new rows, reports `StorageLimit`, and never evicts another user's current interest silently.
+- Native scheduled reconciliation defaults to six hours. Manual/scheduled execution uses the same semaphore and stops its foreground loop after fifteen minutes; the background worker retains remaining work. Cancellation stops that task's work, while the ordinary hosted coordinator remains available. Native synchronous calls can only observe cancellation between calls.
+- Startup revalidates all persisted rows before returning them. It resumes stored discovery offsets and queued keys; no persisted `Validated` flag can make stale episode counts visible. Previously indexed titles are also revisited during reconciliation, including unplayed titles no longer in discovery sources.
+- Local midnight invalidates classifications, retaining native full release-day semantics. History-range filtering happens at read time, so expiration does not wait for reconciliation.
+- Read pages contain at most 25 title IDs; current native episode authorization uses a separate 20,000-row ceiling and suppresses rows that cannot be checked. `VisibilityBudget` remains a material warning. Authorization cost is included in warm-page timing.
+- Pagination snapshots retain only title IDs, not playback responses: at most 128 globally / eight per requester, two-minute expiry, cryptographically random opaque tokens bound to current account, owner, range and older-interest selection. Every page reauthorizes rows. Changed membership in a snapshot is not a new discovery audit; start a fresh view to incorporate newly indexed IDs.
+- Visible Web pages update every thirty seconds; hidden pages skip polling. At most four explicitly loaded pages are refreshed automatically per poll. Beyond that, automatic updates pause with a visible Refresh instruction rather than issuing unbounded work. Explicit refresh starts a new first page while retaining old cards until the response arrives. No automatic Load more. Account/navigation changes reject late responses and stop the timer.
+- Last 7/30/90 and older-interest controls are URL state only. Existing saved owner/status/sort defaults remain byte/schema compatible. Saving defaults continues to save those existing fields; the new time controls are not silently written to another preference representation.
+
+## API
+
+`GET /WatchGuard/ActivityIndex?owner=mine|all|USER_ID&days=7|30|90&older=true|false[&continuation=OPAQUE][&refresh=true]`
+
+Requires native user authentication; API keys are rejected. `all` and other owners require an enabled administrator. `refresh=true` only requests background work and never grants deletion permission. Invalid range/continuation returns 400; unavailable native state returns 503. All responses are no-store. Existing `/ActivityOverview` APIs remain unchanged for older clients and the benchmark oracle.
+
+Response adds `Freshness` and `Continuation` alongside the existing `Items`, `IsComplete:false`, `LimitReached`, `Notice`, and structured `Coverage` vocabulary. Freshness includes last successful verification, stored/validated/pending counts and native pass state. Administrator diagnostics contain cumulative native episode queries/rows, playback batches, completed verifications, discarded stale results, verification milliseconds and retained serialized size. Ordinary users do not receive cross-account work counters. A finished discovery pass is separate from per-title metadata/verification completeness, and is never an exhaustive-library assertion.
+
+## Store recovery and rollback details
+
+The coordinator owns `activity-index.json` schema 1 and its temporary checkpoints. It stores no durable sessions, explicit memberships, preferences, approval identifiers or credentials. Corrupt/unsupported documents move to `activity-index.json.corrupt-<random>` before rebuilding; inability to preserve the original fails the worker rather than overwriting it. Orphan `.tmp-*` files are ignored, not adopted. A checkpoint failure is visible separately from successfully calculated in-memory rows; restart uses only the last successfully replaced checkpoint and revalidates it.
+
+Back up personal data as before. Backing up the derived index is optional; it can always be rebuilt. Quarantines may contain derived playback information and should have the same filesystem protections as Jellyfin configuration. They are preserved for diagnosis and can be removed explicitly with the server stopped. Downgrade to published v0.5.2 ignores the index, restores its on-demand activity path, and retains both personal stores unchanged. Re-upgrade revalidates after downtime. The published catalog and existing release assets are unchanged.
