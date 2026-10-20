@@ -842,6 +842,7 @@ test('Indexed partial-title pages merge owners without replacing poster or dupli
 test('Combined browser retains server order and replaces preliminary membership cards',async t=>{
     const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
     await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    assert.match(f.page.children[2].textContent,/preliminary watchlists only/);
     const z={...automaticResult.Items[0],Name:'Zebra'},a={...z,ItemId:'8'.repeat(32),Name:'Alpha'};
     f.calls[1].resolve(indexedResult([z,a]));await turn();
     assert.deepEqual(f.page.children[5].children.map(c=>c.children[0].children[1].textContent),['Zebra','Alpha']);

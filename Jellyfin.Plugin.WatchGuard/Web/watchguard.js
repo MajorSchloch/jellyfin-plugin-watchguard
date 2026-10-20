@@ -663,6 +663,8 @@
                 selected.length ? selected.length + ' titles loaded' + (requiresRefresh ? ' · View expired; refresh to continue.' : continuation ? ' · More results available.' : ' · End of this known result set; not an exhaustive library audit.') :
                 failures.length ? '' : continuation ? 'No titles loaded yet; continue to retrieve more authorized results.' : indexPopulating ? 'Background discovery/population in progress; no verified matches yet.' :
                 kind.length === 4 && !searchText ? 'No known activity or explicit membership in this view; background discovery is not exhaustive.' : kind.length || searchText ? 'No matches for the selected filters in known eligible data.' : 'No statuses selected; no matches.';
+            if (options.indexedActivity && !combined && selected.length && (pending || preparing))
+                status.textContent += ' Displayed titles are preliminary watchlists only.';
             if (!options.indexedActivity) status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : 'No matching activity in this overview.';
             spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
             const info = coveragePresentation(coverage, coverageLimited, coverageInfo);
