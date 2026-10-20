@@ -860,6 +860,27 @@ test('Search debounces and immediately fences responses from the prior query',as
     search.value='';search.oninput();t.mock.timers.tick(250);await turn();f.calls[4].resolve([]);await turn();
     assert.match(f.calls[5].o.url,/search=$/);f.calls[5].resolve(indexedResult());await turn();
 });
+test('Clearing search restores a newly prepared paged view and its continuation',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();
+    f.calls[1].resolve(indexedResult(automaticResult.Items,'initial-more'));await turn();
+    const search=descendants(f.page).find(n=>n.type==='search'),more=f.page.children.at(-1);
+    search.value='needle';search.oninput();t.mock.timers.tick(250);await turn();
+    f.calls[2].resolve([]);await turn();f.calls[3].resolve(indexedResult(automaticResult.Items));await turn();
+    assert.equal(more.hidden,true);
+    search.value='';search.oninput();t.mock.timers.tick(250);await turn();
+    f.calls[4].resolve([]);await turn();
+    f.calls[5].resolve({...indexedResult([],'prepare-cleared'),Preparing:true});await turn();
+    assert.equal(more.textContent,'Continue preparing results');
+    const preparing=more.onclick();f.calls[6].resolve(indexedResult(automaticResult.Items,'cleared-more'));await preparing;
+    assert.equal(more.hidden,false);assert.equal(more.textContent,'Load more results');
+    const card=f.page.children[5].children[0],loading=more.onclick();
+    assert.match(f.calls[7].o.url,/search=&continuation=cleared-more$/);
+    const second={...automaticResult.Items[0],ItemId:'9'.repeat(32),Name:'Second'};
+    f.calls[7].resolve(indexedResult([second]));await loading;
+    assert.equal(f.page.children[5].children.length,2);assert.equal(f.page.children[5].children[0],card);
+});
 test('Status checkbox requests a new server view and fences a pending page',async t=>{
     const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([]);await turn();
     f.calls[1].resolve(indexedResult(automaticResult.Items,'old'));await turn();const loading=f.page.children.at(-1).onclick();

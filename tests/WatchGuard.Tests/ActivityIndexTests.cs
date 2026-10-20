@@ -629,6 +629,32 @@ public sealed class ActivityIndexTests : IDisposable
         users.Setup(u => u.GetUserDto(It.IsAny<User>(), It.IsAny<string?>())).Returns(new MediaBrowser.Model.Dto.UserDto { Policy = new() { BlockedTags = ["new restriction"] }, Configuration = new() });
         Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, page.Continuation, CancellationToken.None));
     }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task BrowserReverificationPreservesUnchangedPagesButRejectsChangedExtraMetadata(bool change)
+    {
+        for (var n = 0; n < 30; n++) AddMovie();
+        var series = AddSeries(); series.Name = "ZZZ";
+        var extra = new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id, Name = "Extra",
+            PremiereDate = DateTime.Now.Date.AddDays(1) };
+        items.Add(extra.Id, extra);
+        await Populate(); var browser = Browser(); var options = Options();
+        var first = browser.Read(alice, options, null, CancellationToken.None);
+        if (change) extra.Name = "Changed extra";
+        clock.Advance(TimeSpan.FromSeconds(3));
+        worker.RequestRefresh(null); await Populate();
+        if (change)
+            Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, first.Continuation, CancellationToken.None));
+        else
+        {
+            var rest = browser.Read(alice, options, first.Continuation, CancellationToken.None);
+            Assert.Null(rest.Continuation);
+            Assert.Equal(31, first.Items.Length + rest.Items.Length);
+            Assert.Equal("Extra", rest.Items.Single(i => i.ItemId == series.Id).Users.Single().EpisodeProgress!.ExtraEpisodes.Single().Name);
+        }
+    }
     [Fact]
     public async Task BrowserPreparationAndOwnerContinuationProgressUnderEpisodeBudget()
     {

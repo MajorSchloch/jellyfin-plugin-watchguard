@@ -47,7 +47,7 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
     private const int PairBudget = 500, EpisodeBudget = 20000, MaximumPairs = 10000;
     private readonly TimeProvider time = clock ?? TimeProvider.System;
     private readonly object gate = new();
-    private sealed record Entry(IndexKey Key, string Name, OverviewUser Person, IndexRow? Activity);
+    private sealed record Entry(IndexKey Key, string Name, OverviewUser Person);
     private sealed record View(Guid Caller, BrowserOptions Query, DateTimeOffset Expires, IndexKey[] Candidates,
         Entry[] Accepted, int ScanOffset, bool Prepared, OverviewItem[] Titles, int TitleOffset, int OwnerOffset,
         Dictionary<Guid, string> Policies, string[] Causes);
@@ -140,7 +140,7 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             if (!InterestService.Supported(library.GetItemById<BaseItem>(key.ItemId, account))) return null;
             authorizedWork++;
             var policy = Policy(account);
-            OverviewUser? activity = null; IndexRow? source = null;
+            OverviewUser? activity = null;
             if (rows.TryGetValue(key, out var row) && (IndexQuery.InRange(row.Activity, query.Days, query.Older, now) || dated.ContainsKey(key) || live.ContainsKey(key)))
             {
                 // Only authorized titles contribute explanations; never expose global worker counts/causes.
@@ -163,7 +163,6 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
                         activity = IndexQuery.InRange(row.Activity, query.Days, query.Older, now)
                             ? row.Activity with { DisplayName = account.Username }
                             : new(key.UserId, account.Username, [], row.Activity.LastPlayedDate);
-                        source = row;
                         if (!row.MetadataComplete) causes.Add("EpisodeMetadataIncomplete");
                     }
                 }
@@ -174,7 +173,7 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             if (reasons.Length == 0) return null;
             var person = (activity ?? new(key.UserId, account.Username, [], null)) with { Reasons = reasons, AddedAtUtc = member?.AddedAtUtc };
             if (!query.Matches(person)) return null;
-            return new(key, item.Name, person, source);
+            return new(key, item.Name, person);
         }
         var accepted = view.Accepted.ToList();
         if (!view.Prepared)
@@ -224,9 +223,8 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
                 catch (IndexVisibilityLimitException) { causes.Add("VisibilityBudget"); exhausted = true; break; }
                 // Never retain a sort key contributed by a removed/unauthorized owner.
                 // Changes need a new ordered snapshot, not an append with shifted keys.
-                if (fresh == null || fresh.Name != previous.Name || fresh.Person.LastPlayedDate != previous.Person.LastPlayedDate ||
-                    fresh.Person.AddedAtUtc != previous.Person.AddedAtUtc || !fresh.Person.Reasons.SequenceEqual(previous.Person.Reasons) ||
-                    fresh.Activity != previous.Activity) throw new BrowserViewExpiredException();
+                if (fresh == null || fresh.Name != previous.Name || !SamePerson(fresh.Person, previous.Person))
+                    throw new BrowserViewExpiredException();
                 people.Add(fresh.Person);
             }
             if (people.Count > 0) result.Add(new(title.ItemId, title.Name, people.ToArray()));
@@ -262,6 +260,18 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
                 // No global stored/pending totals or worker counters are disclosed by the browser query.
                 new(0, causes.Contains("PendingVerification")), new(Stopwatch.GetElapsedTime(started).TotalMilliseconds, authorizedWork, safeEpisodeKeys.Count, safeEpisodeKeys.Sum(k => visibleEpisodes[k].Count)));
         }
+    }
+
+    private static bool SamePerson(OverviewUser left, OverviewUser right)
+    {
+        // Resolve has just repeated native authorization. Compare the frozen
+        // display data structurally, not index identity or verification time.
+        if ((left with { Reasons = right.Reasons, EpisodeProgress = right.EpisodeProgress }) != right ||
+            !left.Reasons.SequenceEqual(right.Reasons)) return false;
+        var a = left.EpisodeProgress; var b = right.EpisodeProgress;
+        if (a == null || b == null) return a == b;
+        return a.AiredAvailable == b.AiredAvailable && a.AiredWatched == b.AiredWatched &&
+            a.ExtraEpisodes.SequenceEqual(b.ExtraEpisodes);
     }
 
     public static OverviewItem[] Sort(IEnumerable<OverviewItem> items, string sort)

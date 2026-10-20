@@ -30,6 +30,9 @@ new activity or metadata requires refresh. Every result page repeats native owne
 requester and episode visibility checks. Policy changes invalidate the view; stale
 activity is omitted or requires refresh rather than leaking historical counts.
 An authorization change affecting an ordering contributor requires refresh.
+Unchanged background reverification does not expire a view: verification timestamps
+and row identities are not result changes. Fresh authorization and structural
+comparison of the displayed activity, including extra-episode metadata, still apply.
 Owner positions within a title survive a page budget. No exact library total is
 reported; loaded counts describe only disclosed rows. Snapshot and request limits
 are explicit and cannot be removed merely to fill a page.
