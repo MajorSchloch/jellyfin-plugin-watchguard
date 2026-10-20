@@ -21,7 +21,7 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
    try {const data=await response.json();Object.assign(record,{preparing:data.Preparing,items:data.Items?.length,more:!!data.Continuation,changed:data.Changed,populationPending:data.Freshness?.PopulationPending,code:data.Code,work:data.ReadDiagnostics,causes:data.Coverage?.Causes});} catch {}
   });
   await readiness.capture(page);await readiness.login(page,fixture);
-  const native=(route,type='GET',data)=>page.evaluate(async({route,type,data})=>ApiClient.ajax({url:ApiClient.getUrl(route),type,dataType:'json',...(data===undefined?{}:{contentType:'application/json',data:JSON.stringify(data)})}),{route,type,data});
+  const native=(route,type='GET',data)=>page.evaluate(async({route,type,data})=>ApiClient.ajax({url:ApiClient.getUrl(route),type,...(type==='GET'?{dataType:'json'}:{}),...(data===undefined?{}:{contentType:'application/json',data:JSON.stringify(data)})}),{route,type,data});
   async function until(predicate,label,timeout=90000) {
    const deadline=Date.now()+timeout;
    while(!await predicate()) {assert.ok(Date.now()<deadline,label);await new Promise(resolve=>setTimeout(resolve,250));}
