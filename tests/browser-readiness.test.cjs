@@ -129,6 +129,7 @@ test('Readiness report failure keeps sanitized trace and records the separate di
 function loginPage(f, {first=original(),second,authentication}={}) {
     let navigations=0,signIns=0;
     f.page.goto=async()=>{navigations++;if(navigations===1)throw first;if(second)throw second;};
+    f.page.waitForLoadState=async()=>{};
     f.page.waitForFunction=async()=>{};f.page.waitForURL=async()=>{};
     f.page.locator=()=>({isVisible:async()=>true,waitFor:async()=>{},fill:async()=>{}});
     f.page.getByRole=()=>({waitFor:async()=>{},click:async()=>{signIns++;if(authentication)throw authentication;}});
@@ -156,6 +157,16 @@ test('Native requestfailed errorText permits only the same pre-authentication ne
     await readiness.login(f.page,f.options);
     assert.deepEqual(counts(),{navigations:2,signIns:1});
     assert.equal(f.page.listenerCount('requestfailed'),0);
+});
+
+test('Native startup requests settle before the fixture signs in',async t=>{
+    const f=fixture(t);await readiness.capture(f.page);const counts=loginPage(f);
+    let settled;const waiting=new Promise(resolve=>{settled=resolve;});
+    f.page.waitForLoadState=async state=>{assert.equal(state,'networkidle');await waiting;};
+    const login=readiness.login(f.page,f.options);
+    await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(counts().signIns,0);
+    settled();await login;assert.equal(counts().signIns,1);
 });
 
 test('Failed retry retains original navigation error as cause, with no third attempt',async t=>{

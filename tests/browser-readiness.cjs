@@ -67,6 +67,10 @@ async function login(page, fixture) {
         for (let attempt=0; attempt<2; attempt++) {
             try {
                 await page.goto(fixture.base + '/web/');
+                // Let native server discovery, public-user loading and automatic
+                // route transitions finish before choosing Manual Login. Their
+                // late rendering can otherwise undo a successful chooser click.
+                await page.waitForLoadState('networkidle',{timeout:15000});
                 // Once a disposable second user becomes visible on Jellyfin's
                 // native login page, the manual username form is collapsed
                 // behind its "Manual Login" control. Both layouts are valid.
