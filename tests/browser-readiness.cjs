@@ -92,8 +92,21 @@ async function login(page, fixture) {
         page.off('requestfailed',observeFailure);
         page.off('console',observeConsole);
     }
-    await page.locator('#txtManualName').fill(fixture.username);
-    await page.locator('#txtManualPassword').fill(fixture.password);
+    const fillCredentials=async()=>{
+        await page.locator('#txtManualName').fill(fixture.username,{timeout:5000});
+        await page.locator('#txtManualPassword').fill(fixture.password,{timeout:5000});
+    };
+    try {
+        await fillCredentials();
+    } catch (error) {
+        // The public-user response can replace the initially visible form with
+        // the chooser after revealManualLogin returned. Retry only filling the
+        // form when that exact native transition is visible, before any sign-in.
+        if (await page.locator('#txtManualName').isVisible() ||
+            !(await page.getByRole('button',{name:'Manual Login',exact:true}).isVisible())) throw error;
+        await revealManualLogin(page);
+        await fillCredentials();
+    }
     await page.getByRole('button', {name: 'Sign In', exact: true}).click();
     // Script installation can precede the login router's Home navigation.
     await page.waitForURL(url => url.hash.split('?')[0] === '#/home', {timeout: 30000});

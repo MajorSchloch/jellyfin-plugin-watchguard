@@ -698,6 +698,23 @@ public sealed class ActivityIndexTests : IDisposable
         }
     }
 
+    [Fact]
+    public async Task BrowserDoesNotExplainCoverageUsingHiddenCandidateCardinality()
+    {
+        Directory.CreateDirectory(path);
+        var entries = Enumerable.Range(0, 10001).Select(_ => new WatchlistEntry(alice.Id, Guid.NewGuid())).ToArray();
+        await File.WriteAllTextAsync(Path.Combine(path, "watchlists.json"),
+            System.Text.Json.JsonSerializer.Serialize(new WatchlistDocument(1, entries)));
+        var page = Browser().Read(alice, Options("watchlisted"), null, CancellationToken.None);
+        Assert.Empty(page.Items);
+        Assert.True(page.Preparing);
+        Assert.NotNull(page.Continuation);
+        Assert.False(page.LimitReached);
+        Assert.Empty(page.Coverage.Causes);
+        Assert.Equal(0, page.ReadDiagnostics.CandidatesExamined);
+        Assert.Contains("10,000", page.Notice, StringComparison.Ordinal); // Fixed public bound, independent of hidden data.
+    }
+
     private sealed class TestClock : TimeProvider {
         private DateTimeOffset now=DateTimeOffset.UtcNow;
         public override DateTimeOffset GetUtcNow()=>now;

@@ -83,9 +83,11 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             {
                 var keys = rows.Keys.Concat(dated.Keys).Concat(live.Keys)
                     .Where(k => query.Owner == null || k.UserId == query.Owner).Distinct().OrderBy(k => k.ItemId).ThenBy(k => k.UserId)
-                    .Take(MaximumPairs + 1).ToArray();
-                if (keys.Length > MaximumPairs) causes.Add("CandidateLimit");
-                view = new(caller.Id, query, now.AddMinutes(5), keys.Take(MaximumPairs).ToArray(), [], 0, false, [], 0, 0, new(), []);
+                    .Take(MaximumPairs).ToArray();
+                // Raw candidate cardinality includes hidden accounts/titles. State
+                // the fixed bound in every response instead of disclosing a flag
+                // derived from that private cardinality.
+                view = new(caller.Id, query, now.AddMinutes(5), keys, [], 0, false, [], 0, 0, new(), []);
             }
         }
         causes.UnionWith(view.Causes);
@@ -255,7 +257,7 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
                 _ => "Known activity coverage is partial: " + c + "."
             }).ToArray();
             return new(items, preparing, next, causes.Any(c => c.EndsWith("Limit", StringComparison.Ordinal) || c.EndsWith("Capacity", StringComparison.Ordinal)),
-                "Known eligible titles only; background discovery is not an exhaustive library audit. Explicit watchlists and live playback are independent of the activity window.",
+                "Partial known coverage: each view considers at most 10,000 candidate title/owner pairs and 100 live sessions with at most 50 owners. Refresh or narrow the owner scope when needed. Background discovery is not an exhaustive library audit. Explicit watchlists and live playback are independent of the activity window.",
                 new(1, query.Days, true, causes.Contains("EpisodeMetadataIncomplete"), causes.Contains("VisibilityBudget"), causes.Contains("CandidateLimit"), next != null, causes.Order().ToArray(), warnings),
                 // No global stored/pending totals or worker counters are disclosed by the browser query.
                 new(0, causes.Contains("PendingVerification")), new(Stopwatch.GetElapsedTime(started).TotalMilliseconds, authorizedWork, safeEpisodeKeys.Count, safeEpisodeKeys.Sum(k => visibleEpisodes[k].Count)));

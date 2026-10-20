@@ -116,6 +116,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
                         data, timing = collect('/WatchGuard/ActivityIndex?owner=' + owner)
                         data = merged([{'ItemId': i['ItemId'], 'Name': i['Name'], 'Users': list(i['Users'].values())} for i in data] + members)
                         data = select(data, statuses, search, sort)
+                        timing['requests'] += 1  # Explicit membership fetch is part of the combined answer.
                         timing['completePaginationMs'] = (time.perf_counter() - start) * 1000
                         timing['firstOrderedPageMs'] = timing['completePaginationMs']
                     else:

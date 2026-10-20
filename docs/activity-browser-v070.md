@@ -50,6 +50,8 @@ measurements use unrestricted disposable accounts; restricted views may perform
 additional suppressed authorization work. Global worker totals and discovery state
 are not exposed by the combined browser API. Population indications refer to known,
 authorized rows awaiting verification; coverage always permits undiscovered data.
+The fixed candidate and live-session ceilings are stated for every view; whether
+hidden candidates reached a ceiling is not exposed as a count or explanation.
 
 Selective statuses are screened using the existing projection before native item
 checks. Search reads each known candidate title's native metadata once per request,

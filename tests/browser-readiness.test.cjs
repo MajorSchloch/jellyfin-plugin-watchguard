@@ -174,3 +174,19 @@ test('Unrelated navigation failures and authentication failures are never retrie
         assert.deepEqual(counts(),{navigations:stage==='navigation'?1:2,signIns:stage==='navigation'?0:1});
     }
 });
+
+test('Late public-user chooser is revealed before one sign-in without retrying authentication',async t=>{
+    const f=fixture(t);await readiness.capture(f.page);const counts=loginPage(f);
+    let visible=true,fills=0,reveals=0;
+    f.page.locator=()=>({
+        isVisible:async()=>visible,waitFor:async()=>assert.equal(visible,true),
+        fill:async()=>{if(++fills===1){visible=false;throw new Error('Form hidden by public-user chooser');}}
+    });
+    const role=f.page.getByRole;
+    f.page.getByRole=(kind,options)=>options?.name==='Manual Login' ? {
+        isVisible:async()=>!visible,click:async()=>{reveals++;visible=true;}
+    }:role(kind,options);
+    await readiness.login(f.page,f.options);
+    assert.equal(reveals,1);assert.equal(fills,3);
+    assert.deepEqual(counts(),{navigations:2,signIns:1});
+});
