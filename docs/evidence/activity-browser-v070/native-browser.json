@@ -1,0 +1,271 @@
+{
+  "result": "PASS",
+  "phase": "added ordering",
+  "expiredViewRecoveries": 0,
+  "responses": [
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "work": {
+        "DurationMs": 65.061,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": true,
+      "preparing": false,
+      "items": 3,
+      "more": false,
+      "work": {
+        "DurationMs": 66.5307,
+        "CandidatesExamined": 306,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "more": false
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "more": false
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "more": false
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "more": false
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "more": false
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "more": false
+    },
+    {
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "preparing": false,
+      "items": 1,
+      "more": false,
+      "work": {
+        "DurationMs": 22.2337,
+        "CandidatesExamined": 12,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "work": {
+        "DurationMs": 35.1859,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": true,
+      "preparing": false,
+      "items": 23,
+      "more": true,
+      "work": {
+        "DurationMs": 47.2493,
+        "CandidatesExamined": 435,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": true,
+      "preparing": false,
+      "items": 25,
+      "more": true,
+      "work": {
+        "DurationMs": 35.4174,
+        "CandidatesExamined": 146,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "work": {
+        "DurationMs": 49.1988,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "days": "30",
+      "older": "true",
+      "continuation": true,
+      "preparing": false,
+      "items": 20,
+      "more": true,
+      "work": {
+        "DurationMs": 43.2445,
+        "CandidatesExamined": 436,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    }
+  ],
+  "verifications": [
+    {
+      "phase": "login",
+      "state": {
+        "Revision": 1219,
+        "Stored": 725,
+        "Validated": 725,
+        "Pending": 0,
+        "DiscoveryPages": 62,
+        "DiscoveryFinished": true,
+        "LastUpdate": "2026-10-20T15:50:47.4804802+00:00",
+        "Causes": [],
+        "EpisodeQueries": 12,
+        "EpisodeRows": 3600,
+        "PlaybackBatches": 394,
+        "TitlesVerified": 1152,
+        "StaleResultsDiscarded": 0,
+        "VerificationMs": 1999.5191000000013,
+        "RetainedSerializedBytes": 443901
+      }
+    },
+    {
+      "phase": "search",
+      "state": {
+        "Revision": 2010,
+        "Stored": 725,
+        "Validated": 725,
+        "Pending": 0,
+        "DiscoveryPages": 124,
+        "DiscoveryFinished": true,
+        "LastUpdate": "2026-10-20T15:55:30.2655519+00:00",
+        "Causes": [],
+        "EpisodeQueries": 18,
+        "EpisodeRows": 5400,
+        "PlaybackBatches": 630,
+        "TitlesVerified": 1877,
+        "StaleResultsDiscarded": 0,
+        "VerificationMs": 3006.3205000000007,
+        "RetainedSerializedBytes": 443860
+      }
+    },
+    {
+      "phase": "clear search",
+      "state": {
+        "Revision": 2010,
+        "Stored": 725,
+        "Validated": 725,
+        "Pending": 0,
+        "DiscoveryPages": 124,
+        "DiscoveryFinished": true,
+        "LastUpdate": "2026-10-20T15:55:30.2655519+00:00",
+        "Causes": [],
+        "EpisodeQueries": 18,
+        "EpisodeRows": 5400,
+        "PlaybackBatches": 630,
+        "TitlesVerified": 1877,
+        "StaleResultsDiscarded": 0,
+        "VerificationMs": 3006.3205000000007,
+        "RetainedSerializedBytes": 443860
+      }
+    }
+  ]
+}

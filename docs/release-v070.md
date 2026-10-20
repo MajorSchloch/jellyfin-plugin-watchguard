@@ -16,4 +16,4 @@ Metadata, membership, live or activity changes affecting a frozen result can req
 
 ## Validation
 
-Qualification evidence, screenshots, native v0.6.0 comparison, exact tested commit and candidate checksum are recorded after the required checks complete. No publication or deployment is part of this PR.
+See the [qualification report](activity-browser-validation-v070.md) for the native v0.6.0 comparison, screenshots, regression coverage, exact tested commit and candidate checksum. No publication or deployment is part of this PR.
