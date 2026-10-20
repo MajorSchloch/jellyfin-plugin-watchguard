@@ -231,6 +231,7 @@ def main():
                 runpy.run_path(str(ROOT/'tests/discovery-native.py'))['run'](call, restart, docker, name, root, plugins, token)
             elif options.profile == 'activity-index':
                 runpy.run_path(str(ROOT/'tests/activity-index-native.py'))['run'](call, restart, docker, name, plugins, token)
+                subprocess.run(['node', str(ROOT/'tests/activity-browser-ui.cjs'), str(fixture)], check=True,timeout=600)
             elif options.profile == 'verification':
                 runpy.run_path(str(ROOT/'tests/verification-native.py'))['run'](call, restart, docker, name, plugins, token)
             elif options.serve:
@@ -256,7 +257,7 @@ def main():
                 # background projection may legitimately checkpoint until the
                 # loaded plugin stops; snapshot it at that lifecycle boundary.
                 saved = {p:p.read_bytes() for p in data_folder.glob('*.json') if p != derived}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.6.0.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.0.0','DELETE',token=token,expected=204)
                 docker('stop', name)
                 if derived_present:
                     assert derived.exists(), 'Uninstall must retain the derived index'

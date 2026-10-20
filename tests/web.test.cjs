@@ -89,6 +89,7 @@ function documentFixture() {
     const focus = { isConnected: true, focus() { this.restored = true; } };
     const doc = { activeElement: focus, body: { append(node) { nodes.push(node); } }, createElement(tag) {
         return { tag, style: {}, children: [], events: {}, attributes: {}, setAttribute(k,v) { this.attributes[k]=v; },
+            insertBefore(child, before) { child.remove(); child.parent = this; child.removed = false; const at = this.children.indexOf(before); this.children.splice(at < 0 ? this.children.length : at, 0, child); },
             append(...children) { for(const child of children) { child.remove(); child.parent = this; child.removed = false; this.children.push(child); } }, addEventListener(event, fn) { this.events[event] = fn; },
             showModal() { this.opened = true; }, focus() { this.focused = true; }, remove() { if(this.parent) this.parent.children = this.parent.children.filter(c=>c!==this); this.parent = null; this.removed = true; } };
     } };
@@ -703,17 +704,15 @@ test('Malformed extras fail validation without executing metadata or affecting p
 });
 
 const indexedResult = (items = [], continuation = null) => ({Items:items,IsComplete:false,LimitReached:false,Notice:'Indexed; not exhaustive',Coverage:{Version:1,ActivityWindowDays:30,Warnings:[]},Freshness:{Revision:1,DiscoveryFinished:true,Pending:0,LastUpdate:null},Continuation:continuation});
-test('Indexed view time controls query stored activity, preserve local sorts and never save preferences implicitly',async()=>{
+test('Combined controls query server filtering and ordering without saving preferences',async()=>{
     const f=progressiveFixture(true,false,'all',true);await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
-    assert.equal(f.calls[1].o.url,'WatchGuard/ActivityIndex?owner=all&days=30&older=true');
+    assert.match(f.calls[1].o.url,/ActivityBrowser\?owner=all&days=30&older=true&statuses=watchlisted%2Cwatching%2Cplaying&sort=title&search=$/);
     f.calls[1].resolve(indexedResult());await turn();
-    const before=f.calls.length;f.page.updateFilters('all','watchlisted','added','30','true');assert.equal(f.calls.length,before);
-    f.page.updateFilters('all','watchlisted','added','7','false');await turn();
+    f.page.updateFilters('all','watchlisted','added','7','false','Zebra');await turn();
     f.calls[2].resolve([overviewItems[0]]);await turn();
-    assert.equal(f.calls[3].o.url,'WatchGuard/ActivityIndex?owner=all&days=7&older=false');
+    assert.match(f.calls[3].o.url,/days=7&older=false&statuses=watchlisted&sort=added&search=Zebra/);
     f.calls[3].resolve(indexedResult());await turn();
     assert.equal(f.page.children[3].children[0].children[0].textContent,'Activity: last 7 days · not exhaustive');
-    assert.equal(f.page.children[1].children.at(-1).className,'watchguard-older-interest');
     assert.ok(f.calls.every(c=>c.o.type==='GET'));f.abort.abort();
 });
 test('Indexed pagination preserves poster identity and refuses late account results',async()=>{
@@ -758,7 +757,7 @@ for (const first of ['poll', 'more']) test('Indexed poll and pagination serializ
         assert.equal(more.disabled,true);
         await more.onclick();assert.equal(f.calls.length,3,'No pagination may append to a snapshot being replaced');
         f.calls[2].resolve(indexedResult(automaticResult.Items,'fresh-next'));await turn();
-        const loading=more.onclick();assert.match(f.calls[3].o.url,/continuation=fresh-next/);
+        const loading=more.onclick();assert.match(f.calls[3].o.url,/continuation=old-next/);
         f.calls[3].resolve(indexedResult([second]));await loading;
     } else {
         const loading=more.onclick();assert.match(f.calls[2].o.url,/continuation=old-next/);
@@ -766,8 +765,7 @@ for (const first of ['poll', 'more']) test('Indexed poll and pagination serializ
         f.calls[2].resolve(indexedResult([second]));await loading;
         t.mock.timers.tick(30000);await turn();assert.equal(f.calls.length,4);
         f.calls[3].resolve(indexedResult(automaticResult.Items,'fresh-next'));await turn();
-        assert.match(f.calls[4].o.url,/continuation=fresh-next/);
-        f.calls[4].resolve(indexedResult([second]));await turn();
+        assert.equal(f.calls.length,4,'Polling must not retrieve or replace result pages');
     }
     assert.equal(grid.children.length,2);assert.equal(new Set(grid.children).size,2);
     assert.equal(more.hidden,true);const count=f.calls.length;await more.onclick();assert.equal(f.calls.length,count);
@@ -839,4 +837,41 @@ test('Indexed partial-title pages merge owners without replacing poster or dupli
     assert.equal(grid.children.length,1);assert.equal(grid.children[0],card);
     assert.equal(descendants(card).filter(n=>n.className==='watchguard-user-line').length,2);
     assert.match(textOf(card),/Additional owner/);assert.equal(more.hidden,true);
+});
+
+test('Combined browser retains server order and replaces preliminary membership cards',async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    const z={...automaticResult.Items[0],Name:'Zebra'},a={...z,ItemId:'8'.repeat(32),Name:'Alpha'};
+    f.calls[1].resolve(indexedResult([z,a]));await turn();
+    assert.deepEqual(f.page.children[5].children.map(c=>c.children[0].children[1].textContent),['Zebra','Alpha']);
+    assert.match(f.page.children[2].textContent,/2 titles loaded/);
+});
+test('Search debounces and immediately fences responses from the prior query',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();
+    const search=descendants(f.page).find(n=>n.type==='search');
+    search.value='A';search.oninput();search.value='Al';search.oninput();
+    f.calls[1].resolve(indexedResult(automaticResult.Items));await turn();assert.equal(f.page.children[5].children.length,0);
+    t.mock.timers.tick(249);await turn();assert.equal(f.calls.length,2);
+    t.mock.timers.tick(1);await turn();f.calls[2].resolve([]);await turn();
+    assert.match(f.calls[3].o.url,/search=Al$/);f.calls[3].resolve(indexedResult());await turn();
+    search.value='';search.oninput();t.mock.timers.tick(250);await turn();f.calls[4].resolve([]);await turn();
+    assert.match(f.calls[5].o.url,/search=$/);f.calls[5].resolve(indexedResult());await turn();
+});
+test('Status checkbox requests a new server view and fences a pending page',async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([]);await turn();
+    f.calls[1].resolve(indexedResult(automaticResult.Items,'old'));await turn();const loading=f.page.children.at(-1).onclick();
+    const watched=descendants(f.page).find(n=>n.type==='checkbox'&&n.value==='watched');watched.checked=true;watched.onchange();await turn();
+    f.calls[2].resolve(indexedResult([{...automaticResult.Items[0],Name:'Superseded'}]));await loading;
+    f.calls[3].resolve([]);await turn();assert.match(f.calls[4].o.url,/statuses=.*watched/);
+    f.calls[4].resolve(indexedResult());await turn();assert.equal(textOf(f.page).includes('Superseded'),false);
+});
+test('Preparing pages are labelled, progress explicitly, and expiration retains filters and cards',async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    f.calls[1].resolve({...indexedResult([],'prepare-next'),Preparing:true});await turn();
+    assert.match(f.page.children[2].textContent,/Preparing/);assert.equal(f.page.children[5].children.length,1);
+    const more=f.page.children.at(-1);const next=more.onclick();f.calls[2].resolve(indexedResult(automaticResult.Items,'page'));await next;
+    const card=f.page.children[5].children[0];const expired=more.onclick();f.calls[3].reject({status:409});await expired;
+    assert.equal(f.page.children[5].children[0],card);assert.equal(more.hidden,true);assert.match(f.page.children[4].textContent,/same filters/);
 });

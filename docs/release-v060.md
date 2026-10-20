@@ -1,6 +1,6 @@
 # WatchGuard v0.6.0 — Background activity indexing
 
-**Unpublished release candidate.** This prepares the merged [PR #39](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/pull/39) for release. It does not publish assets, change the public catalog or deploy to production. The current published release remains [v0.5.2](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.5.2).
+**Published 2026-10-19.** [v0.6.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.6.0) is the installed, manually checked baseline for the next candidate. Published package SHA-256: `3542b971231b51a78d9783b490f1438b231cd0fca48b61c6aad5098528d50bd7`. The following preparation and qualification record is historical.
 
 Target: Jellyfin Server/Web **12.2.0**, .NET 10. Package version **0.6.0**; assembly/file versions **0.6.0.0**. Plugin GUID `a3c6bc84-783d-4ba8-a0db-89bfb83ab486` and target ABI `12.2.0.0` are unchanged. One plugin assembly, no Injector or additional runtime dependency.
 

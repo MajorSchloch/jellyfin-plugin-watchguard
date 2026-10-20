@@ -15,6 +15,8 @@ namespace Jellyfin.Plugin.WatchGuard;
 public sealed record OverviewUser(Guid UserId, string DisplayName, string[] Reasons, DateTime? LastPlayedDate, int? AvailableEpisodes = null, int? WatchedEpisodes = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public DateTimeOffset? AddedAtUtc { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public EpisodeProgress? EpisodeProgress { get; init; }
 }
 public sealed record OverviewItem(Guid ItemId, string Name, OverviewUser[] Users);

@@ -385,7 +385,7 @@
                 added.textContent = 'Added ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(new Date(owner.AddedAtUtc));
                 added.title = 'Added to Watchlist: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(owner.AddedAtUtc));
                 added.setAttribute('aria-label', added.title); line.append(added);
-            } else if (owner.AddedAtUtc === null) {
+            } else {
                 const unknown = document.createElement('span'); unknown.className = 'watchguard-added-unknown';
                 unknown.textContent = 'Added: unknown'; line.append(unknown);
             }
@@ -530,7 +530,8 @@
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
         let raw = {owner: filter, interest: options.interest, sort: options.sort};
         let range = [7,30,90].includes(Number(options.days)) ? Number(options.days) : 30, includeOlder = options.older !== 'false';
-        let continuation = null, pollTimer = null, loadedPages = 1, indexPopulating = false;
+        let continuation = null, pollTimer = null, searchTimer = null, loadedPages = 1, indexPopulating = false;
+        let searchText = (options.search || '').slice(0, 120), combined = false, preparing = false;
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
         let kind = selectedStatuses(options.interest);
         let sort = ['title', 'recent', 'added'].includes(options.sort) ? options.sort : 'title';
@@ -594,6 +595,12 @@
         const sortGroup = document.createElement('label'); sortGroup.className = 'watchguard-toolbar-field watchguard-sort';
         const sortLabel = document.createElement('span'); sortLabel.textContent = 'Sort by'; sortGroup.append(sortLabel, order);
         toolbar.append(ownerGroup, interestFilter, sortGroup, refresh);
+        const search = document.createElement('input'); search.type = 'search'; search.maxLength = 120;
+        search.className = 'emby-input'; search.setAttribute('aria-label', 'Search titles'); search.placeholder = 'Search titles'; search.value = searchText;
+        if (options.indexedActivity) {
+            const field = document.createElement('label'); field.className = 'watchguard-toolbar-field';
+            const label = document.createElement('span'); label.textContent = 'Search titles'; field.append(label, search); toolbar.append(field);
+        }
         const rangeSelect = dropdown('Activity range', [['7', 'Last 7 days'], ['30', 'Last 30 days'], ['90', 'Last 90 days']]);
         const olderToggle = document.createElement('input'); olderToggle.type = 'checkbox';
         if (options.indexedActivity) {
@@ -622,17 +629,19 @@
         if (options.indexedActivity) { status.after?.(freshness); page.append(more); }
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
-        let directory = [], loadedScope;
+        let directory = [], loadedScope, viewSignature;
         let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, coverageInfo = null, failures = [];
         const cards = new Map();
-        signal.addEventListener('abort', () => { generation++; if (pollTimer) clearTimeout(pollTimer); cards.clear(); page.remove(); }, { once: true });
+        signal.addEventListener('abort', () => { generation++; if (pollTimer) clearTimeout(pollTimer); if (searchTimer) clearTimeout(searchTimer); cards.clear(); page.remove(); }, { once: true });
         function render() {
             if (!active()) return;
             page.setAttribute('data-watchguard-scope', loadedScope || '');
             rangeSelect.value = String(range); olderToggle.checked = includeOlder; more.hidden = !continuation; more.disabled = pending;
-            const entries = mergeInterest(explicit, automatic);
+            const entries = combined ? automatic : mergeInterest(explicit, automatic);
             if (!admin && entries.some(e => e.Users.some(u => key(u.UserId) !== key(user)))) throw new Error('Invalid account scope');
-            const selected = selectInterest(entries, admin ? filter : 'mine', user, kind, sort);
+            const selected = combined ? entries.map(e => ({...e, IsWatchlistedByMe: e.Users.some(u => key(u.UserId) === key(user) && u.Reasons.includes('Watchlisted'))})) :
+                selectInterest(entries, admin ? filter : 'mine', user, kind, sort).filter(e => e.Name.toLowerCase().includes(searchText.trim().toLowerCase()));
+            more.textContent = preparing ? 'Continue preparing results' : 'Load more results';
             select.replaceChildren();
             const owners = new Map([...directory, ...entries.flatMap(entry => entry.Users)].map(owner => [key(owner.UserId), owner]));
             const choices = [['mine', 'My list'], ...(admin ? [['all', 'All users'], ...Array.from(owners.values())
@@ -649,7 +658,12 @@
             const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
             const count = document.createElement('span'); count.textContent = 'Status · ' + kind.length; summary.append(filterIcon, count);
             summary.title = 'Status filters (' + kind.length + ' selected)'; summary.setAttribute('aria-label', summary.title); order.value = sort;
-            status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : indexPopulating ? 'Background discovery is still running; no matching verified activity yet.' : continuation ? 'No matches on loaded pages. Load more activity to continue.' : 'No matching activity in this overview.';
+            status.textContent = pending ? 'Loading viewing activity…' : preparing ? 'Preparing the filtered, ordered result set. Continue to advance bounded authorization work.' :
+                options.indexedActivity && !combined ? 'Preliminary watchlists only; combined activity is not ready.' :
+                selected.length ? selected.length + ' titles loaded' + (continuation ? ' · More results available.' : ' · End of this known result set; not an exhaustive library audit.') :
+                failures.length ? '' : continuation ? 'No titles loaded yet; continue to retrieve more authorized results.' : indexPopulating ? 'Background discovery/population in progress; no verified matches yet.' :
+                kind.length === 4 && !searchText ? 'No known activity or explicit membership in this view; background discovery is not exhaustive.' : kind.length || searchText ? 'No matches for the selected filters in known eligible data.' : 'No statuses selected; no matches.';
+            if (!options.indexedActivity) status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : 'No matching activity in this overview.';
             spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
             const info = coveragePresentation(coverage, coverageLimited, coverageInfo);
             notice.hidden = !coverage && !coverageLimited;
@@ -698,12 +712,12 @@
                             await request(api, 'Watchlist/' + encodeURIComponent(entry.ItemId), 'DELETE');
                             if (!active() || revision !== generation) return;
                             explicit = explicit.map(e => key(e.ItemId) === key(entry.ItemId) ? { ...e, Users: e.Users.filter(u => key(u.UserId) !== key(user)) } : e).filter(e => e.Users.length);
-                            render();
+                            if (options.indexedActivity) load(true); else render();
                         } catch { if (active() && revision === generation) { error.textContent = 'WatchGuard: Could not remove this entry. Please retry.'; remove.disabled = false; } }
                     };
                     record.card.append(remove); record.remove = remove;
                 }
-                grid.append(record.card); // Reuse the card/image node, including when sorting.
+                if (grid.children[selected.indexOf(entry)] !== record.card) grid.insertBefore(record.card, grid.children[selected.indexOf(entry)] || null); // Preserve unchanged nodes and focus.
             }
         }
         function authorizationDenied(failure) {
@@ -711,9 +725,9 @@
             // Even a superseded request's denial invalidates this captured
             // account's protected view. No concurrent response may restore it.
             generation++;
-            if (pollTimer) clearTimeout(pollTimer);
+            if (pollTimer) clearTimeout(pollTimer); if (searchTimer) clearTimeout(searchTimer);
             explicit = []; automatic = []; directory = []; continuation = null;
-            loadedPages = 1; indexPopulating = false; pending = false;
+            loadedPages = 1; indexPopulating = false; pending = false; combined = false; preparing = false;
             coverage = ''; coverageLimited = false; coverageInfo = null;
             grid.replaceChildren(); cards.clear(); freshness.textContent = '';
             failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
@@ -743,7 +757,7 @@
                     filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
                 }
                 const scope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-                loadedScope = scope;
+                loadedScope = scope; viewSignature = JSON.stringify([scope, kind, sort, range, includeOlder, searchText]);
                 if (admin && !directory.length) {
                     const owners = await request(api, 'Users');
                     if (!current()) return;
@@ -758,7 +772,7 @@
                         UserId: user, DisplayName: account.Name || 'You',
                         ...(Object.hasOwn(e, 'AddedAtUtc') ? { AddedAtUtc: e.AddedAtUtc } : {})
                     }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
-                    selectInterest(entries, 'all', user); explicit = entries;
+                    selectInterest(entries, 'all', user); explicit = entries; if (!automatic.length) combined = false;
                 } catch (failure) { if (authorizationDenied(failure) || !current()) return; if (!options.indexedActivity || !prioritize) explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
                 if (!options.indexedActivity) automatic = [];
                 render(); // Paint memberships before activity is available.
@@ -767,7 +781,7 @@
                     if (!current()) return;
                     if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
                     selectInterest(result.Items, 'all', user);
-                    if (result.Items.some(e => e.Users.some(u => (scope !== 'all' && key(u.UserId) !== key(scope === 'mine' ? user : scope)) || u.Reasons.includes('Watchlisted')))) throw new Error('Invalid automatic scope');
+                    if (result.Items.some(e => e.Users.some(u => (scope !== 'all' && key(u.UserId) !== key(scope === 'mine' ? user : scope)) || (!options.indexedActivity && u.Reasons.includes('Watchlisted'))))) throw new Error('Invalid automatic scope');
                     if (options.indexedActivity) { indexState(result); loadedPages = 1; }
                     automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
                 } catch (failure) {
@@ -783,11 +797,14 @@
             finally { if (current()) { refresh.disabled = false; schedulePoll(); } }
         }
         function indexRoute(scope, cursor, prioritize = false) {
-            return 'ActivityIndex?owner=' + encodeURIComponent(scope) + '&days=' + range + '&older=' + includeOlder +
+            return 'ActivityBrowser?owner=' + encodeURIComponent(scope) + '&days=' + range + '&older=' + includeOlder +
+                '&statuses=' + encodeURIComponent(kind.join(',') || 'none') + '&sort=' + encodeURIComponent(sort) + '&search=' + encodeURIComponent(searchText.trim()) +
                 (cursor ? '&continuation=' + encodeURIComponent(cursor) : '') + (prioritize ? '&refresh=true' : '');
         }
         function indexState(result) {
             if (!result.Freshness || !Number.isInteger(result.Freshness.Revision) || (result.Continuation != null && typeof result.Continuation !== 'string')) throw new Error('Invalid index status');
+            for (const item of result.Items) for (const owner of item.Users) if (owner.Reasons.includes('Watchlisted') && !Object.hasOwn(owner, 'AddedAtUtc')) owner.AddedAtUtc = null;
+            preparing = result.Preparing === true; combined = !preparing;
             continuation = result.Continuation || null; indexPopulating = !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
             const date = result.Freshness.LastUpdate && new Date(result.Freshness.LastUpdate);
             freshness.textContent = (date && Number.isFinite(date.getTime()) ? 'Last verified: ' + date.toLocaleString() : indexPopulating ? 'Waiting for background verification.' : 'No verified activity timestamp available.') +
@@ -799,26 +816,13 @@
             pollTimer = setTimeout(async () => {
                 if (!active()) return;
                 if (document.hidden || pending) { schedulePoll(); return; }
-                if (loadedPages > 4) { freshness.textContent = 'Automatic updates paused after four loaded pages to bound server work. Refresh to update this view.'; schedulePoll(); return; }
                 const revision = generation;
-                // Poll replacement and pagination own the same request slot.
-                // A page and its cursor are committed together, never mixed
-                // with an append from the previous snapshot.
+                // Poll only identity/scope authorization. Never rebuild or append another snapshot in the background.
                 pending = true; render();
                 try {
-                    let result = await request(api, indexRoute(loadedScope));
-                    let items = result.Items;
-                    for (let n = 1; n < loadedPages && result.Continuation; n++) {
-                        if (!active() || revision !== generation) return;
-                        result = await request(api, indexRoute(loadedScope, result.Continuation));
-                        items = mergeInterest(items, result.Items);
-                    }
-                    result = {...result, Items: items};
+                    await request(api, indexRoute(loadedScope) + '&check=true');
                     if (!active() || revision !== generation) return;
-                    selectInterest(result.Items, 'all', user);
-                    if (result.Items.some(e => e.Users.some(u => loadedScope !== 'all' && key(u.UserId) !== key(loadedScope === 'mine' ? user : loadedScope)))) throw new Error('Invalid scope');
-                    indexState(result);
-                    automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
+                    freshness.textContent = 'This view keeps its original order. Refresh to include new activity and metadata.';
                 } catch (failure) {
                     if (authorizationDenied(failure)) return;
                     if (active() && revision === generation) {
@@ -839,13 +843,17 @@
                 if (!active() || revision !== generation) return;
                 selectInterest(result.Items, 'all', user);
                 if (result.Items.some(e => e.Users.some(u => loadedScope !== 'all' && key(u.UserId) !== key(loadedScope === 'mine' ? user : loadedScope)))) throw new Error('Invalid scope');
-                const merged = mergeInterest(automatic, result.Items);
+                const merged = preparing ? result.Items : mergeInterest(automatic, result.Items);
                 indexState(result); automatic = merged; loadedPages++;
                 coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
-            } catch (failure) { if (authorizationDenied(failure)) return; if (active() && revision === generation) failures = ['Could not load the next activity page. Refresh if its continuation expired.']; }
+            } catch (failure) { if (authorizationDenied(failure)) return; if (active() && revision === generation) {
+                if ([400,409].includes(failure?.status)) continuation = null;
+                failures = ['Could not continue this view; loaded results are retained. Use Refresh to restart with the same filters.'];
+            } }
             finally { if (active() && revision === generation) { pending = false; render(); } }
         };
-        page.updateFilters = (owner, interest, sorting, days, older) => {
+        page.updateFilters = (owner, interest, sorting, days, older, text = '') => {
+            searchText = text.slice(0, 120); if (search.value !== searchText) search.value = searchText;
             const nextRange = [7,30,90].includes(Number(days)) ? Number(days) : 30, nextOlder = older !== 'false';
             const timeChanged = range !== nextRange || includeOlder !== nextOlder;
             range = nextRange; includeOlder = nextOlder;
@@ -853,9 +861,15 @@
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-            if (loadedScope && (nextScope !== loadedScope || timeChanged)) { explicit = []; automatic = []; continuation = null; pending = true; render(); load(); } else render();
+            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; pending = true; render(); load(); } else render();
         };
-        const change = () => { if (active()) { const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked)); navigate(...args); } };
+        const change = () => { if (active()) { const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
+        search.oninput = () => {
+            if (!active()) return;
+            generation++; if (searchTimer) clearTimeout(searchTimer);
+            continuation = null; pending = true; refresh.disabled = false; render();
+            searchTimer = setTimeout(() => { searchTimer = null; if (search.value === searchText) load(); else change(); }, 250);
+        };
         select.onchange = change; order.onchange = change; rangeSelect.onchange = change; olderToggle.onchange = change;
         refresh.onclick = () => load(true);
         if (!signal.aborted) load();
@@ -1090,7 +1104,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-older-interest input {flex:none;min-width:20px;min-height:20px}
         .watchguard-toolbar-field {display:flex;flex-direction:column;gap:.3rem;min-width:0;flex:0 1 15rem}
         .watchguard-toolbar-field>span {font-size:.75rem;opacity:.8;padding-inline:.2rem}
-        .watchguard-toolbar-field select {width:100%;min-height:44px;margin:0;box-sizing:border-box}
+        .watchguard-toolbar-field :is(select,input[type="search"]) {width:100%;min-height:44px;margin:0;box-sizing:border-box}
         .watchguard-sort {margin-inline-start:auto;flex-basis:13rem}
         .watchguard-refresh {margin:0;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
         .watchguard-filter summary {min-height:44px;margin:0}
@@ -1198,14 +1212,14 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         const header = visible(legacy) ? legacy : document.querySelector('header.MuiAppBar-root');
         if (header) document.body.style.setProperty('--watchguard-top', Math.max(0, header.getBoundingClientRect().bottom) + 'px');
         if (pagePanel?.isConnected) {
-            if (pageSignature !== hash) pagePanel.updateFilters(params.get('owner'), params.get('interest'), params.get('sort'), params.get('days'), params.get('older'));
+            if (pageSignature !== hash) pagePanel.updateFilters(params.get('owner'), params.get('interest'), params.get('sort'), params.get('days'), params.get('older'), params.get('search') || '');
             pageSignature = hash; return;
         }
         closePage(); pageSignature = hash;
         pageLifetime = new AbortController();
-        pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner'), (owner, interest, sort, days = 30, older = 'true') => {
-            root.location.hash = '/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort) + '&days=' + encodeURIComponent(days) + '&older=' + encodeURIComponent(older);
-        }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), indexedActivity: true, preferences: true});
+        pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner'), (owner, interest, sort, days = 30, older = 'true', search = '') => {
+            root.location.hash = '/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort) + '&days=' + encodeURIComponent(days) + '&older=' + encodeURIComponent(older) + '&search=' + encodeURIComponent(search);
+        }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), search: params.get('search'), indexedActivity: true, preferences: true});
         document.body.classList.add('watchguard-page-open'); document.body.append(pagePanel);
     }
 
