@@ -23,7 +23,7 @@ def main():
     sdk = subprocess.check_output(['dotnet', '--version'], cwd=ROOT, text=True).strip()
     if sdk != '10.0.302':
         raise SystemExit('Release packaging requires .NET SDK 10.0.302 for reproducibility.')
-    if VERSION != '0.6.0':
+    if VERSION != '0.7.0':
         raise SystemExit('Review release metadata before packaging a different version.')
     flags = ['-c', 'Release', '--no-restore', '-p:ContinuousIntegrationBuild=true',
              '-p:DebugType=None', '-p:DebugSymbols=false', f'-p:PathMap={ROOT}=/_/src']

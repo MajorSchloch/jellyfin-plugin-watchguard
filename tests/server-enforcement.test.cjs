@@ -119,7 +119,7 @@ function fakeJellyfinLoginForm(initialVisible,clickHandler) {
 test('browser fixture skips the Manual Login button when the native form is already visible',async()=>{
  const f=fakeJellyfinLoginForm(true,()=>{throw Error('Manual Login must not be clicked');});
  await revealManualLogin(f.page);
- assert.deepEqual(f.counts(),{clicks:0,waits:1});
+ assert.deepEqual(f.counts(),{clicks:0,waits:0});
 });
 test('browser fixture opens a stable native Manual Login chooser exactly once',async()=>{
  const f=fakeJellyfinLoginForm(false,show=>show());

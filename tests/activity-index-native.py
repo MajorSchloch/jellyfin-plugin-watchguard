@@ -143,4 +143,6 @@ done''')
     finally:
         (evidence / 'results.json').write_text(json.dumps(result, indent=2) + '\n')
         if dll.read_bytes() != candidate: docker('stop', name); dll.write_bytes(candidate); restart()
+    import runpy
+    runpy.run_path(str(repo / 'tests/activity-browser-native.py'))['run'](call, restart, docker, name, plugins, token, owners, movies, series)
     print('Activity index native qualification: ' + str(evidence / 'results.json'), flush=True)

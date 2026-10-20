@@ -49,6 +49,7 @@ public sealed class ServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddSingleton<ActivityIndex.IndexWorker>();
         serviceCollection.AddSingleton<Microsoft.Extensions.Hosting.IHostedService>(sp => sp.GetRequiredService<ActivityIndex.IndexWorker>());
         serviceCollection.AddSingleton<ActivityIndex.IndexQuery>();
+        serviceCollection.AddSingleton<ActivityIndex.BrowserQuery>();
         serviceCollection.AddSingleton<StandaloneMode>();
         serviceCollection.AddSingleton<IStartupFilter, StandaloneStartupFilter>();
     }

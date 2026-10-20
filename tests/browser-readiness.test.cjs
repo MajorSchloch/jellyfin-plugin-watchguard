@@ -129,6 +129,7 @@ test('Readiness report failure keeps sanitized trace and records the separate di
 function loginPage(f, {first=original(),second,authentication}={}) {
     let navigations=0,signIns=0;
     f.page.goto=async()=>{navigations++;if(navigations===1)throw first;if(second)throw second;};
+    f.page.waitForLoadState=async()=>{};
     f.page.waitForFunction=async()=>{};f.page.waitForURL=async()=>{};
     f.page.locator=()=>({isVisible:async()=>true,waitFor:async()=>{},fill:async()=>{}});
     f.page.getByRole=()=>({waitFor:async()=>{},click:async()=>{signIns++;if(authentication)throw authentication;}});
@@ -158,6 +159,16 @@ test('Native requestfailed errorText permits only the same pre-authentication ne
     assert.equal(f.page.listenerCount('requestfailed'),0);
 });
 
+test('Native startup requests settle before the fixture signs in',async t=>{
+    const f=fixture(t);await readiness.capture(f.page);const counts=loginPage(f);
+    let settled;const waiting=new Promise(resolve=>{settled=resolve;});
+    f.page.waitForLoadState=async state=>{assert.equal(state,'networkidle');await waiting;};
+    const login=readiness.login(f.page,f.options);
+    await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(counts().signIns,0);
+    settled();await login;assert.equal(counts().signIns,1);
+});
+
 test('Failed retry retains original navigation error as cause, with no third attempt',async t=>{
     const f=fixture(t,{screenshot:true});await readiness.capture(f.page);
     const first=original(),second=new Error('second navigation failed'),counts=loginPage(f,{first,second});
@@ -173,4 +184,24 @@ test('Unrelated navigation failures and authentication failures are never retrie
         await assert.rejects(readiness.login(f.page,f.options),actual=>actual===error);
         assert.deepEqual(counts(),{navigations:stage==='navigation'?1:2,signIns:stage==='navigation'?0:1});
     }
+});
+
+for(const timing of ['before visibility wait','before fill'])
+test('Late public-user chooser is revealed before one sign-in: '+timing,async t=>{
+    const f=fixture(t);await readiness.capture(f.page);const counts=loginPage(f);
+    let visible=true,fills=0,reveals=0,checks=0;
+    f.page.locator=()=>({
+        isVisible:async()=>{
+            if(++checks===1 && timing==='before visibility wait'){visible=false;return true;}
+            return visible;
+        },waitFor:async()=>assert.equal(visible,true),
+        fill:async()=>{if(++fills===1){visible=false;throw new Error('Form hidden by public-user chooser');}}
+    });
+    const role=f.page.getByRole;
+    f.page.getByRole=(kind,options)=>options?.name==='Manual Login' ? {
+        isVisible:async()=>!visible,click:async()=>{reveals++;visible=true;}
+    }:role(kind,options);
+    await readiness.login(f.page,f.options);
+    assert.equal(reveals,1);assert.equal(fills,3);
+    assert.deepEqual(counts(),{navigations:2,signIns:1});
 });

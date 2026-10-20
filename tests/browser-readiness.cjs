@@ -35,15 +35,17 @@ function timing(fixture,phase,ms) {
 // transition; do not retry authentication or bypass any native login control.
 async function revealManualLogin(page) {
     const username=page.locator('#txtManualName');
-    if (!(await username.isVisible())) {
-        const manual=page.getByRole('button',{name:'Manual Login',exact:true});
-        try {
-            await manual.click({timeout:3000});
-        } catch (error) {
-            // A disappearing chooser button is fine only when Jellyfin has
-            // already revealed the actual username field. Otherwise fail.
-            if (!(await username.isVisible())) throw error;
-        }
+    // Fill immediately when the form is visible. Waiting again here creates a
+    // gap in which a late user-list response can hide it behind the chooser;
+    // fillCredentials handles that specific transition before sign-in.
+    if (await username.isVisible()) return;
+    const manual=page.getByRole('button',{name:'Manual Login',exact:true});
+    try {
+        await manual.click({timeout:3000});
+    } catch (error) {
+        // A disappearing chooser button is fine only when Jellyfin has
+        // already revealed the actual username field. Otherwise fail.
+        if (!(await username.isVisible())) throw error;
     }
     await username.waitFor({state:'visible',timeout:15000});
 }
@@ -65,6 +67,10 @@ async function login(page, fixture) {
         for (let attempt=0; attempt<2; attempt++) {
             try {
                 await page.goto(fixture.base + '/web/');
+                // Let native server discovery, public-user loading and automatic
+                // route transitions finish before choosing Manual Login. Their
+                // late rendering can otherwise undo a successful chooser click.
+                await page.waitForLoadState('networkidle',{timeout:15000});
                 // Once a disposable second user becomes visible on Jellyfin's
                 // native login page, the manual username form is collapsed
                 // behind its "Manual Login" control. Both layouts are valid.
@@ -92,8 +98,21 @@ async function login(page, fixture) {
         page.off('requestfailed',observeFailure);
         page.off('console',observeConsole);
     }
-    await page.locator('#txtManualName').fill(fixture.username);
-    await page.locator('#txtManualPassword').fill(fixture.password);
+    const fillCredentials=async()=>{
+        await page.locator('#txtManualName').fill(fixture.username,{timeout:5000});
+        await page.locator('#txtManualPassword').fill(fixture.password,{timeout:5000});
+    };
+    try {
+        await fillCredentials();
+    } catch (error) {
+        // The public-user response can replace the initially visible form with
+        // the chooser after revealManualLogin returned. Retry only filling the
+        // form when that exact native transition is visible, before any sign-in.
+        if (await page.locator('#txtManualName').isVisible() ||
+            !(await page.getByRole('button',{name:'Manual Login',exact:true}).isVisible())) throw error;
+        await revealManualLogin(page);
+        await fillCredentials();
+    }
     await page.getByRole('button', {name: 'Sign In', exact: true}).click();
     // Script installation can precede the login router's Home navigation.
     await page.waitForURL(url => url.hash.split('?')[0] === '#/home', {timeout: 30000});

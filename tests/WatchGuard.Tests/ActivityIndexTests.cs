@@ -522,6 +522,322 @@ public sealed class ActivityIndexTests : IDisposable
         await Task.WhenAll(Enumerable.Range(0,20).Select(_=>worker.RunSlice(CancellationToken.None)));
         Assert.Equal(1,maximum);Assert.Equal(24,worker.Snapshot().Rows.Length);
     }
+    private BrowserQuery Browser() => new(worker, new WatchlistStore(path, clock), library.Object, users.Object, sessions.Object, clock);
+    private BrowserOptions Options(string statuses = "watchlisted,watching,playing,watched", string sort = "title", string search = "", Guid? owner = null) =>
+        BrowserOptions.Create(owner ?? alice.Id, 30, true, statuses, sort, search);
+    private static List<OverviewItem> All(BrowserQuery browser, User caller, BrowserOptions options, out int pages)
+    {
+        var result = new Dictionary<Guid, OverviewItem>(); string? cursor = null; pages = 0;
+        do
+        {
+            var page = browser.Read(caller, options, cursor, CancellationToken.None);
+            Assert.InRange(page.ReadDiagnostics.EpisodeRows, 0, 20000);
+            Assert.InRange(page.ReadDiagnostics.CandidatesExamined, 0, 501);
+            if (page.Preparing) Assert.Empty(page.Items);
+            foreach (var item in page.Items)
+            {
+                if (result.TryGetValue(item.ItemId, out var prior))
+                {
+                    Assert.Empty(prior.Users.Select(u => u.UserId).Intersect(item.Users.Select(u => u.UserId)));
+                    result[item.ItemId] = prior with { Users = prior.Users.Concat(item.Users).ToArray() };
+                }
+                else result[item.ItemId] = item;
+            }
+            cursor = page.Continuation; Assert.True(++pages < 100);
+        } while (cursor != null);
+        return result.Values.ToList();
+    }
+    [Fact]
+    public async Task BrowserFiltersBeforePagesAndSearchesLaterTitleWithoutPlaybackReads()
+    {
+        for (var n = 0; n < 70; n++) AddMovie();
+        var target = AddMovie(); target.Name = "Zebra unique";
+        playback[(alice.Id, target.Id)].Played = false; playback[(alice.Id, target.Id)].PlaybackPositionTicks = 10000;
+        await Populate(); var browser = Browser(); var reads = playbackReads;
+        var page = browser.Read(alice, Options("watching"), null, CancellationToken.None);
+        Assert.Equal(target.Id, Assert.Single(page.Items).ItemId); Assert.Null(page.Continuation);
+        page = browser.Read(alice, Options(search: " UNIQUE "), null, CancellationToken.None);
+        Assert.Equal(target.Id, Assert.Single(page.Items).ItemId); Assert.Equal(reads, playbackReads);
+        Assert.Empty(browser.Read(alice, Options("none"), null, CancellationToken.None).Items);
+    }
+    [Theory]
+    [InlineData("title")]
+    [InlineData("recent")]
+    [InlineData("added")]
+    public async Task BrowserOrdersEntireQueryAndKeepsUnknownDatesLast(string sort)
+    {
+        var membership = new WatchlistStore(path, clock);
+        for (var n = 0; n < 60; n++)
+        {
+            var movie = AddMovie(n % 20 + 1); movie.Name = (n % 2 == 0 ? "alpha " : "Beta ") + (60 - n);
+            if (n % 3 == 0) { membership.Set(alice.Id, movie.Id, true); clock.Advance(TimeSpan.FromSeconds(1)); }
+        }
+        await Populate(); var browser = Browser();
+        var all = All(browser, alice, Options(sort: sort), out var pages);
+        Assert.True(pages >= 3); Assert.Equal(60, all.Count);
+        Assert.Equal(BrowserQuery.Sort(all, sort).Select(i => i.ItemId), all.Select(i => i.ItemId));
+        if (sort == "added") { Assert.NotNull(all[0].Users[0].AddedAtUtc); Assert.Null(all[^1].Users[0].AddedAtUtc); }
+    }
+    [Fact]
+    public async Task BrowserMembershipIsIndependentAndMergesProgressWithoutInventingMembership()
+    {
+        var series = AddSeries(); var old = AddMovie(70); var member = new WatchlistStore(path, clock);
+        member.Set(alice.Id, old.Id, true); member.Set(alice.Id, series.Id, true);
+        await Populate(); var browser = Browser();
+        var result = All(browser, alice, Options(), out _);
+        var merged = Assert.Single(result, i => i.ItemId == series.Id).Users.Single();
+        Assert.Contains("Watchlisted", merged.Reasons); Assert.Contains("CaughtUp", merged.Reasons); Assert.NotNull(merged.EpisodeProgress);
+        var explicitOnly = result.Single(i => i.ItemId == old.Id).Users.Single();
+        Assert.Equal(["Watchlisted"], explicitOnly.Reasons); Assert.Equal(playback[(alice.Id, old.Id)].LastPlayedDate, explicitOnly.LastPlayedDate);
+        Assert.Equal(2, member.Read().Length);
+    }
+    [Fact]
+    public async Task BrowserAggregatesOnlySelectedAuthorizedOwnersAndStatuses()
+    {
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var a = AddMovie(10); a.Name = "A"; var b = AddMovie(5); b.Name = "B";
+        playback[(bob.Id, a.Id)] = new() { Key = "test", Played = false, PlaybackPositionTicks = 1000, LastPlayedDate = DateTime.UtcNow };
+        await Populate(); var browser = Browser();
+        var all = BrowserOptions.Create(null, 30, true, "watched", "recent", "");
+        Assert.Equal(b.Id, browser.Read(alice, all, null, CancellationToken.None).Items[0].ItemId);
+        all = all with { Statuses = "watched,watching" };
+        Assert.Equal(a.Id, browser.Read(alice, all, null, CancellationToken.None).Items[0].ItemId);
+        hidden.Add((bob.Id, a.Id));
+        var page = browser.Read(alice, all, null, CancellationToken.None);
+        Assert.Equal(b.Id, page.Items[0].ItemId); Assert.All(page.Items.SelectMany(i => i.Users), u => Assert.Equal(alice.Id, u.UserId));
+    }
+    [Fact]
+    public async Task BrowserCursorBindsEveryControlCallerAndExpires()
+    {
+        for (var n = 0; n < 35; n++) AddMovie(); await Populate(); var browser = Browser(); var options = Options();
+        var first = browser.Read(alice, options, null, CancellationToken.None);
+        foreach (var changed in new[] { options with { Sort = "recent" }, options with { Search = "a" }, options with { Statuses = "watched" }, options with { Older = false }, options with { Days = 7 } })
+            Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, changed, first.Continuation, CancellationToken.None));
+        Assert.Throws<BrowserViewExpiredException>(() => browser.Read(bob, options with { Owner = bob.Id }, first.Continuation, CancellationToken.None));
+        clock.Advance(TimeSpan.FromMinutes(6));
+        Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, first.Continuation, CancellationToken.None));
+    }
+    [Fact]
+    public async Task BrowserReauthorizesItemsEpisodesAndPoliciesBeforeDisclosure()
+    {
+        for (var n = 0; n < 30; n++) AddMovie(); var series = AddSeries(); series.Name = "ZZZ";
+        await Populate(); var browser = Browser(); var options = Options();
+        var page = browser.Read(alice, options, null, CancellationToken.None);
+        var episode = items.Values.OfType<Episode>().First(); hidden.Add((alice.Id, episode.Id));
+        Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, page.Continuation, CancellationToken.None));
+        hidden.Clear(); await Populate(); page = browser.Read(alice, options, null, CancellationToken.None);
+        users.Setup(u => u.GetUserDto(It.IsAny<User>(), It.IsAny<string?>())).Returns(new MediaBrowser.Model.Dto.UserDto { Policy = new() { BlockedTags = ["new restriction"] }, Configuration = new() });
+        Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, page.Continuation, CancellationToken.None));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task BrowserReverificationPreservesUnchangedPagesButRejectsChangedExtraMetadata(bool change)
+    {
+        for (var n = 0; n < 30; n++) AddMovie();
+        var series = AddSeries(); series.Name = "ZZZ";
+        var extra = new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id, Name = "Extra",
+            PremiereDate = DateTime.Now.Date.AddDays(1) };
+        items.Add(extra.Id, extra);
+        await Populate(); var browser = Browser(); var options = Options();
+        var first = browser.Read(alice, options, null, CancellationToken.None);
+        if (change) extra.Name = "Changed extra";
+        clock.Advance(TimeSpan.FromSeconds(3));
+        worker.RequestRefresh(null); await Populate();
+        if (change)
+            Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, first.Continuation, CancellationToken.None));
+        else
+        {
+            var rest = browser.Read(alice, options, first.Continuation, CancellationToken.None);
+            Assert.Null(rest.Continuation);
+            Assert.Equal(31, first.Items.Length + rest.Items.Length);
+            Assert.Equal("Extra", rest.Items.Single(i => i.ItemId == series.Id).Users.Single().EpisodeProgress!.ExtraEpisodes.Single().Name);
+        }
+    }
+    [Fact]
+    public async Task BrowserPreparationAndOwnerContinuationProgressUnderEpisodeBudget()
+    {
+        var owners = Enumerable.Range(0, 25).Select(n => new User("Owner" + n, "test", "test") { Id = Guid.NewGuid() }).ToArray();
+        bob.SetPermission(PermissionKind.IsAdministrator, true); var accounts = owners.Append(bob).ToArray();
+        users.Setup(u => u.GetUsers()).Returns(accounts);
+        users.Setup(u => u.GetUserById(It.IsAny<Guid>())).Returns((Guid id) => accounts.SingleOrDefault(u => u.Id == id));
+        var title = AddSeries(1000); playback.Clear(); var episode = items.Values.OfType<Episode>().First();
+        foreach (var owner in owners) playback[(owner.Id, episode.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-1) };
+        await Populate(slices: 100);
+        var result = All(Browser(), bob, BrowserOptions.Create(null, 30, true, "watching", "recent", ""), out var pages);
+        Assert.True(pages > 1); Assert.Equal(25, Assert.Single(result).Users.Length);
+    }
+
+    [Fact]
+    public async Task BrowserCombinesLiveMembershipAndThreeOfThreeExtrasByStableOwner()
+    {
+        var series = AddSeries(); var episode = items.Values.OfType<Episode>().First();
+        var extra = new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id, Name = "Extra", PremiereDate = DateTime.Now.Date.AddDays(1) };
+        items.Add(extra.Id, extra); new WatchlistStore(path, clock).Set(alice.Id, series.Id, true); await Populate();
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = alice.Id, NowPlayingItem = new MediaBrowser.Model.Dto.BaseItemDto { Id = episode.Id } }]);
+        var browser = Browser(); var page = browser.Read(alice, Options(), null, CancellationToken.None);
+        var person = Assert.Single(Assert.Single(page.Items).Users);
+        Assert.Equal(new[] { "CaughtUp", "CurrentlyPlaying", "Watchlisted" }, person.Reasons.Order());
+        Assert.Equal(3, person.EpisodeProgress!.AiredAvailable); Assert.Equal(3, person.EpisodeProgress.AiredWatched);
+        Assert.Equal(extra.Id, Assert.Single(person.EpisodeProgress.ExtraEpisodes).ItemId);
+        hidden.Add((alice.Id, episode.Id));
+        page = browser.Read(alice, Options(), null, CancellationToken.None);
+        Assert.Equal(["Watchlisted"], Assert.Single(Assert.Single(page.Items).Users).Reasons);
+        Assert.Equal(0, page.ReadDiagnostics.EpisodeRows); // Hidden episode counts never reach diagnostics.
+    }
+    [Fact]
+    public async Task BrowserLegacyMembershipDateStaysUnknownAndHiddenTitlesDoNotEnterWorkCounts()
+    {
+        var legacy = AddMovie(); var known = AddMovie(); await Populate();
+        Directory.CreateDirectory(path);
+        await File.WriteAllTextAsync(Path.Combine(path, "watchlists.json"), System.Text.Json.JsonSerializer.Serialize(new WatchlistDocument(1, [new(alice.Id, legacy.Id)])));
+        new WatchlistStore(path, clock).Set(alice.Id, known.Id, true);
+        var browser = Browser(); var page = browser.Read(alice, Options("watchlisted", "added"), null, CancellationToken.None);
+        Assert.Equal(known.Id, page.Items[0].ItemId); Assert.Null(page.Items[1].Users[0].AddedAtUtc);
+        hidden.Add((alice.Id, legacy.Id)); hidden.Add((alice.Id, known.Id));
+        page = browser.Read(alice, Options(), null, CancellationToken.None);
+        Assert.Empty(page.Items); Assert.Equal(0, page.ReadDiagnostics.CandidatesExamined); Assert.Empty(page.Coverage.Causes);
+    }
+
+    [Fact]
+    public async Task SelectiveBrowserQuerySkipsUnmatchedOwnerWorkBeforeItsBudget()
+    {
+        var owners = Enumerable.Range(0, 6).Select(n => new User("Owner" + n, "test", "test") { Id = Guid.NewGuid() }).ToArray();
+        bob.SetPermission(PermissionKind.IsAdministrator, true); var accounts = owners.Append(bob).ToArray();
+        users.Setup(u => u.GetUsers()).Returns(accounts);
+        users.Setup(u => u.GetUserById(It.IsAny<Guid>())).Returns((Guid id) => accounts.SingleOrDefault(u => u.Id == id));
+        Movie? target = null;
+        for (var n = 0; n < 120; n++)
+        {
+            var movie = AddMovie(); target = movie;
+            foreach (var owner in owners) playback[(owner.Id, movie.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-1) };
+        }
+        target!.Name = "Zebra needle";
+        new WatchlistStore(path, clock).Set(owners[0].Id, target.Id, true);
+        await Populate(slices: 200); var browser = Browser();
+        foreach (var options in new[] { BrowserOptions.Create(null, 30, true, "watchlisted", "title", ""), BrowserOptions.Create(null, 30, true, "watched", "title", "needle") })
+        {
+            var page = browser.Read(bob, options, null, CancellationToken.None);
+            Assert.False(page.Preparing); Assert.Null(page.Continuation); Assert.Equal(target.Id, Assert.Single(page.Items).ItemId);
+        }
+    }
+
+    [Fact]
+    public async Task BrowserDoesNotExplainCoverageUsingHiddenCandidateCardinality()
+    {
+        Directory.CreateDirectory(path);
+        var entries = Enumerable.Range(0, 10001).Select(_ => new WatchlistEntry(alice.Id, Guid.NewGuid())).ToArray();
+        await File.WriteAllTextAsync(Path.Combine(path, "watchlists.json"),
+            System.Text.Json.JsonSerializer.Serialize(new WatchlistDocument(1, entries)));
+        var page = Browser().Read(alice, Options("watchlisted"), null, CancellationToken.None);
+        Assert.Empty(page.Items);
+        Assert.True(page.Preparing);
+        Assert.NotNull(page.Continuation);
+        Assert.False(page.LimitReached);
+        Assert.Empty(page.Coverage.Causes);
+        Assert.Equal(0, page.ReadDiagnostics.CandidatesExamined);
+        Assert.Contains("10,000", page.Notice, StringComparison.Ordinal); // Fixed public bound, independent of hidden data.
+    }
+
+    private static BrowserPage Check(BrowserQuery browser, User caller, BrowserOptions options, string revision, string? cursor = null) =>
+        browser.Read(caller, options, cursor, CancellationToken.None, check: true, revision: revision);
+
+    [Fact]
+    public async Task BrowserCheckDetectsPopulationAndWatchedChangesWithoutPlaybackClassification()
+    {
+        var movie = AddMovie(); var browser = Browser(); var options = Options("watched");
+        var empty = browser.Read(alice, options, null, CancellationToken.None);
+        Assert.NotNull(empty.Freshness.Revision); Assert.Empty(empty.Items);
+        await Populate(); var reads = playbackReads;
+        Assert.True(Check(browser, alice, options, empty.Freshness.Revision!).Changed);
+        Assert.Equal(reads, playbackReads);
+        var populated = browser.Read(alice, options, null, CancellationToken.None);
+        Assert.False(Check(browser, alice, options, populated.Freshness.Revision!).Changed);
+        playback[(alice.Id, movie.Id)].Played = false;
+        worker.RequestRefresh(alice.Id); await Populate(); reads = playbackReads;
+        Assert.True(Check(browser, alice, options, populated.Freshness.Revision!).Changed);
+        Assert.Equal(reads, playbackReads);
+    }
+
+    [Fact]
+    public async Task BrowserCheckTracksNativePlaybackStartAndStop()
+    {
+        var movie = AddMovie(); await Populate(); var browser = Browser(); var options = Options("playing");
+        var stopped = browser.Read(alice, options, null, CancellationToken.None);
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = alice.Id, NowPlayingItem = new MediaBrowser.Model.Dto.BaseItemDto { Id = movie.Id } }]);
+        Assert.True(Check(browser, alice, options, stopped.Freshness.Revision!).Changed);
+        var playing = browser.Read(alice, options, null, CancellationToken.None);
+        Assert.Contains("CurrentlyPlaying", playing.Items.Single().Users.Single().Reasons);
+        sessions.Setup(s => s.Sessions).Returns(Array.Empty<SessionInfo>());
+        Assert.True(Check(browser, alice, options, playing.Freshness.Revision!).Changed);
+    }
+
+    [Fact]
+    public async Task BrowserCheckIgnoresHiddenAndOutOfScopeActivity()
+    {
+        var visible = AddMovie(); var hiddenMovie = AddMovie(); hidden.Add((alice.Id, hiddenMovie.Id));
+        playback[(bob.Id, visible.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow };
+        await Populate(); var browser = Browser(); var options = Options();
+        var first = browser.Read(alice, options, null, CancellationToken.None);
+        playback[(bob.Id, visible.Id)].Played = false;
+        playback[(alice.Id, hiddenMovie.Id)].Played = false;
+        hiddenMovie.Name = "Hidden metadata changed";
+        worker.RequestRefresh(null); await Populate();
+        var check = Check(browser, alice, options, first.Freshness.Revision!);
+        Assert.False(check.Changed); Assert.Empty(check.Items);
+        Assert.Equal(1, check.ReadDiagnostics.CandidatesExamined);
+        hidden.Add((alice.Id, visible.Id));
+        Assert.True(Check(browser, alice, options, first.Freshness.Revision!).Changed);
+    }
+
+    [Fact]
+    public async Task BrowserChecksProgressWithinBudgetsAndDoNotConsumeResultContinuation()
+    {
+        for (var n = 0; n < 300; n++) AddMovie(); await Populate(slices: 100);
+        var browser = Browser(); var options = Options();
+        var first = browser.Read(alice, options, null, CancellationToken.None);
+        while (first.Preparing || first.Items.Length == 0) first = browser.Read(alice, options, first.Continuation, CancellationToken.None);
+        var original = first.Continuation; var revision = first.Freshness.Revision!;
+        var check = Check(browser, alice, options, revision);
+        Assert.True(check.Preparing); Assert.NotNull(check.Continuation); Assert.False(check.Changed);
+        Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, check.Continuation, CancellationToken.None));
+        var replaced = Check(browser, alice, options, revision);
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options, revision, check.Continuation));
+        check = replaced;
+        var next = Check(browser, alice, options, revision, check.Continuation);
+        Assert.False(next.Preparing); Assert.False(next.Changed); Assert.Null(next.Continuation);
+        Assert.InRange(next.ReadDiagnostics.CandidatesExamined, 1, 501);
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options, revision, check.Continuation));
+        Assert.NotEmpty(browser.Read(alice, options, original, CancellationToken.None).Items);
+    }
+
+    [Fact]
+    public async Task BrowserRevisionBindsCallerQueryExpiryAndFreshEpisodePermissions()
+    {
+        AddSeries(); await Populate(); var browser = Browser(); var options = Options();
+        var page = browser.Read(alice, options, null, CancellationToken.None); var revision = page.Freshness.Revision!;
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, bob, options with { Owner = bob.Id }, revision));
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options with { Search = "changed" }, revision));
+        hidden.Add((alice.Id, items.Values.OfType<Episode>().First().Id));
+        Assert.True(Check(browser, alice, options, revision).Changed);
+        clock.Advance(TimeSpan.FromMinutes(6));
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options, revision));
+    }
+
+    [Fact]
+    public async Task BrowserRevisionAndPaginationShareTheSnapshotCapacity()
+    {
+        for (var n = 0; n < 30; n++) AddMovie(); await Populate(); var browser = Browser(); var options = Options();
+        var first = browser.Read(alice, options, null, CancellationToken.None);
+        clock.Advance(TimeSpan.FromSeconds(1)); browser.Read(alice, options with { Sort = "recent" }, null, CancellationToken.None);
+        clock.Advance(TimeSpan.FromSeconds(1)); browser.Read(alice, options with { Sort = "added" }, null, CancellationToken.None);
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options, first.Freshness.Revision!));
+        Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, first.Continuation, CancellationToken.None));
+    }
+
     private sealed class TestClock : TimeProvider {
         private DateTimeOffset now=DateTimeOffset.UtcNow;
         public override DateTimeOffset GetUtcNow()=>now;
