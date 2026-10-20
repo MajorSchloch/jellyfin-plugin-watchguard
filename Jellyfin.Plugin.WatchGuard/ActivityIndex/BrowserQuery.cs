@@ -201,7 +201,7 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             var title = view.Titles[titleOffset];
             // Reauthorize the date contributor before any fragment of this title is
             // disclosed, even when its owner lies on a later owner-continuation page.
-            var contributor = query.Sort == "recent" ? title.Users.MaxBy(u => u.LastPlayedDate?.Ticks) :
+            var contributor = query.Sort == "recent" ? title.Users.MaxBy(u => u.LastPlayedDate?.ToUniversalTime().Ticks) :
                 query.Sort == "added" ? title.Users.MaxBy(u => u.AddedAtUtc?.UtcTicks) : null;
             if (contributor != null)
             {

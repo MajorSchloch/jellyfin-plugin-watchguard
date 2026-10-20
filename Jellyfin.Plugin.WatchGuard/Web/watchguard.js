@@ -531,7 +531,7 @@
         let raw = {owner: filter, interest: options.interest, sort: options.sort};
         let range = [7,30,90].includes(Number(options.days)) ? Number(options.days) : 30, includeOlder = options.older !== 'false';
         let continuation = null, pollTimer = null, searchTimer = null, loadedPages = 1, indexPopulating = false;
-        let searchText = (options.search || '').slice(0, 120), combined = false, preparing = false;
+        let searchText = (options.search || '').slice(0, 120), combined = false, preparing = false, requiresRefresh = false;
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
         let kind = selectedStatuses(options.interest);
         let sort = ['title', 'recent', 'added'].includes(options.sort) ? options.sort : 'title';
@@ -636,12 +636,12 @@
         function render() {
             if (!active()) return;
             page.setAttribute('data-watchguard-scope', loadedScope || '');
-            rangeSelect.value = String(range); olderToggle.checked = includeOlder; more.hidden = !continuation; more.disabled = pending;
+            rangeSelect.value = String(range); olderToggle.checked = includeOlder; more.hidden = !continuation && !requiresRefresh; more.disabled = pending;
             const entries = combined ? automatic : mergeInterest(explicit, automatic);
             if (!admin && entries.some(e => e.Users.some(u => key(u.UserId) !== key(user)))) throw new Error('Invalid account scope');
             const selected = combined ? entries.map(e => ({...e, IsWatchlistedByMe: e.Users.some(u => key(u.UserId) === key(user) && u.Reasons.includes('Watchlisted'))})) :
                 selectInterest(entries, admin ? filter : 'mine', user, kind, sort).filter(e => e.Name.toLowerCase().includes(searchText.trim().toLowerCase()));
-            more.textContent = preparing ? 'Continue preparing results' : 'Load more results';
+            more.textContent = requiresRefresh ? 'Refresh this view' : preparing ? 'Continue preparing results' : 'Load more results';
             select.replaceChildren();
             const owners = new Map([...directory, ...entries.flatMap(entry => entry.Users)].map(owner => [key(owner.UserId), owner]));
             const choices = [['mine', 'My list'], ...(admin ? [['all', 'All users'], ...Array.from(owners.values())
@@ -660,7 +660,7 @@
             summary.title = 'Status filters (' + kind.length + ' selected)'; summary.setAttribute('aria-label', summary.title); order.value = sort;
             status.textContent = pending ? 'Loading viewing activity…' : preparing ? 'Preparing the filtered, ordered result set. Continue to advance bounded authorization work.' :
                 options.indexedActivity && !combined ? 'Preliminary watchlists only; combined activity is not ready.' :
-                selected.length ? selected.length + ' titles loaded' + (continuation ? ' · More results available.' : ' · End of this known result set; not an exhaustive library audit.') :
+                selected.length ? selected.length + ' titles loaded' + (requiresRefresh ? ' · View expired; refresh to continue.' : continuation ? ' · More results available.' : ' · End of this known result set; not an exhaustive library audit.') :
                 failures.length ? '' : continuation ? 'No titles loaded yet; continue to retrieve more authorized results.' : indexPopulating ? 'Background discovery/population in progress; no verified matches yet.' :
                 kind.length === 4 && !searchText ? 'No known activity or explicit membership in this view; background discovery is not exhaustive.' : kind.length || searchText ? 'No matches for the selected filters in known eligible data.' : 'No statuses selected; no matches.';
             if (!options.indexedActivity) status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : 'No matching activity in this overview.';
@@ -674,7 +674,7 @@
             error.textContent = failures.join(' ');
             const visible = new Set(selected.map(e => key(e.ItemId)));
             for (const [id, record] of cards) if (!visible.has(id)) record.card.remove();
-            for (const entry of selected) {
+            for (const [position, entry] of selected.entries()) {
                 let record = cards.get(key(entry.ItemId));
                 if (!record) {
                     const card = document.createElement('article'); card.className = 'watchguard-card';
@@ -699,8 +699,8 @@
                     for (const owner of entry.Users) record.ownersText.append(userLine(document, owner));
                     record.ownerSignature = ownerSignature;
                 }
-                record.remove?.remove(); record.remove = null;
-                if (entry.IsWatchlistedByMe) {
+                if (!entry.IsWatchlistedByMe) { record.remove?.remove(); record.remove = null; }
+                if (entry.IsWatchlistedByMe && !record.remove) {
                     const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'emby-button button-flat watchguard-remove';
                     const icon = document.createElement('span'); icon.className = 'material-icons'; icon.textContent = 'bookmark_remove'; icon.setAttribute('aria-hidden', 'true'); remove.append(icon);
                     remove.title = 'Remove from Watchlist'; remove.setAttribute('aria-label', 'Remove ' + entry.Name + ' from Watchlist');
@@ -717,7 +717,8 @@
                     };
                     record.card.append(remove); record.remove = remove;
                 }
-                if (grid.children[selected.indexOf(entry)] !== record.card) grid.insertBefore(record.card, grid.children[selected.indexOf(entry)] || null); // Preserve unchanged nodes and focus.
+                if (record.remove) record.remove.setAttribute('aria-label', 'Remove ' + entry.Name + ' from Watchlist');
+                if (grid.children[position] !== record.card) grid.insertBefore(record.card, grid.children[position] || null); // Preserve unchanged nodes and focus.
             }
         }
         function authorizationDenied(failure) {
@@ -727,7 +728,7 @@
             generation++;
             if (pollTimer) clearTimeout(pollTimer); if (searchTimer) clearTimeout(searchTimer);
             explicit = []; automatic = []; directory = []; continuation = null;
-            loadedPages = 1; indexPopulating = false; pending = false; combined = false; preparing = false;
+            loadedPages = 1; indexPopulating = false; pending = false; combined = false; preparing = false; requiresRefresh = false;
             coverage = ''; coverageLimited = false; coverageInfo = null;
             grid.replaceChildren(); cards.clear(); freshness.textContent = '';
             failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
@@ -804,7 +805,7 @@
         function indexState(result) {
             if (!result.Freshness || !Number.isInteger(result.Freshness.Revision) || (result.Continuation != null && typeof result.Continuation !== 'string')) throw new Error('Invalid index status');
             for (const item of result.Items) for (const owner of item.Users) if (owner.Reasons.includes('Watchlisted') && !Object.hasOwn(owner, 'AddedAtUtc')) owner.AddedAtUtc = null;
-            preparing = result.Preparing === true; combined = !preparing;
+            preparing = result.Preparing === true; combined = !preparing; requiresRefresh = false;
             continuation = result.Continuation || null; indexPopulating = Object.hasOwn(result.Freshness, 'PopulationPending') ? result.Freshness.PopulationPending : !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
             if (Object.hasOwn(result.Freshness, 'PopulationPending')) { freshness.textContent = 'Known eligible data only; background discovery may add results. Refresh to include new activity.'; return; }
             const date = result.Freshness.LastUpdate && new Date(result.Freshness.LastUpdate);
@@ -836,6 +837,7 @@
             pollTimer.unref?.();
         }
         more.onclick = async () => {
+            if (active() && !pending && requiresRefresh) return load(true);
             if (!active() || pending || !continuation) return;
             const revision = generation, cursor = continuation;
             pending = true; render();
@@ -848,7 +850,7 @@
                 indexState(result); automatic = merged; loadedPages++;
                 coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
             } catch (failure) { if (authorizationDenied(failure)) return; if (active() && revision === generation) {
-                if ([400,409].includes(failure?.status)) continuation = null;
+                if ([400,409].includes(failure?.status)) { continuation = null; requiresRefresh = true; }
                 failures = ['Could not continue this view; loaded results are retained. Use Refresh to restart with the same filters.'];
             } }
             finally { if (active() && revision === generation) { pending = false; render(); } }
@@ -863,7 +865,7 @@
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; pending = true; render(); load(); } else render();
+            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; pending = true; render(); load(); } else render();
         };
         const change = () => { if (active()) { if (options.indexedActivity) generation++; const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
         search.oninput = () => {

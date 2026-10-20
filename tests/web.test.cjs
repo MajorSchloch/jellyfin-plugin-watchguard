@@ -873,5 +873,17 @@ test('Preparing pages are labelled, progress explicitly, and expiration retains 
     assert.match(f.page.children[2].textContent,/Preparing/);assert.equal(f.page.children[5].children.length,1);
     const more=f.page.children.at(-1);const next=more.onclick();f.calls[2].resolve(indexedResult(automaticResult.Items,'page'));await next;
     const card=f.page.children[5].children[0];const expired=more.onclick();f.calls[3].reject({status:409});await expired;
-    assert.equal(f.page.children[5].children[0],card);assert.equal(more.hidden,true);assert.match(f.page.children[4].textContent,/same filters/);
+    assert.equal(f.page.children[5].children[0],card);assert.equal(more.hidden,false);assert.equal(more.textContent,'Refresh this view');assert.match(f.page.children[4].textContent,/same filters/);
+    const recovery=more.onclick();await turn();f.calls[4].resolve([]);await turn();
+    assert.match(f.calls[5].o.url,/owner=all.*statuses=watchlisted%2Cwatching%2Cplaying.*refresh=true/);
+    f.calls[5].resolve(indexedResult(automaticResult.Items));await recovery;assert.equal(more.hidden,true);
+});
+
+
+test('Pagination preserves the focused removal action and its poster node',async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([]);await turn();
+    f.calls[1].resolve(indexedResult([overviewItems[0]],'next'));await turn();
+    const card=f.page.children[5].children[0],remove=descendants(card).find(n=>n.className?.includes('watchguard-remove'));
+    assert.ok(remove);remove.focus();const next=f.page.children.at(-1).onclick();f.calls[2].resolve(indexedResult([]));await next;
+    assert.equal(f.page.children[5].children[0],card);assert.ok(descendants(card).includes(remove));assert.equal(remove.removed,false);
 });
