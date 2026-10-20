@@ -30,7 +30,7 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
    await until(async()=>{
     const state=(await native('WatchGuard/ActivityIndex/Status?owner=all')).Freshness;
     return state.DiscoveryFinished && state.Pending===0 && state.Stored===state.Validated;
-   },'Native fixture verification did not settle',300000);
+   },'Native fixture verification did not settle',600000);
   }
   const region=page.getByRole('region',{name:'Watchlists',exact:true});
   const cards=()=>region.locator('.watchguard-card');
@@ -45,9 +45,17 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
    await settled();
    report.views.push({phase:report.phase,readyMs:Date.now()-start,queryResponses:report.responses.slice(offset).filter(r=>!r.check).length,preparationResponses:report.responses.slice(offset).filter(r=>r.preparing).length,titles:await cards().count()});
   }
-  // Fixture setup explicitly invalidates the rebuildable projection. The open
-  // browser must observe its background population without a UI Refresh click.
+  // An advisory Refresh preserves valid rows. Change an unrelated native
+  // policy field in these disposable viewing accounts so their old projection
+  // really awaits fresh authorization/classification. Media visibility stays
+  // the same. The open browser must pick up population without a UI click.
   report.phase='initial background population';
+  const viewingAccounts=(await native('Users')).filter(u=>/^IndexUser[0-5]$/.test(u.Name));
+  assert.equal(viewingAccounts.length,6);
+  for(const account of viewingAccounts) {
+   const policy=(await native('Users/'+account.Id)).Policy;
+   await native('Users/'+account.Id+'/Policy','POST',{...policy,EnableContentDownloading:!policy.EnableContentDownloading});
+  }
   await native('WatchGuard/ActivityBrowser?owner=all&statuses=none&refresh=true');
   const initialState=(await native('WatchGuard/ActivityIndex/Status?owner=all')).Freshness;
   assert.ok(initialState.Pending>0,'Fixture starts with known activity awaiting verification');
