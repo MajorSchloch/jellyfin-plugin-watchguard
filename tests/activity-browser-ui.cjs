@@ -22,13 +22,18 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
    // Native login/metadata changes can invalidate the fixture's projection.
    // Synchronize fixture setup before asserting the complete seeded dataset;
    // this admin-only wait is not browser product polling.
-   await page.waitForFunction(async()=>{
-    const data=await ApiClient.ajax({url:ApiClient.getUrl('WatchGuard/ActivityIndex/Status?owner=all'),type:'GET',dataType:'json'});
-    const state=data.Freshness;
-   return state.DiscoveryFinished && state.Pending===0 && state.Stored===state.Validated;
-   },null,{timeout:300000,polling:500});
-   (report.verifications??=[]).push({phase:report.phase,state:await page.evaluate(async()=>
-    (await ApiClient.ajax({url:ApiClient.getUrl('WatchGuard/ActivityIndex/Status?owner=all'),type:'GET',dataType:'json'})).Freshness)});
+   // Playwright 1.56's waitForFunction tests the Promise itself for truthiness;
+   // an async predicate therefore returns early even when it resolves false.
+   const deadline=Date.now()+300000;
+   while(true) {
+    const state=await page.evaluate(async()=>
+     (await ApiClient.ajax({url:ApiClient.getUrl('WatchGuard/ActivityIndex/Status?owner=all'),type:'GET',dataType:'json'})).Freshness);
+    if(state.DiscoveryFinished && state.Pending===0 && state.Stored===state.Validated) {
+     (report.verifications??=[]).push({phase:report.phase,state});return;
+    }
+    assert.ok(Date.now()<deadline,'Native fixture verification did not settle: '+JSON.stringify(state));
+    await new Promise(resolve=>setTimeout(resolve,500));
+   }
   }
   await verified();report.phase='initial query';
   await page.goto(fixture.base+'/web/#/home?watchguard=watchlists&owner=all&interest=watchlisted,watching,playing,watched&sort=title');
