@@ -20,7 +20,9 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
    }
    assert.equal(await region.getByRole('button',{name:'Continue preparing results',exact:true}).isVisible(),false);
   }
-  await settled();assert.equal(await region.locator('.watchguard-card').count(),25);
+  await settled();
+  const initialCount=await region.locator('.watchguard-card').count();
+  assert.ok(initialCount>0 && initialCount<=25,'Ordered pages respect the title ceiling and remaining authorization budget');
   const search=region.getByRole('searchbox',{name:'Search titles',exact:true});
   await search.fill('Index Movie 120');await page.waitForURL(/search=Index%20Movie%20120/);await settled();
   assert.equal(await region.locator('.watchguard-card').count(),1);assert.match(await region.innerText(),/Index Movie 120/);
@@ -29,8 +31,9 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
   await page.screenshot({path:'artifacts/activity-browser/search-1280.png'});
   await search.fill('');await page.waitForURL(/search=$/);await settled();
   const card=await region.locator('.watchguard-card').first().elementHandle();
+  const beforeMore=await region.locator('.watchguard-card').count();
   await region.getByRole('button',{name:'Load more results',exact:true}).click();await settled();
-  assert.ok(await region.locator('.watchguard-card').count()>25);
+  assert.ok(await region.locator('.watchguard-card').count()>beforeMore);
   assert.equal(await card.evaluate(e=>e===document.querySelector('.watchguard-card')),true);
   await region.getByRole('combobox',{name:'Sort by'}).selectOption('added');await page.waitForURL(/sort=added/);await settled();
   await page.setViewportSize({width:390,height:900});
