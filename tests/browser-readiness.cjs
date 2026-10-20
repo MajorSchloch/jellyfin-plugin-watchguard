@@ -35,15 +35,17 @@ function timing(fixture,phase,ms) {
 // transition; do not retry authentication or bypass any native login control.
 async function revealManualLogin(page) {
     const username=page.locator('#txtManualName');
-    if (!(await username.isVisible())) {
-        const manual=page.getByRole('button',{name:'Manual Login',exact:true});
-        try {
-            await manual.click({timeout:3000});
-        } catch (error) {
-            // A disappearing chooser button is fine only when Jellyfin has
-            // already revealed the actual username field. Otherwise fail.
-            if (!(await username.isVisible())) throw error;
-        }
+    // Fill immediately when the form is visible. Waiting again here creates a
+    // gap in which a late user-list response can hide it behind the chooser;
+    // fillCredentials handles that specific transition before sign-in.
+    if (await username.isVisible()) return;
+    const manual=page.getByRole('button',{name:'Manual Login',exact:true});
+    try {
+        await manual.click({timeout:3000});
+    } catch (error) {
+        // A disappearing chooser button is fine only when Jellyfin has
+        // already revealed the actual username field. Otherwise fail.
+        if (!(await username.isVisible())) throw error;
     }
     await username.waitFor({state:'visible',timeout:15000});
 }

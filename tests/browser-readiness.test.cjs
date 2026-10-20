@@ -175,11 +175,15 @@ test('Unrelated navigation failures and authentication failures are never retrie
     }
 });
 
-test('Late public-user chooser is revealed before one sign-in without retrying authentication',async t=>{
+for(const timing of ['before visibility wait','before fill'])
+test('Late public-user chooser is revealed before one sign-in: '+timing,async t=>{
     const f=fixture(t);await readiness.capture(f.page);const counts=loginPage(f);
-    let visible=true,fills=0,reveals=0;
+    let visible=true,fills=0,reveals=0,checks=0;
     f.page.locator=()=>({
-        isVisible:async()=>visible,waitFor:async()=>assert.equal(visible,true),
+        isVisible:async()=>{
+            if(++checks===1 && timing==='before visibility wait'){visible=false;return true;}
+            return visible;
+        },waitFor:async()=>assert.equal(visible,true),
         fill:async()=>{if(++fills===1){visible=false;throw new Error('Form hidden by public-user chooser');}}
     });
     const role=f.page.getByRole;
