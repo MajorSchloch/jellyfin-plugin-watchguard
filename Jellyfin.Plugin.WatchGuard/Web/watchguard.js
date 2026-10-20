@@ -840,7 +840,7 @@
                         ...(Object.hasOwn(e, 'AddedAtUtc') ? { AddedAtUtc: e.AddedAtUtc } : {})
                     }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
                     selectInterest(entries, 'all', user); explicit = entries; if (!automatic.length) combined = false;
-                } catch (failure) { if (authorizationDenied(failure) || !current()) return; if (!options.indexedActivity || !prioritize) explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
+                } catch (failure) { if (authorizationDenied(failure) || !current()) return; if (!options.indexedActivity) explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
                 if (!options.indexedActivity) automatic = [];
                 render(); // Paint memberships before activity is available.
                 try {
@@ -857,7 +857,7 @@
                     if (authorizationDenied(failure) || !current()) return;
                     // Keep a same-view refresh usable on transport/lookup failure.
                     // Native authorization failures must clear previously shown activity.
-                    if (!options.indexedActivity || !prioritize) automatic = [];
+                    if (!options.indexedActivity) automatic = [];
                     if (options.indexedActivity) queryFailure(failure);
                     failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.');
                 }

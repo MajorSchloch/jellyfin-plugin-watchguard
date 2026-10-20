@@ -1019,3 +1019,11 @@ for(const status of [401,403,409]) test('Deeper authorized change check handles 
     if(status===409){assert.equal(f.page.children[5].children.length,1);assert.equal(f.page.children.at(-1).textContent,'Refresh this view');}
     else {assert.equal(f.page.children[5].children.length,0);t.mock.timers.tick(30000);await turn();assert.equal(f.calls.length,4);}
 });
+
+test('Updates available action retains the deeper view when the replacement query fails',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(automaticResult.Items,'more'));await turn();
+    const loading=f.page.children.at(-1).onclick();await turn();f.calls[2].resolve(indexedResult());await loading;const card=f.page.children[5].children[0];
+    t.mock.timers.tick(30000);await turn();f.calls[3].resolve({...indexedResult(),Changed:true,Preparing:false});await turn();
+    descendants(f.page).find(n=>n.textContent==='Updates available').onclick();await turn();f.calls[4].resolve([]);await turn();f.calls[5].reject({status:503});await turn();
+    assert.equal(f.page.children[5].children[0],card);assert.match(f.page.children[4].textContent,/unavailable/);assert.match(textOf(card),/may have stopped/);
+});
