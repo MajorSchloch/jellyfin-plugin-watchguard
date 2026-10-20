@@ -13,9 +13,9 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
   page=await context.newPage();page.setDefaultTimeout(20000);
   page.on('response',async response=>{
    const url=new URL(response.url());if(!url.pathname.endsWith('/WatchGuard/ActivityBrowser'))return;
-   const record={status:response.status(),search:url.searchParams.get('search'),continuation:url.searchParams.has('continuation')};
+   const record={status:response.status(),search:url.searchParams.get('search'),statuses:url.searchParams.get('statuses'),days:url.searchParams.get('days'),older:url.searchParams.get('older'),continuation:url.searchParams.has('continuation')};
    report.responses.push(record);
-   try {const data=await response.json();Object.assign(record,{preparing:data.Preparing,items:data.Items?.length,more:!!data.Continuation,code:data.Code});} catch {}
+   try {const data=await response.json();Object.assign(record,{preparing:data.Preparing,items:data.Items?.length,more:!!data.Continuation,code:data.Code,work:data.ReadDiagnostics,causes:data.Coverage?.Causes});} catch {}
   });
   await readiness.capture(page);await readiness.login(page,fixture);
   async function verified() {
@@ -25,8 +25,10 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
    await page.waitForFunction(async()=>{
     const data=await ApiClient.ajax({url:ApiClient.getUrl('WatchGuard/ActivityIndex/Status?owner=all'),type:'GET',dataType:'json'});
     const state=data.Freshness;
-    return state.DiscoveryFinished && state.Pending===0 && state.Stored===state.Validated;
+   return state.DiscoveryFinished && state.Pending===0 && state.Stored===state.Validated;
    },null,{timeout:300000,polling:500});
+   (report.verifications??=[]).push({phase:report.phase,state:await page.evaluate(async()=>
+    (await ApiClient.ajax({url:ApiClient.getUrl('WatchGuard/ActivityIndex/Status?owner=all'),type:'GET',dataType:'json'})).Freshness)});
   }
   await verified();report.phase='initial query';
   await page.goto(fixture.base+'/web/#/home?watchguard=watchlists&owner=all&interest=watchlisted,watching,playing,watched&sort=title');

@@ -37,7 +37,11 @@ public sealed record BrowserPage(OverviewItem[] Items, bool Preparing, string? C
     public bool IsComplete => false;
 }
 public sealed record BrowserFreshness(long Revision, bool PopulationPending);
-public sealed record BrowserWork(double DurationMs, int CandidatesExamined, int EpisodeVisibilityQueries, int EpisodeRows);
+public sealed record BrowserWork(double DurationMs, int CandidatesExamined, int EpisodeVisibilityQueries, int EpisodeRows)
+{
+    public int PolicyRevalidations { get; init; }
+    public int PendingRows { get; init; }
+}
 public sealed class BrowserViewExpiredException : Exception;
 
 // Separate from the v0.6 API so installed/older adapters retain their contract.
@@ -104,7 +108,7 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             if (account == null || Policy(account) != policy) throw new BrowserViewExpiredException();
         }
         policies[caller.Id] = Policy(caller);
-        var work = 0; var episodeRows = 0; var authorizedWork = 0;
+        var work = 0; var episodeRows = 0; var authorizedWork = 0; var policyRevalidations = 0; var pendingRows = 0;
         var safeEpisodeKeys = new HashSet<(Guid, Guid, bool)>();
         var visibleEpisodes = new Dictionary<(Guid, Guid, bool), HashSet<Guid>>();
         var requesterItems = new Dictionary<Guid, BaseItem?>();
@@ -144,8 +148,8 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             if (rows.TryGetValue(key, out var row) && (IndexQuery.InRange(row.Activity, query.Days, query.Older, now) || dated.ContainsKey(key) || live.ContainsKey(key)))
             {
                 // Only authorized titles contribute explanations; never expose global worker counts/causes.
-                if (row.AuthorizationFingerprint != policy) { worker.Invalidate(key); causes.Add("PendingVerification"); }
-                else if (!worker.StillValid(row, indexed.Generation)) causes.Add("PendingVerification");
+                if (row.AuthorizationFingerprint != policy) { policyRevalidations++; worker.Invalidate(key); causes.Add("PendingVerification"); }
+                else if (!worker.StillValid(row, indexed.Generation)) { pendingRows++; causes.Add("PendingVerification"); }
                 else if (row.Failure != null) causes.Add(row.Failure);
                 else
                 {
@@ -258,7 +262,8 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
                 "Partial known coverage: each view considers at most 10,000 candidate title/owner pairs and 100 live sessions with at most 50 owners. Refresh or narrow the owner scope when needed. Background discovery is not an exhaustive library audit. Explicit watchlists and live playback are independent of the activity window.",
                 new(1, query.Days, true, causes.Contains("EpisodeMetadataIncomplete"), causes.Contains("VisibilityBudget"), causes.Contains("CandidateLimit"), next != null, causes.Order().ToArray(), warnings),
                 // No global stored/pending totals or worker counters are disclosed by the browser query.
-                new(0, causes.Contains("PendingVerification")), new(Stopwatch.GetElapsedTime(started).TotalMilliseconds, authorizedWork, safeEpisodeKeys.Count, safeEpisodeKeys.Sum(k => visibleEpisodes[k].Count)));
+                new(0, causes.Contains("PendingVerification")), new(Stopwatch.GetElapsedTime(started).TotalMilliseconds, authorizedWork, safeEpisodeKeys.Count, safeEpisodeKeys.Sum(k => visibleEpisodes[k].Count))
+                { PolicyRevalidations = policyRevalidations, PendingRows = pendingRows });
         }
     }
 

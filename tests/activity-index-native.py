@@ -6,6 +6,7 @@ import statistics
 import time
 import subprocess
 import zipfile
+import os
 
 BASELINE_SHA = '62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec'
 
@@ -53,6 +54,12 @@ done''')
         if n % 2 == 0:
             call('/UserItems/' + episodes[0]['Id'] + '/UserData?userId=' + user['Id'], 'POST', {'Played': False, 'PlaybackPositionTicks': 10000}, token)
     dll = plugins / 'WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
+    if os.environ.get('WATCHGUARD_ACTIVITY_UI_ONLY') == '1':
+        for n in range(2):
+            signed = call('/Users/AuthenticateByName', 'POST', {'Username': 'IndexUser' + str(n), 'Pw': 'DisposableIndex123!'})
+            for item in [movies[-1], series[0]]:
+                call('/WatchGuard/Watchlist/' + item['Id'], 'PUT', token=signed['AccessToken'], expected=204)
+        return
     candidate = dll.read_bytes()
     with zipfile.ZipFile(baseline) as archive: previous = archive.read('Jellyfin.Plugin.WatchGuard.dll')
     result = {'baselineSha256': BASELINE_SHA, 'fixture': {'users': 7, 'completedMovies': 120, 'seriesEpisodes': 300}, 'measurements': {}}

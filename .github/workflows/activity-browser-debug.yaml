@@ -1,0 +1,38 @@
+name: Disposable activity browser diagnostic
+on:
+  push:
+    branches: [feat/activity-browser-v070]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.0'
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24.22.0'
+      - run: python3 scripts/build-release.py
+      - run: npm ci --prefix tests/browser
+      - run: cd tests/browser && npx playwright install --with-deps chromium
+      - run: docker pull jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037
+      - run: python3 tests/run_suite.py activity-index
+        env:
+          WATCHGUARD_ACTIVITY_UI_ONLY: '1'
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: activity-browser-diagnostic
+          path: |
+            artifacts/testing/
+            artifacts/v049/
+            artifacts/activity-browser/**/*.json
+            artifacts/activity-browser/*.png
