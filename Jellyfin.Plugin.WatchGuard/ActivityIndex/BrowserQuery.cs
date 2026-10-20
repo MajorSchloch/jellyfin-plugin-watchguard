@@ -36,7 +36,7 @@ public sealed record BrowserPage(OverviewItem[] Items, bool Preparing, string? C
 {
     public bool IsComplete => false;
 }
-public sealed record BrowserFreshness(long Revision, bool DiscoveryFinished, int Pending);
+public sealed record BrowserFreshness(long Revision, bool PopulationPending);
 public sealed record BrowserWork(double DurationMs, int CandidatesExamined, int EpisodeVisibilityQueries, int EpisodeRows);
 public sealed class BrowserViewExpiredException : Exception;
 
@@ -102,7 +102,8 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             if (account == null || Policy(account) != policy) throw new BrowserViewExpiredException();
         }
         policies[caller.Id] = Policy(caller);
-        var work = 0; var episodeRows = 0; var episodeQueries = 0;
+        var work = 0; var episodeRows = 0; var episodeQueries = 0; var authorizedWork = 0;
+        var safeEpisodeKeys = new HashSet<(Guid, Guid, bool)>();
         var visibleEpisodes = new Dictionary<(Guid, Guid, bool), HashSet<Guid>>();
         var requesterItems = new Dictionary<Guid, BaseItem?>();
         BaseItem? Item(Guid id)
@@ -130,12 +131,13 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             var item = Item(key.ItemId);
             if (!InterestService.Supported(item) || !item!.Name.Contains(query.Search, StringComparison.OrdinalIgnoreCase) ||
                 !InterestService.Supported(library.GetItemById<BaseItem>(key.ItemId, account))) return null;
+            authorizedWork++;
             var preliminaryReasons = (rows.TryGetValue(key, out var potential) && IndexQuery.InRange(potential.Activity, query.Days, query.Older, now) ? potential.Activity.Reasons : Array.Empty<string>())
                 .Concat(dated.ContainsKey(key) ? ["Watchlisted"] : Array.Empty<string>()).Concat(live.ContainsKey(key) ? ["CurrentlyPlaying"] : Array.Empty<string>()).ToArray();
             if (!query.Matches(new(key.UserId, "", preliminaryReasons, null))) return null;
             var policy = Policy(account);
             OverviewUser? activity = null; IndexRow? source = null;
-            if (rows.TryGetValue(key, out var row) && IndexQuery.InRange(row.Activity, query.Days, query.Older, now))
+            if (rows.TryGetValue(key, out var row) && (IndexQuery.InRange(row.Activity, query.Days, query.Older, now) || dated.ContainsKey(key) || live.ContainsKey(key)))
             {
                 // Only authorized titles contribute explanations; never expose global worker counts/causes.
                 if (row.AuthorizationFingerprint != policy) { worker.Invalidate(key); causes.Add("PendingVerification"); }
@@ -150,10 +152,14 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
                         var callerIds = Episodes(caller, key.ItemId, row.Continuing);
                         authorized = ownerIds.SetEquals(row.Episodes) && ownerIds.IsSubsetOf(callerIds);
                         if (!authorized) worker.Invalidate(key);
+                        else { safeEpisodeKeys.Add((account.Id, key.ItemId, row.Continuing)); safeEpisodeKeys.Add((caller.Id, key.ItemId, row.Continuing)); }
                     }
                     if (authorized && worker.StillValid(row, indexed.Generation))
                     {
-                        activity = row.Activity with { DisplayName = account.Username }; source = row;
+                        activity = IndexQuery.InRange(row.Activity, query.Days, query.Older, now)
+                            ? row.Activity with { DisplayName = account.Username }
+                            : new(key.UserId, account.Username, [], row.Activity.LastPlayedDate);
+                        source = row;
                         if (!row.MetadataComplete) causes.Add("EpisodeMetadataIncomplete");
                     }
                 }
@@ -250,7 +256,7 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
                 "Known eligible titles only; background discovery is not an exhaustive library audit. Explicit watchlists and live playback are independent of the activity window.",
                 new(1, query.Days, true, causes.Contains("EpisodeMetadataIncomplete"), causes.Contains("VisibilityBudget"), causes.Contains("CandidateLimit"), next != null, causes.Order().ToArray(), warnings),
                 // No global stored/pending totals or worker counters are disclosed by the browser query.
-                new(0, worker.Status().DiscoveryFinished, causes.Contains("PendingVerification") ? 1 : 0), new(Stopwatch.GetElapsedTime(started).TotalMilliseconds, work, episodeQueries, episodeRows));
+                new(0, causes.Contains("PendingVerification")), new(Stopwatch.GetElapsedTime(started).TotalMilliseconds, authorizedWork, safeEpisodeKeys.Count, safeEpisodeKeys.Sum(k => visibleEpisodes[k].Count)));
         }
     }
 

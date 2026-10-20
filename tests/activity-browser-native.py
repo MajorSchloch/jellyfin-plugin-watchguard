@@ -62,7 +62,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
         start = time.perf_counter(); first = call(route, token=token, timeout=60)
         raw_first_ms = (time.perf_counter() - start) * 1000
         items = list(first['Items']); page = first; pages = 1
-        first_result_ms = None if first.get('Preparing') else raw_first_ms
+        first_result_ms = raw_first_ms if not first.get('Preparing') and (first['Items'] or not first.get('Continuation')) else None
         work = {key: first.get('ReadDiagnostics', {}).get(key, 0) for key in ['CandidatesExamined', 'EpisodeVisibilityQueries', 'EpisodeRows']}
         seen = set()
         while page.get('Continuation'):
@@ -70,7 +70,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
             page = call(route + '&continuation=' + cursor, token=token, timeout=60); pages += 1
             assert pages < 100
             items += page['Items']
-            if first_result_ms is None and not page.get('Preparing'):
+            if first_result_ms is None and not page.get('Preparing') and (page['Items'] or not page.get('Continuation')):
                 first_result_ms = (time.perf_counter() - start) * 1000
             for key in work: work[key] += page.get('ReadDiagnostics', {}).get(key, 0)
         return merged(items), {'rawFirstPageMs': raw_first_ms, 'firstOrderedPageMs': first_result_ms,

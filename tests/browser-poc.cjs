@@ -223,6 +223,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
             const addedSort=myList().getByRole('combobox',{name:'Sort by'});
             await addedSort.selectOption('added');
             assert.match(page.url(),/sort=added/);
+            await myList().locator('.watchguard-user-line time').filter({hasText:/^Added /}).first().waitFor();
             assert.ok((await myList().locator('.watchguard-user-line time').allInnerTexts()).some(t=>t.startsWith('Added ')),
                 'Known add dates are shown on owner rows');
         }

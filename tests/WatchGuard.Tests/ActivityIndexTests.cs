@@ -585,10 +585,10 @@ public sealed class ActivityIndexTests : IDisposable
         member.Set(alice.Id, old.Id, true); member.Set(alice.Id, series.Id, true);
         await Populate(); var browser = Browser();
         var result = All(browser, alice, Options(), out _);
-        var merged = Assert.Single(result.Where(i => i.ItemId == series.Id)).Users.Single();
+        var merged = Assert.Single(result, i => i.ItemId == series.Id).Users.Single();
         Assert.Contains("Watchlisted", merged.Reasons); Assert.Contains("CaughtUp", merged.Reasons); Assert.NotNull(merged.EpisodeProgress);
         var explicitOnly = result.Single(i => i.ItemId == old.Id).Users.Single();
-        Assert.Equal(["Watchlisted"], explicitOnly.Reasons); Assert.Null(explicitOnly.LastPlayedDate);
+        Assert.Equal(["Watchlisted"], explicitOnly.Reasons); Assert.Equal(playback[(alice.Id, old.Id)].LastPlayedDate, explicitOnly.LastPlayedDate);
         Assert.Equal(2, member.Read().Length);
     }
     [Fact]
@@ -641,6 +641,38 @@ public sealed class ActivityIndexTests : IDisposable
         await Populate(slices: 100);
         var result = All(Browser(), bob, BrowserOptions.Create(null, 30, true, "watching", "recent", ""), out var pages);
         Assert.True(pages > 1); Assert.Equal(25, Assert.Single(result).Users.Length);
+    }
+
+    [Fact]
+    public async Task BrowserCombinesLiveMembershipAndThreeOfThreeExtrasByStableOwner()
+    {
+        var series = AddSeries(); var episode = items.Values.OfType<Episode>().First();
+        var extra = new AvailableEpisode { Id = Guid.NewGuid(), SeriesId = series.Id, Name = "Extra", PremiereDate = DateTime.Now.Date.AddDays(1) };
+        items.Add(extra.Id, extra); new WatchlistStore(path, clock).Set(alice.Id, series.Id, true); await Populate();
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = alice.Id, NowPlayingItem = new MediaBrowser.Model.Dto.BaseItemDto { Id = episode.Id } }]);
+        var browser = Browser(); var page = browser.Read(alice, Options(), null, CancellationToken.None);
+        var person = Assert.Single(Assert.Single(page.Items).Users);
+        Assert.Equal(new[] { "CaughtUp", "CurrentlyPlaying", "Watchlisted" }, person.Reasons.Order());
+        Assert.Equal(3, person.EpisodeProgress!.AiredAvailable); Assert.Equal(3, person.EpisodeProgress.AiredWatched);
+        Assert.Equal(extra.Id, Assert.Single(person.EpisodeProgress.ExtraEpisodes).ItemId);
+        hidden.Add((alice.Id, episode.Id));
+        page = browser.Read(alice, Options(), null, CancellationToken.None);
+        Assert.Equal(["Watchlisted"], Assert.Single(Assert.Single(page.Items).Users).Reasons);
+        Assert.Equal(0, page.ReadDiagnostics.EpisodeRows); // Hidden episode counts never reach diagnostics.
+    }
+    [Fact]
+    public async Task BrowserLegacyMembershipDateStaysUnknownAndHiddenTitlesDoNotEnterWorkCounts()
+    {
+        var legacy = AddMovie(); var known = AddMovie(); await Populate();
+        Directory.CreateDirectory(path);
+        await File.WriteAllTextAsync(Path.Combine(path, "watchlists.json"), System.Text.Json.JsonSerializer.Serialize(new WatchlistDocument(1, [new(alice.Id, legacy.Id)])));
+        new WatchlistStore(path, clock).Set(alice.Id, known.Id, true);
+        var browser = Browser(); var page = browser.Read(alice, Options("watchlisted", "added"), null, CancellationToken.None);
+        Assert.Equal(known.Id, page.Items[0].ItemId); Assert.Null(page.Items[1].Users[0].AddedAtUtc);
+        hidden.Add((alice.Id, legacy.Id)); hidden.Add((alice.Id, known.Id));
+        page = browser.Read(alice, Options(), null, CancellationToken.None);
+        Assert.Empty(page.Items); Assert.Equal(0, page.ReadDiagnostics.CandidatesExamined); Assert.Empty(page.Coverage.Causes);
     }
 
     private sealed class TestClock : TimeProvider {

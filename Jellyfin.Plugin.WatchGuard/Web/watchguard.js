@@ -805,7 +805,8 @@
             if (!result.Freshness || !Number.isInteger(result.Freshness.Revision) || (result.Continuation != null && typeof result.Continuation !== 'string')) throw new Error('Invalid index status');
             for (const item of result.Items) for (const owner of item.Users) if (owner.Reasons.includes('Watchlisted') && !Object.hasOwn(owner, 'AddedAtUtc')) owner.AddedAtUtc = null;
             preparing = result.Preparing === true; combined = !preparing;
-            continuation = result.Continuation || null; indexPopulating = !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
+            continuation = result.Continuation || null; indexPopulating = Object.hasOwn(result.Freshness, 'PopulationPending') ? result.Freshness.PopulationPending : !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
+            if (Object.hasOwn(result.Freshness, 'PopulationPending')) { freshness.textContent = 'Known eligible data only; background discovery may add results. Refresh to include new activity.'; return; }
             const date = result.Freshness.LastUpdate && new Date(result.Freshness.LastUpdate);
             freshness.textContent = (date && Number.isFinite(date.getTime()) ? 'Last verified: ' + date.toLocaleString() : indexPopulating ? 'Waiting for background verification.' : 'No verified activity timestamp available.') +
                 (result.Freshness.DiscoveryFinished ? ' · Native discovery pass finished; coverage limits still apply.' : ' · Background population in progress.');
@@ -853,6 +854,7 @@
             finally { if (active() && revision === generation) { pending = false; render(); } }
         };
         page.updateFilters = (owner, interest, sorting, days, older, text = '') => {
+            if (searchTimer) { clearTimeout(searchTimer); searchTimer = null; }
             searchText = text.slice(0, 120); if (search.value !== searchText) search.value = searchText;
             const nextRange = [7,30,90].includes(Number(days)) ? Number(days) : 30, nextOlder = older !== 'false';
             const timeChanged = range !== nextRange || includeOlder !== nextOlder;
@@ -863,7 +865,7 @@
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
             if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; pending = true; render(); load(); } else render();
         };
-        const change = () => { if (active()) { const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
+        const change = () => { if (active()) { if (options.indexedActivity) generation++; const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
         search.oninput = () => {
             if (!active()) return;
             generation++; if (searchTimer) clearTimeout(searchTimer);

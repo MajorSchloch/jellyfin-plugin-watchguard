@@ -12,7 +12,9 @@ name (maximum 120 characters). Title ordering uses ordinal case-insensitive text
 then ordinal text and title ID. Playback recency and Recently added use the latest
 known respective date among authorized owners matching scope and status, descending,
 then the title ordering. Unknown dates come last; legacy membership dates remain
-unknown. There is no playing/current-interest priority.
+unknown. Authorized indexed native dates on explicit/live rows remain usable for
+ordering even when their automatic reasons fall outside the selected window.
+There is no playing/current-interest priority.
 
 Query preparation authorizes and filters known candidates before sorting and
 pagination. It is bounded separately from the background classifier and performs
@@ -41,3 +43,10 @@ Transport errors retain same-view results. Expired continuations offer Refresh.
 Deletion protection, approvals, personal stores, plugin GUID and Jellyfin ABI are
 outside this change. The published v0.6.0 package is the native performance
 baseline. Qualification and exact bounds are recorded with the release evidence.
+
+Read diagnostics count only currently authorized title/owner work and episode sets
+visible to the caller. They are not a raw hidden-candidate counter. Native fixture
+measurements use unrestricted disposable accounts; restricted views may perform
+additional suppressed authorization work. Global worker totals and discovery state
+are not exposed by the combined browser API. Population indications refer to known,
+authorized rows awaiting verification; coverage always permits undiscovered data.

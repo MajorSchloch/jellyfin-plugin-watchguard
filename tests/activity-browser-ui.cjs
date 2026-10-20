@@ -1,5 +1,6 @@
 /* Native disposable fixture screenshots and query interaction checks. */
 const {chromium}=require('./browser/node_modules/playwright');
+const readiness=require('./browser-readiness.cjs');
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const fixture=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
 assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
@@ -8,10 +9,7 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
  try {
   const context=await browser.newContext({viewport:{width:1280,height:900},locale:'en-US'});
   const page=await context.newPage();page.setDefaultTimeout(20000);
-  await page.goto(fixture.base+'/web/');
-  await page.locator('#txtManualName').fill(fixture.username);await page.locator('#txtManualPassword').fill(fixture.password);
-  await page.getByRole('button',{name:'Sign In',exact:true}).click();
-  await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
+  await readiness.capture(page);await readiness.login(page,fixture);
   await page.goto(fixture.base+'/web/#/home?watchguard=watchlists&owner=all&interest=watchlisted,watching,playing,watched&sort=title');
   const region=page.getByRole('region',{name:'Watchlists',exact:true});
   async function settled() {
