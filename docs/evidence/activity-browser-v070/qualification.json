@@ -1,6 +1,6 @@
 {
-  "testedCommit": "2845703162cbdf42379365bb2415da509d38c66a",
-  "runUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419",
+  "testedCommit": "38271c552b075a589b7caa84eb96cae9462f596c",
+  "runUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136",
   "workflow": "release.yaml",
   "inputs": {
     "publish": false,
@@ -8,14 +8,14 @@
   },
   "status": "completed",
   "conclusion": "success",
-  "createdAt": "2026-10-20T15:32:32Z",
-  "updatedAt": "2026-10-20T15:55:45Z",
-  "candidateZipSha256": "3203a61e3c63e0f84e3cdbed472c8508e5dac043af6a10bd7a059ea16bcc61db",
-  "candidateDllSha256": "e1a8336c5242447b9bfe5674cb990cc705281f7a145954ac496d0c5f6413f98d",
+  "createdAt": "2026-10-20T17:17:30Z",
+  "updatedAt": "2026-10-20T17:44:05Z",
+  "candidateZipSha256": "99e97d991cd16fa8313c68d632601abd7d8ffdbd4a8d971a7bf9d56aadd5a0c7",
+  "candidateDllSha256": "a03c012c062663fd67a26058f98810b5b17a0c1b054620536826c926edc186c8",
   "baselineZipSha256": "3542b971231b51a78d9783b490f1438b231cd0fca48b61c6aad5098528d50bd7",
   "checks": {
-    "backend": 282,
-    "javascript": 141,
+    "backend": 288,
+    "javascript": 161,
     "pythonInfrastructure": 15,
     "catalog": 4,
     "deterministicRebuild": "PASS",
@@ -24,188 +24,188 @@
   },
   "jobs": [
     {
-      "id": 118719749387,
+      "id": 118773206434,
       "name": "build",
       "conclusion": "success",
-      "startedAt": "2026-10-20T15:32:36Z",
-      "completedAt": "2026-10-20T15:33:40Z"
+      "startedAt": "2026-10-20T17:17:34Z",
+      "completedAt": "2026-10-20T17:18:34Z"
     },
     {
-      "id": 118720364260,
-      "name": "Integration / activity-index",
-      "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:55:44Z"
-    },
-    {
-      "id": 118720364295,
-      "name": "Integration / verification",
-      "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:47:23Z"
-    },
-    {
-      "id": 118720364312,
-      "name": "Integration / server-enforcement-linuxserver",
-      "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:38:52Z"
-    },
-    {
-      "id": 118720364315,
-      "name": "Integration / websocket",
-      "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:35:45Z"
-    },
-    {
-      "id": 118720364338,
-      "name": "Integration / server-enforcement",
-      "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:38:46Z"
-    },
-    {
-      "id": 118720364344,
-      "name": "Integration / migration",
-      "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:44:23Z"
-    },
-    {
-      "id": 118720364349,
-      "name": "Integration / legacy",
-      "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:39:34Z"
-    },
-    {
-      "id": 118720364390,
+      "id": 118773743165,
       "name": "Integration / discovery",
       "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:39:01Z"
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:23:41Z"
     },
     {
-      "id": 118720364407,
-      "name": "Integration / server-enforcement-basepath",
-      "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:45Z",
-      "completedAt": "2026-10-20T15:48:39Z"
-    },
-    {
-      "id": 118720364623,
-      "name": "Integration / standalone-caddy",
-      "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:50:57Z"
-    },
-    {
-      "id": 118720364787,
+      "id": 118773743237,
       "name": "Integration / basepath",
       "conclusion": "success",
-      "startedAt": "2026-10-20T15:33:43Z",
-      "completedAt": "2026-10-20T15:42:52Z"
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:28:30Z"
     },
     {
-      "id": 118732067329,
+      "id": 118773743284,
+      "name": "Integration / server-enforcement-basepath",
+      "conclusion": "success",
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:22:43Z"
+    },
+    {
+      "id": 118773743294,
+      "name": "Integration / migration",
+      "conclusion": "success",
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:29:20Z"
+    },
+    {
+      "id": 118773743300,
+      "name": "Integration / activity-index",
+      "conclusion": "success",
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:44:04Z"
+    },
+    {
+      "id": 118773743364,
+      "name": "Integration / server-enforcement",
+      "conclusion": "success",
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:23:47Z"
+    },
+    {
+      "id": 118773743397,
+      "name": "Integration / server-enforcement-linuxserver",
+      "conclusion": "success",
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:23:56Z"
+    },
+    {
+      "id": 118773743409,
+      "name": "Integration / verification",
+      "conclusion": "success",
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:28:15Z"
+    },
+    {
+      "id": 118773743511,
+      "name": "Integration / standalone-caddy",
+      "conclusion": "success",
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:34:13Z"
+    },
+    {
+      "id": 118773743526,
+      "name": "Integration / websocket",
+      "conclusion": "success",
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:20:38Z"
+    },
+    {
+      "id": 118773743651,
+      "name": "Integration / legacy",
+      "conclusion": "success",
+      "startedAt": "2026-10-20T17:18:37Z",
+      "completedAt": "2026-10-20T17:24:41Z"
+    },
+    {
+      "id": 118786572121,
       "name": "publish",
       "conclusion": "skipped",
-      "startedAt": "2026-10-20T15:55:45Z",
-      "completedAt": "2026-10-20T15:55:44Z"
+      "startedAt": "2026-10-20T17:44:05Z",
+      "completedAt": "2026-10-20T17:44:05Z"
     }
   ],
   "artifacts": [
     {
-      "id": 12279601210,
-      "name": "WatchGuard-evidence-server-enforcement-basepath",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12279601210"
-    },
-    {
-      "id": 12279260901,
-      "name": "WatchGuard-evidence-basepath",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12279260901"
-    },
-    {
-      "id": 12279075283,
-      "name": "WatchGuard-evidence-server-enforcement-linuxserver",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12279075283"
-    },
-    {
-      "id": 12279062417,
-      "name": "WatchGuard-evidence-standalone-caddy",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12279062417"
-    },
-    {
-      "id": 12278925648,
-      "name": "WatchGuard-evidence-legacy",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12278925648"
-    },
-    {
-      "id": 12278753141,
+      "id": 12285988243,
       "name": "WatchGuard-evidence-activity-index",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12278753141"
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12285988243"
     },
     {
-      "id": 12278726598,
-      "name": "WatchGuard-evidence-migration",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12278726598"
+      "id": 12285970535,
+      "name": "WatchGuard-evidence-basepath",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12285970535"
     },
     {
-      "id": 12278612181,
-      "name": "WatchGuard-evidence-verification",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12278612181"
+      "id": 12285915729,
+      "name": "WatchGuard-evidence-standalone-caddy",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12285915729"
     },
     {
-      "id": 12278355029,
-      "name": "published-baseline-model-v048",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12278355029"
+      "id": 12285370783,
+      "name": "WatchGuard-evidence-server-enforcement-basepath",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12285370783"
     },
     {
-      "id": 12278120140,
-      "name": "discovery-model-v048",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12278120140"
+      "id": 12285340855,
+      "name": "WatchGuard-evidence-legacy",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12285340855"
     },
     {
-      "id": 12277940374,
-      "name": "WatchGuard-v0.7.0-validated",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12277940374"
-    },
-    {
-      "id": 12277835855,
-      "name": "WatchGuard-evidence-websocket",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12277835855"
-    },
-    {
-      "id": 12277801483,
-      "name": "WatchGuard-evidence-server-enforcement",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12277801483"
-    },
-    {
-      "id": 12277149937,
+      "id": 12285231161,
       "name": "WatchGuard-evidence-discovery",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12277149937"
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12285231161"
     },
     {
-      "id": 12276609853,
+      "id": 12285191741,
+      "name": "WatchGuard-evidence-migration",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12285191741"
+    },
+    {
+      "id": 12284755993,
+      "name": "discovery-model-v048",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12284755993"
+    },
+    {
+      "id": 12284707596,
+      "name": "WatchGuard-evidence-verification",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12284707596"
+    },
+    {
+      "id": 12284516372,
+      "name": "published-baseline-model-v048",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12284516372"
+    },
+    {
+      "id": 12284496822,
+      "name": "WatchGuard-evidence-server-enforcement-linuxserver",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12284496822"
+    },
+    {
+      "id": 12284411664,
+      "name": "WatchGuard-v0.7.0-validated",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12284411664"
+    },
+    {
+      "id": 12284311946,
       "name": "WatchGuard-build-diagnostics",
-      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419/artifacts/12276609853"
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12284311946"
+    },
+    {
+      "id": 12283904372,
+      "name": "WatchGuard-evidence-websocket",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12283904372"
+    },
+    {
+      "id": 12283769547,
+      "name": "WatchGuard-evidence-server-enforcement",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136/artifacts/12283769547"
     }
   ],
   "screenshots": [
     {
       "file": "added-390.png",
-      "sha256": "87c507d1705403474132234d0a08beb362e673d53686b3e3c249ae72e24a10b0",
+      "sha256": "24ede852dec2f59f49a83d16988d51f9228a5be00d2df82804be7448adcb41fd",
       "sourceSuite": "activity-index"
     },
     {
       "file": "preliminary-1280.png",
-      "sha256": "7e83628cd1c4d6e04d01c0cb39af92794d29c04176bc37810ef7dabe1e1d2388",
+      "sha256": "c9c689e3e75bef280bf9c033ec1c5fdb9f02a5db4171aae9cf2205baeb0af5c1",
       "sourceSuite": "basepath"
     },
     {
       "file": "search-1280.png",
-      "sha256": "7e11f27d1ebb5003421ddeca098f5b469b8378ec0528105e9cf867a336de7469",
+      "sha256": "8a4975c3e318bcca635c904233bc827af63d32f66064b746ebf309deb69a2838",
       "sourceSuite": "activity-index"
     }
   ]

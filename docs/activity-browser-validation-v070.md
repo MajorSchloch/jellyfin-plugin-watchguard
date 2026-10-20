@@ -2,22 +2,18 @@
 
 Unpublished candidate; no merge, release, catalog update or deployment.
 
-**Historical qualification:** the results below describe the earlier runtime at
-`2845703`. Automatic polling/preparation corrections are now undergoing a new
-full qualification; this earlier run does not qualify those corrections.
-
 ## Reproducible candidate
 
 The implementation and fixture commit qualified by this run is
-`2845703162cbdf42379365bb2415da509d38c66a`.
-[Full qualification](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39449366419)
+`38271c552b075a589b7caa84eb96cae9462f596c`.
+[Full qualification](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39464779136)
 passed its build and all eleven integration suites with `publish=false` and
 `proxy_matrix=true`; publication was skipped. The later evidence commit changes
 only documentation and screenshots. [Machine-readable provenance](evidence/activity-browser-v070/qualification.json)
 records the jobs, artifacts and checksums.
 
 Candidate ZIP SHA-256:
-`3203a61e3c63e0f84e3cdbed472c8508e5dac043af6a10bd7a059ea16bcc61db`.
+`99e97d991cd16fa8313c68d632601abd7d8ffdbd4a8d971a7bf9d56aadd5a0c7`.
 The local build and downloaded CI package have identical checksums. CI also
 rebuilds the package and compares checksums. The archive contains only the plugin
 DLL and LICENSE; the Web adapter is embedded. Public `manifest.json` is unchanged.
@@ -28,7 +24,7 @@ Official and LinuxServer Jellyfin images remain digest-pinned by the workflow.
 
 ## Regression coverage
 
-The qualification build passes 282 backend tests, 141 JavaScript tests, 15 Python infrastructure
+The qualification build passes 288 backend tests, 161 JavaScript tests, 15 Python infrastructure
 checks and four catalog tests. The existing deletion, approval and security
 assertions remain enabled.
 
@@ -40,7 +36,9 @@ assertions remain enabled.
 | Authorization changes | Current requester/owner item access, episode-set revocation, policy invalidation, disabled native owner, private work diagnostics and candidate bounds |
 | Continuations | Complete query/caller binding, expiry, partial-title owner continuation under episode limits, no duplicate owners, bounded progress and stable ordering across unchanged reverification |
 | Browser races | Debounced search, superseded responses, checkbox/filter changes while paging, account switch, 401/403 clearing, both poll/pagination and refresh/pagination orders |
-| Retained view | Inline expired-view Refresh retains controls/cards; unchanged poster and focused removal button survive pagination; ordinary update failures retain loaded data |
+| Automatic updates | First-page population and activity replacement; authorized deeper-view comparisons; hidden/unselected changes ignored; native playback start/stop; stale retained live labels |
+| Automatic preparation | Four-request ceiling, empty prepared boundary, terminal empty result, duplicate/missing progress, expiry, manual continuation after exhaustion, filter/search/account/navigation cancellation |
+| Retained view | Inline expired-view Refresh retains controls/cards; unchanged poster and focused removal button survive pagination; ordinary update failures and failed Updates available actions retain loaded data |
 
 ## Native v0.6.0 comparison
 
@@ -71,18 +69,21 @@ Median milliseconds from three measured samples (one warm-up):
 
 | Query | Titles | v0.6 raw first index page | v0.6 globally ordered answer / complete | v0.7 first ordered page | v0.7 complete |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| All owners · Title | 122 | 47.8 | 237.1 | 103.6 | 261.4 |
-| One owner · Playback recency | 121 | 30.4 | 131.9 | 22.2 | 113.5 |
-| Watchlisted · Recently added | 3 | 49.2 | 242.1 | 28.5 | 28.6 |
-| Watched · title search | 1 | 48.1 | 229.0 | 35.0 | 35.1 |
-| Watching · Playback recency | 1 | 47.5 | 226.3 | 46.6 | 46.6 |
-| Currently playing · Title | 1 | 47.3 | 226.2 | 17.9 | 17.9 |
+| All owners · Title | 122 | 49.0 | 234.0 | 108.3 | 264.6 |
+| One owner · Playback recency | 121 | 23.4 | 125.6 | 22.9 | 109.5 |
+| Watchlisted · Recently added | 3 | 47.7 | 228.0 | 27.4 | 27.4 |
+| Watched · title search | 1 | 45.8 | 222.2 | 34.9 | 34.9 |
+| Watching · Playback recency | 1 | 45.5 | 221.9 | 49.9 | 50.0 |
+| Currently playing · Title | 1 | 45.8 | 222.2 | 18.1 | 18.1 |
 
-The broad v0.7 query first returned bounded preparation in 49.6 ms, then its
-first ordered page at 103.6 ms. Complete pagination took 261.4 ms versus 237.1 ms
-for the baseline combined answer: the additional authorization work costs about
-10% here. The selective search reached its single title in 35.0 ms with one
-request; v0.6 needed all six requests to establish the same global answer.
+The broad v0.7 query first returned bounded preparation in 56.3 ms, then its
+first ordered page at 108.3 ms after two requests (one Preparing response).
+Every other candidate scenario reached its first ordered page in one request.
+Complete broad pagination took 264.6 ms versus 234.0 ms for the baseline combined
+answer: the additional authorization work costs about 13% here. The selective
+search reached its single title in 34.9 ms with one request; v0.6 needed all six
+requests to establish the same global answer. No measured API sample encountered
+the empty prepared boundary; focused regressions cover that boundary explicitly.
 
 Work across complete pagination (stable across the three samples):
 
@@ -100,16 +101,64 @@ means unavailable, not zero native work. Both versions caused **zero playback
 classification batches** during every measured scenario. Broad v0.7 pagination
 repeats episode authorization during preparation and disclosure, explaining the
 higher episode-row count. Selective movie searches avoid episode queries.
-Initial verification after package restart took 268.4 s for v0.6 and 268.3 s for
+Initial verification after package restart took 250.2 s for v0.6 and 250.2 s for
 v0.7; warm timings exclude that background population.
 
 [Raw samples and fixture](evidence/activity-browser-v070/native-comparison.json),
 [native browser checks](evidence/activity-browser-v070/native-browser.json),
 [proxy matrix](evidence/activity-browser-v070/proxy-compatibility.json) and
 [native proxy-policy boundary](evidence/activity-browser-v070/native-remote-access-proxy.json)
-are retained with this report. Native search, clearing search, page progress,
-poster-node identity, search focus and the 390px no-overflow assertion passed;
-this final run needed no expired-view recovery.
+are retained with this report.
+
+## Actual native browser behavior
+
+Playwright drives the embedded adapter against the real disposable Jellyfin
+server. These checks use native user-data and session mutations, not substituted
+ActivityBrowser responses. Initial population is exercised by invalidating
+verification through a harmless native policy-field change on the six disposable
+viewing accounts; it does not alter library visibility.
+
+| Browser operation | Ready time | Query requests, including preparation | Observed result |
+| --- | ---: | ---: | --- |
+| Open during population | 336 ms | 2, including 1 Preparing | 3 explicit titles, known population pending |
+| Search for Index Movie 120 | 448 ms | 1 | 1 title, focus retained |
+| Clear search, warm broad view | 502 ms | 2, including 1 Preparing | 23 ordered titles, more available, no continuation click |
+| Open one-owner Watched search | 103 ms | 1 | 1 title |
+| Open Currently playing search | 96 ms | 1 | Empty before playback starts |
+| Open broad view before Load more | 247 ms | 2, including 1 Preparing | 23 ordered titles |
+
+These are single observed browser operations, not medians. Ready time includes
+navigation/control handling, search debounce where applicable, membership preview
+when fetched, and rendering readiness. Request counts cover ActivityBrowser only;
+they exclude membership, account/bootstrap and fixture-management requests. A page
+may contain fewer than 25 titles because authorization and owner continuation
+remain bounded; the browser does not fetch ordinary pages to fill it.
+
+The first automatic poll after the initial three-title view returned 25 titles
+while population was still pending. The fixture continued observing background
+verification for 275.8 s and ended with 23 ordered titles and more available,
+without Refresh. That duration includes waiting for verification of the whole
+fixture, not latency to the first newly populated card. Broad first-page polls
+used two sequential query requests each; they did not paginate the ordinary
+result set. Selected-owner Watched changed 1 → 0 → 1 after native unwatched/watched
+mutations. Currently playing changed 0 → 1 → 0 after native start/stop mutations,
+all through automatic polling without Refresh.
+
+After one Load more, the browser retained 47 distinct titles, the first poster
+node and scrollTop 400. Stopping playback triggered an authorized check with
+Changed=true, zero returned cards, 100 authorized pair resolutions and no episode
+queries (64 ms HTTP response time). Updates available appeared without reordering
+the view. The retained playback label explicitly said it may have stopped. The
+Updates available action then loaded a fresh view. This is a changed-view check,
+not a benchmark of worst-case unchanged checks. Search focus, clearing search,
+poster identity and the 390px no-overflow assertion also passed. Existing native
+basepath tests retain overlapping filter/response and security assertions.
+
+Focused tests additionally cover four-request exhaustion and manual resumption,
+expiry, non-progress, empty prepared boundaries, cancellation, overlapping
+requests, account isolation, permission changes, 401/403 clearing, hidden-page
+pausing and multi-poll checks. Native HTTP responses for every browser query,
+including preparation, are retained in the linked JSON.
 
 ## Screenshots
 
@@ -137,20 +186,29 @@ restricted views can perform additional suppressed authorization work.
 Uninstrumented native title lookups and file-store reads are not reported as
 playback classification.
 
-Each snapshot considers at most 10,000 candidate title/owner pairs. Native item
-lookups and episode visibility have separate request budgets; preparation may
-need explicit continuation. Fixed candidate/live ceilings are disclosed without
-revealing hidden candidate cardinality. Coverage remains partial even at the end
-of pagination. Snapshots last five minutes, with two per caller and sixteen
-globally; eviction or relevant metadata/activity/permission changes can require
-Refresh. Newly discovered results require Refresh, and polling never reorders a
-deeply paged view.
+Each snapshot considers at most 10,000 candidate title/owner pairs. A request
+spends at most 500 native title/owner lookups plus one attempted pair at the
+boundary, and at most 20,000 episode visibility rows, alongside the bounded live
+overlay. An automatic operation issues at most four sequential requests; those
+limits therefore apply up to four times per operation. Continue loading appears
+only after that allowance is exhausted. Ordinary result pages remain under Load
+more. Fixed candidate/live ceilings are disclosed without revealing hidden
+candidate cardinality. Coverage remains partial even at the end of pagination.
 
-Earlier qualification attempts exposed fixture synchronization failures: a stale
-Docker port after restart, a late native login chooser, and an asynchronous
-Playwright predicate that returned before the seeded index was verified. The
-fixture now explicitly awaits verification and records bounded expiry recovery;
-it never retries sign-in, approval or deletion. A separate backend regression
-reproduced snapshot expiry after unchanged background reverification. Structural
-comparison now preserves that view while actual displayed metadata changes still
-expire it. Failed and superseded runs are not counted as successful qualification.
+Visible first pages requery every 30 seconds, after the previous operation has
+finished. Native event classification can add delay before that next poll.
+Deeper views keep their order and use authorized comparisons with the same
+four-request allowance per poll; unfinished checks resume later. Live labels in
+retained deeper views are explicitly stale. There is at most one pending check
+cursor per baseline. Baselines and continuations share the sixteen-global and
+two-per-caller snapshot allowance and five-minute lifetime; checks do not extend
+it. Expiry/eviction or relevant policy changes offer Refresh with the same
+controls. Query changes fence superseded work, hidden documents pause polling,
+and revisions are opaque caller/query handles rather than global counters.
+
+An earlier correction run passed its native API comparison and ten integration
+suites but failed in browser setup because the fixture tried to parse an empty
+204 policy-update response as JSON. The helper now accepts empty mutation
+responses. Earlier failed/superseded runs are not counted as successful
+qualification. The final successful run above qualifies the corrected runtime
+and its native automatic-update/preparation checks.

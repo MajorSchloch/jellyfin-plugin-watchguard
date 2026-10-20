@@ -95,4 +95,4 @@ See the [documentation index](docs/README.md) for the current security, deployme
 
 ## Activity browser — v0.7.0 preparation (unpublished)
 
-Published v0.6.0 provides the background activity index and native reconciliation. The v0.7.0 candidate adds a combined server query for filtering, ordering and title search before pagination. See the [query contract](docs/activity-browser-v070.md) and [candidate release notes](docs/release-v070.md). Public assets and catalog history are unchanged.
+Published v0.6.0 provides the background activity index and native reconciliation. The v0.7.0 candidate adds a combined server query for filtering, ordering and title search before pagination. Preparation advances automatically within four requests. Visible first pages update automatically; deeper views keep their order and show when authorized checks find updates. See the [query contract](docs/activity-browser-v070.md) and [candidate release notes](docs/release-v070.md). Public assets and catalog history are unchanged.

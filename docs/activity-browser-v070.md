@@ -92,3 +92,15 @@ when the view was loaded. Failed automatic updates likewise mark live state as
 potentially stale. Hidden documents pause polling. Query requests share one
 serialized slot, and any control/account/navigation change immediately fences
 queued requests and responses. Automatic preparation never retries expiry within the same operation; a first-page poll can start a fresh view on the next 30-second interval.
+
+`Freshness.Revision` is an opaque snapshot handle, absent until preparation is
+complete. `check=true&revision=…` binds the same caller and every query control;
+its continuation cannot be used for result pagination. `Changed=true` means a
+freshly checked matching entry differs from the baseline, or a baseline entry
+is no longer eligible/visible. `Changed=false, Preparing=true` is an incomplete
+check, never a claim that the entire known set is unchanged. The browser resumes
+that check on a later poll after spending its four-request allowance. There is
+at most one pending check cursor per watched snapshot, sharing the existing
+sixteen-global/two-per-caller snapshot limit. Checks do not extend the five-minute
+lifetime. The four-request browser budget multiplies the existing query item and
+episode budgets; the separately bounded live overlay is checked on every request.
