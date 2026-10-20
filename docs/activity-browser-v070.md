@@ -26,7 +26,7 @@ Completing preparation replaces that preliminary view with the combined query.
 
 Continuations are opaque, single-use, expire, and bind the caller and every query
 control. Snapshots freeze eligible IDs, selected owners, metadata and ordering;
-new activity or metadata requires refresh. Every result page repeats native owner,
+new activity or metadata is incorporated by first-page polling or a deeper-view refresh. Every result page repeats native owner,
 requester and episode visibility checks. Policy changes invalidate the view; stale
 activity is omitted or requires refresh rather than leaking historical counts.
 An authorization change affecting an ordering contributor requires refresh.
@@ -38,8 +38,9 @@ reported; loaded counts describe only disclosed rows. Snapshot and request limit
 are explicit and cannot be removed merely to fill a page.
 
 Search is debounced and all control changes fence older requests immediately.
-Pagination and refresh share a request slot. Polling checks for updates without
-replacing a paged snapshot; Refresh retains controls and starts a new snapshot.
+Pagination, preparation, polling and refresh share a serialized query slot.
+Polling updates the first page or checks a deeper snapshot without replacing it;
+Refresh retains controls and starts a new snapshot.
 401/403 clears the captured account's data even from a superseded request.
 Transport errors retain same-view results. Expired continuations offer Refresh.
 
@@ -63,3 +64,31 @@ request budget (plus one attempted pair at the boundary); pure projection scanni
 is capped by the 10,000-pair snapshot. Episode visibility remains independently
 bounded at 20,000 rows. This keeps selective movie/series queries useful without
 raising classification or discovery limits.
+
+## Correction: automatic updates and preparation
+
+The visible first page is queried again every 30 seconds while the document is
+visible. A browser operation automatically follows at most four sequential
+query requests, each retaining the server's existing native/episode budgets,
+until the first nonempty ordered page or an empty terminal result is available.
+This includes the boundary response where preparation has finished but no title
+fits the remaining request budget. It never automatically follows ordinary
+result pagination. If the four-request budget is exhausted, Continue loading is
+available; preliminary memberships remain visible. Expiry or a repeated cursor
+stops the operation and offers Refresh with the same controls. A later first-page
+poll may start a fresh query, but never loops on the failed continuation.
+
+After Load more, polling retains the cards and their order. An opaque,
+caller/query-bound revision identifies the authorized baseline snapshot, not a
+global worker counter. Bounded checks compare freshly authorized known candidates
+against that baseline, including membership, displayed activity and native live
+sessions. A relevant difference offers Updates available. Incomplete checks
+continue on a later poll, within the same finite per-poll budget. Hidden and
+out-of-scope activity never contributes a change indication. Snapshot eviction
+or expiry requires Refresh; revisions never replace native authorization.
+
+Currently Playing on retained deeper views is explicitly labelled as the state
+when the view was loaded. Failed automatic updates likewise mark live state as
+potentially stale. Hidden documents pause polling. Query requests share one
+serialized slot, and any control/account/navigation change immediately fences
+queued requests and responses. Automatic preparation never retries expiry within the same operation; a first-page poll can start a fresh view on the next 30-second interval.

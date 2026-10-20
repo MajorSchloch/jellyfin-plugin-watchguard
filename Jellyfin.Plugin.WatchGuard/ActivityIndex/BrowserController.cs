@@ -15,7 +15,7 @@ public sealed class BrowserController(IAuthorizationContext auth, IUserManager u
     public async Task<IActionResult> Get([FromQuery] string owner = "mine", [FromQuery] int days = 30,
         [FromQuery] bool older = true, [FromQuery] string? statuses = "watchlisted,watching,playing",
         [FromQuery] string sort = "title", [FromQuery] string? search = "", [FromQuery] string? continuation = null,
-        [FromQuery] bool refresh = false, [FromQuery] bool check = false)
+        [FromQuery] bool refresh = false, [FromQuery] bool check = false, [FromQuery] string? revision = null)
     {
         var identity = await auth.GetAuthorizationInfo(HttpContext);
         if (!identity.IsAuthenticated || identity.IsApiKey || identity.UserId == Guid.Empty) return Unauthorized();
@@ -30,9 +30,8 @@ public sealed class BrowserController(IAuthorizationContext auth, IUserManager u
         try
         {
             var options = BrowserOptions.Create(scope, days, older, statuses ?? "", sort, search ?? "");
-            if (check) return Ok(new { Authorized = true }); // Bounded identity check, no global activity counters.
-            if (refresh) worker.RequestRefresh(scope);
-            return Ok(query.Read(caller, options, continuation, HttpContext.RequestAborted));
+            if (refresh && !check) worker.RequestRefresh(scope);
+            return Ok(query.Read(caller, options, continuation, HttpContext.RequestAborted, check, revision));
         }
         catch (BrowserViewExpiredException) { return Conflict(new { Code = "ActivityViewExpired", Message = "This view expired or changed. Refresh to restart with the same filters." }); }
         catch (ArgumentException) { return BadRequest(new { Code = "InvalidActivityQuery" }); }

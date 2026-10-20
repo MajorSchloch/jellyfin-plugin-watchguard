@@ -741,6 +741,103 @@ public sealed class ActivityIndexTests : IDisposable
         Assert.Contains("10,000", page.Notice, StringComparison.Ordinal); // Fixed public bound, independent of hidden data.
     }
 
+    private static BrowserPage Check(BrowserQuery browser, User caller, BrowserOptions options, string revision, string? cursor = null) =>
+        browser.Read(caller, options, cursor, CancellationToken.None, check: true, revision: revision);
+
+    [Fact]
+    public async Task BrowserCheckDetectsPopulationAndWatchedChangesWithoutPlaybackClassification()
+    {
+        var movie = AddMovie(); var browser = Browser(); var options = Options("watched");
+        var empty = browser.Read(alice, options, null, CancellationToken.None);
+        Assert.NotNull(empty.Freshness.Revision); Assert.Empty(empty.Items);
+        await Populate(); var reads = playbackReads;
+        Assert.True(Check(browser, alice, options, empty.Freshness.Revision!).Changed);
+        Assert.Equal(reads, playbackReads);
+        var populated = browser.Read(alice, options, null, CancellationToken.None);
+        Assert.False(Check(browser, alice, options, populated.Freshness.Revision!).Changed);
+        playback[(alice.Id, movie.Id)].Played = false;
+        worker.RequestRefresh(alice.Id); await Populate(); reads = playbackReads;
+        Assert.True(Check(browser, alice, options, populated.Freshness.Revision!).Changed);
+        Assert.Equal(reads, playbackReads);
+    }
+
+    [Fact]
+    public async Task BrowserCheckTracksNativePlaybackStartAndStop()
+    {
+        var movie = AddMovie(); await Populate(); var browser = Browser(); var options = Options("playing");
+        var stopped = browser.Read(alice, options, null, CancellationToken.None);
+        sessions.Setup(s => s.Sessions).Returns([new SessionInfo(sessions.Object, NullLogger.Instance)
+            { UserId = alice.Id, NowPlayingItem = new MediaBrowser.Model.Dto.BaseItemDto { Id = movie.Id } }]);
+        Assert.True(Check(browser, alice, options, stopped.Freshness.Revision!).Changed);
+        var playing = browser.Read(alice, options, null, CancellationToken.None);
+        Assert.Contains("CurrentlyPlaying", playing.Items.Single().Users.Single().Reasons);
+        sessions.Setup(s => s.Sessions).Returns(Array.Empty<SessionInfo>());
+        Assert.True(Check(browser, alice, options, playing.Freshness.Revision!).Changed);
+    }
+
+    [Fact]
+    public async Task BrowserCheckIgnoresHiddenAndOutOfScopeActivity()
+    {
+        var visible = AddMovie(); var hiddenMovie = AddMovie(); hidden.Add((alice.Id, hiddenMovie.Id));
+        playback[(bob.Id, visible.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow };
+        await Populate(); var browser = Browser(); var options = Options();
+        var first = browser.Read(alice, options, null, CancellationToken.None);
+        playback[(bob.Id, visible.Id)].Played = false;
+        playback[(alice.Id, hiddenMovie.Id)].Played = false;
+        hiddenMovie.Name = "Hidden metadata changed";
+        worker.RequestRefresh(null); await Populate();
+        var check = Check(browser, alice, options, first.Freshness.Revision!);
+        Assert.False(check.Changed); Assert.Empty(check.Items);
+        Assert.Equal(1, check.ReadDiagnostics.CandidatesExamined);
+        hidden.Add((alice.Id, visible.Id));
+        Assert.True(Check(browser, alice, options, first.Freshness.Revision!).Changed);
+    }
+
+    [Fact]
+    public async Task BrowserChecksProgressWithinBudgetsAndDoNotConsumeResultContinuation()
+    {
+        for (var n = 0; n < 300; n++) AddMovie(); await Populate(slices: 100);
+        var browser = Browser(); var options = Options();
+        var first = browser.Read(alice, options, null, CancellationToken.None);
+        while (first.Preparing || first.Items.Length == 0) first = browser.Read(alice, options, first.Continuation, CancellationToken.None);
+        var original = first.Continuation; var revision = first.Freshness.Revision!;
+        var check = Check(browser, alice, options, revision);
+        Assert.True(check.Preparing); Assert.NotNull(check.Continuation); Assert.False(check.Changed);
+        Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, check.Continuation, CancellationToken.None));
+        var replaced = Check(browser, alice, options, revision);
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options, revision, check.Continuation));
+        check = replaced;
+        var next = Check(browser, alice, options, revision, check.Continuation);
+        Assert.False(next.Preparing); Assert.False(next.Changed); Assert.Null(next.Continuation);
+        Assert.InRange(next.ReadDiagnostics.CandidatesExamined, 1, 501);
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options, revision, check.Continuation));
+        Assert.NotEmpty(browser.Read(alice, options, original, CancellationToken.None).Items);
+    }
+
+    [Fact]
+    public async Task BrowserRevisionBindsCallerQueryExpiryAndFreshEpisodePermissions()
+    {
+        AddSeries(); await Populate(); var browser = Browser(); var options = Options();
+        var page = browser.Read(alice, options, null, CancellationToken.None); var revision = page.Freshness.Revision!;
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, bob, options with { Owner = bob.Id }, revision));
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options with { Search = "changed" }, revision));
+        hidden.Add((alice.Id, items.Values.OfType<Episode>().First().Id));
+        Assert.True(Check(browser, alice, options, revision).Changed);
+        clock.Advance(TimeSpan.FromMinutes(6));
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options, revision));
+    }
+
+    [Fact]
+    public async Task BrowserRevisionAndPaginationShareTheSnapshotCapacity()
+    {
+        for (var n = 0; n < 30; n++) AddMovie(); await Populate(); var browser = Browser(); var options = Options();
+        var first = browser.Read(alice, options, null, CancellationToken.None);
+        clock.Advance(TimeSpan.FromSeconds(1)); browser.Read(alice, options with { Sort = "recent" }, null, CancellationToken.None);
+        clock.Advance(TimeSpan.FromSeconds(1)); browser.Read(alice, options with { Sort = "added" }, null, CancellationToken.None);
+        Assert.Throws<BrowserViewExpiredException>(() => Check(browser, alice, options, first.Freshness.Revision!));
+        Assert.Throws<BrowserViewExpiredException>(() => browser.Read(alice, options, first.Continuation, CancellationToken.None));
+    }
+
     private sealed class TestClock : TimeProvider {
         private DateTimeOffset now=DateTimeOffset.UtcNow;
         public override DateTimeOffset GetUtcNow()=>now;

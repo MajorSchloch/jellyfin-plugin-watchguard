@@ -35,8 +35,9 @@ public sealed record BrowserPage(OverviewItem[] Items, bool Preparing, string? C
     string Notice, OverviewCoverage Coverage, BrowserFreshness Freshness, BrowserWork ReadDiagnostics)
 {
     public bool IsComplete => false;
+    public bool? Changed { get; init; }
 }
-public sealed record BrowserFreshness(long Revision, bool PopulationPending);
+public sealed record BrowserFreshness(string? Revision, bool PopulationPending);
 public sealed record BrowserWork(double DurationMs, int CandidatesExamined, int EpisodeVisibilityQueries, int EpisodeRows);
 public sealed class BrowserViewExpiredException : Exception;
 
@@ -50,10 +51,25 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
     private sealed record Entry(IndexKey Key, string Name, OverviewUser Person);
     private sealed record View(Guid Caller, BrowserOptions Query, DateTimeOffset Expires, IndexKey[] Candidates,
         Entry[] Accepted, int ScanOffset, bool Prepared, OverviewItem[] Titles, int TitleOffset, int OwnerOffset,
-        Dictionary<Guid, string> Policies, string[] Causes);
+        Dictionary<Guid, string> Policies, string[] Causes, string Revision, bool Checking = false);
     private readonly Dictionary<string, View> views = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, View> baselines = new(StringComparer.Ordinal);
 
-    public BrowserPage Read(User caller, BrowserOptions query, string? continuation, CancellationToken cancellation)
+    // Continuations and their watched baseline share a single bounded snapshot
+    // allowance. A check never creates another baseline or extends its lifetime.
+    private void TrimSnapshots()
+    {
+        var snapshots = views.Values.Concat(baselines.Values).DistinctBy(v => v.Revision).OrderBy(v => v.Expires).ToList();
+        foreach (var snapshot in snapshots.ToArray())
+        {
+            if (snapshots.Count <= 16 && snapshots.Count(v => v.Caller == snapshot.Caller) <= 2) continue;
+            baselines.Remove(snapshot.Revision);
+            foreach (var key in views.Where(v => v.Value.Revision == snapshot.Revision).Select(v => v.Key).ToArray()) views.Remove(key);
+            snapshots.Remove(snapshot);
+        }
+    }
+
+    public BrowserPage Read(User caller, BrowserOptions query, string? continuation, CancellationToken cancellation, bool check = false, string? revision = null)
     {
         var started = Stopwatch.GetTimestamp();
         if (caller.HasPermission(PermissionKind.IsDisabled) || (!caller.HasPermission(PermissionKind.IsAdministrator) && query.Owner != caller.Id)) throw new UnauthorizedAccessException();
@@ -74,20 +90,26 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
         lock (gate)
         {
             foreach (var key in views.Where(v => v.Value.Expires <= now).Select(v => v.Key).ToArray()) views.Remove(key);
+            foreach (var key in baselines.Where(v => v.Value.Expires <= now).Select(v => v.Key).ToArray()) baselines.Remove(key);
+            View? baseline = null;
+            if (check && (revision == null || !baselines.TryGetValue(revision, out baseline) || baseline.Caller != caller.Id || baseline.Query != query))
+                throw new BrowserViewExpiredException();
             if (continuation != null)
             {
-                if (!views.TryGetValue(continuation, out view!) || view.Caller != caller.Id || view.Query != query) throw new BrowserViewExpiredException();
+                if (!views.TryGetValue(continuation, out view!) || view.Caller != caller.Id || view.Query != query || view.Checking != check || (check && view.Revision != revision)) throw new BrowserViewExpiredException();
                 views.Remove(continuation); // One request owns this position, including concurrent retries.
             }
             else
             {
-                var keys = rows.Keys.Concat(dated.Keys).Concat(live.Keys)
+                var keys = rows.Keys.Concat(dated.Keys).Concat(live.Keys).Concat(baseline?.Accepted.Select(e => e.Key) ?? [])
                     .Where(k => query.Owner == null || k.UserId == query.Owner).Distinct().OrderBy(k => k.ItemId).ThenBy(k => k.UserId)
                     .Take(MaximumPairs).ToArray();
                 // Raw candidate cardinality includes hidden accounts/titles. State
                 // the fixed bound in every response instead of disclosing a flag
                 // derived from that private cardinality.
-                view = new(caller.Id, query, now.AddMinutes(5), keys, [], 0, false, [], 0, 0, new(), []);
+                view = baseline == null
+                    ? new(caller.Id, query, now.AddMinutes(5), keys, [], 0, false, [], 0, 0, new(), [], Convert.ToHexString(RandomNumberGenerator.GetBytes(24)))
+                    : baseline with { Candidates = keys, ScanOffset = 0, Prepared = false, Titles = [], TitleOffset = 0, OwnerOffset = 0, Causes = [], Checking = true };
             }
         }
         causes.UnionWith(view.Causes);
@@ -175,6 +197,26 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             if (!query.Matches(person)) return null;
             return new(key, item.Name, person);
         }
+        if (check)
+        {
+            var previous = view.Accepted.ToDictionary(e => e.Key);
+            var offset = view.ScanOffset;
+            for (; offset < view.Candidates.Length && work < PairBudget; offset++)
+            {
+                Entry? fresh;
+                try { fresh = Resolve(view.Candidates[offset]); }
+                catch (IndexVisibilityLimitException) { causes.Add("VisibilityBudget"); break; }
+                var prior = previous.GetValueOrDefault(view.Candidates[offset]);
+                // Only this freshly authorized entry, or removal of an entry
+                // already disclosed by this caller's view, can signal a change.
+                if (fresh == null ? prior != null : prior == null || fresh.Name != prior.Name || !SamePerson(fresh.Person, prior.Person))
+                    return Finish([], false, view with { Prepared = true }) with { Changed = true };
+            }
+            if (offset == view.ScanOffset && offset < view.Candidates.Length) throw new InvalidOperationException("Check made no progress.");
+            var complete = offset == view.Candidates.Length;
+            view = view with { ScanOffset = offset, Prepared = complete };
+            return Finish([], !complete, view) with { Changed = false };
+        }
         var accepted = view.Accepted.ToList();
         if (!view.Prepared)
         {
@@ -237,16 +279,23 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
         BrowserPage Finish(OverviewItem[] items, bool preparing, View state)
         {
             string? next = null;
-            if (preparing || state.TitleOffset < state.Titles.Length)
+            lock (gate)
             {
-                lock (gate)
+                // One in-progress check per watched snapshot. Repeated/concurrent
+                // check starts cannot accumulate cursors outside snapshot bounds.
+                if (state.Checking)
+                    foreach (var key in views.Where(v => v.Value.Checking && v.Value.Revision == state.Revision).Select(v => v.Key).ToArray()) views.Remove(key);
+                if (!state.Checking && state.Prepared)
                 {
-                    // At most two snapshots per caller and sixteen globally, each at most 10,000 pairs.
-                    while (views.Values.Count(v => v.Caller == caller.Id) >= 2)
-                        views.Remove(views.Where(v => v.Value.Caller == caller.Id).MinBy(v => v.Value.Expires).Key);
-                    while (views.Count >= 16) views.Remove(views.MinBy(v => v.Value.Expires).Key);
-                    next = Convert.ToHexString(RandomNumberGenerator.GetBytes(24)); views[next] = state with { Causes = causes.ToArray() };
+                    var owners = state.Accepted.Select(e => e.Key.UserId).Append(caller.Id).ToHashSet();
+                    baselines.TryAdd(state.Revision, state with { Policies = state.Policies.Where(p => owners.Contains(p.Key)).ToDictionary() });
                 }
+                if (preparing || state.TitleOffset < state.Titles.Length)
+                {
+                    next = Convert.ToHexString(RandomNumberGenerator.GetBytes(24));
+                    views[next] = state with { Causes = causes.ToArray() };
+                }
+                TrimSnapshots();
             }
             var warnings = causes.Order().Select(c => c switch
             {
@@ -258,7 +307,7 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
                 "Partial known coverage: each view considers at most 10,000 candidate title/owner pairs and 100 live sessions with at most 50 owners. Refresh or narrow the owner scope when needed. Background discovery is not an exhaustive library audit. Explicit watchlists and live playback are independent of the activity window.",
                 new(1, query.Days, true, causes.Contains("EpisodeMetadataIncomplete"), causes.Contains("VisibilityBudget"), causes.Contains("CandidateLimit"), next != null, causes.Order().ToArray(), warnings),
                 // No global stored/pending totals or worker counters are disclosed by the browser query.
-                new(0, causes.Contains("PendingVerification")), new(Stopwatch.GetElapsedTime(started).TotalMilliseconds, authorizedWork, safeEpisodeKeys.Count, safeEpisodeKeys.Sum(k => visibleEpisodes[k].Count)));
+                new(state.Prepared || state.Checking ? state.Revision : null, causes.Contains("PendingVerification")), new(Stopwatch.GetElapsedTime(started).TotalMilliseconds, authorizedWork, safeEpisodeKeys.Count, safeEpisodeKeys.Sum(k => visibleEpisodes[k].Count)));
         }
     }
 

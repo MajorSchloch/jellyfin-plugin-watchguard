@@ -365,16 +365,22 @@
         return selected.length || !requested.length ? selected : [...defaultFilters];
     }
     const statusIcons = { Watchlisted: 'bookmark', InProgress: 'play_circle', CurrentlyPlaying: 'sensors', Watched: 'check_circle', CaughtUp: 'task_alt' };
-    function userLine(document, owner) {
+    function userLine(document, owner, staleLive = false) {
         const line = document.createElement('span'); line.className = 'watchguard-user-line';
         line.title = activityText(owner, true);
         const icons = document.createElement('span'); icons.className = 'watchguard-status-icons';
         for (const reason of Object.keys(activityReasons).filter(r => owner.Reasons.includes(r))) {
             const icon = document.createElement('span'); icon.className = 'material-icons watchguard-state-' + reason; icon.textContent = statusIcons[reason];
-            icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', viewingLabel(owner, reason, activityReasons[reason])); icon.title = viewingLabel(owner, reason, activityReasons[reason]); icons.append(icon);
+            const label = staleLive && reason === 'CurrentlyPlaying' ? 'Playing when this view was loaded; may have stopped' : viewingLabel(owner, reason, activityReasons[reason]);
+            icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', label); icon.title = label; icons.append(icon);
         }
         const name = document.createElement('span'); name.className = 'watchguard-user'; name.textContent = owner.DisplayName; name.title = owner.DisplayName; name.tabIndex = 0;
         line.append(icons, name);
+        if (staleLive && owner.Reasons.includes('CurrentlyPlaying')) {
+            const stale = document.createElement('span'); stale.className = 'watchguard-live-stale';
+            stale.textContent = 'Playing when loaded · may have stopped'; line.append(stale);
+            line.title = line.title.replace(/Currently Playing/gi, 'Playing when loaded (may have stopped)');
+        }
         if (owner.AvailableEpisodes != null) {
             const progress = document.createElement('span'); progress.className = 'watchguard-progress';
             appendEpisodeProgress(document, progress, owner); line.append(progress);
@@ -532,6 +538,9 @@
         let range = [7,30,90].includes(Number(options.days)) ? Number(options.days) : 30, includeOlder = options.older !== 'false';
         let continuation = null, pollTimer = null, searchTimer = null, loadedPages = 1, indexPopulating = false;
         let searchText = (options.search || '').slice(0, 120), combined = false, preparing = false, requiresRefresh = false;
+        let freshnessRevision = null, checkCursor = null, updatesAvailable = false, liveStale = false;
+        let queryQueue = Promise.resolve();
+        const automaticRequestBudget = 4;
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
         let kind = selectedStatuses(options.interest);
         let sort = ['title', 'recent', 'added'].includes(options.sort) ? options.sort : 'title';
@@ -611,6 +620,9 @@
             toolbar.append(field, olderLabel);
         }
         const more = document.createElement('button'); more.type = 'button'; more.className = 'emby-button button-flat'; more.textContent = 'Load more activity'; more.hidden = true;
+        const updates = document.createElement('button'); updates.type = 'button'; updates.className = 'emby-button button-flat';
+        updates.textContent = 'Updates available'; updates.title = 'Refresh this view with the same filters'; updates.hidden = true;
+        updates.onclick = () => { if (active() && !pending) load(); };
         const freshness = document.createElement('p'); freshness.className = 'watchguard-notice'; freshness.setAttribute('role', 'status');
         const status = document.createElement('p'); status.setAttribute('role', 'status');
         const spinner = document.createElement('span'); spinner.className = 'material-icons watchguard-spinner'; spinner.textContent = 'sync'; spinner.setAttribute('aria-hidden', 'true');
@@ -626,7 +638,7 @@
         const grid = document.createElement('div'); grid.className = 'watchguard-grid';
         const preferenceMessage = document.createElement('p'); preferenceMessage.setAttribute('role', 'status'); preferenceMessage.className = 'watchguard-notice';
         page.append(heading, toolbar, status, notice, error, grid, preferenceMessage);
-        if (options.indexedActivity) { status.after?.(freshness); page.append(more); }
+        if (options.indexedActivity) { status.after?.(freshness); page.append(updates, more); }
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
         let directory = [], loadedScope, viewSignature;
@@ -636,12 +648,13 @@
         function render() {
             if (!active()) return;
             page.setAttribute('data-watchguard-scope', loadedScope || '');
-            rangeSelect.value = String(range); olderToggle.checked = includeOlder; more.hidden = !continuation && !requiresRefresh; more.disabled = pending;
+            rangeSelect.value = String(range); olderToggle.checked = includeOlder; more.hidden = (!continuation && !requiresRefresh) || (preparing && pending); more.disabled = pending;
+            updates.hidden = !updatesAvailable; updates.disabled = pending;
             const entries = combined ? automatic : mergeInterest(explicit, automatic);
             if (!admin && entries.some(e => e.Users.some(u => key(u.UserId) !== key(user)))) throw new Error('Invalid account scope');
             const selected = combined ? entries.map(e => ({...e, IsWatchlistedByMe: e.Users.some(u => key(u.UserId) === key(user) && u.Reasons.includes('Watchlisted'))})) :
                 selectInterest(entries, admin ? filter : 'mine', user, kind, sort).filter(e => e.Name.toLowerCase().includes(searchText.trim().toLowerCase()));
-            more.textContent = requiresRefresh ? 'Refresh this view' : preparing ? 'Continue preparing results' : 'Load more results';
+            more.textContent = requiresRefresh ? 'Refresh this view' : preparing ? 'Continue loading' : 'Load more results';
             select.replaceChildren();
             const owners = new Map([...directory, ...entries.flatMap(entry => entry.Users)].map(owner => [key(owner.UserId), owner]));
             const choices = [['mine', 'My list'], ...(admin ? [['all', 'All users'], ...Array.from(owners.values())
@@ -658,7 +671,7 @@
             const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
             const count = document.createElement('span'); count.textContent = 'Status · ' + kind.length; summary.append(filterIcon, count);
             summary.title = 'Status filters (' + kind.length + ' selected)'; summary.setAttribute('aria-label', summary.title); order.value = sort;
-            status.textContent = pending ? 'Loading viewing activity…' : preparing ? 'Preparing the filtered, ordered result set. Continue to advance bounded authorization work.' :
+            status.textContent = pending ? 'Loading viewing activity…' : preparing ? 'More time is needed to load this view. Continue loading when ready.' :
                 options.indexedActivity && !combined ? 'Preliminary watchlists only; combined activity is not ready.' :
                 selected.length ? selected.length + ' titles loaded' + (requiresRefresh ? ' · View expired; refresh to continue.' : continuation ? ' · More results available.' : ' · End of this known result set; not an exhaustive library audit.') :
                 failures.length ? '' : continuation ? 'No titles loaded yet; continue to retrieve more authorized results.' : indexPopulating ? 'Background discovery/population in progress; no verified matches yet.' :
@@ -695,10 +708,11 @@
                     card.append(ownersText); record = { card, name, ownersText }; cards.set(key(entry.ItemId), record);
                 }
                 record.name.textContent = entry.Name; record.name.title = entry.Name;
-                const ownerSignature = JSON.stringify(entry.Users);
+                const staleLive = options.indexedActivity && (liveStale || loadedPages > 1);
+                const ownerSignature = JSON.stringify([entry.Users, staleLive]);
                 if (record.ownerSignature !== ownerSignature) {
                     record.ownersText.replaceChildren();
-                    for (const owner of entry.Users) record.ownersText.append(userLine(document, owner));
+                    for (const owner of entry.Users) record.ownersText.append(userLine(document, owner, staleLive));
                     record.ownerSignature = ownerSignature;
                 }
                 if (!entry.IsWatchlistedByMe) { record.remove?.remove(); record.remove = null; }
@@ -732,10 +746,60 @@
             explicit = []; automatic = []; directory = []; continuation = null;
             loadedPages = 1; indexPopulating = false; pending = false; combined = false; preparing = false; requiresRefresh = false;
             coverage = ''; coverageLimited = false; coverageInfo = null;
+            freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false;
             grid.replaceChildren(); cards.clear(); freshness.textContent = '';
             failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
             refresh.disabled = false; render();
             return true;
+        }
+        function queryRequest(route, revision) {
+            const operation = queryQueue.then(async () => {
+                if (!active() || revision !== generation) return null;
+                try { return await request(api, route); }
+                catch (failure) { authorizationDenied(failure); throw failure; }
+            });
+            queryQueue = operation.catch(() => {});
+            return operation;
+        }
+        function validateBrowser(result) {
+            if (!result || result.IsComplete !== false || !result.Freshness ||
+                (result.Freshness.Revision != null && typeof result.Freshness.Revision !== 'string') ||
+                (result.Continuation != null && typeof result.Continuation !== 'string')) throw new Error('Invalid activity query');
+            selectInterest(result.Items, 'all', user);
+            if (result.Items.some(e => e.Users.some(u => loadedScope !== 'all' && key(u.UserId) !== key(loadedScope === 'mine' ? user : loadedScope)))) throw new Error('Invalid scope');
+        }
+        async function queryBatch(cursor, revision, {check = false, prioritize = false} = {}) {
+            const route = indexRoute(loadedScope, null) + (check ? '&check=true&revision=' + encodeURIComponent(freshnessRevision || '') : '');
+            const seen = new Set(cursor ? [cursor] : []);
+            for (let n = 0; n < automaticRequestBudget; n++) {
+                const result = await queryRequest(route + (prioritize && n === 0 && !cursor ? '&refresh=true' : '') + (cursor ? '&continuation=' + encodeURIComponent(cursor) : ''), revision);
+                if (!active() || revision !== generation) return null;
+                validateBrowser(result);
+                if (check && (typeof result.Changed !== 'boolean' || result.Freshness.Revision !== freshnessRevision || result.Items.length)) throw new Error('Invalid activity change check');
+                const advance = check ? result.Preparing && !result.Changed : result.Preparing || (!result.Items.length && result.Continuation);
+                if (!advance) return {result, waiting: false};
+                if (!result.Continuation || seen.has(result.Continuation)) throw Object.assign(new Error('Activity query did not advance'), {status:409});
+                seen.add(result.Continuation); cursor = result.Continuation;
+                if (n === automaticRequestBudget - 1) return {result, waiting: true};
+            }
+        }
+        function firstPage(batch) {
+            const {result, waiting} = batch;
+            coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
+            if (waiting) {
+                preparing = true; continuation = result.Continuation; liveStale = true; requiresRefresh = false;
+                if (!automatic.length) combined = false;
+                freshness.textContent = 'Loading paused. Continue loading to finish this view. Displayed playback state may be stale.';
+                return;
+            }
+            indexState(result); automatic = result.Items; loadedPages = 1; failures = [];
+            freshnessRevision = result.Freshness.Revision; checkCursor = null; updatesAvailable = false; liveStale = false;
+            freshness.textContent = 'Known eligible data only. This first page updates automatically every 30 seconds while visible.';
+        }
+        function queryFailure(failure) {
+            if ([400,409].includes(failure?.status)) { continuation = null; checkCursor = null; requiresRefresh = true; }
+            liveStale = true;
+            freshness.textContent = 'Activity update unavailable; displayed playback state may be stale. Refresh to retry.';
         }
         async function load(prioritize = false) {
             if (!active()) return;
@@ -780,19 +844,21 @@
                 if (!options.indexedActivity) automatic = [];
                 render(); // Paint memberships before activity is available.
                 try {
-                    const result = await request(api, options.indexedActivity ? indexRoute(scope, null, prioritize) : scope === 'mine' ? 'ActivityOverview/Me' : scope === 'all' ? 'ActivityOverview' : 'ActivityOverview/Users/' + encodeURIComponent(scope));
+                    const batch = options.indexedActivity ? await queryBatch(null, revision, {prioritize}) : null;
+                    if (!current()) return;
+                    const result = options.indexedActivity ? batch.result : await request(api, scope === 'mine' ? 'ActivityOverview/Me' : scope === 'all' ? 'ActivityOverview' : 'ActivityOverview/Users/' + encodeURIComponent(scope));
                     if (!current()) return;
                     if (!result || result.IsComplete !== false || typeof result.LimitReached !== 'boolean' || typeof result.Notice !== 'string') throw new Error('Invalid coverage');
                     selectInterest(result.Items, 'all', user);
                     if (result.Items.some(e => e.Users.some(u => (scope !== 'all' && key(u.UserId) !== key(scope === 'mine' ? user : scope)) || (!options.indexedActivity && u.Reasons.includes('Watchlisted'))))) throw new Error('Invalid automatic scope');
-                    if (options.indexedActivity) { indexState(result); loadedPages = 1; }
-                    automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
+                    if (options.indexedActivity) firstPage(batch);
+                    else { automatic = result.Items; coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage; }
                 } catch (failure) {
                     if (authorizationDenied(failure) || !current()) return;
                     // Keep a same-view refresh usable on transport/lookup failure.
                     // Native authorization failures must clear previously shown activity.
                     if (!options.indexedActivity || !prioritize) automatic = [];
-                    if (options.indexedActivity) freshness.textContent = 'Activity update unavailable; displayed results may be stale. Refresh to retry.';
+                    if (options.indexedActivity) queryFailure(failure);
                     failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.');
                 }
                 pending = false; render();
@@ -805,11 +871,11 @@
                 (cursor ? '&continuation=' + encodeURIComponent(cursor) : '') + (prioritize ? '&refresh=true' : '');
         }
         function indexState(result) {
-            if (!result.Freshness || !Number.isInteger(result.Freshness.Revision) || (result.Continuation != null && typeof result.Continuation !== 'string')) throw new Error('Invalid index status');
+            if (!result.Freshness || (result.Freshness.Revision != null && typeof result.Freshness.Revision !== 'string') || (result.Continuation != null && typeof result.Continuation !== 'string')) throw new Error('Invalid index status');
             for (const item of result.Items) for (const owner of item.Users) if (owner.Reasons.includes('Watchlisted') && !Object.hasOwn(owner, 'AddedAtUtc')) owner.AddedAtUtc = null;
             preparing = result.Preparing === true; combined = !preparing; requiresRefresh = false;
             continuation = result.Continuation || null; indexPopulating = Object.hasOwn(result.Freshness, 'PopulationPending') ? result.Freshness.PopulationPending : !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
-            if (Object.hasOwn(result.Freshness, 'PopulationPending')) { freshness.textContent = 'Known eligible data only; background discovery may add results. Refresh to include new activity.'; return; }
+            if (Object.hasOwn(result.Freshness, 'PopulationPending')) return;
             const date = result.Freshness.LastUpdate && new Date(result.Freshness.LastUpdate);
             freshness.textContent = (date && Number.isFinite(date.getTime()) ? 'Last verified: ' + date.toLocaleString() : indexPopulating ? 'Waiting for background verification.' : 'No verified activity timestamp available.') +
                 (result.Freshness.DiscoveryFinished ? ' · Native discovery pass finished; coverage limits still apply.' : ' · Background population in progress.');
@@ -821,19 +887,29 @@
                 if (!active()) return;
                 if (document.hidden || pending) { schedulePoll(); return; }
                 const revision = generation;
-                // Poll only identity/scope authorization. Never rebuild or append another snapshot in the background.
-                pending = true; render();
+                if (preparing) { schedulePoll(); return; }
+                const position = page.scrollTop;
+                pending = true; render(); page.scrollTop = position;
                 try {
-                    await request(api, indexRoute(loadedScope) + '&check=true');
-                    if (!active() || revision !== generation) return;
-                    freshness.textContent = 'This view keeps its original order. Refresh to include new activity and metadata.';
+                    if (loadedPages === 1) {
+                        const batch = await queryBatch(null, revision);
+                        if (!batch) return;
+                        firstPage(batch);
+                    } else {
+                        const batch = await queryBatch(checkCursor, revision, {check:true});
+                        if (!batch) return;
+                        const {result, waiting} = batch;
+                        checkCursor = waiting ? result.Continuation : null;
+                        if (result.Changed === true) updatesAvailable = true;
+                        freshness.textContent = updatesAvailable ? 'Updates available. Refresh to include them; this view keeps its original order.' :
+                            waiting ? 'Checking for updates will continue on the next poll. This view keeps its original order.' :
+                            'No changes found in checked known activity. This view keeps its original order.';
+                    }
                 } catch (failure) {
                     if (authorizationDenied(failure)) return;
-                    if (active() && revision === generation) {
-                        freshness.textContent = 'Activity update unavailable; displayed results may be stale. Refresh to retry.';
-                    }
+                    if (active() && revision === generation) queryFailure(failure);
                 } finally {
-                    if (active() && revision === generation) { pending = false; render(); schedulePoll(); }
+                    if (active() && revision === generation) { pending = false; render(); page.scrollTop = position; schedulePoll(); }
                 }
             }, 30000);
             pollTimer.unref?.();
@@ -844,18 +920,24 @@
             const revision = generation, cursor = continuation;
             pending = true; render();
             try {
-                const result = await request(api, indexRoute(loadedScope, cursor));
-                if (!active() || revision !== generation) return;
-                selectInterest(result.Items, 'all', user);
-                if (result.Items.some(e => e.Users.some(u => loadedScope !== 'all' && key(u.UserId) !== key(loadedScope === 'mine' ? user : loadedScope)))) throw new Error('Invalid scope');
-                const merged = preparing ? result.Items : mergeInterest(automatic, result.Items);
-                indexState(result); automatic = merged; loadedPages++;
-                coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
+                if (preparing) {
+                    const batch = await queryBatch(cursor, revision);
+                    if (!batch) return;
+                    firstPage(batch);
+                } else {
+                    const result = await queryRequest(indexRoute(loadedScope, cursor), revision);
+                    if (!active() || revision !== generation) return;
+                    validateBrowser(result);
+                    const merged = mergeInterest(automatic, result.Items);
+                    indexState(result); automatic = merged; loadedPages++;
+                    coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
+                    freshness.textContent = 'This view keeps its original order. Playback badges show the state when loaded; updates are checked every 30 seconds.';
+                }
             } catch (failure) { if (authorizationDenied(failure)) return; if (active() && revision === generation) {
-                if ([400,409].includes(failure?.status)) { continuation = null; requiresRefresh = true; }
+                queryFailure(failure);
                 failures = ['Could not continue this view; loaded results are retained. Use Refresh to restart with the same filters.'];
             } }
-            finally { if (active() && revision === generation) { pending = false; render(); } }
+            finally { if (active() && revision === generation) { pending = false; render(); schedulePoll(); } }
         };
         page.updateFilters = (owner, interest, sorting, days, older, text = '') => {
             if (searchTimer) { clearTimeout(searchTimer); searchTimer = null; }
@@ -867,7 +949,7 @@
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; pending = true; render(); load(); } else render();
+            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; loadedPages = 1; pending = true; render(); load(); } else render();
         };
         const change = () => { if (active()) { if (options.indexedActivity) generation++; const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
         search.oninput = () => {

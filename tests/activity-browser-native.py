@@ -63,6 +63,9 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
         raw_first_ms = (time.perf_counter() - start) * 1000
         items = list(first['Items']); page = first; pages = 1
         first_result_ms = raw_first_ms if not first.get('Preparing') and (first['Items'] or not first.get('Continuation')) else None
+        first_requests = 1 if first_result_ms is not None else None
+        preparations = int(bool(first.get('Preparing')))
+        empty_boundaries = int(not first.get('Preparing') and not first['Items'] and bool(first.get('Continuation')))
         work = {key: first.get('ReadDiagnostics', {}).get(key, 0) for key in ['CandidatesExamined', 'EpisodeVisibilityQueries', 'EpisodeRows']}
         seen = set()
         while page.get('Continuation'):
@@ -70,12 +73,16 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
             page = call(route + '&continuation=' + cursor, token=token, timeout=60); pages += 1
             assert pages < 100
             items += page['Items']
+            preparations += int(bool(page.get('Preparing')))
+            empty_boundaries += int(not page.get('Preparing') and not page['Items'] and bool(page.get('Continuation')))
             if first_result_ms is None and not page.get('Preparing') and (page['Items'] or not page.get('Continuation')):
                 first_result_ms = (time.perf_counter() - start) * 1000
+                first_requests = pages
             for key in work: work[key] += page.get('ReadDiagnostics', {}).get(key, 0)
         return merged(items), {'rawFirstPageMs': raw_first_ms, 'firstOrderedPageMs': first_result_ms,
                                'completePaginationMs': (time.perf_counter() - start) * 1000, 'requests': pages,
-                               'firstPageItems': len(first['Items']), 'work': work}
+                               'firstPageItems': len(first['Items']), 'firstOrderedRequests': first_requests,
+                               'preparationResponses': preparations, 'emptyPreparedBoundaries': empty_boundaries, 'work': work}
 
     def select(items, statuses, search, sort):
         wanted = {'watchlisted': ['Watchlisted'], 'watching': ['InProgress', 'CaughtUp'], 'playing': ['CurrentlyPlaying'], 'watched': ['Watched']}
@@ -119,6 +126,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
                         timing['requests'] += 1  # Explicit membership fetch is part of the combined answer.
                         timing['completePaginationMs'] = (time.perf_counter() - start) * 1000
                         timing['firstOrderedPageMs'] = timing['completePaginationMs']
+                        timing['firstOrderedRequests'] = timing['requests']
                     else:
                         data, timing = collect('/WatchGuard/ActivityBrowser?' + urlencode({'owner': owner, 'statuses': statuses, 'sort': sort, 'search': search}))
                     ids = [i['ItemId'] for i in data]

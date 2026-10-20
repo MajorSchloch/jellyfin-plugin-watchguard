@@ -2,6 +2,10 @@
 
 Unpublished candidate; no merge, release, catalog update or deployment.
 
+**Historical qualification:** the results below describe the earlier runtime at
+`2845703`. Automatic polling/preparation corrections are now undergoing a new
+full qualification; this earlier run does not qualify those corrections.
+
 ## Reproducible candidate
 
 The implementation and fixture commit qualified by this run is
