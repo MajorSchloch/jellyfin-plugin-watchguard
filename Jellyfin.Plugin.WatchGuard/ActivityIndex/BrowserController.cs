@@ -13,8 +13,8 @@ public sealed class BrowserController(IAuthorizationContext auth, IUserManager u
 {
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] string owner = "mine", [FromQuery] int days = 30,
-        [FromQuery] bool older = true, [FromQuery] string statuses = "watchlisted,watching,playing",
-        [FromQuery] string sort = "title", [FromQuery] string search = "", [FromQuery] string? continuation = null,
+        [FromQuery] bool older = true, [FromQuery] string? statuses = "watchlisted,watching,playing",
+        [FromQuery] string sort = "title", [FromQuery] string? search = "", [FromQuery] string? continuation = null,
         [FromQuery] bool refresh = false, [FromQuery] bool check = false)
     {
         var identity = await auth.GetAuthorizationInfo(HttpContext);
@@ -29,7 +29,7 @@ public sealed class BrowserController(IAuthorizationContext auth, IUserManager u
         if (scope != caller.Id && !caller.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         try
         {
-            var options = BrowserOptions.Create(scope, days, older, statuses, sort, search);
+            var options = BrowserOptions.Create(scope, days, older, statuses ?? "", sort, search ?? "");
             if (check) return Ok(new { Authorized = true }); // Bounded identity check, no global activity counters.
             if (refresh) worker.RequestRefresh(scope);
             return Ok(query.Read(caller, options, continuation, HttpContext.RequestAborted));

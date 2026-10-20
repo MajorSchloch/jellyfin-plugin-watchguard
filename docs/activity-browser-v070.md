@@ -50,3 +50,11 @@ measurements use unrestricted disposable accounts; restricted views may perform
 additional suppressed authorization work. Global worker totals and discovery state
 are not exposed by the combined browser API. Population indications refer to known,
 authorized rows awaiting verification; coverage always permits undiscovered data.
+
+Selective statuses are screened using the existing projection before native item
+checks. Search reads each known candidate title's native metadata once per request,
+then authorizes matching owners. Native title and owner lookups share a 500-unit
+request budget (plus one attempted pair at the boundary); pure projection scanning
+is capped by the 10,000-pair snapshot. Episode visibility remains independently
+bounded at 20,000 rows. This keeps selective movie/series queries useful without
+raising classification or discovery limits.

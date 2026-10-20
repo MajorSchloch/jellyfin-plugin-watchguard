@@ -102,13 +102,13 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             if (account == null || Policy(account) != policy) throw new BrowserViewExpiredException();
         }
         policies[caller.Id] = Policy(caller);
-        var work = 0; var episodeRows = 0; var episodeQueries = 0; var authorizedWork = 0;
+        var work = 0; var episodeRows = 0; var authorizedWork = 0;
         var safeEpisodeKeys = new HashSet<(Guid, Guid, bool)>();
         var visibleEpisodes = new Dictionary<(Guid, Guid, bool), HashSet<Guid>>();
         var requesterItems = new Dictionary<Guid, BaseItem?>();
         BaseItem? Item(Guid id)
         {
-            if (!requesterItems.TryGetValue(id, out var value)) requesterItems[id] = value = library.GetItemById<BaseItem>(id, caller);
+            if (!requesterItems.TryGetValue(id, out var value)) { work++; requesterItems[id] = value = library.GetItemById<BaseItem>(id, caller); }
             return value;
         }
         HashSet<Guid> Episodes(User account, Guid title, bool continuing)
@@ -116,7 +116,6 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
             var key = (account.Id, title, continuing);
             if (visibleEpisodes.TryGetValue(key, out var found)) return found;
             if (episodeRows > EpisodeBudget - (InterestOverviewService.EpisodeLimit + 1)) throw new IndexVisibilityLimitException();
-            episodeQueries++;
             var ids = library.GetItemIds(new InternalItemsQuery(account) { Recursive = true, AncestorIds = [title],
                 IncludeItemTypes = [BaseItemKind.Episode], IsVirtualItem = continuing ? null : false,
                 IsMissing = continuing ? null : false, Limit = InterestOverviewService.EpisodeLimit + 1 }).ToHashSet();
@@ -125,16 +124,19 @@ public sealed class BrowserQuery(IndexWorker worker, WatchlistStore memberships,
         Entry? Resolve(IndexKey key)
         {
             cancellation.ThrowIfCancellationRequested();
-            work++;
-            var account = Account(key.UserId);
-            if (account == null) return null;
-            var item = Item(key.ItemId);
-            if (!InterestService.Supported(item) || !item!.Name.Contains(query.Search, StringComparison.OrdinalIgnoreCase) ||
-                !InterestService.Supported(library.GetItemById<BaseItem>(key.ItemId, account))) return null;
-            authorizedWork++;
+            // Cheap projection filtering precedes native authorization. Search probes
+            // each known title once, not once per owner; only matching pairs spend
+            // the owner/episode budget. This is not a native library discovery scan.
             var preliminaryReasons = (rows.TryGetValue(key, out var potential) && IndexQuery.InRange(potential.Activity, query.Days, query.Older, now) ? potential.Activity.Reasons : Array.Empty<string>())
                 .Concat(dated.ContainsKey(key) ? ["Watchlisted"] : Array.Empty<string>()).Concat(live.ContainsKey(key) ? ["CurrentlyPlaying"] : Array.Empty<string>()).ToArray();
             if (!query.Matches(new(key.UserId, "", preliminaryReasons, null))) return null;
+            var item = Item(key.ItemId);
+            if (!InterestService.Supported(item) || !item!.Name.Contains(query.Search, StringComparison.OrdinalIgnoreCase)) return null;
+            var account = Account(key.UserId);
+            if (account == null) return null;
+            work++;
+            if (!InterestService.Supported(library.GetItemById<BaseItem>(key.ItemId, account))) return null;
+            authorizedWork++;
             var policy = Policy(account);
             OverviewUser? activity = null; IndexRow? source = null;
             if (rows.TryGetValue(key, out var row) && (IndexQuery.InRange(row.Activity, query.Days, query.Older, now) || dated.ContainsKey(key) || live.ContainsKey(key)))

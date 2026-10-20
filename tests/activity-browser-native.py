@@ -107,7 +107,8 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
             settle()
             for scenario, owner, statuses, search, sort in scenarios:
                 samples = []
-                for _ in range(3):
+                before_work = call('/WatchGuard/ActivityIndex/Status?owner=all', token=token)['Freshness']
+                for sample in range(4):
                     if label == 'v060':
                         start = time.perf_counter()
                         members = call('/WatchGuard/Watchlists' + ('/' + owner if owner != 'all' else ''), token=token)
@@ -131,11 +132,29 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
                             assert set(item['Users']) == set(before['Users']), (scenario, 'owner loss')
                             for uid, person in item['Users'].items():
                                 assert set(person['Reasons']) == set(before['Users'][uid]['Reasons']), (scenario, 'reason loss')
-                    timing['titles'] = len(ids); samples.append(timing)
-                report['measurements'][label + '-' + scenario] = {'samples': samples,
+                    timing['titles'] = len(ids)
+                    if sample: samples.append(timing)
+                after_work = call('/WatchGuard/ActivityIndex/Status?owner=all', token=token)['Freshness']
+                delta = after_work['PlaybackBatches'] - before_work['PlaybackBatches']
+                assert delta == 0, (label, scenario, 'Page requests repeated background classification')
+                report['measurements'][label + '-' + scenario] = {'samples': samples, 'workerPlaybackBatchesDelta': delta,
                     'firstPageMedianMs': statistics.median(s['firstOrderedPageMs'] for s in samples),
                     'completePaginationMedianMs': statistics.median(s['completePaginationMs'] for s in samples)}
             call('/Sessions/Playing/Stopped', 'POST', {'ItemId': movies[1]['Id'], 'PositionTicks': 10000}, live_user['AccessToken'], expected=204)
+        # A native account revocation invalidates a saved query before another page is disclosed.
+        policy = call('/Users/' + owners[1], token=token)['Policy']
+        first = call('/WatchGuard/ActivityBrowser?owner=all&statuses=watched&sort=title', token=token)
+        assert first.get('Continuation')
+        try:
+            call('/Users/' + owners[1] + '/Policy', 'POST', {**policy, 'IsDisabled': True}, token, expected=204)
+            denied = call('/WatchGuard/ActivityBrowser?owner=all&statuses=watched&sort=title&continuation=' + first['Continuation'], token=token, expected=409)
+            assert denied['Code'] == 'ActivityViewExpired'
+            scoped, _ = collect('/WatchGuard/ActivityBrowser?owner=all&statuses=watchlisted&sort=added')
+            assert all(owners[1].replace('-', '') not in item['Users'] for item in scoped)
+            report['nativePermissionRevocation'] = 'PASS'
+        finally:
+            call('/Users/' + owners[1] + '/Policy', 'POST', policy, token, expected=204)
+            settle()
         report['result'] = 'PASS'
     finally:
         (output / 'results.json').write_text(json.dumps(report, indent=2) + '\n')

@@ -675,6 +675,29 @@ public sealed class ActivityIndexTests : IDisposable
         Assert.Empty(page.Items); Assert.Equal(0, page.ReadDiagnostics.CandidatesExamined); Assert.Empty(page.Coverage.Causes);
     }
 
+    [Fact]
+    public async Task SelectiveBrowserQuerySkipsUnmatchedOwnerWorkBeforeItsBudget()
+    {
+        var owners = Enumerable.Range(0, 6).Select(n => new User("Owner" + n, "test", "test") { Id = Guid.NewGuid() }).ToArray();
+        bob.SetPermission(PermissionKind.IsAdministrator, true); var accounts = owners.Append(bob).ToArray();
+        users.Setup(u => u.GetUsers()).Returns(accounts);
+        users.Setup(u => u.GetUserById(It.IsAny<Guid>())).Returns((Guid id) => accounts.SingleOrDefault(u => u.Id == id));
+        Movie? target = null;
+        for (var n = 0; n < 120; n++)
+        {
+            var movie = AddMovie(); target = movie;
+            foreach (var owner in owners) playback[(owner.Id, movie.Id)] = new() { Key = "test", Played = true, LastPlayedDate = DateTime.UtcNow.AddDays(-1) };
+        }
+        target!.Name = "Zebra needle";
+        new WatchlistStore(path, clock).Set(owners[0].Id, target.Id, true);
+        await Populate(slices: 200); var browser = Browser();
+        foreach (var options in new[] { BrowserOptions.Create(null, 30, true, "watchlisted", "title", ""), BrowserOptions.Create(null, 30, true, "watched", "title", "needle") })
+        {
+            var page = browser.Read(bob, options, null, CancellationToken.None);
+            Assert.False(page.Preparing); Assert.Null(page.Continuation); Assert.Equal(target.Id, Assert.Single(page.Items).ItemId);
+        }
+    }
+
     private sealed class TestClock : TimeProvider {
         private DateTimeOffset now=DateTimeOffset.UtcNow;
         public override DateTimeOffset GetUtcNow()=>now;
