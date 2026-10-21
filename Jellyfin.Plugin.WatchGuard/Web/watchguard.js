@@ -1001,7 +1001,7 @@
         search.oninput = () => {
             if (!active()) return;
             generation++; if (searchTimer) clearTimeout(searchTimer);
-            continuation = null; pending = true; refresh.disabled = false; render();
+            continuation = null; polling = false; pending = true; refresh.disabled = false; render();
             searchTimer = setTimeout(() => { searchTimer = null; if (search.value === searchText) load(); else change(); }, 250);
         };
         select.onchange = change; order.onchange = change; rangeSelect.onchange = change; olderToggle.onchange = change;

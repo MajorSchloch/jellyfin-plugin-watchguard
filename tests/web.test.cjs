@@ -1064,3 +1064,11 @@ test('Empty, unselected, unavailable and paused views have distinct recovery sta
         if(state==='failed')assert.ok(f.page.children[4].textContent);
     }
 });
+
+test('Typing during a quiet poll immediately presents foreground loading during debounce',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult());await turn();
+    t.mock.timers.tick(30000);await turn();const search=descendants(f.page).find(n=>n.type==='search');search.value='new title';search.oninput();
+    assert.equal(f.page.attributes['data-view-state'],'loading');assert.equal(f.page.attributes['aria-busy'],'true');
+    f.calls[2].resolve(indexedResult(automaticResult.Items));await turn();assert.equal(f.page.children[5].children.length,0);
+});
