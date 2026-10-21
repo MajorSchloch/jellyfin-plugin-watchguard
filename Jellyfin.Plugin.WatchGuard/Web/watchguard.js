@@ -1195,7 +1195,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         @media(prefers-reduced-motion:reduce) {.watchguard-spinner {animation:none}}
         .watchguard-notice {font-size:.85em;margin-bottom:1.5em}
         .watchguard-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:1.5em 1em;margin:1em 0;align-items:start}
-        @media(min-width:1100px) {.watchguard-grid {grid-template-columns:repeat(8,minmax(0,1fr))}}
+        @media(min-width:1100px) {.watchguard-grid {grid-template-columns:repeat(7,minmax(0,1fr))}}
         .watchguard-filter {position:relative}
         .watchguard-filter summary {cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:.35em;min-height:2.5em;box-sizing:border-box}
         .watchguard-filter summary .material-icons {font-size:1.4em}
@@ -1282,20 +1282,21 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-loading-status {margin:.4rem 0;font-size:1rem;line-height:1.5}
         .watchguard-page .watchguard-notice {margin:.2rem 0;font-size:.9rem}
         .watchguard-page .watchguard-grid {margin:.5rem 0}
-        .watchguard-page .watchguard-status {max-height:none;overflow:visible;font-size:.9rem;line-height:1.5;padding:0}
+        .watchguard-page .watchguard-status {max-height:none;overflow:visible;font-size:1rem;line-height:1.5;padding:0}
         .watchguard-page .watchguard-user-line {display:flex;flex-wrap:wrap;gap:.2rem .4rem;padding:.5rem 0;min-width:0}
         .watchguard-page .watchguard-user {order:-1;flex-basis:100%;white-space:normal;overflow:visible;overflow-wrap:anywhere;font-weight:600}
         .watchguard-page .watchguard-status-icons {max-width:none;align-items:center}
         .watchguard-page .watchguard-progress {display:inline-flex;align-items:center;font-size:1em;gap:.2rem}
         .watchguard-page .watchguard-extra-button {min-width:44px;min-height:44px;margin:0}
         .watchguard-page .watchguard-live-stale {flex-basis:100%;font-size:.9rem;color:#e0c5ff;background:#29212f;border-radius:.2rem;padding:.2rem;line-height:1.4}
-        .watchguard-dates {flex-basis:100%;font-size:.85rem;color:inherit;min-width:0}
+        .watchguard-dates {flex-basis:100%;font-size:.9rem;color:inherit;min-width:0}
         .watchguard-dates summary {cursor:pointer;min-height:44px;padding:.25rem 0;box-sizing:border-box}
         .watchguard-dates summary span {display:block;overflow-wrap:anywhere}
+        .watchguard-dates summary span:first-child {display:inline}
         .watchguard-page .watchguard-dates time {display:block;font-size:inherit;opacity:1;margin:0;overflow-wrap:anywhere}
-        .watchguard-more-owners {font-size:.9rem;line-height:1.5}
+        .watchguard-more-owners {font-size:1rem;line-height:1.5}
         .watchguard-more-owners>summary {cursor:pointer;min-height:44px;padding:.6rem 0;box-sizing:border-box;color:inherit}
-        .watchguard-page .watchguard-more-owners .watchguard-user-line {font-size:.9rem}
+        .watchguard-page .watchguard-more-owners .watchguard-user-line {font-size:1rem}
         .watchguard-sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
         .watchguard-page>p:empty {display:none}
         @media(max-width:700px) {
