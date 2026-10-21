@@ -1072,3 +1072,12 @@ test('Typing during a quiet poll immediately presents foreground loading during 
     assert.equal(f.page.attributes['data-view-state'],'loading');assert.equal(f.page.attributes['aria-busy'],'true');
     f.calls[2].resolve(indexedResult(automaticResult.Items));await turn();assert.equal(f.page.children[5].children.length,0);
 });
+
+test('Legacy overview does not claim indexed search or automatic polling',async()=>{
+    const f=progressiveFixture();await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(automaticResult);await turn();
+    const disclosure=descendants(f.page).find(n=>n.className==='watchguard-coverage-details');
+    assert.equal(disclosure.children.find(n=>n.id==='watchguard-search-scope').hidden,true);
+    assert.equal(disclosure.children.at(-1).hidden,true);
+    assert.ok(descendants(f.page).some(n=>n.className==='watchguard-sr-only' && n.attributes.role==='status'));
+    f.abort.abort();
+});

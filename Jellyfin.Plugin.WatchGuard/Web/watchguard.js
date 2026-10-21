@@ -658,6 +658,7 @@
         const coverageText = document.createElement('p');
         const searchScope = document.createElement('p'); searchScope.id = 'watchguard-search-scope'; searchScope.textContent = 'Search covers known activity and watchlists, not the entire library.';
         const updateHelp = document.createElement('p'); updateHelp.textContent = 'The first page updates every 30 seconds while visible. After Load more, checks keep the displayed order and offer updates separately. Playback labels describe the last loaded state; discovery and verification may still be incomplete.';
+        searchScope.hidden = !options.indexedActivity; updateHelp.hidden = !options.indexedActivity;
         coverageDetails.append(coverageSummary, searchScope, coverageText, updateHelp);
         const coverageWarning = document.createElement('p'); coverageWarning.className = 'watchguard-coverage-warning'; coverageWarning.setAttribute('role', 'status');
         notice.append(coverageDetails, coverageWarning);
@@ -665,7 +666,8 @@
         const grid = document.createElement('div'); grid.className = 'watchguard-grid';
         const preferenceMessage = document.createElement('p'); preferenceMessage.setAttribute('role', 'status'); preferenceMessage.className = 'watchguard-notice';
         page.append(heading, toolbar, status, notice, error, grid, preferenceMessage);
-        if (options.indexedActivity) { status.after?.(freshness); page.append(announcement, updates, more); }
+        page.append(announcement);
+        if (options.indexedActivity) { status.after?.(freshness); page.append(updates, more); }
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
         let directory = [], loadedScope, viewSignature, ownerChoices;
