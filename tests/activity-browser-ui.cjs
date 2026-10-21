@@ -104,6 +104,8 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
   const firstCard=await cards().first().elementHandle(),beforeMore=await cards().count();
   await region.getByRole('button',{name:'Load more results',exact:true}).click();await settled();
   assert.ok(await cards().count()>beforeMore);assert.equal(await firstCard.evaluate(e=>e===document.querySelector('.watchguard-card')),true);
+  const retainedPeople=cards().filter({has:page.locator('.watchguard-state-CurrentlyPlaying')}).locator('.watchguard-more-owners');
+  if(await retainedPeople.count() && await retainedPeople.isVisible()) await retainedPeople.locator(':scope > summary').click();
   const names=await cards().locator('.cardText').allTextContents();
   await region.evaluate(e=>{e.scrollTop=400;});const scroll=await region.evaluate(e=>e.scrollTop);
   await native('Sessions/Playing/Stopped','POST',{ItemId:target.Id,PositionTicks:10000});
@@ -114,6 +116,7 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
   assert.equal(await region.evaluate(e=>e.scrollTop),scroll);
   assert.match(await region.innerText(),/Playing when loaded · may have stopped/);
   assert.ok(report.responses.some(r=>r.phase===report.phase && r.check && r.changed===true));
+  await region.evaluate(e=>{e.scrollTop=0;}); // Capture status after verifying retained scroll.
   await page.screenshot({path:'artifacts/activity-browser/updates-1280.png'});
   report.deeperView={result:'PASS',titles:names.length,scroll,orderAndPosterPreserved:true,retainedLiveLabel:true};
   await region.getByRole('button',{name:'Updates available',exact:true}).click();await settled();
