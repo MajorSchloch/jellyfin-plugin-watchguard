@@ -1,0 +1,68 @@
+[
+  {
+    "profile": "nginx",
+    "image": "nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+    "knownProxies": false,
+    "readiness": {
+      "Authenticated": true,
+      "OriginStatus": "HttpsProxySameOrigin",
+      "BrowserRequestVerified": true,
+      "GuardActive": true,
+      "ApprovalRequestsReady": true,
+      "Scope": "Request authentication and origin only; target permissions and fresh protection are checked per operation"
+    },
+    "vetoFilesAndRecordsPreserved": true,
+    "states": [
+      "Created",
+      "Presented",
+      "Approved",
+      "Consumed"
+    ],
+    "nativeContinuations": 1,
+    "replayRejected": true
+  },
+  {
+    "profile": "traefik",
+    "image": "traefik:v3.6@sha256:31267173a15b4944e797a76ffd9c419707c8d8b32fe5b610f80cd0cfa05f372d",
+    "knownProxies": false,
+    "readiness": {
+      "Authenticated": true,
+      "OriginStatus": "HttpsProxySameOrigin",
+      "BrowserRequestVerified": true,
+      "GuardActive": true,
+      "ApprovalRequestsReady": true,
+      "Scope": "Request authentication and origin only; target permissions and fresh protection are checked per operation"
+    },
+    "vetoFilesAndRecordsPreserved": true,
+    "states": [
+      "Created",
+      "Presented",
+      "Approved",
+      "Consumed"
+    ],
+    "nativeContinuations": 1,
+    "replayRejected": true
+  },
+  {
+    "profile": "tunnel",
+    "image": "nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+    "knownProxies": false,
+    "readiness": {
+      "Authenticated": true,
+      "OriginStatus": "HttpsProxySameOrigin",
+      "BrowserRequestVerified": true,
+      "GuardActive": true,
+      "ApprovalRequestsReady": true,
+      "Scope": "Request authentication and origin only; target permissions and fresh protection are checked per operation"
+    },
+    "vetoFilesAndRecordsPreserved": true,
+    "states": [
+      "Created",
+      "Presented",
+      "Approved",
+      "Consumed"
+    ],
+    "nativeContinuations": 1,
+    "replayRejected": true
+  }
+]

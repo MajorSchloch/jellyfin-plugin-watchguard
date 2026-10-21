@@ -1,7 +1,68 @@
 # Activity browser usability — v0.7.1 qualification
 
+## Check recovery and owner-option corrections
+
+The final corrected runtime and fixture commit is `8f9123cbb676fabc3fb5c406364012072d0dad1a`.
+[Full qualification](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39652117540) passed the build and all eleven integration suites
+with `publish=false` and `proxy_matrix=true`; publication was skipped. The later
+PR evidence commit changes only documentation and the retained capture.
+[Exact provenance](evidence/activity-browser-v071/corrections/qualification.json)
+records the jobs, artifacts and checksums. The original usability qualification
+and captures below are preserved as historical evidence.
+
+Corrected candidate ZIP SHA-256:
+`1f185fafdb3bcc024db420a3502eddc43ac6f81414587de39e445ec8db52bce6`.
+The local package, downloaded CI package and deterministic rebuild match.
+The build passes **288 backend, 171 JavaScript, 19 infrastructure and 4 catalog
+tests**. Packaging remains unpublished v0.7.1; the public catalog and release
+assets are unchanged.
+
+A successful deeper-view comparison now clears only the previous change-check
+transport error. A complete unchanged check returns to the ready state; a
+changed check shows Updates available; unfinished bounded comparisons continue
+checking on a later poll. Retained playback stays labelled potentially stale.
+Pagination and other unrelated errors remain visible. Authorization clearing,
+request serialization, generation fencing, cards, order, focus, scroll and open
+disclosures retain their existing behavior.
+
+The selected missing owner is part of the reconciled option list. Exactly one
+Unavailable user option remains selected through repeated renders and polls.
+Switching to a valid owner removes that placeholder while preserving unchanged
+option nodes. Neither correction adds presentation requests or changes polling
+and preparation budgets.
+
+Five focused regressions cover recovery with Changed=false, Changed=true and
+unfinished checking, preservation of an unrelated pagination failure, and one
+persistent missing-owner option across three polls and a valid-owner switch.
+The recovery and duplicate-placeholder regressions failed before the fix.
+Existing security assertions remain enabled.
+
+The [native browser report](evidence/activity-browser-v071/corrections/native-browser.json)
+records two deliberately injected HTTP 503 change-check failures. The next
+successful check first returned Changed=false against unchanged native data,
+then Changed=true after native playback stopped. Both restored the appropriate
+state while the stale playback label remained. The fixture retained
+47 titles, their order, the first poster and scrollTop
+400. The normal population, watched/unwatched, playback,
+preparation and seven-user presentation checks also passed. HTTP 503 is the only
+substituted response in these recovery scenarios; successful comparisons use the
+real server's authorized query.
+
+![Recovered deeper view offers updates](screenshots/v0.7.1/check-recovery-1280.png)
+
+The corrected run also retains [basepath browser checks](evidence/activity-browser-v071/corrections/native-basepath-browser.json),
+[proxy-matrix evidence](evidence/activity-browser-v071/corrections/proxy-compatibility.json)
+and [native proxy-policy checks](evidence/activity-browser-v071/corrections/native-remote-access-proxy.json).
+[Repeated native API measurements](evidence/activity-browser-v071/corrections/native-comparison.json)
+include every preparation request and warm query work counter against the same
+checksum-verified v0.6.0 baseline. The server query implementation is unchanged;
+all measured scenarios still trigger zero playback-classification batches.
+These are disposable fixture measurements, not a production load test.
+
+## Original usability qualification
+
 Unpublished candidate based on published v0.7.0 at master `70c5c7d`.
-Final runtime and fixture commit: `372f7c7172d8b08581131ec3dadb49ab5fba683e`.
+Original usability runtime and fixture commit: `372f7c7172d8b08581131ec3dadb49ab5fba683e`.
 [Full qualification](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39644129864)
 passed its build and all eleven integration suites with `publish=false` and
 `proxy_matrix=true`; publication was skipped. The later evidence commit changes
