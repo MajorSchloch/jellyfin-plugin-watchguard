@@ -559,6 +559,7 @@
         let continuation = null, pollTimer = null, searchTimer = null, loadedPages = 1, indexPopulating = false;
         let searchText = (options.search || '').slice(0, 120), combined = false, preparing = false, requiresRefresh = false;
         let freshnessRevision = null, checkCursor = null, updatesAvailable = false, liveStale = false;
+        let queryFailed = false, checkFailed = false;
         let queryQueue = Promise.resolve();
         const automaticRequestBudget = 4;
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
@@ -688,18 +689,20 @@
             const owners = new Map([...directory, ...entries.flatMap(entry => entry.Users)].map(owner => [key(owner.UserId), owner]));
             const choices = [['mine', 'My list'], ...(admin ? [['all', 'All users'], ...Array.from(owners.values())
                 .sort((a, b) => a.DisplayName.localeCompare(b.DisplayName)).map(owner => [key(owner.UserId), owner.DisplayName])] : [])];
+            if (admin && !choices.some(([value]) => value === filter)) choices.push([filter, 'Unavailable user']);
             const choicesKey = JSON.stringify(choices);
             if (choicesKey !== ownerChoices) {
-                select.replaceChildren();
-                for (const [value, name] of choices) {
-                    const option = document.createElement('option'); option.value = value; option.textContent = name; select.append(option);
+                const existing = new Map([...select.children].map(option => [option.value, option]));
+                const values = new Set(choices.map(([value]) => value));
+                for (const option of [...select.children]) if (!values.has(option.value)) option.remove();
+                for (const [position, [value, name]] of choices.entries()) {
+                    const option = existing.get(value) || document.createElement('option');
+                    option.value = value; setText(option, name);
+                    if (select.children[position] !== option) select.insertBefore(option, select.children[position] || null);
                 }
                 ownerChoices = choicesKey;
             }
             select.value = admin ? filter : 'mine'; select.hidden = !admin; ownerGroup.hidden = !admin;
-            if (admin && !choices.some(([value]) => value === filter)) {
-                const option = document.createElement('option'); option.value = filter; option.textContent = 'Unavailable user'; select.append(option); select.value = filter;
-            }
             for (const [id, checkbox] of checkboxes) checkbox.checked = kind.includes(id);
             summary.replaceChildren();
             const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
@@ -712,7 +715,7 @@
             else if (requiresRefresh) { state = 'expired'; message = (selected.length ? amount + ' · ' : '') + 'View expired'; detail = 'Refresh this view to continue with the same filters.'; }
             else if (preparing && !pending) { state = 'paused'; message = 'Loading paused'; detail = 'Continue loading to finish this view.'; }
             else if (pending && !polling) { state = selected.length && !combined ? 'preliminary' : 'loading'; message = selected.length && combined ? amount + ' · Loading…' : 'Loading viewing activity…'; }
-            else if (failures.length || liveStale && !preparing) { state = 'failed'; message = selected.length ? amount + ' · Update unavailable' : 'Activity unavailable'; detail = 'Refresh to retry.'; }
+            else if (failures.length || queryFailed || checkFailed) { state = 'failed'; message = selected.length ? amount + ' · Update unavailable' : 'Activity unavailable'; detail = 'Refresh to retry.'; }
             else if (updatesAvailable) { state = 'updates'; message = amount + ' · Updates available'; }
             else if (indexPopulating) { state = 'populating'; message = selected.length ? amount + ' · Background population' : 'Background population · No verified matches yet'; }
             else if (!selected.length) { state = 'empty'; if (kind.length === 4 && !searchText) message = 'No known activity or watchlists'; }
@@ -802,7 +805,7 @@
             explicit = []; automatic = []; directory = []; continuation = null;
             loadedPages = 1; indexPopulating = false; pending = false; combined = false; preparing = false; requiresRefresh = false;
             coverage = ''; coverageLimited = false; coverageInfo = null;
-            freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false;
+            freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false;
             grid.replaceChildren(); cards.clear(); freshness.textContent = '';
             failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
             refresh.disabled = false; render();
@@ -848,11 +851,12 @@
                 return;
             }
             indexState(result); automatic = result.Items; loadedPages = 1; failures = [];
-            freshnessRevision = result.Freshness.Revision; checkCursor = null; updatesAvailable = false; liveStale = false;
+            freshnessRevision = result.Freshness.Revision; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false;
         }
-        function queryFailure(failure) {
+        function queryFailure(failure, check = false) {
             if ([400,409].includes(failure?.status)) { continuation = null; checkCursor = null; requiresRefresh = true; }
             liveStale = true;
+            if (check) checkFailed = true; else queryFailed = true;
         }
         async function load(prioritize = false) {
             if (!active()) return;
@@ -951,12 +955,15 @@
                         if (!batch) return;
                         const {result, waiting} = batch;
                         checkCursor = waiting ? result.Continuation : null;
+                        // A successful comparison repairs only its transport state. It
+                        // neither reloads retained playback nor clears other failures.
+                        checkFailed = false;
                         if (result.Changed === true) updatesAvailable = true;
 
                     }
                 } catch (failure) {
                     if (authorizationDenied(failure)) return;
-                    if (active() && revision === generation) queryFailure(failure);
+                    if (active() && revision === generation) queryFailure(failure, loadedPages > 1);
                 } finally {
                     if (active() && revision === generation) { polling = false; pending = false; render(); page.scrollTop = position; schedulePoll(); }
                 }
@@ -997,7 +1004,7 @@
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; loadedPages = 1; pending = true; render(); load(); } else render();
+            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false; loadedPages = 1; pending = true; render(); load(); } else render();
         };
         const change = () => { if (active()) { if (options.indexedActivity) generation++; const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
         search.oninput = () => {

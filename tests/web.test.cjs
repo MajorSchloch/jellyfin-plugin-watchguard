@@ -1081,3 +1081,57 @@ test('Legacy overview does not claim indexed search or automatic polling',async(
     assert.ok(descendants(f.page).some(n=>n.className==='watchguard-sr-only' && n.attributes.role==='status'));
     f.abort.abort();
 });
+
+for(const changed of [false,true,'preparing']) test('Deeper check recovers from 503 with '+changed+' while retaining stale playback and the view',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();
+    const item={...automaticResult.Items[0],Users:[me,other,'e'.repeat(32)].map(UserId=>({...automaticResult.Items[0].Users[0],UserId}))};
+    f.calls[1].resolve(indexedResult([item],'more'));await turn();
+    const loading=f.page.children.at(-1).onclick();await turn();f.calls[2].resolve(indexedResult([{...item,ItemId:'9'.repeat(32),Name:'Second'}]));await loading;
+    const grid=f.page.children[5],cards=[...grid.children],people=descendants(cards[0]).find(n=>n.className==='watchguard-more-owners');
+    const dates=descendants(cards[0]).find(n=>n.className==='watchguard-dates'),focus=dates.children[0];
+    people.open=true;dates.open=true;f.document.activeElement=focus;f.page.scrollTop=400;
+    t.mock.timers.tick(30000);await turn();assert.match(f.calls[3].o.url,/check=true/);f.calls[3].reject({status:503});await turn();
+    assert.equal(f.page.attributes['data-view-state'],'failed');
+    t.mock.timers.tick(30000);await turn();
+    if(changed==='preparing') for(let i=4;i<8;i++){f.calls[i].resolve({...indexedResult([],'check-'+i),Preparing:true,Changed:false});await turn();}
+    else {f.calls[4].resolve({...indexedResult(),Preparing:false,Changed:changed});await turn();}
+    assert.equal(f.page.attributes['data-view-state'],changed===true?'updates':'ready');
+    assert.doesNotMatch(f.page.children[2].textContent,/unavailable/i);assert.equal(f.page.children[4].textContent,'');
+    assert.equal(button(f.page,'Updates available').hidden,changed!==true);
+    if(changed==='preparing') {
+        t.mock.timers.tick(30000);await turn();assert.match(f.calls[8].o.url,/check=true.*continuation=check-7/);
+        f.calls[8].resolve({...indexedResult(),Preparing:false,Changed:true});await turn();assert.equal(f.page.attributes['data-view-state'],'updates');
+    }
+    assert.deepEqual(grid.children,cards);assert.equal(f.page.scrollTop,400);assert.equal(f.document.activeElement,focus);
+    assert.equal(people.open,true);assert.equal(dates.open,true);
+    assert.ok(descendants(grid).filter(n=>n.className==='watchguard-live-stale').every(n=>!n.hidden));
+});
+
+test('Successful deeper checks preserve unrelated pagination errors',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(automaticResult.Items,'page-2'));await turn();
+    const more=f.page.children.at(-1);let loading=more.onclick();await turn();f.calls[2].resolve(indexedResult([],'page-3'));await loading;
+    loading=more.onclick();await turn();f.calls[3].reject({status:503});await loading;const error=f.page.children[4].textContent;assert.ok(error);
+    t.mock.timers.tick(30000);await turn();f.calls[4].reject({status:503});await turn();
+    t.mock.timers.tick(30000);await turn();f.calls[5].resolve({...indexedResult(),Preparing:false,Changed:true});await turn();
+    assert.equal(f.page.children[4].textContent,error);assert.equal(f.page.attributes['data-view-state'],'failed');
+    assert.equal(button(f.page,'Updates available').hidden,false);
+});
+
+test('Missing selected owner has one persistent option through polls and valid-owner selection',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const missing='f'.repeat(32),f=progressiveFixture(true,false,missing,true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult());await turn();
+    const select=descendants(f.page).find(n=>n.attributes?.['aria-label']==='Watchlist owner');
+    const placeholders=()=>select.children.filter(n=>n.value===missing);
+    assert.equal(placeholders().length,1);const placeholder=placeholders()[0];
+    const valid=select.children.find(n=>n.value===other),mine=select.children.find(n=>n.value==='mine');
+    for(let i=2;i<5;i++) {
+        t.mock.timers.tick(30000);await turn();f.calls[i].resolve(indexedResult());await turn();
+        assert.equal(placeholders().length,1);assert.equal(placeholders()[0],placeholder);assert.equal(select.value,missing);
+        assert.equal(select.children.find(n=>n.value===other),valid);
+    }
+    select.value=other;select.onchange();await turn();f.calls[5].resolve([]);await turn();f.calls[6].resolve(indexedResult(automaticResult.Items));await turn();
+    assert.equal(select.value,other);assert.equal(placeholders().length,0);
+    assert.equal(select.children.find(n=>n.value===other),valid);assert.equal(select.children.find(n=>n.value==='mine'),mine);
+});
