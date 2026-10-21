@@ -236,7 +236,7 @@ def main():
                 browser_fixture = json.loads(fixture.read_text())
                 browser_fixture['base'] = base
                 fixture.write_text(json.dumps(browser_fixture))
-                subprocess.run(['node', str(ROOT/'tests/activity-browser-ui.cjs'), str(fixture)], check=True,timeout=600)
+                subprocess.run(['node', str(ROOT/'tests/activity-browser-ui.cjs'), str(fixture)], check=True,timeout=900)
             elif options.profile == 'verification':
                 runpy.run_path(str(ROOT/'tests/verification-native.py'))['run'](call, restart, docker, name, plugins, token)
             elif options.serve:

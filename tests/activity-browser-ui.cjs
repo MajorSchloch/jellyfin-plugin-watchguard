@@ -136,7 +136,13 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
   const card=cards().first(),people=card.locator('.watchguard-more-owners');
   assert.equal(await card.locator('.watchguard-user-line').count(),7);
   const beforeExpansion=report.responses.length;
-  await people.locator(':scope > summary').press('Enter');
+  // The same title was expanded in the deeper-view check; SPA filters retain
+  // its disclosure. Exercise keyboard close/open from either retained state.
+  const peopleSummary=people.locator(':scope > summary');
+  if(await people.evaluate(e=>e.open)) await peopleSummary.press('Enter');
+  assert.equal(await people.evaluate(e=>e.open),false);
+  await peopleSummary.press('Enter');
+  assert.equal(await people.evaluate(e=>e.open),true);
   assert.equal(await card.getByText('Alexandria_Household_Member_With_A_Long_Display_Name',{exact:true}).isVisible(),true);
   const dates=card.locator('.watchguard-dates').first();await dates.locator('summary').press('Enter');
   assert.ok(await dates.locator('time').count()>0);
