@@ -1,4 +1,4 @@
-# Activity browser query contract — unpublished v0.7.0
+# Activity browser query contract — v0.7.0
 
 The combined query unions explicit membership, eligible indexed native activity,
 and currently authorized live sessions by title ID and user ID. Owner scope applies

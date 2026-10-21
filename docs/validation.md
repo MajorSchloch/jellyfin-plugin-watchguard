@@ -1,8 +1,8 @@
 # Validation and release qualification
 
-**Current published version:** [WatchGuard v0.6.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.6.0) · Qualified Jellyfin Server/Web **12.2.0**, .NET 10.
+**Current published version:** [WatchGuard v0.7.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.0) · Qualified Jellyfin Server/Web **12.2.0**, .NET 10.
 
-**Release preparation (unpublished):** [v0.7.0 combined activity browser](release-v070.md), [qualification and native measurements](activity-browser-validation-v070.md). Public assets and catalog history are unchanged.
+**Published activity browser:** [v0.7.0 notes](release-v070.md), [historical qualification and native measurements](activity-browser-validation-v070.md). **Unpublished v0.7.1:** [preparation status](../release-preparation.md).
 
 The historical v0.5.2 release qualification completed successfully on source commit `9a3aa7d046863687b671f316da0a138cb4f6be21`: [GitHub Actions #39219433132](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39219433132). Its build, ten integration jobs and gated publish job all passed; the official native server-enforcement suite ran with `WATCHGUARD_PROXY_MATRIX=1`. The resulting release package is SHA-256 `62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec`.
 

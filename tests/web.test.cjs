@@ -256,8 +256,8 @@ test('Overview renders text literally, distinguishes reasons and offers only exp
     assert.equal(cards.length,2);
     assert.equal(cards[0].children[0].children[1].textContent,text);
     assert.ok(cards[0].children[1].children[1].title.startsWith(text+' — Watchlist · Watching · Last played: '));
-    assert.equal(cards[0].children.length,3);
-    assert.equal(cards[1].children.length,2);
+    assert.equal(descendants(cards[0]).filter(n=>n.className?.includes('watchguard-remove')).length,1);
+    assert.equal(descendants(cards[1]).filter(n=>n.className?.includes('watchguard-remove')).length,0);
 });
 test('Personal overview rejects cross-user payloads even with forged owner filter',async()=>{
     const f=documentFixture(),create=f.doc.createElement;
@@ -313,7 +313,7 @@ test('Automatic failure preserves explicit cards and never claims a complete or 
     const f=progressiveFixture();await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
     const card=f.page.children[5].children[0];f.calls[1].reject(new Error('private'));await turn();
     assert.equal(f.page.children[5].children[0],card);assert.match(f.page.children[4].textContent,/Results are incomplete/);
-    f.page.updateFilters('all','watching','title');assert.equal(f.page.children[2].textContent,'');
+    f.page.updateFilters('all','watching','title');assert.equal(f.page.attributes['data-view-state'],'failed');
     assert.ok(!f.page.children[4].textContent.includes('private'));
 });
 test('Explicit failure does not prevent automatic results and keeps failure visible',async()=>{
@@ -368,19 +368,18 @@ test('Status defaults, OR and owner predicates agree on the same user, including
     assert.deepEqual(selectedStatuses('none'),[]);
     assert.equal(selectedStatuses('all').length,4);
 });
-test('Compact rows use safe names, distinct accessible icons, calendar dates and exact timestamp tooltips',()=>{
+test('Rows expose distinct statuses and exact native timestamps through keyboard accessible details',()=>{
     const {userLine}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
     const date='2026-10-11T09:12:34Z';
     const owner={DisplayName:'<Tom>',Reasons:['Watchlisted','InProgress','CurrentlyPlaying','Watched','Watched'],LastPlayedDate:date,AvailableEpisodes:12,WatchedEpisodes:7};
     const line=userLine(documentFixture().doc,owner);
-    assert.deepEqual(line.children[0].children.map(i=>i.textContent),['bookmark','play_circle','sensors','check_circle']);
     assert.deepEqual(line.children[0].children.map(i=>i.attributes['aria-label']),['Watchlist','Watching','Currently Playing','Watched']);
-    assert.equal(line.children[1].textContent,'<Tom>');assert.match(textOf(line.children[2]),/7\/12/);
-    const time=line.children[3];assert.equal(time.tag,'time');assert.equal(time.dateTime,date);
-    assert.equal(time.textContent,new Intl.DateTimeFormat(undefined,{dateStyle:'medium'}).format(new Date(date)));
-    assert.equal(time.attributes['aria-label'],'Last played: '+new Intl.DateTimeFormat(undefined,{dateStyle:'full',timeStyle:'long'}).format(new Date(date)));
-    assert.equal(time.tabIndex,0);
-    assert.equal(userLine(documentFixture().doc,{...owner,Reasons:['CurrentlyPlaying']}).children.length,3);
+    assert.equal(line.children[1].textContent,'<Tom>');assert.match(textOf(line),/7\/12/);
+    const details=descendants(line).find(n=>n.tag==='details');assert.equal(details.children[0].tag,'summary');
+    const time=descendants(details).find(n=>n.tag==='time');assert.equal(time.dateTime,date);
+    assert.equal(time.textContent,'Last played: '+new Intl.DateTimeFormat(undefined,{dateStyle:'full',timeStyle:'long'}).format(new Date(date)));
+    details.open=true;line.update({...owner,Reasons:['CurrentlyPlaying']},true);
+    assert.equal(details.open,true);assert.equal(descendants(line).find(n=>n.tag==='details'),details);
 });
 test('Checkboxes serialize all selections, reset defaults and reflect history without fetching',async()=>{
     const f=progressiveFixture();await turn();f.calls[0].resolve([overviewItems[0]]);await turn();f.calls[1].resolve(automaticResult);await turn();
@@ -541,10 +540,10 @@ test('Coverage disclosure keeps exact server notes and exposes safety and unknow
         f.calls[1].resolve({...automaticResult,Notice:notice,LimitReached:limited});await turn();
         const container=f.page.children[3], disclosure=container.children[0], visible=container.children[1];
         assert.equal(container.hidden,false);assert.equal(disclosure.tag,'details');assert.ok(!disclosure.open);
-        assert.equal(disclosure.children[1].textContent,notice);
+        assert.ok(disclosure.children.some(n=>n.textContent===notice));
         assert.equal(visible.textContent,warning);assert.equal(visible.hidden,!warning);
         assert.equal(descendants(container).filter(n=>n.tag==='img').length,0);
-        assert.match(disclosure.children[0].textContent,/not exhaustive/);
+        assert.equal(disclosure.children[0].tag,'summary');
     }
 });
 
@@ -600,14 +599,14 @@ test('Watchlist owner rows render real added dates, unknown dates, and old-serve
     const date='2026-10-18T11:30:00Z';
     const known={UserId:me,DisplayName:'<unsafe>',Reasons:['Watchlisted'],AddedAtUtc:date};
     const row=userLine(documentFixture().doc,known);
-    const added=row.children.find(e=>e.tag==='time');
-    assert.ok(added);assert.equal(added.dateTime,date);assert.match(added.textContent,/Added /);
-    assert.match(added.attributes['aria-label'],/Added to Watchlist:/);
+    const added=descendants(row).find(e=>e.tag==='time');
+    assert.ok(added);assert.equal(added.dateTime,date);assert.match(added.textContent,/Added:/);
+    assert.ok(descendants(row).some(n=>n.tag==='summary'));
     assert.match(activityText(known,true),/Added:/);
     const unknown=userLine(documentFixture().doc,{...known,AddedAtUtc:null});
-    assert.equal(unknown.children.at(-1).textContent,'Added: unknown');
+    assert.match(textOf(unknown),/Added: unknown/);
     const old=userLine(documentFixture().doc,{UserId:me,DisplayName:'Me',Reasons:['Watchlisted']});
-    assert.equal(old.children.length,2,'Old API fixture has no timestamp field and must remain renderable');
+    assert.equal(descendants(old).filter(n=>n.tag==='time').length,0,'No invented timestamp for old API rows');
     assert.equal(known.DisplayName,'<unsafe>','No user text is interpreted as HTML');
 });
 
@@ -712,7 +711,7 @@ test('Combined controls query server filtering and ordering without saving prefe
     f.calls[2].resolve([overviewItems[0]]);await turn();
     assert.match(f.calls[3].o.url,/days=7&older=false&statuses=watchlisted&sort=added&search=Zebra/);
     f.calls[3].resolve(indexedResult());await turn();
-    assert.equal(f.page.children[3].children[0].children[0].textContent,'Activity: last 7 days · not exhaustive');
+    assert.match(descendants(f.page).find(n=>n.className==='watchguard-secondary').children[0].textContent,/7 days.*recent only/);
     assert.ok(f.calls.every(c=>c.o.type==='GET'));f.abort.abort();
 });
 test('Indexed pagination preserves poster identity and refuses late account results',async()=>{
@@ -729,7 +728,7 @@ test('Indexed pagination preserves poster identity and refuses late account resu
 test('Indexed initial population is not a false empty result and malformed status remains an error',async()=>{
     const f=progressiveFixture(false,false,'mine',true);await turn();f.calls[0].resolve([]);await turn();
     const result=indexedResult();result.Freshness.DiscoveryFinished=false;f.calls[1].resolve(result);await turn();
-    assert.match(f.page.children[2].textContent,/Background discovery/);
+    assert.equal(f.page.attributes['data-view-state'],'populating');
     const refresh=f.page.children[1].children[3].onclick();await turn();f.calls[2].resolve([]);await turn();
     f.calls[3].resolve({...result,Freshness:null});await refresh;
     assert.match(f.page.children[4].textContent,/unavailable/);f.abort.abort();
@@ -843,7 +842,7 @@ test('Indexed partial-title pages merge owners without replacing poster or dupli
 test('Combined browser retains server order and replaces preliminary membership cards',async t=>{
     const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
     await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
-    assert.match(f.page.children[2].textContent,/preliminary watchlists only/);
+    assert.equal(f.page.attributes['data-view-state'],'preliminary');
     const z={...automaticResult.Items[0],Name:'Zebra'},a={...z,ItemId:'8'.repeat(32),Name:'Alpha'};
     f.calls[1].resolve(indexedResult([z,a]));await turn();
     assert.deepEqual(f.page.children[5].children.map(c=>c.children[0].children[1].textContent),['Zebra','Alpha']);
@@ -920,7 +919,7 @@ test('Visible first-page polling replaces empty population and changed activity 
     t.mock.timers.tick(30000);await turn();
     const stopped={...automaticResult.Items[0],Users:automaticResult.Items[0].Users.map(u=>({...u,Reasons:['InProgress']}))};
     f.calls[3].resolve(indexedResult([stopped]));await turn();assert.equal(f.page.children[5].children[0].children[0],poster);
-    assert.ok(!textOf(f.page.children[5]).includes('may have stopped'));
+    assert.ok(descendants(f.page.children[5]).filter(n=>n.className==='watchguard-live-stale').every(n=>n.hidden));
     assert.ok(!descendants(f.page.children[5]).some(n=>n.attributes?.['aria-label']==='Currently Playing'));
     t.mock.timers.tick(30000);await turn();f.calls[4].resolve(indexedResult());await turn();assert.equal(f.page.children[5].children.length,0);
 });
@@ -943,7 +942,7 @@ test('Deeper views check changes, preserve ordering and label retained playback 
 test('Automatic preparation crosses the empty prepared boundary and stops at the first ordered page',async t=>{
     const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
     f.calls[1].resolve({...indexedResult([],'a'),Preparing:true});await turn();
-    assert.equal(f.page.children[5].children.length,1);assert.match(f.page.children[2].textContent,/preliminary watchlists/);
+    assert.equal(f.page.children[5].children.length,1);assert.equal(f.page.attributes['data-view-state'],'preliminary');
     f.calls[2].resolve({...indexedResult([],'b'),Preparing:true});await turn();
     f.calls[3].resolve({...indexedResult([],'boundary'),Preparing:false});await turn();
     assert.match(f.calls[4].o.url,/continuation=boundary/);
@@ -1026,4 +1025,42 @@ test('Updates available action retains the deeper view when the replacement quer
     t.mock.timers.tick(30000);await turn();f.calls[3].resolve({...indexedResult(),Changed:true,Preparing:false});await turn();
     descendants(f.page).find(n=>n.textContent==='Updates available').onclick();await turn();f.calls[4].resolve([]);await turn();f.calls[5].reject({status:503});await turn();
     assert.equal(f.page.children[5].children[0],card);assert.match(f.page.children[4].textContent,/unavailable/);assert.match(textOf(card),/may have stopped/);
+});
+
+test('Seven owners use persistent expansion and date details, with no presentation requests',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();
+    const users=Array.from({length:7},(_,i)=>({UserId:(i+1).toString(16).padStart(32,'0'),DisplayName:'Long household name '+i,Reasons:['Watchlisted'],AddedAtUtc:'2026-10-20T12:00:00Z'}));
+    const item={...overviewItems[0],Users:users};f.calls[1].resolve(indexedResult([item]));await turn();
+    const card=f.page.children[5].children[0],details=descendants(card).find(n=>n.className==='watchguard-more-owners');
+    assert.equal(details.hidden,false);assert.equal(card.children[1].children.length,2);assert.equal(details.children[1].children.length,5);
+    details.open=true;const row=details.children[1].children[0],dates=descendants(row).find(n=>n.className==='watchguard-dates');dates.open=true;
+    assert.equal(f.calls.length,2);
+    t.mock.timers.tick(30000);await turn();f.calls[2].resolve(indexedResult([{...item,Users:users.map((u,i)=>i===2?{...u,LastPlayedDate:'2026-10-21T12:00:00Z'}:u)}]));await turn();
+    assert.equal(f.page.children[5].children[0],card);assert.equal(details.open,true);assert.equal(details.children[1].children[0],row);assert.equal(dates.open,true);
+    assert.equal(descendants(dates).filter(n=>n.tag==='time').length,2);
+});
+
+test('Routine unchanged polls do not mutate the settled live announcement or owner options',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(automaticResult.Items));await turn();
+    const live=descendants(f.page).find(n=>n.className==='watchguard-sr-only'),select=descendants(f.page).find(n=>n.attributes?.['aria-label']==='Watchlist owner');
+    const options=[...select.children];let text=live.textContent,mutations=0;Object.defineProperty(live,'textContent',{get:()=>text,set:value=>{mutations++;text=value;}});
+    t.mock.timers.tick(30000);await turn();f.calls[2].resolve(indexedResult(automaticResult.Items));await turn();
+    assert.equal(mutations,0);assert.deepEqual(select.children,options);assert.match(f.page.children[2].textContent,/1 title loaded/);assert.doesNotMatch(f.page.children[2].textContent,/1 titles/);
+});
+
+test('Empty, unselected, unavailable and paused views have distinct recovery states',async t=>{
+    for(const state of ['empty','unselected','failed','paused']) {
+        const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());await turn();
+        f.calls[0].resolve([]);await turn();
+        if(state==='failed')f.calls[1].reject({status:503});
+        else if(state==='paused')for(let i=1;i<=4;i++){f.calls[i].resolve({...indexedResult([],'prep'+i),Preparing:true});await turn();}
+        else f.calls[1].resolve(indexedResult());
+        await turn();
+        if(state==='unselected'){f.page.updateFilters('all','none','title');await turn();f.calls[2].resolve([]);await turn();f.calls[3].resolve(indexedResult());await turn();}
+        assert.equal(f.page.attributes['data-view-state'],state);
+        if(state==='paused')assert.equal(f.page.children.at(-1).hidden,false);
+        if(state==='failed')assert.ok(f.page.children[4].textContent);
+    }
 });

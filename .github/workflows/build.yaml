@@ -29,11 +29,12 @@ jobs:
       - run: python3 -m py_compile tests/native_proxy_policy.py tests/server-enforcement.py
       - run: python3 -m unittest discover -s tests -p 'test_*.py'
       - run: python3 scripts/build-release.py
+      - run: python3 scripts/check-release-notes.py
       - run: python3 tests/catalog_test.py
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.0.zip
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.1.zip
       - uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-v0.7.0
+          name: WatchGuard-v0.7.1
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.0.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.0.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.1.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.1.zip.sha256
