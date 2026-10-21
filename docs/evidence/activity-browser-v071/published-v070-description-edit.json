@@ -1,0 +1,42 @@
+{
+  "release": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.0",
+  "releaseId": 418964035,
+  "tag": "v0.7.0",
+  "operation": "Description only",
+  "beforeBodySha256": "2e1fa488b8b3d6784e7a557d1ddcd245e7d2a277d5f47b91b6a833a09cfa89b7",
+  "afterBodySha256": "de22b9a8e620097ecd126aaf6f6dfa3416e771c0b5ead43306fb38d364a1f190",
+  "verifiedUnchanged": [
+    "id",
+    "tag_name",
+    "target_commitish",
+    "name",
+    "draft",
+    "prerelease",
+    "published_at",
+    "assets"
+  ],
+  "assets": [
+    {
+      "id": 660721438,
+      "name": "Jellyfin.Plugin.WatchGuard-v0.7.0.zip",
+      "size": 511557,
+      "digest": "sha256:99e97d991cd16fa8313c68d632601abd7d8ffdbd4a8d971a7bf9d56aadd5a0c7"
+    },
+    {
+      "id": 660721441,
+      "name": "Jellyfin.Plugin.WatchGuard-v0.7.0.zip.sha256",
+      "size": 104,
+      "digest": "sha256:56f404d5d6655fa597624d477f075c364eb7786e8c08a05981306714f7f983eb"
+    }
+  ],
+  "verifiedDocumentationLinks": [
+    {
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/v0.7.0/docs/activity-browser-v070.md",
+      "blobSha": "51e1e2309681352bcfaef92120e0f6ff8e872d5c"
+    },
+    {
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/v0.7.0/docs/activity-browser-validation-v070.md",
+      "blobSha": "1c645a7bc779900adb3d7ac680b13cd62b9f27a9"
+    }
+  ]
+}

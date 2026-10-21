@@ -1,0 +1,16 @@
+{
+  "withoutKnownProxies": {
+    "nativePublicAccountVisible": true,
+    "nativeRestrictedSessionHttp": 200,
+    "forwardedClientTreatedAsRemote": false
+  },
+  "withKnownProxies": {
+    "nativePublicAccountVisible": false,
+    "nativeRestrictedSessionHttp": 403,
+    "forwardedClientTreatedAsRemote": true
+  },
+  "directUntrustedForwardedHeadersIgnored": true,
+  "syntheticRemoteIpCategory": "RFC5737-TEST-NET-2",
+  "nativePolicyChecked": "EnableRemoteAccess=false",
+  "approvalProtocolNotUsedForTheseRequests": true
+}
