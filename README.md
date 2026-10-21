@@ -1,6 +1,6 @@
 # Jellyfin WatchGuard
 
-**Current release: [v0.6.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.6.0)** · Target: **Jellyfin Server/Web 12.2.0 / .NET 10** · [Plugin catalog](manifest.json)
+**Current release: [v0.7.0](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.0)** · Target: **Jellyfin Server/Web 12.2.0 / .NET 10** · [Plugin catalog](manifest.json)
 
 WatchGuard adds personal watchlists, shared viewing-interest indicators and deletion warnings to Jellyfin. An optional **server-side guard** prevents protected media from being deleted through the two qualified native HTTP item-deletion routes without an explicit administrator approval.
 
@@ -21,7 +21,7 @@ WatchGuard is a **single Jellyfin plugin** with an authenticated, standalone Web
 
    `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
 
-2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.6.0.0`).
+2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.7.0.0`).
 3. **Restart Jellyfin**, then **fully reload Jellyfin Web** in each browser.
 4. Open **Dashboard → Plugins → WatchGuard**. Confirm the installed plugin version, standalone loader, the current browser's installed adapter and the active server-guard state. The approval **POST readiness** check is non-mutating.
 
@@ -81,7 +81,7 @@ dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release
 node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs
 python3 scripts/build-release.py
 python3 tests/catalog_test.py
-python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.0.zip
+python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.1.zip
 ```
 
 The release packager produces a deterministic ZIP containing only the WatchGuard DLL and LICENSE; Web resources are embedded. Building and testing do **not** publish releases or modify the public catalog. The optional full GitHub Actions release workflow defaults to `publish=false`; it tests disposable Jellyfin instances and generated media. **Do not point fixture scripts at production media.**
@@ -93,6 +93,8 @@ See the [documentation index](docs/README.md) for the current security, deployme
 [GPL-3.0](LICENSE).
 
 
-## Activity browser — v0.7.0 preparation (unpublished)
+## Activity browser — published v0.7.0
 
-Published v0.6.0 provides the background activity index and native reconciliation. The v0.7.0 candidate adds a combined server query for filtering, ordering and title search before pagination. Preparation advances automatically within four requests. Visible first pages update automatically; deeper views keep their order and show when authorized checks find updates. See the [query contract](docs/activity-browser-v070.md) and [candidate release notes](docs/release-v070.md). Public assets and catalog history are unchanged.
+Published v0.6.0 provides the background activity index and native reconciliation. Published v0.7.0 adds a combined server query for filtering, ordering and title search before pagination. Preparation advances automatically within four requests. Visible first pages update automatically; deeper views keep their order and show when authorized checks find updates. See the [query contract](docs/activity-browser-v070.md) and [release notes](docs/release-v070.md). Published v0.7.0 is installed and manually validated on the maintainer’s server.
+
+The v0.7.1 usability candidate is being prepared separately; see [preparation and qualification status](release-preparation.md).

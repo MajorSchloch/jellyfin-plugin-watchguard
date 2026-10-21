@@ -92,6 +92,7 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
   report.watchedPolling='PASS';
 
   report.phase='native playback start and stop';await open('all','playing',target.Name);assert.equal(await cards().count(),0);
+  await page.screenshot({path:'artifacts/activity-browser/empty-1280.png'});
   await native('Sessions/Playing','POST',{ItemId:target.Id,PlayMethod:'DirectPlay',PositionTicks:10000});
   await until(async()=>await cards().count()===1 && await region.getAttribute('aria-busy')==='false','Playback start must appear without Refresh');
   await native('Sessions/Playing/Stopped','POST',{ItemId:target.Id,PositionTicks:10000});
@@ -103,16 +104,39 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
   const firstCard=await cards().first().elementHandle(),beforeMore=await cards().count();
   await region.getByRole('button',{name:'Load more results',exact:true}).click();await settled();
   assert.ok(await cards().count()>beforeMore);assert.equal(await firstCard.evaluate(e=>e===document.querySelector('.watchguard-card')),true);
+  const retainedPeople=cards().filter({has:page.locator('.watchguard-state-CurrentlyPlaying')}).locator('.watchguard-more-owners');
+  if(await retainedPeople.count() && await retainedPeople.isVisible()) await retainedPeople.locator(':scope > summary').click();
   const names=await cards().locator('.cardText').allTextContents();
   await region.evaluate(e=>{e.scrollTop=400;});const scroll=await region.evaluate(e=>e.scrollTop);
+  let failCheck=true;
+  const checkRoute='**/WatchGuard/ActivityBrowser?**';
+  const checkOutage=route=>new URL(route.request().url()).searchParams.get('check')==='true' && failCheck
+   ? route.fulfill({status:503,contentType:'application/json',body:'{"Error":"Injected check outage"}'}) : route.fallback();
+  await page.route(checkRoute,checkOutage);
+  await until(async()=>await region.getAttribute('data-view-state')==='failed','Check outage must be visible');
+  failCheck=false;
+  await until(async()=>await region.getAttribute('data-view-state')==='ready' && await region.getAttribute('aria-busy')==='false','Unchanged native check must clear its prior transport error');
+  assert.equal(await region.getByRole('button',{name:'Updates available',exact:true}).isVisible(),false);
+  assert.ok(report.responses.some(r=>r.phase===report.phase && r.check && r.changed===false && !r.preparing));
+  assert.match(await region.innerText(),/Playing when loaded · may have stopped/);
+  assert.deepEqual(await cards().locator('.cardText').allTextContents(),names);
+  assert.equal(await region.evaluate(e=>e.scrollTop),scroll);
+  failCheck=true;
+  await until(async()=>await region.getAttribute('data-view-state')==='failed','Second check outage must be visible');
+  failCheck=false;
   await native('Sessions/Playing/Stopped','POST',{ItemId:target.Id,PositionTicks:10000});
   await until(()=>region.getByRole('button',{name:'Updates available',exact:true}).isVisible(),'Deeper view must detect relevant live changes');
+  await page.unroute(checkRoute,checkOutage);
   await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+  assert.equal(await region.getAttribute('data-view-state'),'updates');
+  report.checkRecovery={result:'PASS',unchanged:true,changed:true,injectedStatus:503,retainedLiveLabel:true};
   assert.deepEqual(await cards().locator('.cardText').allTextContents(),names);
   assert.equal(await firstCard.evaluate(e=>e===document.querySelector('.watchguard-card')),true);
   assert.equal(await region.evaluate(e=>e.scrollTop),scroll);
   assert.match(await region.innerText(),/Playing when loaded · may have stopped/);
   assert.ok(report.responses.some(r=>r.phase===report.phase && r.check && r.changed===true));
+  await region.evaluate(e=>{e.scrollTop=0;}); // Capture status after verifying retained scroll.
+  await page.screenshot({path:'artifacts/activity-browser/updates-1280.png'});
   report.deeperView={result:'PASS',titles:names.length,scroll,orderAndPosterPreserved:true,retainedLiveLabel:true};
   await region.getByRole('button',{name:'Updates available',exact:true}).click();await settled();
   assert.equal(await region.getByRole('button',{name:'Updates available',exact:true}).isVisible(),false);
@@ -120,7 +144,57 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
   report.phase='added ordering';await region.evaluate(e=>{e.scrollTop=0;});
   await region.getByRole('combobox',{name:'Sort by'}).selectOption('added');await page.waitForURL(/sort=added/);await settled();
   await page.setViewportSize({width:390,height:900});assert.equal(await region.evaluate(e=>e.scrollWidth<=e.clientWidth),true);
-  await page.screenshot({path:'artifacts/activity-browser/added-390.png'});report.result='PASS';
+  await page.screenshot({path:'artifacts/activity-browser/added-390.png'});
+
+  report.phase='usability presentation';
+  await page.setViewportSize({width:1280,height:900});
+  const renamed=await native('Users/'+owner.Id);
+  await native('Users/'+owner.Id,'POST',{...renamed,Name:'Alexandria_Household_Member_With_A_Long_Display_Name'});
+  await native('WatchGuard/Watchlist/'+target.Id,'PUT');
+  await verified();await open('all','watchlisted,watching,playing,watched',target.Name);
+  const card=cards().first(),people=card.locator('.watchguard-more-owners');
+  assert.equal(await card.locator('.watchguard-user-line').count(),7);
+  const beforeExpansion=report.responses.length;
+  // The same title was expanded in the deeper-view check; SPA filters retain
+  // its disclosure. Exercise keyboard close/open from either retained state.
+  const peopleSummary=people.locator(':scope > summary');
+  if(await people.evaluate(e=>e.open)) await peopleSummary.press('Enter');
+  assert.equal(await people.evaluate(e=>e.open),false);
+  await peopleSummary.press('Enter');
+  assert.equal(await people.evaluate(e=>e.open),true);
+  assert.equal(await card.getByText('Alexandria_Household_Member_With_A_Long_Display_Name',{exact:true}).isVisible(),true);
+  const dates=card.locator('.watchguard-dates').first();await dates.locator('summary').press('Enter');
+  assert.ok(await dates.locator('time').count()>0);
+  assert.equal(report.responses.length,beforeExpansion,'Presentation controls add no query requests');
+  const poster=await card.locator('.watchguard-poster').elementHandle();
+  const focused=dates.locator('summary');await focused.focus();
+  const offset=report.responses.length;
+  await until(()=>Promise.resolve(report.responses.length>offset),'Routine poll must complete');await settled();
+  assert.notEqual(await people.getAttribute('open'),null);assert.notEqual(await dates.getAttribute('open'),null);
+  assert.equal(await focused.evaluate(e=>e===document.activeElement),true);assert.equal(await poster.evaluate(e=>e.isConnected),true);
+  for(const width of [1280,390]) {
+   await page.setViewportSize({width,height:900});await region.evaluate(e=>{e.scrollTop=0;});
+   assert.equal(await region.evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+   const top=(await card.boundingBox()).y;
+   if(width===390)assert.ok(top<450,'First cards should start above 450px, versus 618px in the v0.7.0 baseline: '+top);
+   assert.equal(await card.locator('.watchguard-status').evaluate(e=>getComputedStyle(e).overflowY),'visible');
+   await page.screenshot({path:'artifacts/activity-browser/people-'+width+'.png'});
+   report.views.push({phase:report.phase,width,firstCardTop:top,users:7,expansionAndFocusPreserved:true});
+  }
+  await page.setViewportSize({width:390,height:900});
+  await native('Sessions/Playing','POST',{ItemId:target.Id,PlayMethod:'DirectPlay',PositionTicks:10000});
+  await open('all','playing',target.Name);assert.equal(await cards().count(),1);
+  const retained=await cards().first().elementHandle();
+  await page.route('**/WatchGuard/ActivityBrowser?**',route=>route.abort('failed'));
+  await region.getByRole('button',{name:'Refresh',exact:true}).click();
+  await until(async()=>await region.getAttribute('data-view-state')==='failed' && await region.getAttribute('aria-busy')==='false','Failed update must retain results');
+  assert.equal(await retained.evaluate(e=>e.isConnected),true);
+  assert.match(await region.innerText(),/may have stopped/);
+  await page.screenshot({path:'artifacts/activity-browser/failed-390.png'});
+  await page.unroute('**/WatchGuard/ActivityBrowser?**');
+  await native('Sessions/Playing/Stopped','POST',{ItemId:target.Id,PositionTicks:10000});
+  report.presentation={result:'PASS',users:7,longName:true,datesKeyboard:true,retainedError:true,additionalPresentationRequests:0};
+  report.result='PASS';
  } catch(error) {
   report.result='FAIL';
   if(page){report.view=await page.locator('.watchguard-page').innerText().catch(()=>'(unavailable)');await readiness.failure(page,fixture,'activity-query',error);}

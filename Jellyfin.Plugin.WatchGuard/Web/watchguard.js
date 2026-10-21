@@ -366,42 +366,62 @@
     }
     const statusIcons = { Watchlisted: 'bookmark', InProgress: 'play_circle', CurrentlyPlaying: 'sensors', Watched: 'check_circle', CaughtUp: 'task_alt' };
     function userLine(document, owner, staleLive = false) {
-        const line = document.createElement('span'); line.className = 'watchguard-user-line';
-        line.title = activityText(owner, true);
+        const line = document.createElement('div'); line.className = 'watchguard-user-line';
         const icons = document.createElement('span'); icons.className = 'watchguard-status-icons';
-        for (const reason of Object.keys(activityReasons).filter(r => owner.Reasons.includes(r))) {
-            const icon = document.createElement('span'); icon.className = 'material-icons watchguard-state-' + reason; icon.textContent = statusIcons[reason];
-            const label = staleLive && reason === 'CurrentlyPlaying' ? 'Playing when this view was loaded; may have stopped' : viewingLabel(owner, reason, activityReasons[reason]);
-            icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', label); icon.title = label; icons.append(icon);
-        }
-        const name = document.createElement('span'); name.className = 'watchguard-user'; name.textContent = owner.DisplayName; name.title = owner.DisplayName; name.tabIndex = 0;
-        line.append(icons, name);
-        if (staleLive && owner.Reasons.includes('CurrentlyPlaying')) {
-            const stale = document.createElement('span'); stale.className = 'watchguard-live-stale';
-            stale.textContent = 'Playing when loaded · may have stopped'; line.append(stale);
-            line.title = line.title.replace(/Currently Playing/gi, 'Playing when loaded (may have stopped)');
-        }
-        if (owner.AvailableEpisodes != null) {
-            const progress = document.createElement('span'); progress.className = 'watchguard-progress';
-            appendEpisodeProgress(document, progress, owner); line.append(progress);
-        }
-        if (owner.Reasons.includes('Watchlisted') && Object.hasOwn(owner, 'AddedAtUtc')) {
-            if (owner.AddedAtUtc && Number.isFinite(Date.parse(owner.AddedAtUtc))) {
-                const added = document.createElement('time'); added.dateTime = owner.AddedAtUtc; added.tabIndex = 0;
-                added.textContent = 'Added ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(new Date(owner.AddedAtUtc));
-                added.title = 'Added to Watchlist: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(owner.AddedAtUtc));
-                added.setAttribute('aria-label', added.title); line.append(added);
-            } else {
-                const unknown = document.createElement('span'); unknown.className = 'watchguard-added-unknown';
-                unknown.textContent = 'Added: unknown'; line.append(unknown);
+        const name = document.createElement('span'); name.className = 'watchguard-user';
+        const stale = document.createElement('span'); stale.className = 'watchguard-live-stale';
+        stale.textContent = 'Playing when loaded · may have stopped';
+        const progress = document.createElement('span'); progress.className = 'watchguard-progress';
+        const dates = document.createElement('details'); dates.className = 'watchguard-dates';
+        const dateSummary = document.createElement('summary');
+        const exactDates = document.createElement('div'); dates.append(dateSummary, exactDates);
+        line.append(icons, name, stale, progress, dates);
+        let priorProgress, priorIcons, priorDates;
+        line.update = (person, retained) => {
+            line.title = activityText(person, true).replace(/Currently Playing/gi, retained ? 'Playing when loaded (may have stopped)' : 'Currently Playing');
+            if (name.textContent !== person.DisplayName) name.textContent = person.DisplayName;
+            name.title = person.DisplayName;
+            const iconKey = JSON.stringify([person.Reasons, viewingLabel(person, 'CaughtUp', 'Caught Up'), retained]);
+            if (iconKey !== priorIcons) {
+                for (const child of [...icons.children]) child.remove();
+                for (const reason of Object.keys(activityReasons).filter(r => person.Reasons.includes(r))) {
+                    const icon = document.createElement('span'); icon.className = 'material-icons watchguard-state-' + reason; icon.textContent = statusIcons[reason];
+                    const label = retained && reason === 'CurrentlyPlaying' ? 'Playing when this view was loaded; may have stopped' : viewingLabel(person, reason, activityReasons[reason]);
+                    icon.setAttribute('role', 'img'); icon.setAttribute('aria-label', label); icon.title = label; icons.append(icon);
+                }
+                priorIcons = iconKey;
             }
-        }
-        if (owner.LastPlayedDate && owner.Reasons.some(r => r === 'InProgress' || r === 'Watched' || r === 'CaughtUp')) {
-            const date = document.createElement('time'); date.dateTime = owner.LastPlayedDate; date.tabIndex = 0;
-            date.textContent = new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(new Date(owner.LastPlayedDate));
-            date.title = 'Last played: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(owner.LastPlayedDate));
-            date.setAttribute('aria-label', date.title); line.append(date);
-        }
+            stale.hidden = !(retained && person.Reasons.includes('CurrentlyPlaying'));
+            const progressKey = JSON.stringify([person.DisplayName, person.AvailableEpisodes, person.WatchedEpisodes, person.EpisodeProgress]);
+            if (progressKey !== priorProgress) {
+                const focused = progress.contains?.(document.activeElement);
+                for (const child of [...progress.children]) child.remove();
+                if (person.AvailableEpisodes != null) appendEpisodeProgress(document, progress, person);
+                if (focused) progress.querySelector?.('button')?.focus();
+                priorProgress = progressKey;
+            }
+            progress.hidden = person.AvailableEpisodes == null;
+            const values = [];
+            if (person.Reasons.includes('Watchlisted') && Object.hasOwn(person, 'AddedAtUtc')) values.push(['Added', person.AddedAtUtc]);
+            if (person.LastPlayedDate) values.push(['Last played', person.LastPlayedDate]);
+            const datesKey = JSON.stringify(values);
+            if (priorDates !== datesKey) {
+                for (const child of [...dateSummary.children, ...exactDates.children]) child.remove();
+                for (const [label, value] of values) {
+                    const short = document.createElement('span');
+                    short.textContent = label + ': ' + (value ? new Intl.DateTimeFormat(undefined, {dateStyle:'medium'}).format(new Date(value)) : 'unknown');
+                    dateSummary.append(short);
+                    const exact = document.createElement(value ? 'time' : 'span');
+                    if (value) exact.dateTime = value;
+                    exact.textContent = label + ': ' + (value ? new Intl.DateTimeFormat(undefined, {dateStyle:'full', timeStyle:'long'}).format(new Date(value)) : 'unknown');
+                    exactDates.append(exact);
+                }
+                priorDates = datesKey;
+            }
+            dates.hidden = !values.length;
+            dateSummary.setAttribute('aria-label', 'Dates for ' + person.DisplayName + '; expand for exact times');
+        };
+        line.update(owner, staleLive);
         return line;
     }
     function activityText(owner, showName) {
@@ -539,6 +559,7 @@
         let continuation = null, pollTimer = null, searchTimer = null, loadedPages = 1, indexPopulating = false;
         let searchText = (options.search || '').slice(0, 120), combined = false, preparing = false, requiresRefresh = false;
         let freshnessRevision = null, checkCursor = null, updatesAvailable = false, liveStale = false;
+        let queryFailed = false, checkFailed = false;
         let queryQueue = Promise.resolve();
         const automaticRequestBudget = 4;
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
@@ -599,49 +620,59 @@
         order.title = 'Recently added uses recorded watchlist dates for the selected owners; older/unknown dates sort last. Playback recency uses native viewing dates.';
         const refresh = document.createElement('button'); refresh.className = 'emby-button button-flat watchguard-refresh'; refresh.type = 'button'; refresh.title = 'Refresh'; refresh.setAttribute('aria-label', 'Refresh');
         const refreshIcon = document.createElement('span'); refreshIcon.className = 'material-icons'; refreshIcon.textContent = 'refresh'; refreshIcon.setAttribute('aria-hidden', 'true'); refresh.append(refreshIcon);
-        const ownerGroup = document.createElement('label'); ownerGroup.className = 'watchguard-toolbar-field';
+        const ownerGroup = document.createElement('label'); ownerGroup.className = 'watchguard-toolbar-field watchguard-owner';
         const ownerLabel = document.createElement('span'); ownerLabel.textContent = 'Owner'; ownerGroup.append(ownerLabel, select);
         const sortGroup = document.createElement('label'); sortGroup.className = 'watchguard-toolbar-field watchguard-sort';
         const sortLabel = document.createElement('span'); sortLabel.textContent = 'Sort by'; sortGroup.append(sortLabel, order);
         toolbar.append(ownerGroup, interestFilter, sortGroup, refresh);
         const search = document.createElement('input'); search.type = 'search'; search.maxLength = 120;
-        search.className = 'emby-input'; search.setAttribute('aria-label', 'Search titles'); search.placeholder = 'Search titles'; search.value = searchText;
+        search.className = 'emby-input'; search.setAttribute('aria-label', 'Search titles'); search.placeholder = 'Search known titles'; search.setAttribute('aria-describedby', 'watchguard-search-scope'); search.value = searchText;
         if (options.indexedActivity) {
-            const field = document.createElement('label'); field.className = 'watchguard-toolbar-field';
+            const field = document.createElement('label'); field.className = 'watchguard-toolbar-field watchguard-search';
             const label = document.createElement('span'); label.textContent = 'Search titles'; field.append(label, search); toolbar.append(field);
         }
         const rangeSelect = dropdown('Activity range', [['7', 'Last 7 days'], ['30', 'Last 30 days'], ['90', 'Last 90 days']]);
         const olderToggle = document.createElement('input'); olderToggle.type = 'checkbox';
+        const secondary = document.createElement('details'); secondary.className = 'watchguard-secondary';
+        const secondarySummary = document.createElement('summary'); secondary.append(secondarySummary);
         if (options.indexedActivity) {
             const field = document.createElement('label'); field.className = 'watchguard-toolbar-field';
             const label = document.createElement('span'); label.textContent = 'Activity range'; field.append(label, rangeSelect);
             const olderLabel = document.createElement('label'); olderLabel.className = 'watchguard-older-interest';
             const olderText = document.createElement('span'); olderText.textContent = 'Include older current interest'; olderLabel.append(olderToggle, olderText);
-            toolbar.append(field, olderLabel);
+            secondary.append(field, olderLabel); toolbar.append(secondary);
         }
         const more = document.createElement('button'); more.type = 'button'; more.className = 'emby-button button-flat'; more.textContent = 'Load more activity'; more.hidden = true;
         const updates = document.createElement('button'); updates.type = 'button'; updates.className = 'emby-button button-flat';
         updates.textContent = 'Updates available'; updates.title = 'Refresh this view with the same filters'; updates.hidden = true;
         updates.onclick = () => { if (active() && !pending) load(); };
-        const freshness = document.createElement('p'); freshness.className = 'watchguard-notice'; freshness.setAttribute('role', 'status');
-        const status = document.createElement('p'); status.setAttribute('role', 'status');
+        const freshness = document.createElement('p'); freshness.className = 'watchguard-notice';
+        const status = document.createElement('p');
+        const announcement = document.createElement('span'); announcement.className = 'watchguard-sr-only'; announcement.setAttribute('role', 'status');
+        let lastAnnouncement = '';
+        const setText = (element, text) => { if (element.textContent !== text) element.textContent = text; };
         const spinner = document.createElement('span'); spinner.className = 'material-icons watchguard-spinner'; spinner.textContent = 'sync'; spinner.setAttribute('aria-hidden', 'true');
         status.className = 'watchguard-loading-status';
         const notice = document.createElement('div'); notice.className = 'watchguard-notice'; notice.hidden = true;
         const coverageDetails = document.createElement('details'); coverageDetails.className = 'watchguard-coverage-details';
         const coverageSummary = document.createElement('summary');
         const coverageText = document.createElement('p');
-        coverageDetails.append(coverageSummary, coverageText);
+        const searchScope = document.createElement('p'); searchScope.id = 'watchguard-search-scope'; searchScope.textContent = 'Search covers known activity and watchlists, not the entire library.';
+        const updateHelp = document.createElement('p'); updateHelp.textContent = 'The first page updates every 30 seconds while visible. After Load more, checks keep the displayed order and offer updates separately. Playback labels describe the last loaded state; discovery and verification may still be incomplete.';
+        searchScope.hidden = !options.indexedActivity; updateHelp.hidden = !options.indexedActivity;
+        coverageDetails.append(coverageSummary, searchScope, coverageText, updateHelp);
         const coverageWarning = document.createElement('p'); coverageWarning.className = 'watchguard-coverage-warning'; coverageWarning.setAttribute('role', 'status');
         notice.append(coverageDetails, coverageWarning);
         const error = document.createElement('p'); error.setAttribute('role', 'alert');
         const grid = document.createElement('div'); grid.className = 'watchguard-grid';
         const preferenceMessage = document.createElement('p'); preferenceMessage.setAttribute('role', 'status'); preferenceMessage.className = 'watchguard-notice';
         page.append(heading, toolbar, status, notice, error, grid, preferenceMessage);
+        page.append(announcement);
         if (options.indexedActivity) { status.after?.(freshness); page.append(updates, more); }
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
-        let directory = [], loadedScope, viewSignature;
+        let directory = [], loadedScope, viewSignature, ownerChoices;
+        let polling = false;
         let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, coverageInfo = null, failures = [];
         const cards = new Map();
         signal.addEventListener('abort', () => { generation++; if (pollTimer) clearTimeout(pollTimer); if (searchTimer) clearTimeout(searchTimer); cards.clear(); page.remove(); }, { once: true });
@@ -655,38 +686,57 @@
             const selected = combined ? entries.map(e => ({...e, IsWatchlistedByMe: e.Users.some(u => key(u.UserId) === key(user) && u.Reasons.includes('Watchlisted'))})) :
                 selectInterest(entries, admin ? filter : 'mine', user, kind, sort).filter(e => e.Name.toLowerCase().includes(searchText.trim().toLowerCase()));
             more.textContent = requiresRefresh ? 'Refresh this view' : preparing ? 'Continue loading' : 'Load more results';
-            select.replaceChildren();
             const owners = new Map([...directory, ...entries.flatMap(entry => entry.Users)].map(owner => [key(owner.UserId), owner]));
             const choices = [['mine', 'My list'], ...(admin ? [['all', 'All users'], ...Array.from(owners.values())
                 .sort((a, b) => a.DisplayName.localeCompare(b.DisplayName)).map(owner => [key(owner.UserId), owner.DisplayName])] : [])];
-            for (const [value, name] of choices) {
-                const option = document.createElement('option'); option.value = value; option.textContent = name; select.append(option);
+            if (admin && !choices.some(([value]) => value === filter)) choices.push([filter, 'Unavailable user']);
+            const choicesKey = JSON.stringify(choices);
+            if (choicesKey !== ownerChoices) {
+                const existing = new Map([...select.children].map(option => [option.value, option]));
+                const values = new Set(choices.map(([value]) => value));
+                for (const option of [...select.children]) if (!values.has(option.value)) option.remove();
+                for (const [position, [value, name]] of choices.entries()) {
+                    const option = existing.get(value) || document.createElement('option');
+                    option.value = value; setText(option, name);
+                    if (select.children[position] !== option) select.insertBefore(option, select.children[position] || null);
+                }
+                ownerChoices = choicesKey;
             }
             select.value = admin ? filter : 'mine'; select.hidden = !admin; ownerGroup.hidden = !admin;
-            if (admin && !choices.some(([value]) => value === filter)) {
-                const option = document.createElement('option'); option.value = filter; option.textContent = 'Unavailable user'; select.append(option); select.value = filter;
-            }
             for (const [id, checkbox] of checkboxes) checkbox.checked = kind.includes(id);
             summary.replaceChildren();
             const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
             const count = document.createElement('span'); count.textContent = 'Status · ' + kind.length; summary.append(filterIcon, count);
             summary.title = 'Status filters (' + kind.length + ' selected)'; summary.setAttribute('aria-label', summary.title); order.value = sort;
-            status.textContent = pending ? 'Loading viewing activity…' : preparing ? 'More time is needed to load this view. Continue loading when ready.' :
-                options.indexedActivity && !combined ? 'Preliminary watchlists only; combined activity is not ready.' :
-                selected.length ? selected.length + ' titles loaded' + (requiresRefresh ? ' · View expired; refresh to continue.' : continuation ? ' · More results available.' : ' · End of this known result set; not an exhaustive library audit.') :
-                failures.length ? '' : continuation ? 'No titles loaded yet; continue to retrieve more authorized results.' : indexPopulating ? 'Background discovery/population in progress; no verified matches yet.' :
-                kind.length === 4 && !searchText ? 'No known activity or explicit membership in this view; background discovery is not exhaustive.' : kind.length || searchText ? 'No matches for the selected filters in known eligible data.' : 'No statuses selected; no matches.';
-            if (options.indexedActivity && !combined && selected.length && (pending || preparing))
-                status.textContent += ' Displayed titles are preliminary watchlists only.';
-            if (!options.indexedActivity) status.textContent = pending ? 'Loading viewing activity…' : selected.length || failures.length ? '' : 'No matching activity in this overview.';
-            spinner.hidden = !pending; if (pending) status.append(spinner); page.setAttribute('aria-busy', String(pending));
+            const amount = selected.length + (selected.length === 1 ? ' title loaded' : ' titles loaded');
+            let state = 'ready', message = selected.length ? amount + (continuation ? ' · More available' : '') : 'No matches for these filters';
+            let detail = '';
+            if (!kind.length) { state = 'unselected'; message = 'Select a status to see titles'; }
+            else if (requiresRefresh) { state = 'expired'; message = (selected.length ? amount + ' · ' : '') + 'View expired'; detail = 'Refresh this view to continue with the same filters.'; }
+            else if (preparing && !pending) { state = 'paused'; message = 'Loading paused'; detail = 'Continue loading to finish this view.'; }
+            else if (pending && !polling) { state = selected.length && !combined ? 'preliminary' : 'loading'; message = selected.length && combined ? amount + ' · Loading…' : 'Loading viewing activity…'; }
+            else if (failures.length || queryFailed || checkFailed) { state = 'failed'; message = selected.length ? amount + ' · Update unavailable' : 'Activity unavailable'; detail = 'Refresh to retry.'; }
+            else if (updatesAvailable) { state = 'updates'; message = amount + ' · Updates available'; }
+            else if (indexPopulating) { state = 'populating'; message = selected.length ? amount + ' · Background population' : 'Background population · No verified matches yet'; }
+            else if (!selected.length) { state = 'empty'; if (kind.length === 4 && !searchText) message = 'No known activity or watchlists'; }
+            if (!combined && selected.length && options.indexedActivity) detail = 'Showing preliminary watchlists only.' + (detail ? ' ' + detail : '');
+            if (checkCursor && state === 'ready') detail = 'Checking for updates will continue automatically.';
+            if (polling && state === 'ready') detail = loadedPages > 1 ? 'Checking for updates…' : 'Updating…';
+            page.setAttribute('data-view-state', state);
+            setText(status, message); setText(freshness, detail); freshness.hidden = !detail;
+            // A separate, deduplicated live region announces settled changes, never
+            // routine poll starts or a whole grid. Exact row changes stay in place.
+            const announcementText = message + (detail ? '. ' + detail : '');
+            if (!pending && announcementText !== lastAnnouncement) { setText(announcement, announcementText); lastAnnouncement = announcementText; }
+            spinner.hidden = !pending; if (pending && !polling) status.append(spinner); page.setAttribute('aria-busy', String(pending));
             const info = coveragePresentation(coverage, coverageLimited, coverageInfo);
-            notice.hidden = !coverage && !coverageLimited;
-            coverageSummary.textContent = options.indexedActivity ? 'Activity: last ' + range + ' days' + (includeOlder ? ' + older current interest' : '') + ' · not exhaustive' : info.summary;
-            coverageText.textContent = coverage; // Keep the complete server explanation verbatim.
-            coverageWarning.textContent = info.warning;
-            coverageWarning.hidden = !info.warning;
-            error.textContent = failures.join(' ');
+            notice.hidden = !options.indexedActivity && !coverage && !coverageLimited;
+            setText(secondarySummary, 'Activity: ' + range + ' days' + (includeOlder ? ' · older interest included' : ' · recent only'));
+            setText(coverageSummary, 'About these results');
+            setText(coverageText, coverage); // Complete server explanation stays available.
+            const warning = info.warning === 'Some visible activity is awaiting background verification.' ? '' : info.warning;
+            setText(coverageWarning, warning); coverageWarning.hidden = !warning;
+            setText(error, failures.join(' '));
             const visible = new Set(selected.map(e => key(e.ItemId)));
             for (const [id, record] of cards) if (!visible.has(id)) record.card.remove();
             for (const [position, entry] of selected.entries()) {
@@ -705,16 +755,25 @@
                     link.append(poster, name); card.append(link);
                     const ownersText = document.createElement('div'); ownersText.className = 'watchguard-status secondaryText';
                     if (admin) ownersText.classList.add('watchguard-owners');
-                    card.append(ownersText); record = { card, name, ownersText }; cards.set(key(entry.ItemId), record);
+                    const otherOwners = document.createElement('details'); otherOwners.className = 'watchguard-more-owners';
+                    const otherSummary = document.createElement('summary'); otherOwners.append(otherSummary);
+                    const extraOwners = document.createElement('div'); otherOwners.append(extraOwners);
+                    card.append(ownersText, otherOwners); record = { card, name, ownersText, otherOwners, otherSummary, extraOwners, rows: new Map() }; cards.set(key(entry.ItemId), record);
                 }
                 record.name.textContent = entry.Name; record.name.title = entry.Name;
                 const staleLive = options.indexedActivity && (liveStale || loadedPages > 1);
-                const ownerSignature = JSON.stringify([entry.Users, staleLive]);
-                if (record.ownerSignature !== ownerSignature) {
-                    record.ownersText.replaceChildren();
-                    for (const owner of entry.Users) record.ownersText.append(userLine(document, owner, staleLive));
-                    record.ownerSignature = ownerSignature;
+                const ownerIds = new Set(entry.Users.map(o => key(o.UserId)));
+                for (const [id, row] of record.rows) if (!ownerIds.has(id)) { row.remove(); record.rows.delete(id); }
+                for (const [index, owner] of entry.Users.entries()) {
+                    const id = key(owner.UserId);
+                    let row = record.rows.get(id);
+                    if (!row) { row = userLine(document, owner, staleLive); record.rows.set(id, row); }
+                    else row.update(owner, staleLive);
+                    const target = index < 2 ? record.ownersText : record.extraOwners, position = index < 2 ? index : index - 2;
+                    if (target.children[position] !== row) target.insertBefore(row, target.children[position] || null);
                 }
+                record.otherOwners.hidden = entry.Users.length <= 2;
+                setText(record.otherSummary, (entry.Users.length - 2) + ' more ' + (entry.Users.length === 3 ? 'person' : 'people'));
                 if (!entry.IsWatchlistedByMe) { record.remove?.remove(); record.remove = null; }
                 if (entry.IsWatchlistedByMe && !record.remove) {
                     const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'emby-button button-flat watchguard-remove';
@@ -746,7 +805,7 @@
             explicit = []; automatic = []; directory = []; continuation = null;
             loadedPages = 1; indexPopulating = false; pending = false; combined = false; preparing = false; requiresRefresh = false;
             coverage = ''; coverageLimited = false; coverageInfo = null;
-            freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false;
+            freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false;
             grid.replaceChildren(); cards.clear(); freshness.textContent = '';
             failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
             refresh.disabled = false; render();
@@ -789,23 +848,21 @@
             if (waiting) {
                 preparing = true; continuation = result.Continuation; liveStale = true; requiresRefresh = false;
                 if (!automatic.length) combined = false;
-                freshness.textContent = 'Loading paused. Continue loading to finish this view. Displayed playback state may be stale.';
                 return;
             }
             indexState(result); automatic = result.Items; loadedPages = 1; failures = [];
-            freshnessRevision = result.Freshness.Revision; checkCursor = null; updatesAvailable = false; liveStale = false;
-            freshness.textContent = 'Known eligible data only. This first page updates automatically every 30 seconds while visible.';
+            freshnessRevision = result.Freshness.Revision; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false;
         }
-        function queryFailure(failure) {
+        function queryFailure(failure, check = false) {
             if ([400,409].includes(failure?.status)) { continuation = null; checkCursor = null; requiresRefresh = true; }
             liveStale = true;
-            freshness.textContent = 'Activity update unavailable; displayed playback state may be stale. Refresh to retry.';
+            if (check) checkFailed = true; else queryFailed = true;
         }
         async function load(prioritize = false) {
             if (!active()) return;
             const revision = ++generation;
             const current = () => active() && revision === generation;
-            pending = true; failures = []; coverage = ''; coverageLimited = false; coverageInfo = null; notice.hidden = true; refresh.disabled = true;
+            polling = false; pending = true; failures = []; coverage = ''; coverageLimited = false; coverageInfo = null; notice.hidden = true; refresh.disabled = true;
             status.textContent = 'Loading watchlists…'; spinner.hidden = false; status.append(spinner); page.setAttribute('aria-busy', 'true'); error.textContent = '';
             try {
                 const account = await api.getCurrentUser();
@@ -876,9 +933,7 @@
             preparing = result.Preparing === true; combined = !preparing; requiresRefresh = false;
             continuation = result.Continuation || null; indexPopulating = Object.hasOwn(result.Freshness, 'PopulationPending') ? result.Freshness.PopulationPending : !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
             if (Object.hasOwn(result.Freshness, 'PopulationPending')) return;
-            const date = result.Freshness.LastUpdate && new Date(result.Freshness.LastUpdate);
-            freshness.textContent = (date && Number.isFinite(date.getTime()) ? 'Last verified: ' + date.toLocaleString() : indexPopulating ? 'Waiting for background verification.' : 'No verified activity timestamp available.') +
-                (result.Freshness.DiscoveryFinished ? ' · Native discovery pass finished; coverage limits still apply.' : ' · Background population in progress.');
+
         }
         function schedulePoll() {
             if (!options.indexedActivity || !active()) return;
@@ -889,7 +944,7 @@
                 const revision = generation;
                 if (preparing) { schedulePoll(); return; }
                 const position = page.scrollTop;
-                pending = true; render(); page.scrollTop = position;
+                polling = true; pending = true; render(); page.scrollTop = position;
                 try {
                     if (loadedPages === 1) {
                         const batch = await queryBatch(null, revision);
@@ -900,16 +955,17 @@
                         if (!batch) return;
                         const {result, waiting} = batch;
                         checkCursor = waiting ? result.Continuation : null;
+                        // A successful comparison repairs only its transport state. It
+                        // neither reloads retained playback nor clears other failures.
+                        checkFailed = false;
                         if (result.Changed === true) updatesAvailable = true;
-                        freshness.textContent = updatesAvailable ? 'Updates available. Refresh to include them; this view keeps its original order.' :
-                            waiting ? 'Checking for updates will continue on the next poll. This view keeps its original order.' :
-                            'No changes found in checked known activity. This view keeps its original order.';
+
                     }
                 } catch (failure) {
                     if (authorizationDenied(failure)) return;
-                    if (active() && revision === generation) queryFailure(failure);
+                    if (active() && revision === generation) queryFailure(failure, loadedPages > 1);
                 } finally {
-                    if (active() && revision === generation) { pending = false; render(); page.scrollTop = position; schedulePoll(); }
+                    if (active() && revision === generation) { polling = false; pending = false; render(); page.scrollTop = position; schedulePoll(); }
                 }
             }, 30000);
             pollTimer.unref?.();
@@ -931,7 +987,6 @@
                     const merged = mergeInterest(automatic, result.Items);
                     indexState(result); automatic = merged; loadedPages++;
                     coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
-                    freshness.textContent = 'This view keeps its original order. Playback badges show the state when loaded; updates are checked every 30 seconds.';
                 }
             } catch (failure) { if (authorizationDenied(failure)) return; if (active() && revision === generation) {
                 queryFailure(failure);
@@ -949,13 +1004,13 @@
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; loadedPages = 1; pending = true; render(); load(); } else render();
+            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false; loadedPages = 1; pending = true; render(); load(); } else render();
         };
         const change = () => { if (active()) { if (options.indexedActivity) generation++; const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
         search.oninput = () => {
             if (!active()) return;
             generation++; if (searchTimer) clearTimeout(searchTimer);
-            continuation = null; pending = true; refresh.disabled = false; render();
+            continuation = null; polling = false; pending = true; refresh.disabled = false; render();
             searchTimer = setTimeout(() => { searchTimer = null; if (search.value === searchText) load(); else change(); }, 250);
         };
         select.onchange = change; order.onchange = change; rangeSelect.onchange = change; olderToggle.onchange = change;
@@ -1149,7 +1204,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         @media(prefers-reduced-motion:reduce) {.watchguard-spinner {animation:none}}
         .watchguard-notice {font-size:.85em;margin-bottom:1.5em}
         .watchguard-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:1.5em 1em;margin:1em 0;align-items:start}
-        @media(min-width:1100px) {.watchguard-grid {grid-template-columns:repeat(8,minmax(0,1fr))}}
+        @media(min-width:1100px) {.watchguard-grid {grid-template-columns:repeat(7,minmax(0,1fr))}}
         .watchguard-filter {position:relative}
         .watchguard-filter summary {cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:.35em;min-height:2.5em;box-sizing:border-box}
         .watchguard-filter summary .material-icons {font-size:1.4em}
@@ -1221,6 +1276,50 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             .watchguard-toolbar {gap:.6rem}
             .watchguard-page .watchguard-user-line {grid-template-columns:auto minmax(0,1fr)}
             .watchguard-page .watchguard-progress {grid-column:2}
+        }
+        .watchguard-page .sectionTitle {margin:.65rem 0;font-size:1.6rem}
+        .watchguard-page .watchguard-toolbar {display:grid;grid-template-columns:minmax(10rem,1.3fr) minmax(8rem,1fr) auto minmax(10rem,1fr) 44px;gap:.5rem .75rem;margin:.6rem 0}
+        .watchguard-search {grid-column:1;grid-row:1}
+        .watchguard-owner {grid-column:2;grid-row:1}
+        .watchguard-filter {grid-column:3;grid-row:1}
+        .watchguard-sort {grid-column:4;grid-row:1;margin:0}
+        .watchguard-refresh {grid-column:5;grid-row:1}
+        .watchguard-secondary {grid-column:1/-1;font-size:.9rem;min-width:0}
+        .watchguard-secondary>summary {cursor:pointer;min-height:44px;box-sizing:border-box;padding:.7rem 0}
+        .watchguard-secondary[open] {padding-bottom:.5rem}
+        .watchguard-secondary .watchguard-toolbar-field {max-width:18rem}
+        .watchguard-loading-status {margin:.4rem 0;font-size:1rem;line-height:1.5}
+        .watchguard-page .watchguard-notice {margin:.2rem 0;font-size:.9rem}
+        .watchguard-page .watchguard-grid {margin:.5rem 0}
+        .watchguard-page .watchguard-status {max-height:none;overflow:visible;font-size:1rem;line-height:1.5;padding:0}
+        .watchguard-page .watchguard-user-line {display:flex;flex-wrap:wrap;gap:.2rem .4rem;padding:.5rem 0;min-width:0}
+        .watchguard-page .watchguard-user {order:-1;flex-basis:100%;white-space:normal;overflow:visible;overflow-wrap:anywhere;font-weight:600}
+        .watchguard-page .watchguard-status-icons {max-width:none;align-items:center}
+        .watchguard-page .watchguard-progress {display:inline-flex;align-items:center;font-size:1em;gap:.2rem}
+        .watchguard-page .watchguard-extra-button {min-width:44px;min-height:44px;margin:0}
+        .watchguard-page .watchguard-live-stale {flex-basis:100%;font-size:.9rem;color:#e0c5ff;background:#29212f;border-radius:.2rem;padding:.2rem;line-height:1.4}
+        .watchguard-dates {flex-basis:100%;font-size:.9rem;color:inherit;min-width:0}
+        .watchguard-dates summary {cursor:pointer;min-height:44px;padding:.25rem 0;box-sizing:border-box}
+        .watchguard-dates summary span {display:block;overflow-wrap:anywhere}
+        .watchguard-dates summary span:first-child {display:inline}
+        .watchguard-page .watchguard-dates time {display:block;font-size:inherit;opacity:1;margin:0;overflow-wrap:anywhere}
+        .watchguard-more-owners {font-size:1rem;line-height:1.5}
+        .watchguard-more-owners>summary {cursor:pointer;min-height:44px;padding:.6rem 0;box-sizing:border-box;color:inherit}
+        .watchguard-page .watchguard-more-owners .watchguard-user-line {font-size:1rem}
+        .watchguard-sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+        .watchguard-page>p:empty {display:none}
+        @media(max-width:700px) {
+            .watchguard-page .watchguard-toolbar {grid-template-columns:minmax(0,1fr) minmax(0,1fr) 44px;gap:.4rem .5rem}
+            .watchguard-search {grid-column:1/3;grid-row:1}
+            .watchguard-refresh {grid-column:3;grid-row:1}
+            .watchguard-owner {grid-column:1;grid-row:2}
+            .watchguard-sort {grid-column:2/4;grid-row:2}
+            .watchguard-filter {grid-column:1;grid-row:3;align-self:start}
+            .watchguard-secondary {grid-column:2/4;grid-row:3;font-size:.8rem}
+            .watchguard-secondary>summary {padding:.55rem 0;line-height:1.4}
+            .watchguard-filter summary {padding-inline:.35rem}
+            .watchguard-filter-options {inset-inline-start:0;max-width:calc(100vw - 2rem)}
+            .watchguard-page .watchguard-grid {gap:1rem .75rem}
         }
         .watchguard-controls {display:inline-flex;align-items:center}
         .watchguard-state-Watchlisted {--wg-accent:#f3c66c}

@@ -13,7 +13,7 @@ RELEASE_VERSION = CURRENT_VERSION.removesuffix(".0")
 CURRENT_RELEASE_DOC = ROOT / "docs" / f"release-v{RELEASE_VERSION.replace('.', '')}.md"
 BUILD_METADATA = ET.parse(ROOT / "Directory.Build.props")
 BUILD_VERSION = BUILD_METADATA.findtext("./PropertyGroup/Version")
-CANDIDATE_DOC = ROOT / "docs" / f"release-v{BUILD_VERSION.replace('.', '')}.md"
+CANDIDATE_DOC = ROOT / "docs/releases" / f"v{BUILD_VERSION}.md"
 DOCS = [
     CANDIDATE_DOC,
     ROOT / "README.md",
@@ -45,12 +45,13 @@ class RepositoryHygieneTests(unittest.TestCase):
         notes = CANDIDATE_DOC.read_text(encoding="utf-8")
         self.assertTrue(notes.startswith(f"# WatchGuard v{BUILD_VERSION} —"))
         if BUILD_VERSION != RELEASE_VERSION:
-            self.assertIn("**Unpublished release candidate.**", notes)
+            self.assertNotIn("Unpublished", notes)
+            self.assertIn("Unpublished", (ROOT / "release-preparation.md").read_text())
         for workflow in ["build.yaml", "release.yaml"]:
             source = (ROOT / ".github/workflows" / workflow).read_text(encoding="utf-8")
             self.assertIn(f"Jellyfin.Plugin.WatchGuard-v{BUILD_VERSION}.zip", source)
         source = (ROOT / ".github/workflows/release.yaml").read_text(encoding="utf-8")
-        self.assertIn(f"--notes-file docs/{CANDIDATE_DOC.name}", source)
+        self.assertIn(f"--notes-file docs/releases/{CANDIDATE_DOC.name}", source)
 
     def test_historical_template_artifacts_are_not_tracked(self):
         for name in [
