@@ -1,0 +1,58 @@
+{
+  "baselineVersion": "0.7.1",
+  "baselineZipSha256": "1f185fafdb3bcc024db420a3502eddc43ac6f81414587de39e445ec8db52bce6",
+  "candidateVersion": "0.7.2",
+  "candidateZipSha256": "15520d8786a47c03440bb3718115d351e73e51deb16e9fa4ff2f38f2547f0554",
+  "fixtureCommit": "8c7ada700d13a017e2b70534b5ec56118c5bff49",
+  "baseline": {
+    "controlOperations": 36,
+    "totals": {
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 466,
+      "closedDisclosures": 0,
+      "hashEvents": 48,
+      "popEvents": 48,
+      "nativeRoutes": 48
+    },
+    "focusLossOperations": [
+      "desktop-legacy-1280-reset",
+      "desktop-legacy-390-reset",
+      "modern-1280-reset",
+      "modern-390-reset"
+    ],
+    "historyStateChangedOperations": [
+      "desktop-legacy-1280-owner",
+      "modern-1280-owner"
+    ],
+    "maxConcurrentQueries": 1
+  },
+  "candidate": {
+    "controlOperations": 36,
+    "totals": {
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "nativeRoutes": 0
+    },
+    "focusLossOperations": [],
+    "historyStateChangedOperations": [],
+    "maxConcurrentQueries": 1
+  },
+  "limitation": "Unnecessary native routing and Reset focus loss reproduced; production Home paint/overlay flash not observed in either disposable Chromium run.",
+  "paintAndMutationCounts": "Counts are observations, not unique incidents.",
+  "queryDelayMs": 350,
+  "travel": [
+    "Back to Home / Forward to latest filters",
+    "reload",
+    "direct shared URL",
+    "item details / Back / Forward / Back",
+    "#/home?tab=1 / Back",
+    "#/ / Back"
+  ]
+}

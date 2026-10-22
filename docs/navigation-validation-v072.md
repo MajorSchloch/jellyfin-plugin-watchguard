@@ -18,8 +18,8 @@ entry and dispatching `popstate`/`hashchange`. Jellyfin's native router processe
 the resulting Home-route query change. The existing unit fixture called
 `updateFilters()` directly, so it could not observe that route transition.
 
-Before editing the runtime, native observations recorded 36 native router
-updates across 32 control operations in legacy/modern layouts at 1280px/390px.
+Initial observations of the unchanged runtime recorded 36 native router updates
+across 32 control operations in legacy/modern layouts at 1280px/390px.
 Reset also lost focus while its button was disabled. The regression failed on
 the first unexpected hash event. WatchGuard's panel remained connected: the
 captured fixture did **not** show Home painting above it or a native loading
@@ -27,6 +27,16 @@ overlay. Thus the unnecessary native routing and Reset focus loss are reproduced
 the production report's visible Home flash is not independently reproduced in
 this fixture. The fix removes that routing path, rather than hiding native UI
 with additional CSS. This distinction is retained in the PR evidence.
+
+The final identical transition fixture was then run against both packages: the
+published baseline fails with **48 native route updates across 36 operations**;
+the candidate passes with **zero native route updates**, no panel replacements
+and no focus loss. The baseline loses focus in all four Reset cases and discards
+Jellyfin's initialized history state on the first filter change in each shell.
+The candidate preserves that state. Both keep ActivityBrowser requests serialized
+(maximum one in flight). See the [local comparison](evidence/navigation-v072/local-comparison.json),
+[baseline failure](evidence/navigation-v072/published-v071-transitions.json) and
+[candidate result](evidence/navigation-v072/local-v072-transitions.json).
 
 ## Navigation contract
 
@@ -75,6 +85,32 @@ flash; routing events and panel/focus mutations are observed separately.
 
 ## Qualification
 
-Targeted regressions and full qualification are in progress. This section will
-record the exact qualified commit, package checksum and workflow result before
-review readiness. Publication remains disabled.
+[Full qualification](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39777757932) passed the build and all eleven integration
+suites with `publish=false` and `proxy_matrix=true`; the publish job was skipped.
+The exact tested runtime and fixture commit is `8c7ada700d13a017e2b70534b5ec56118c5bff49`.
+Later evidence commits change only documentation, JSON evidence and screenshots.
+
+Candidate ZIP SHA-256: `15520d8786a47c03440bb3718115d351e73e51deb16e9fa4ff2f38f2547f0554`.
+The local build, deterministic rebuild and downloaded CI artifact match.
+[Exact provenance](evidence/navigation-v072/qualification.json) records the jobs,
+artifacts, DLL checksum and screenshot checksums.
+
+Checks passed: **288 backend, 171 JavaScript, 19 infrastructure and 4 catalog**.
+The [qualified native transition report](evidence/navigation-v072/qualified-native-transitions.json)
+passes all 36 operations and ordinary navigation through the `/jellyfin` base
+path and disposable proxy. It records zero native route events, Home/overlay
+exposures, panel replacements, focus loss or unintended disclosure closure.
+Every ordinary control issues exactly one initial query, router state/history
+length are unchanged, and query requests remain serialized. The existing
+activity-browser, account-switching, authorization and security regressions also
+pass. [Proxy matrix](evidence/navigation-v072/proxy-compatibility.json) and
+[native remote-access policy evidence](evidence/navigation-v072/native-remote-access-proxy.json)
+are retained separately.
+
+The first dispatched workflow was deliberately cancelled to update two older
+Back/Forward assertions to the new history contract; it is not counted as a passing qualification. The final run above
+includes those corrections and the archived-version history assertions.
+
+![Loading within the existing desktop Watchlists panel](screenshots/v0.7.2/modern-1280-owner-loading.png)
+
+![Mobile controls and open disclosures remain in Watchlists](screenshots/v0.7.2/modern-390-retained.png)
