@@ -1,8 +1,8 @@
-# v0.7.1 preparation
+# v0.7.2 preparation
 
-Unpublished usability candidate, based on published v0.7.0 at master `70c5c7d`.
+Unpublished navigation fix based on published v0.7.1, master `8d1d801`.
 No merge, new publication or deployment is authorized by this work.
 
-Publication copy lives separately in `docs/releases/v0.7.1.md`. The release workflow consumes only that copy; this preparation status must never be published as release notes.
+Publication copy lives separately in `docs/releases/v0.7.2.md`. The release workflow consumes only that copy; this preparation status must never be published as release notes.
 
-[Qualification and screenshots](docs/activity-browser-validation-v071.md) record the successful full run on `8f9123cbb676fabc3fb5c406364012072d0dad1a` with `publish=false` and `proxy_matrix=true`. Historical v0.7.0 evidence is preserved. The public catalog remains unchanged until a future explicitly authorized publication.
+Navigation reproduction and qualification are in progress. Historical [v0.7.1 qualification](docs/activity-browser-validation-v071.md) remains unchanged. The public catalog remains unchanged until a future explicitly authorized publication.

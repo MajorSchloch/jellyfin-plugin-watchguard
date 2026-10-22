@@ -589,10 +589,12 @@
             label.append(checkbox, text); choicesPanel.append(label); checkboxes.set(value, checkbox);
         }
         const reset = document.createElement('button'); reset.type = 'button'; reset.className = 'emby-button button-flat'; reset.textContent = 'Reset to Defaults';
+        let resetting = false;
         reset.onclick = async () => {
             if (!options.preferences) { kind = [...defaultFilters]; change(); return; }
-            if (!active()) return;
-            reset.disabled = true;
+            if (!active() || resetting) return;
+            // Keep keyboard focus while the preference request is pending.
+            resetting = true; reset.setAttribute('aria-disabled', 'true');
             try {
                 await preferenceRequest(api, 'DELETE');
                 if (!active()) return;
@@ -600,7 +602,7 @@
                 preferenceMessage.textContent = 'Defaults restored.';
                 navigate('mine', defaultFilters.join(','), 'title');
             } catch { if (active()) preferenceMessage.textContent = 'Could not reset saved defaults. Please retry.'; }
-            finally { reset.disabled = false; }
+            finally { resetting = false; reset.setAttribute('aria-disabled', 'false'); }
         };
         const save = document.createElement('button'); save.type = 'button'; save.className = 'emby-button button-flat'; save.textContent = 'Save view as defaults';
         save.onclick = async () => {
@@ -1405,7 +1407,12 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         closePage(); pageSignature = hash;
         pageLifetime = new AbortController();
         pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner'), (owner, interest, sort, days = 30, older = 'true', search = '') => {
-            root.location.hash = '/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort) + '&days=' + encodeURIComponent(days) + '&older=' + encodeURIComponent(older) + '&search=' + encodeURIComponent(search);
+            // Filters edit this view, not Jellyfin's route. Keep its history state
+            // (including router keys/index) and replace only this entry's URL.
+            // Back leaves Watchlists; Forward restores its latest filter values.
+            // replaceState emits no navigation event, so apply the view ourselves.
+            root.history.replaceState(root.history.state, '', '#/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort) + '&days=' + encodeURIComponent(days) + '&older=' + encodeURIComponent(older) + '&search=' + encodeURIComponent(search));
+            updateNavigation();
         }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), search: params.get('search'), indexedActivity: true, preferences: true});
         document.body.classList.add('watchguard-page-open'); document.body.append(pagePanel);
     }

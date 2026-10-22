@@ -40,6 +40,7 @@ def main():
     parser.add_argument('--proxy',action='store_true')
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--serve', action='store_true')
+    mode.add_argument('--navigation', action='store_true', help='Observe real filter routing transitions and browser history.')
     mode.add_argument('--measure', action='store_true')
     mode.add_argument('--migration', action='store_true')
     mode.add_argument('--catalog', action='store_true', help='Exercise native catalog install, manual upgrade and missing Injector.')
@@ -239,6 +240,8 @@ def main():
                 subprocess.run(['node', str(ROOT/'tests/activity-browser-ui.cjs'), str(fixture)], check=True,timeout=900)
             elif options.profile == 'verification':
                 runpy.run_path(str(ROOT/'tests/verification-native.py'))['run'](call, restart, docker, name, plugins, token)
+            elif options.navigation:
+                subprocess.run(['node', str(ROOT/'tests/navigation-browser.cjs'), str(fixture)], check=True, timeout=300)
             elif options.serve:
                 while True: time.sleep(1)
             else:
@@ -262,7 +265,7 @@ def main():
                 # background projection may legitimately checkpoint until the
                 # loaded plugin stops; snapshot it at that lifecycle boundary.
                 saved = {p:p.read_bytes() for p in data_folder.glob('*.json') if p != derived}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.1.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.2.0','DELETE',token=token,expected=204)
                 docker('stop', name)
                 if derived_present:
                     assert derived.exists(), 'Uninstall must retain the derived index'

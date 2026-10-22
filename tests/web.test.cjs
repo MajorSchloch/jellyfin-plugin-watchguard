@@ -642,7 +642,11 @@ test('Recently added saves explicitly, reloads, and URL fields override independ
         f.calls[i].resolve(JSON.parse(f.calls[i].o.data));await p;
     }
     const i=f.calls.length,p=reset.onclick();assert.equal(f.calls[i].o.type,'DELETE');
+    assert.notEqual(reset.disabled,true,'Reset remains focusable during its request');
+    assert.equal(reset.attributes['aria-disabled'],'true');
+    await reset.onclick();assert.equal(f.calls.length,i+1,'Repeated Reset is ignored while pending');
     f.calls[i].resolve({Owner:'mine',Statuses:['watchlisted','watching','playing'],Sort:'title'});await p;
+    assert.equal(reset.attributes['aria-disabled'],'false');
     assert.deepEqual(f.navigation.at(-1),['mine','watchlisted,watching,playing','title']);
 });
 
