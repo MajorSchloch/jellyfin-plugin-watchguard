@@ -1,4 +1,5 @@
 """Single local/CI command table. One attempt only; preserve all command outcomes."""
+import fixture_images
 import argparse
 import json
 import os
@@ -27,7 +28,7 @@ commands={
 }
 output=Path('artifacts/testing')/a.suite/uuid.uuid4().hex[:10]
 output.mkdir(parents=True,exist_ok=True)
-report={'suite':a.suite,'attempts':[],'status':'RUNNING','python':platform.python_version(),'node':subprocess.check_output(['node','--version'],text=True).strip(),'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
+report={'jellyfinVersion':fixture_images.version(), 'image':fixture_images.image(a.suite in ('standalone-caddy','migration','websocket','server-enforcement-linuxserver')), 'suite':a.suite,'attempts':[],'status':'RUNNING','python':platform.python_version(),'node':subprocess.check_output(['node','--version'],text=True).strip(),'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
 report['dotnet']=subprocess.check_output(['dotnet','--version'],text=True).strip()
 report['host']=platform.platform()
 report['playwright']=json.loads(Path('tests/browser/node_modules/playwright/package.json').read_text())['version']

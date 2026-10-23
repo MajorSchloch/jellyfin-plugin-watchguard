@@ -1,0 +1,82 @@
+{
+  "12.2": {
+    "official": {
+      "reference": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+      "platformManifests": [
+        {
+          "digest": "sha256:da3cd1e48322a35e4b60f3d0a49fca2649e7acce90346dd6e42db777f94e3bbd",
+          "platform": {
+            "architecture": "amd64",
+            "os": "linux"
+          }
+        },
+        {
+          "digest": "sha256:c2544f368e2e6c317832caebe96c375f5161b8ab73e2a041f6cf4af519d58805",
+          "platform": {
+            "architecture": "arm64",
+            "os": "linux"
+          }
+        }
+      ]
+    },
+    "linuxserver": {
+      "reference": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+      "platformManifests": [
+        {
+          "digest": "sha256:daff148274c7d28548185931ff9a49e338c478ef633f0976e1c8bbe0ba6861a2",
+          "platform": {
+            "architecture": "amd64",
+            "os": "linux"
+          }
+        },
+        {
+          "digest": "sha256:9d6b0c9045f623da90c75499bb26ff45f140b79061af5e7e63b45a71b7340718",
+          "platform": {
+            "architecture": "arm64",
+            "os": "linux"
+          }
+        }
+      ]
+    }
+  },
+  "12.3": {
+    "official": {
+      "reference": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+      "platformManifests": [
+        {
+          "digest": "sha256:720ad28968e040f1ea049749f4ce546b28c7251244a6eb8aacf9147d8afbc24d",
+          "platform": {
+            "architecture": "amd64",
+            "os": "linux"
+          }
+        },
+        {
+          "digest": "sha256:2fe4523231dee34a7144d6fcd0313a60730c25695fa4e9f6ae09f98d4dbe9370",
+          "platform": {
+            "architecture": "arm64",
+            "os": "linux"
+          }
+        }
+      ]
+    },
+    "linuxserver": {
+      "reference": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+      "platformManifests": [
+        {
+          "digest": "sha256:4b35e190dda884908d36f6986889bd77875f1ce5fd328e56ec1c983befbcf285",
+          "platform": {
+            "architecture": "amd64",
+            "os": "linux"
+          }
+        },
+        {
+          "digest": "sha256:06bab8c1a67eab4bf7e629b5cde422da037b45fbdea6f668ce367f6c773789aa",
+          "platform": {
+            "architecture": "arm64",
+            "os": "linux"
+          }
+        }
+      ]
+    }
+  }
+}

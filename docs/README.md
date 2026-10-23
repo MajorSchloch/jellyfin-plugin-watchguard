@@ -1,8 +1,8 @@
 # WatchGuard documentation index
 
-**Current published version: [v0.7.1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.1)** · Qualified target: Jellyfin Server/Web 12.2.0 and .NET 10.
+**Current published version: [v0.7.2](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.2)** · Qualified target: Jellyfin Server/Web 12.2.0 and .NET 10.
 
-**Published activity browser:** [v0.7.0 notes](release-v070.md), [historical qualification and native measurements](activity-browser-validation-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Unpublished v0.7.2:** [preparation status](../release-preparation.md), [navigation validation](navigation-validation-v072.md).
+**Published activity browser:** [v0.7.0 notes](release-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Published navigation:** [v0.7.2 notes](release-v072.md), [qualification](navigation-validation-v072.md). **Unpublished v0.7.3:** [preparation status](../release-preparation.md), [12.3 compatibility](compatibility-v073.md).
 
 Start with the repository [README](../README.md) for features, installation, limitations, and the non-mutating status/approval checks. The repository includes historical design experiments and release-candidate reports. Their *as-of-version* statements (for example, “not published” or “requires Injector”) describe historical candidates, **not the current public release**.
 

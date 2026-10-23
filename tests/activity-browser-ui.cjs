@@ -7,7 +7,7 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
 (async()=>{
  const browser=await chromium.launch({headless:true});
  let page;
- const report={result:'RUNNING',phase:'login',responses:[],views:[]};
+ const report={serverVersion:fixture.serverVersion,image:fixture.image,result:'RUNNING',phase:'login',responses:[],views:[]};
  try {
   const context=await browser.newContext({viewport:{width:1280,height:900},locale:'en-US'});
   page=await context.newPage();page.setDefaultTimeout(20000);

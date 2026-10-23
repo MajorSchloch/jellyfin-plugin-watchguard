@@ -1,6 +1,7 @@
+import fixture_images
 from fixture_evidence import capture as capture_failure, Phases
 from fixture_inventory import wait_inventory, wait_ready
-"""Run isolated Jellyfin 12.2 deployment and browser tests; never mounts real media.
+"""Run isolated pinned Jellyfin deployment and browser tests; never mounts real media.
 Default runs browser-poc.cjs and cleans up. --serve keeps the fixture alive until Ctrl+C.
 """
 import argparse
@@ -18,7 +19,6 @@ import urllib.request
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
-IMAGE = 'jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037'
 
 
 def docker(*args):
@@ -49,7 +49,7 @@ def main():
     options.standalone = not options.legacy_injector
     if options.catalog and options.standalone: options.standalone_catalog = True
     if (options.migration or options.qualification_upgrade) and not options.injector_dll: parser.error('Migration requires the rollback Injector DLL')
-    image = 'lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b' if options.linuxserver else IMAGE
+    image = fixture_images.image(options.linuxserver)
     web_index = '/usr/share/jellyfin/web/index.html' if options.linuxserver else '/jellyfin/jellyfin-web/index.html'
     run_user = ['-e', f'PUID={os.getuid()}', '-e', f'PGID={os.getgid()}'] if options.linuxserver else ['--user', f'{os.getuid()}:{os.getgid()}']
     caddy = None
@@ -107,8 +107,9 @@ def main():
                 wait_ready(lambda timeout:(healthy(timeout),call('/System/Info/Public',timeout=timeout),call('/Plugins',token=token,timeout=timeout)))
             wait_ready(lambda timeout:(healthy(timeout),call('/System/Info/Public',timeout=timeout),call('/Startup/User',timeout=timeout)))
             version = call('/System/Info/Public')['Version']
-            assert version.startswith('12.2'), version
+            assert version == fixture_images.version() + '.0', version
             print('Verified server '+version+' image '+image, flush=True)
+            fixture_images.inspect(name, options.linuxserver, ROOT/'artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll', version, ROOT/'artifacts/testing'/name/'compatibility.json')
             phases.phase('native-setup-authentication')
             password = uuid.uuid4().hex
             username = 'WatchGuardPoCTest'
@@ -217,9 +218,12 @@ def main():
                 caddy = runpy.run_path(str(ROOT/'tests/standalone-caddy.py'))['Caddy'](docker,name,root)
                 browser_base = caddy.base
                 caddy.verify(token)
+            if options.standalone:
+                status = call('/WatchGuard/IntegrationStatus', token=token)
+                assert status['ServerMatchesTestedVersion'] is True and status['JellyfinVersion'] == version
             fixture = root / 'fixture.json'
             fixture.write_text(json.dumps({'base': browser_base, 'username': username, 'password': password,
-                'standalone':options.standalone, 'activityIndex':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')/name), 'token': token, 'userId': admin['User']['Id'], 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
+                'serverVersion':version, 'image':image, 'standalone':options.standalone, 'activityIndex':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')/name), 'token': token, 'userId': admin['User']['Id'], 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
             fixture.chmod(0o600)
             if caddy: os.environ['NODE_EXTRA_CA_CERTS'] = str(caddy.ca)
             print('READY fixture=' + str(fixture), flush=True)
@@ -265,7 +269,7 @@ def main():
                 # background projection may legitimately checkpoint until the
                 # loaded plugin stops; snapshot it at that lifecycle boundary.
                 saved = {p:p.read_bytes() for p in data_folder.glob('*.json') if p != derived}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.2.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.3.0','DELETE',token=token,expected=204)
                 docker('stop', name)
                 if derived_present:
                     assert derived.exists(), 'Uninstall must retain the derived index'

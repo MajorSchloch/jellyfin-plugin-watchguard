@@ -11,7 +11,7 @@ const output = path.resolve(fixture.reportDirectory || 'artifacts/poc'); fs.mkdi
 const errorText = 'There was an error deleting the item from the server. Please check that Jellyfin has write access to the media folder and try again.';
 const mineActivity = fixture.activityIndex ? '**/WatchGuard/ActivityBrowser?owner=mine&*' : '**/WatchGuard/ActivityOverview/Me';
 const allActivity = fixture.activityIndex ? '**/WatchGuard/ActivityBrowser?owner=all&*' : '**/WatchGuard/ActivityOverview';
-const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [], orderingViolations: 0 };
+const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnostics: [], deletes: [], orderingViolations: 0 };
 (async () => {
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ ignoreHTTPSErrors: fixture.tls === true, viewport: { width: 1280, height: 900 }, locale: 'en-US' });
@@ -447,7 +447,7 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await api('/UserItems/' + fixture.items['PoC Movie Detail'] + '/UserData','POST',{Played:false,PlaybackPositionTicks:0},member.AccessToken);
         assert.ok(!(await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===automaticId.replaceAll('-','')));
         report.paths.push({path:'Playback-only series',result:'no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created'});
-        report.paths.push({path:'Modern compatibility',result:'12.2 modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source'});
+        report.paths.push({path:'Modern compatibility',result:'Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source'});
         report.phase = 'Watchlist UI';
         await detail('PoC Movie Detail');
         await page.getByRole('button', { name:'Add to Watchlist', exact:true }).click();

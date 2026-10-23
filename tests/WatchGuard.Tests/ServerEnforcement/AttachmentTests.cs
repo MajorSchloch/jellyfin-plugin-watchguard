@@ -60,18 +60,38 @@ public class AttachmentTests
     }
 
     [Theory]
-    [InlineData(12, 2, true, true)]
-    [InlineData(12, 3, true, false)]
-    [InlineData(12, 2, false, false)]
-    public void ExactActionAndVersionMatching(int major, int minor, bool both, bool expected)
+    [InlineData("12.2.0", true, true)]
+    [InlineData("12.3.0", true, true)]
+    [InlineData("12.2.0.0", true, true)]
+    [InlineData("12.3.0.0", true, true)]
+    [InlineData("12.2.0", false, false)]
+    [InlineData("12.3.0", false, false)]
+    [InlineData("12.4.0", true, false)]
+    [InlineData("13.0.0", true, false)]
+    [InlineData("12.1.0", true, false)]
+    [InlineData("12.3.1", true, false)]
+    [InlineData("12.3.0.1", true, false)]
+    [InlineData("12.2.0.1", true, false)]
+    [InlineData("12.3", true, false)]
+    [InlineData("12.2.0", true, false, "route")]
+    [InlineData("12.3.0", true, false, "route")]
+    [InlineData("12.2.0", true, false, "return")]
+    [InlineData("12.3.0", true, false, "return")]
+    [InlineData("12.2.0", true, false, "parameter")]
+    [InlineData("12.3.0", true, false, "parameter")]
+    [InlineData("12.2.0", true, false, "name")]
+    [InlineData("12.3.0", true, false, "name")]
+    [InlineData("12.2.0", true, false, "assembly")]
+    [InlineData("12.3.0", true, false, "assembly")]
+    public void ExactActionAndVersionMatching(string version, bool both, bool expected, string? fault = null)
     {
-        var asm = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("Jellyfin.Api"), AssemblyBuilderAccess.Run);
+        var asm = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(fault == "assembly" ? "Other.Api" : "Jellyfin.Api"), AssemblyBuilderAccess.Run);
         var builder = asm.DefineDynamicModule("test").DefineType("Jellyfin.Api.Controllers.LibraryController", TypeAttributes.Public);
         foreach (var name in both ? new[] { "DeleteItem", "DeleteItems" } : new[] { "DeleteItem" })
         {
-            var method = builder.DefineMethod(name, MethodAttributes.Public, typeof(ActionResult), [name == "DeleteItem" ? typeof(Guid) : typeof(Guid[])]);
-            method.DefineParameter(1, ParameterAttributes.None, name == "DeleteItem" ? "itemId" : "ids");
-            method.SetCustomAttribute(new CustomAttributeBuilder(typeof(HttpDeleteAttribute).GetConstructor([typeof(string)])!, [name == "DeleteItem" ? "Items/{itemId}" : "Items"]));
+            var method = builder.DefineMethod(name, MethodAttributes.Public, fault == "return" ? typeof(object) : typeof(ActionResult), [fault == "parameter" ? typeof(string) : name == "DeleteItem" ? typeof(Guid) : typeof(Guid[])]);
+            method.DefineParameter(1, ParameterAttributes.None, fault == "name" ? "other" : name == "DeleteItem" ? "itemId" : "ids");
+            method.SetCustomAttribute(new CustomAttributeBuilder(typeof(HttpDeleteAttribute).GetConstructor([typeof(string)])!, [fault == "route" ? "Other" : name == "DeleteItem" ? "Items/{itemId}" : "Items"]));
             var il = method.GetILGenerator(); il.Emit(OpCodes.Ldnull); il.Emit(OpCodes.Ret);
         }
         var type = builder.CreateType()!;
@@ -79,7 +99,7 @@ public class AttachmentTests
         foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
             controller.Actions.Add(new ActionModel(method, method.GetCustomAttributes().Cast<object>().ToArray()));
         var model = new ApplicationModel(); model.Controllers.Add(controller);
-        var state = new Attachment { ServerVersion = new Version(major, minor, 0) };
+        var state = new Attachment { ServerVersion = Version.Parse(version) };
         new Convention(state, NullLogger<Convention>.Instance).Apply(model);
         Assert.Equal(expected, state.Supported);
         Assert.Equal(expected ? 2 : 0, controller.Actions.Sum(a => a.Filters.Count));

@@ -53,8 +53,8 @@ public sealed class PreferencesController(IAuthorizationContext authorization, I
     {
         if (!user.HasPermission(PermissionKind.IsAdministrator)) return Forbid();
         return Ok(new { PluginVersion = typeof(Plugin).Assembly.GetName().Version!.ToString(3),
-            JellyfinVersion = host.ApplicationVersionString, TestedCompatibility = "Jellyfin Server/Web 12.2 / .NET 10",
-            ServerMatchesTestedVersion = host.ApplicationVersion.Major == 12 && host.ApplicationVersion.Minor == 2,
+            JellyfinVersion = host.ApplicationVersionString, TestedCompatibility = "Jellyfin Server/Web 12.2.0 and 12.3.0 / .NET 10",
+            ServerMatchesTestedVersion = JellyfinCompatibility.IsTestedVersion(host.ApplicationVersion),
             PluginLoaded = true,
             Standalone = standalone.Snapshot,
             BrowserExecutionVerified = false,

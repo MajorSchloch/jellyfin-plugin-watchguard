@@ -1,9 +1,9 @@
+import fixture_images
 from fixture_evidence import capture as capture_failure, Phases
 from fixture_inventory import wait_inventory, wait_ready
 """Disposable native HTTP qualification. Never accepts a remote server/config/media path."""
 import argparse, functools, http.server, threading, runpy, concurrent.futures, hashlib, io, json, os, pathlib, shutil, subprocess, tempfile, time, urllib.request, urllib.error, uuid, zipfile
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-IMAGE='jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037'
 DLL=ROOT/'artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
 BASELINE=ROOT/'artifacts/PublishedV048/Jellyfin.Plugin.WatchGuard.dll'
 BASELINE_SHA256='06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5'
@@ -12,7 +12,7 @@ def docker(*args): return subprocess.check_output(['docker',*args],text=True,std
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--linuxserver',action='store_true');parser.add_argument('--proxy-matrix',action='store_true',default=os.environ.get('WATCHGUARD_PROXY_MATRIX')=='1');parser.add_argument('--web',action='store_true',default=True);parser.add_argument('--base-path',choices=['','/jellyfin'],default='');a=parser.parse_args()
-    image='lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b' if a.linuxserver else IMAGE
+    image=fixture_images.image(a.linuxserver)
     run_user=['-e',f'PUID={os.getuid()}','-e',f'PGID={os.getgid()}'] if a.linuxserver else ['--user',f'{os.getuid()}:{os.getgid()}']
     output=ROOT/'artifacts/server-enforcement'/('linuxserver' if a.linuxserver else 'official')/('basepath' if a.base_path else 'direct')/uuid.uuid4().hex[:10];output.mkdir(parents=True,exist_ok=True)
     report={'image':image,'basePath':a.base_path,'cases':[],'status':'RUNNING'}
@@ -83,7 +83,9 @@ def main():
         try:
             phases.phase('container-start')
             media=root/'media';media.mkdir();start()
-            assert call('/System/Info/Public')['Version'].startswith('12.2')
+            report['serverVersion'] = call('/System/Info/Public')['Version']
+            assert report['serverVersion'] == fixture_images.version() + '.0'
+            report['compatibility'] = fixture_images.inspect(name, a.linuxserver, DLL, report['serverVersion'], output/'compatibility.json')
             phases.phase('native-setup-authentication')
             password=uuid.uuid4().hex
             call('/Startup/User','POST',{'Name':'WatchGuardPoCTest','Password':password},expected=204)
@@ -139,7 +141,7 @@ def main():
             assert 'EnableServerEnforcement' not in configuration
             configuration['ProtectCaughtUpSeries']=False
             call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/Configuration','POST',configuration,expected=204)
-            public=root/'catalog';public.mkdir();archive_path=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.2.zip'
+            public=root/'catalog';public.mkdir();archive_path=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.3.zip'
             digest=archive_path.with_suffix('.zip.sha256').read_text().split()[0]
             assert hashlib.sha256(archive_path.read_bytes()).hexdigest()==digest
             report['candidateZipSha256']=digest
@@ -151,13 +153,13 @@ def main():
             thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
             catalog_url='http://host.docker.internal:'+str(server.server_port)
             guid='a3c6bc84-783d-4ba8-a0db-89bfb83ab486'
-            manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable qualification','category':'General','description':'Local candidate','overview':'Fixture','versions':[{'version':'0.7.2.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive_path.read_bytes()).hexdigest(),'sourceUrl':catalog_url+'/'+archive_path.name,'timestamp':'2026-10-16T00:00:00Z','changelog':'Unpublished local fixture'}]}]
+            manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable qualification','category':'General','description':'Local candidate','overview':'Fixture','versions':[{'version':'0.7.3.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive_path.read_bytes()).hexdigest(),'sourceUrl':catalog_url+'/'+archive_path.name,'timestamp':'2026-10-16T00:00:00Z','changelog':'Unpublished local fixture'}]}]
             (public/'manifest.json').write_text(json.dumps(manifest))
             try:
                 call('/Repositories','POST',[{'Name':'Disposable candidate','Url':catalog_url+'/manifest.json','Enabled':True}],expected=204)
                 from urllib.parse import urlencode
-                call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':guid,'version':'0.7.2.0','repositoryUrl':catalog_url+'/manifest.json'}),'POST',expected=204)
-                docker('stop',name);shutil.move(str(guard),str(root/'retired-v048'));guard=plugins/'WatchGuard_0.7.2.0'
+                call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':guid,'version':'0.7.3.0','repositoryUrl':catalog_url+'/manifest.json'}),'POST',expected=204)
+                docker('stop',name);shutil.move(str(guard),str(root/'retired-v048'));guard=plugins/'WatchGuard_0.7.3.0'
                 assert (guard/'meta.json').exists()
                 assert (guard/DLL.name).read_bytes()==DLL.read_bytes()
                 docker('start',name);ready()
@@ -174,6 +176,9 @@ def main():
             docker('restart',name);ready()
             caps=call('/WatchGuard/ServerApproval/Capabilities');assert caps['State']=='Enabled' and not caps['RestartRequired'] and caps['AttachedActions']==2
             assert 'WG-GUARD attached=2 supported=true enabledAtStartup=True' in docker('logs',name)
+            status=call('/WatchGuard/IntegrationStatus')
+            assert status['ServerMatchesTestedVersion'] is True and status['JellyfinVersion'] == report['serverVersion']
+            report['integrationStatus']={k:status[k] for k in ['JellyfinVersion','TestedCompatibility','ServerMatchesTestedVersion','BrowserExecutionVerified']}
             report['catalogUpgrade']='PASS: published v0.4.8 without setting -> catalog candidate off -> explicit save -> restart active; stores preserved; single assembly'
             api='/WatchGuard/ServerApproval/'
             def route(targets,bulk=False):return '/Items?ids='+','.join(i['Id'] for i in targets) if bulk else '/Items/'+targets[0]['Id']
@@ -313,7 +318,7 @@ def main():
             for path in ['/System/Info/Public','/Items?Limit=2','/WatchGuard/Watchlist','/Users/Me']:call(path)
             assert docker('logs',name).count('WG-GUARD evaluation')==before;report['unrelatedRequestsEvaluations']=0
             phases.phase('old-tab-browser')
-            fixture=root/'browser.json';fixture.write_text(json.dumps({'base':base,'username':'WatchGuardPoCTest','password':password,'output':str(output.resolve()),'legacyScript':str(legacy_script),'id':movies['WebProtected']['Id'],'userId':signed['User']['Id'],'serverId':signed['ServerId']}));fixture.chmod(0o600)
+            fixture=root/'browser.json';fixture.write_text(json.dumps({'serverVersion':report['serverVersion'],'image':image,'base':base,'username':'WatchGuardPoCTest','password':password,'output':str(output.resolve()),'legacyScript':str(legacy_script),'id':movies['WebProtected']['Id'],'userId':signed['User']['Id'],'serverId':signed['ServerId']}));fixture.chmod(0o600)
             subprocess.run(['node',str(ROOT/'tests/server-enforcement-old-tab.cjs'),str(fixture)],check=True,timeout=600)
             preserved([movies['WebProtected']]);report['browser']='PASS: unchanged Cancel zero DELETE; Delete Anyway one DELETE rejected 409'
             phases.phase('current-browser-and-proxy')

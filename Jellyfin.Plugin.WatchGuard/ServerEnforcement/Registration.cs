@@ -59,7 +59,7 @@ public sealed class Convention(Attachment state, ILogger<Convention> logger) : I
         var controllers = application.Controllers.Where(c => c.ControllerType.FullName == "Jellyfin.Api.Controllers.LibraryController" &&
             c.ControllerType.Assembly.GetName().Name == "Jellyfin.Api").ToArray();
         var actions = controllers.SelectMany(c => c.Actions).Where(a => a.ActionMethod.Name is "DeleteItem" or "DeleteItems").ToArray();
-        state.Supported = controllers.Length == 1 && state.ServerVersion.Major == 12 && state.ServerVersion.Minor == 2 && state.ServerVersion.Build == 0 &&
+        state.Supported = controllers.Length == 1 && JellyfinCompatibility.IsTestedVersion(state.ServerVersion) &&
             actions.Length == 2 && actions.All(a => a.ActionMethod.ReturnType == typeof(ActionResult) &&
                 a.ActionMethod.GetParameters() is [var p] &&
                 p.ParameterType == (a.ActionMethod.Name == "DeleteItem" ? typeof(Guid) : typeof(Guid[])) &&

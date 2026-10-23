@@ -1,0 +1,10 @@
+{
+  "testedCommit": "79f6cf86a053fe86450ec44f30842d6535448762",
+  "candidateZipSha256": "8082c08a96e4aee46fea8dc22fbde84bdd0c107cb5cc410dd49efaedbc0da20e",
+  "architecture": "arm64",
+  "serverVersion": "12.3.0",
+  "webVersion": "12.3.0",
+  "nativeNavigationOperations": 36,
+  "linuxserverEnforcementCases": 77,
+  "fullMatrix": false
+}

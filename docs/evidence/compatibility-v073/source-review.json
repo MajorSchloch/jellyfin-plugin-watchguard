@@ -1,0 +1,65 @@
+{
+  "server": {
+    "url": "https://github.com/jellyfin/jellyfin/compare/v12.2...v12.3",
+    "base": "ca0f16eb7c195f720a1493ed469a27c4657db0c6",
+    "head": "06de749d435e2d0be0c5119a41f2300fdd7143e5",
+    "files": [
+      "CONTRIBUTORS.md",
+      "Directory.Packages.props",
+      "Emby.Naming/Emby.Naming.csproj",
+      "Jellyfin.Data/Jellyfin.Data.csproj",
+      "Jellyfin.Server/Resources/Configuration/logging.json",
+      "MediaBrowser.Common/MediaBrowser.Common.csproj",
+      "MediaBrowser.Controller/Entities/BaseItem.cs",
+      "MediaBrowser.Controller/MediaBrowser.Controller.csproj",
+      "MediaBrowser.MediaEncoding/Encoder/MediaEncoder.cs",
+      "MediaBrowser.MediaEncoding/Probing/ProbeResultNormalizer.cs",
+      "MediaBrowser.MediaEncoding/Subtitles/SubtitleEncoder.cs",
+      "MediaBrowser.Model/MediaBrowser.Model.csproj",
+      "MediaBrowser.Providers/Plugins/Tmdb/TmdbUtils.cs",
+      "SharedVersion.cs",
+      "src/Jellyfin.Extensions/Jellyfin.Extensions.csproj",
+      "tests/Jellyfin.Controller.Tests/Entities/BaseItemTests.cs",
+      "tests/Jellyfin.MediaEncoding.Tests/Probing/ProbeResultNormalizerTests.cs",
+      "tests/Jellyfin.MediaEncoding.Tests/Subtitles/SubtitleEncoderTests.cs",
+      "tests/Jellyfin.MediaEncoding.Tests/Test Data/Probing/video_ts_no_dimensions.json",
+      "tests/Jellyfin.MediaEncoding.Tests/Test Data/Probing/video_ts_no_dimensions_zero_dar.json",
+      "tests/Jellyfin.Providers.Tests/Tmdb/TmdbUtilsTests.cs",
+      "tests/Jellyfin.XbmcMetadata.Tests/Parsers/MovieNfoParserTests.cs",
+      "tests/Jellyfin.XbmcMetadata.Tests/Test Data/Ratings_NotFinite.nfo"
+    ]
+  },
+  "web": {
+    "url": "https://github.com/jellyfin/jellyfin-web/compare/v12.2...v12.3",
+    "base": "61b1f890365ad15138e943e694af723c1d47df2a",
+    "head": "c06cb17b274c10f9015412305edb0afdc010ae7a",
+    "files": [
+      "CONTRIBUTORS.md",
+      "package-lock.json",
+      "package.json",
+      "src/apps/dashboard/routes/devices/index.tsx",
+      "src/apps/modern/features/libraries/components/LibraryPage.tsx",
+      "src/apps/modern/features/libraries/components/SuggestionsSectionView.tsx",
+      "src/components/QueryClientEventHandler.tsx",
+      "src/components/mediaLibraryEditor/mediaLibraryEditor.js",
+      "src/components/playback/playbackmanager.js",
+      "src/components/playbackSettings/playbackSettings.js",
+      "src/hooks/useCurrentTab.ts"
+    ]
+  },
+  "sdk": {
+    "url": "https://github.com/jellyfin/jellyfin-sdk-typescript/compare/v1.0.0...v1.0.1",
+    "base": "1fdc2aefcf963fec84e7eafe15743dafe8c1d26a",
+    "head": "2619192807fbaec310ca1929a7cc88bf6858ff39",
+    "files": [
+      ".github/workflows/sdk-publish.yaml",
+      "CHANGELOG.md",
+      "README.md",
+      "openapi.json",
+      "package-lock.json",
+      "package.json",
+      "src/generated-client/models/force-keep-alive-message.ts",
+      "src/versions.ts"
+    ]
+  }
+}
