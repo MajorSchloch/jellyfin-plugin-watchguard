@@ -1,0 +1,46 @@
+{
+  "assembly": "Jellyfin.Api, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null",
+  "controller": "Jellyfin.Api.Controllers.LibraryController",
+  "actions": [
+    {
+      "method": "DeleteItem",
+      "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+      "parameters": [
+        {
+          "name": "itemId",
+          "type": "System.Guid",
+          "attributes": []
+        }
+      ],
+      "route": "Items/{itemId}",
+      "authorized": true
+    },
+    {
+      "method": "DeleteItems",
+      "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+      "parameters": [
+        {
+          "name": "ids",
+          "type": "System.Guid[]",
+          "attributes": [
+            "Microsoft.AspNetCore.Mvc.FromQueryAttribute",
+            "Microsoft.AspNetCore.Mvc.ModelBinderAttribute"
+          ]
+        }
+      ],
+      "route": "Items",
+      "authorized": true
+    }
+  ],
+  "result": "PASS",
+  "image": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+  "imageIdentity": {
+    "Id": "sha256:ed09c24d8b4fc85d6427ac24474080ac42343161d9616ab6c80ddaaaccaa7c88",
+    "RepoDigests": [
+      "lscr.io/linuxserver/jellyfin@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308"
+    ],
+    "Architecture": "arm64",
+    "Os": "linux"
+  },
+  "apiDllSha256": "b37b8813e07b8dab510da2f047f1298780008199c2575d6e66ac27d6e9b4e3c2"
+}

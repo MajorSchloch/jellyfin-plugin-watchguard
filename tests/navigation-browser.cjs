@@ -8,7 +8,7 @@ const fixture = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 assert.match(fixture.base, /^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyfin)?$/);
 const output = process.argv[3] || 'artifacts/navigation-browser';
 fs.mkdirSync(output, {recursive: true});
-const report = {result: 'RUNNING', cases: [], travel: []};
+const report = {serverVersion:fixture.serverVersion, image:fixture.image, result: 'RUNNING', cases: [], travel: []};
 (async () => {
  const browser = await chromium.launch({headless: true});
  let page;

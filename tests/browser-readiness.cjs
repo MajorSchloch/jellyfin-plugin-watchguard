@@ -16,8 +16,16 @@ async function identity(page, fixture) {
     const actual = await page.evaluate(async () => {
         const api = window.ApiClient;
         const user = await api.getCurrentUser(false);
-        return {userId: api.getCurrentUserId(), nativeUserId: user.Id, serverId: api.serverId(), address: api.serverAddress()};
+        return {userId: api.getCurrentUserId(), nativeUserId: user.Id, serverId: api.serverId(), address: api.serverAddress(), webVersion: api.appVersion()};
     });
+    if (fixture.serverVersion) {
+        assert.equal(actual.webVersion, fixture.serverVersion, 'Packaged native Web version');
+        const output = fixture.output || fixture.reportDirectory;
+        if (output) {
+            fs.mkdirSync(output, {recursive:true});
+            fs.writeFileSync(path.join(output, 'native-versions.json'), JSON.stringify({serverVersion:fixture.serverVersion, webVersion:actual.webVersion, image:fixture.image})+'\n');
+        }
+    }
     assert.equal(key(actual.userId), key(fixture.userId), 'Active ApiClient user');
     assert.equal(key(actual.nativeUserId), key(fixture.userId), 'Native authenticated user');
     assert.equal(key(actual.serverId), key(fixture.serverId), 'Active ApiClient server');
