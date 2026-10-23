@@ -13,5 +13,6 @@
     <EmbeddedResource Include="Web/watchguard.js" />
     <EmbeddedResource Include="Web/settings.html" />
     <EmbeddedResource Include="Standalone/bootstrap.js" />
+    <EmbeddedResource Include="Standalone/startup.js" />
   </ItemGroup>
 </Project>

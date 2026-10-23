@@ -29,6 +29,26 @@ public sealed class StandaloneTests
         Assert.Equal(output.Length,context.Response.ContentLength);
     }
     [Fact]
+    public async Task StaticHandoffPrecedesBodyAndBootstrapWithoutRelaxingCsp()
+    {
+        var context = new DefaultHttpContext(); context.Request.Path = "/jellyfin/web/"; context.Request.Method = "GET";
+        await using var output = new MemoryStream(); context.Response.Body = output;
+        const string csp = "script-src 'self'; style-src 'self'; object-src 'none'";
+        await StandaloneStartupFilter.Rewrite(context, async () => {
+            context.Response.ContentType = "text/html";
+            context.Response.Headers.ContentSecurityPolicy = csp;
+            await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes("<head><script defer src=\"native.js\"></script></head><body>Native</body>"));
+        }, "/jellyfin", () => true);
+        var html = Encoding.UTF8.GetString(output.ToArray());
+        Assert.Equal(csp, context.Response.Headers.ContentSecurityPolicy);
+        var startup = html.IndexOf("id=\"watchguard-startup-handoff\"", StringComparison.Ordinal);
+        var bootstrap = html.IndexOf("id=\"watchguard-standalone-loader\"", StringComparison.Ordinal);
+        Assert.True(startup >= 0 && startup < bootstrap && bootstrap < html.IndexOf("<body>", StringComparison.Ordinal));
+        Assert.Contains("defer src=\"/jellyfin/WatchGuard/Standalone/bootstrap.js\"", html, StringComparison.Ordinal);
+        Assert.Contains("<body>Native</body>", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task PrefixDuplicateCacheAndHeadContracts()
     {
         var context=new DefaultHttpContext();context.Request.Path="/jellyfin/web/index.html";context.Request.Method="GET";

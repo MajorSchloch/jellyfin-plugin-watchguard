@@ -12,6 +12,16 @@ namespace Jellyfin.Plugin.WatchGuard.Standalone;
 // Standalone entry-document loader. No Injector middleware source is incorporated.
 public sealed class StandaloneStartupFilter(StandaloneMode mode, IServerConfigurationManager configuration) : IStartupFilter
 {
+    // Static code only: no route, user data or credentials are interpolated into script.
+    // Existing CSP remains authoritative (including policies that forbid inline scripts).
+    private static readonly string Startup = ReadStartup();
+    private static string ReadStartup()
+    {
+        using var stream = typeof(StandaloneStartupFilter).Assembly.GetManifestResourceStream("Jellyfin.Plugin.WatchGuard.Standalone.startup.js")!;
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
+
     public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
     {
         mode.MiddlewareRegistered = true;
@@ -63,7 +73,7 @@ public sealed class StandaloneStartupFilter(StandaloneMode mode, IServerConfigur
                     var end = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     if (end >= 0 && !html.Contains("id=\"watchguard-standalone-loader\"", StringComparison.Ordinal))
                     {
-                        var tag = "<script id=\"watchguard-standalone-loader\" defer src=\"" +
+                        var tag = "<script id=\"watchguard-startup-handoff\">" + Startup + "</script><script id=\"watchguard-standalone-loader\" defer src=\"" +
                             HtmlEncoder.Default.Encode(prefix + "/WatchGuard/Standalone/bootstrap.js") + "\"></script>";
                         var bytes = Encoding.UTF8.GetBytes(html.Insert(end, tag));
                         NoCache(response); response.ContentLength = bytes.Length;

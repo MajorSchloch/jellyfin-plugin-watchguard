@@ -1,6 +1,6 @@
 # Jellyfin WatchGuard
 
-**Current release: [v0.7.2](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.2)** · Published target: **Jellyfin Server/Web 12.2.0 / .NET 10** · [Plugin catalog](manifest.json)
+**Current release: [v0.7.3](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.3)** · Published target: **Jellyfin Server/Web 12.2.0 and 12.3.0 / .NET 10** · [Plugin catalog](manifest.json)
 
 WatchGuard adds personal watchlists, shared viewing-interest indicators and deletion warnings to Jellyfin. An optional **server-side guard** prevents protected media from being deleted through the two qualified native HTTP item-deletion routes without an explicit administrator approval.
 
@@ -21,7 +21,7 @@ WatchGuard is a **single Jellyfin plugin** with an authenticated, standalone Web
 
    `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
 
-2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.7.0.0`).
+2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.7.3.0`).
 3. **Restart Jellyfin**, then **fully reload Jellyfin Web** in each browser.
 4. Open **Dashboard → Plugins → WatchGuard**. Confirm the installed plugin version, standalone loader, the current browser's installed adapter and the active server-guard state. The approval **POST readiness** check is non-mutating.
 
@@ -39,7 +39,7 @@ With enforcement enabled:
 - **Protected** direct HTTP deletions without valid approval are refused (normally HTTP `409 ProtectionRequired`).
 - In supported Jellyfin Web, an administrator may explicitly **Delete Anyway** after viewing the warning. This creates a short-lived, single-use approval and continues the native DELETE once. Cancel performs no DELETE.
 - Jellyfin's native deletion permissions are never bypassed. Ordinary users cannot approve protected deletions; API keys and unsupported credential forms are not approval identities.
-- The guard covers only the verified `LibraryController.DeleteItem` and `DeleteItems` HTTP actions on explicitly supported hosts (v0.7.3: Jellyfin 12.2.0 and 12.3.0; published v0.7.2: 12.2.0), **not** filesystem removal, Sonarr/Radarr/Tdarr changes, internal cleanup or arbitrary other APIs.
+- The guard covers only the verified `LibraryController.DeleteItem` and `DeleteItems` HTTP actions on explicitly supported hosts (Jellyfin 12.2.0 and 12.3.0), **not** filesystem removal, Sonarr/Radarr/Tdarr changes, internal cleanup or arbitrary other APIs.
 
 Unsupported native/TV/mobile clients may not implement the approval flow and may therefore be unable to delete protected media. Jellyfin Web's generic deletion error after clicking WatchGuard **Cancel** is a known upstream UI limitation; Cancel still issues **zero** DELETE requests.
 
@@ -97,4 +97,4 @@ See the [documentation index](docs/README.md) for the current security, deployme
 
 Published v0.6.0 provides the background activity index and native reconciliation. Published v0.7.0 adds a combined server query for filtering, ordering and title search before pagination. Preparation advances automatically within four requests. Visible first pages update automatically; deeper views keep their order and show when authorized checks find updates. See the [query contract](docs/activity-browser-v070.md) and [release notes](docs/release-v070.md). Published v0.7.0 is installed and manually validated on the maintainer’s server.
 
-Published v0.7.2 keeps Watchlists filter changes in place. v0.7.3 adds explicit Jellyfin Server/Web 12.3.0 compatibility alongside 12.2.0; see [preparation and qualification status](release-preparation.md).
+Published v0.7.3 supports Jellyfin Server/Web 12.2.0 and 12.3.0 and includes the in-place filter navigation fix. See [compatibility qualification](docs/compatibility-v073.md). The v0.7.4 startup handoff is being prepared separately; see [preparation status](release-preparation.md).
