@@ -218,6 +218,9 @@ def main():
                 caddy = runpy.run_path(str(ROOT/'tests/standalone-caddy.py'))['Caddy'](docker,name,root)
                 browser_base = caddy.base
                 caddy.verify(token)
+            if options.standalone:
+                status = call('/WatchGuard/IntegrationStatus', token=token)
+                assert status['ServerMatchesTestedVersion'] is True and status['JellyfinVersion'] == version
             fixture = root / 'fixture.json'
             fixture.write_text(json.dumps({'base': browser_base, 'username': username, 'password': password,
                 'serverVersion':version, 'image':image, 'standalone':options.standalone, 'activityIndex':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')/name), 'token': token, 'userId': admin['User']['Id'], 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))

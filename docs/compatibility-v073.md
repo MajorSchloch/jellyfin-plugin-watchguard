@@ -22,6 +22,13 @@ Every disposable fixture verifies the exact native Server version, reflects pack
 
 Only 12.2.0 and 12.3.0 are supported (optional zero fourth version component); unknown minor, patch and revision versions remain unsupported. Existing structural checks remain. Package references and minimum catalog ABI remain 12.2.0.0: no new API is used, and the same candidate is qualified on both versions. Plugin GUID, personal formats, enforcement semantics and browser/query runtime are unchanged.
 
+The [manifest inventory](evidence/compatibility-v073/image-manifests.json) records architecture-specific digests as well as these immutable image references:
+
+| Host | Official | LinuxServer |
+| --- | --- | --- |
+| 12.3.0 | `jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5` | `lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308` |
+| 12.2.0 | `jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037` | `lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b` |
+
 ## Qualification plan
 
 Full eleven-suite qualification on both versions, with `publish=false`, `proxy_matrix=true`: standalone and rollback/catalog paths; legacy Injector; native navigation at desktop/390px through a base path; WebSocket/compression; activity filtering, global sorting, pagination, preparation, polling, playback and watched-state changes; security/permissions/account switching; native deletion enforcement on official/LinuxServer, base paths, reverse proxies and HTTPS. All data is disposable. Public releases and catalog remain unchanged.

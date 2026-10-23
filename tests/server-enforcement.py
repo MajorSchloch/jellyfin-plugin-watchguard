@@ -176,6 +176,9 @@ def main():
             docker('restart',name);ready()
             caps=call('/WatchGuard/ServerApproval/Capabilities');assert caps['State']=='Enabled' and not caps['RestartRequired'] and caps['AttachedActions']==2
             assert 'WG-GUARD attached=2 supported=true enabledAtStartup=True' in docker('logs',name)
+            status=call('/WatchGuard/IntegrationStatus')
+            assert status['ServerMatchesTestedVersion'] is True and status['JellyfinVersion'] == report['serverVersion']
+            report['integrationStatus']={k:status[k] for k in ['JellyfinVersion','TestedCompatibility','ServerMatchesTestedVersion','BrowserExecutionVerified']}
             report['catalogUpgrade']='PASS: published v0.4.8 without setting -> catalog candidate off -> explicit save -> restart active; stores preserved; single assembly'
             api='/WatchGuard/ServerApproval/'
             def route(targets,bulk=False):return '/Items?ids='+','.join(i['Id'] for i in targets) if bulk else '/Items/'+targets[0]['Id']

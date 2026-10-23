@@ -58,9 +58,39 @@ public sealed class BackendTests : IDisposable
         .ReturnsAsync(new AuthorizationInfo { User = user, IsAuthenticated = user is not null, IsApiKey = apiKey });
     private WatchGuardController Controller() => new(auth.Object, users.Object, library.Object, store, service,
         NullLogger<WatchGuardController>.Instance, new(store, library.Object, users.Object, sessions.Object, service)) { ControllerContext = new() { HttpContext = new DefaultHttpContext() } };
-    private PreferencesController Preferences(PreferenceStore? preferences = null) => new(auth.Object, users.Object,
-        preferences ?? new PreferenceStore(directory), new Jellyfin.Plugin.WatchGuard.Standalone.StandaloneMode(), Mock.Of<MediaBrowser.Controller.IServerApplicationHost>(),
+    private PreferencesController Preferences(PreferenceStore? preferences = null, MediaBrowser.Controller.IServerApplicationHost? host = null) => new(auth.Object, users.Object,
+        preferences ?? new PreferenceStore(directory), new Jellyfin.Plugin.WatchGuard.Standalone.StandaloneMode(), host ?? Mock.Of<MediaBrowser.Controller.IServerApplicationHost>(),
         NullLogger<PreferencesController>.Instance) { ControllerContext = new() { HttpContext = new DefaultHttpContext() } };
+
+    [Theory]
+    [InlineData("12.2.0", true)]
+    [InlineData("12.3.0", true)]
+    [InlineData("12.2.0.0", true)]
+    [InlineData("12.3.0.0", true)]
+    [InlineData("12.1.0", false)]
+    [InlineData("12.4.0", false)]
+    [InlineData("13.0.0", false)]
+    [InlineData("12.2.1", false)]
+    [InlineData("12.3.1", false)]
+    [InlineData("12.2.0.1", false)]
+    [InlineData("12.3.0.1", false)]
+    [InlineData("12.3", false)]
+    public async Task IntegrationStatusReportsOnlyExactTestedHosts(string version, bool expected)
+    {
+        var host = new Mock<MediaBrowser.Controller.IServerApplicationHost>();
+        host.SetupGet(h => h.ApplicationVersion).Returns(Version.Parse(version));
+        host.SetupGet(h => h.ApplicationVersionString).Returns(version);
+        var controller = Preferences(host: host.Object);
+        Assert.IsType<ForbidResult>(await controller.Status());
+        alice.SetPermission(PermissionKind.IsAdministrator, true);
+        var result = Assert.IsType<OkObjectResult>(await controller.Status());
+        var json = System.Text.Json.JsonSerializer.SerializeToElement(result.Value);
+        Assert.Equal(expected, json.GetProperty("ServerMatchesTestedVersion").GetBoolean());
+        Assert.Equal(version, json.GetProperty("JellyfinVersion").GetString());
+        Assert.False(json.GetProperty("BrowserExecutionVerified").GetBoolean());
+        SignIn(alice, true);
+        Assert.IsType<UnauthorizedResult>(await controller.Status());
+    }
 
     [Fact]
     public async Task PreferencesArePersonalAndScopeIsAuthorized()
