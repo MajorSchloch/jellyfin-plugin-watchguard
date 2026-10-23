@@ -1,6 +1,6 @@
 # Watchlists startup qualification — v0.7.4
 
-Based on published v0.7.3 / master `0663d4b`. Qualification results will be added after the final runtime is tested.
+Based on published v0.7.3 / master `0663d4b`. Full qualification results will be recorded below. Local focused checks pass: 321 backend tests, 191 JavaScript tests, 21 infrastructure checks and 4 catalog checks.
 
 The published v0.7.3 package (SHA-256 `8082c08a96e4aee46fea8dc22fbde84bdd0c107cb5cc410dd49efaedbc0da20e`) exposed native Home in all 24 initial-render cases: legacy and modern Web, 1280px and 390px, direct entry, reload and cache-disabled hard reload, with either bootstrap or authenticated runtime delayed by 2.2 seconds. The observer is installed with Playwright `addInitScript`, before any entry-document code. It samples visible native Home headings with hit testing on every animation frame, rather than inferring exposure from hidden DOM or final settlement.
 
@@ -9,3 +9,7 @@ The server injects a static anonymous-safe handoff before deferred scripts run. 
 Temporary UI releases after mounting, navigation away, authentication/script failure or a 20-second deadline. Native Home remains available after failure; reload retries startup. The loading panel also offers a Home link. The server does not relax or rewrite CSP: a policy forbidding inline scripts can block the early handoff, and a policy forbidding blob scripts still blocks the authenticated runtime. A blocked early handoff cannot hide native Web. External Web deployments that bypass the plugin's entry-document middleware do not receive this handoff.
 
 The public catalog, ABI, dependencies, activity query semantics, preference formats and authorization/deletion behavior remain unchanged. Historical qualification is preserved in [v0.7.3 compatibility](compatibility-v073.md) and [v0.7.2 navigation](navigation-validation-v072.md).
+
+Local native startup on Jellyfin Server/Web 12.3.0 passes all 24 initial-render cases (zero Home frames, one panel and one authenticated runtime fetch), four Refresh cases (focus/disclosure/panel/history retained), and fourteen recovery cases. Refresh did not expose Home in the v0.7.3 baseline, but disabling its focused button lost focus; v0.7.4 uses an accessible disabled state and ignores repeated activation during loading.
+
+The first local filter-navigation run recorded one unclassified overlay hit on the modern mobile owner transition, with zero Home exposures or panel replacements. The unchanged assertions passed all 36 operations on the subsequent diagnostic run; element/class/position diagnostics are now retained for any future unexpected hit. Both local outcomes are retained under `docs/evidence/startup-v074/`. Full qualification repeats this suite independently on both supported host versions.

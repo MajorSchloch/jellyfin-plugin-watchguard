@@ -75,13 +75,14 @@ function observe(){
     failure=kind;
     const csp=async route=>{const response=await route.fetch();await route.fulfill({response,headers:{...response.headers(),'content-security-policy':"script-src 'self' 'unsafe-inline' 'unsafe-eval'"}});};
     if(kind==='csp-blob')await page.route('**/web/',csp);
-    await page.goto('about:blank');await page.goto(url,{waitUntil:'commit'});
+    await page.goto('about:blank');const started=Date.now();await page.goto(url,{waitUntil:'commit'});
     await page.waitForFunction(()=>window.WatchGuardStartup&&!WatchGuardStartup.active(),null,{timeout:23000});
     assert.equal(await page.locator('#watchguard-startup').count(),0);
     assert.equal(await page.locator('.watchguard-page').count(),0);
     await page.getByText('My Media',{exact:true}).waitFor();
     await page.screenshot({path:path.join(output,'recovery-'+kind+'.png')});
-    report.recovery.push({kind,nativeHomeUsable:true,overlayRemoved:true});
+    const elapsedMs=Date.now()-started;if(kind==='timeout')assert.ok(elapsedMs>=19500&&elapsedMs<25000,'Real bounded startup deadline');
+    report.recovery.push({kind,nativeHomeUsable:true,overlayRemoved:true,elapsedMs});
     if(kind==='csp-blob')await page.unroute('**/web/',csp);
     await page.evaluate(()=>location.hash='#/home');
    }
