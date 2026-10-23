@@ -1,0 +1,685 @@
+{
+  "baselineSha256": "3542b971231b51a78d9783b490f1438b231cd0fca48b61c6aad5098528d50bd7",
+  "candidateDllSha256": "9b462b86f99111ffc3a8c530cb788abc4be89b4e852dc3d8d5b3af6aef905eea",
+  "commit": "79f6cf86a053fe86450ec44f30842d6535448762",
+  "fixture": {
+    "users": 7,
+    "movies": 120,
+    "series": 1,
+    "episodes": 300,
+    "explicitMemberships": 6,
+    "liveOwners": 1
+  },
+  "limitations": [
+    "Known fixture only; no exhaustive-library claim.",
+    "v0.6 client semantics require collecting all pages to filter/sort globally; its raw first page is recorded separately.",
+    "Candidate preparation can span requests; first ordered page includes preparation cost.",
+    "Three warm samples, sequential native requests, no concurrency/load claim."
+  ],
+  "measurements": {
+    "v060-all-title": {
+      "samples": [
+        {
+          "rawFirstPageMs": 27.35505500004365,
+          "firstOrderedPageMs": 130.90281300003426,
+          "completePaginationMs": 130.90281300003426,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 122
+        },
+        {
+          "rawFirstPageMs": 28.316991999986385,
+          "firstOrderedPageMs": 148.53747600000133,
+          "completePaginationMs": 148.53747600000133,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 122
+        },
+        {
+          "rawFirstPageMs": 44.761698999991495,
+          "firstOrderedPageMs": 162.2941370000035,
+          "completePaginationMs": 162.2941370000035,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 122
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 148.53747600000133,
+      "completePaginationMedianMs": 148.53747600000133
+    },
+    "v060-single-recent": {
+      "samples": [
+        {
+          "rawFirstPageMs": 12.641933999930188,
+          "firstOrderedPageMs": 68.4457539999812,
+          "completePaginationMs": 68.4457539999812,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 2,
+            "EpisodeRows": 600
+          },
+          "titles": 121
+        },
+        {
+          "rawFirstPageMs": 12.40344500001811,
+          "firstOrderedPageMs": 75.66074000010303,
+          "completePaginationMs": 75.66074000010303,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 2,
+            "EpisodeRows": 600
+          },
+          "titles": 121
+        },
+        {
+          "rawFirstPageMs": 13.025523999999677,
+          "firstOrderedPageMs": 69.76598699998249,
+          "completePaginationMs": 69.76598699998249,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 2,
+            "EpisodeRows": 600
+          },
+          "titles": 121
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 69.76598699998249,
+      "completePaginationMedianMs": 69.76598699998249
+    },
+    "v060-few-watchlists": {
+      "samples": [
+        {
+          "rawFirstPageMs": 30.36747999999534,
+          "firstOrderedPageMs": 135.19035199999507,
+          "completePaginationMs": 135.19035199999507,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 3
+        },
+        {
+          "rawFirstPageMs": 27.446714000006978,
+          "firstOrderedPageMs": 130.39666500003477,
+          "completePaginationMs": 130.39666500003477,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 3
+        },
+        {
+          "rawFirstPageMs": 29.938370999957442,
+          "firstOrderedPageMs": 142.7051879999226,
+          "completePaginationMs": 142.7051879999226,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 3
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 135.19035199999507,
+      "completePaginationMedianMs": 135.19035199999507
+    },
+    "v060-few-search": {
+      "samples": [
+        {
+          "rawFirstPageMs": 26.58850899990739,
+          "firstOrderedPageMs": 128.04224499996053,
+          "completePaginationMs": 128.04224499996053,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 26.560001000007105,
+          "firstOrderedPageMs": 132.79075699995246,
+          "completePaginationMs": 132.79075699995246,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 29.441856000062216,
+          "firstOrderedPageMs": 130.101603000071,
+          "completePaginationMs": 130.101603000071,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 130.101603000071,
+      "completePaginationMedianMs": 130.101603000071
+    },
+    "v060-few-watching": {
+      "samples": [
+        {
+          "rawFirstPageMs": 26.91520300004413,
+          "firstOrderedPageMs": 127.37119700000221,
+          "completePaginationMs": 127.37119700000221,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 27.640748999942844,
+          "firstOrderedPageMs": 131.3524330000746,
+          "completePaginationMs": 131.3524330000746,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 28.552707000017108,
+          "firstOrderedPageMs": 130.6770129999677,
+          "completePaginationMs": 130.6770129999677,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 130.6770129999677,
+      "completePaginationMedianMs": 130.6770129999677
+    },
+    "v060-live": {
+      "samples": [
+        {
+          "rawFirstPageMs": 26.643238000019664,
+          "firstOrderedPageMs": 128.16901799999414,
+          "completePaginationMs": 128.16901799999414,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 28.065681000043696,
+          "firstOrderedPageMs": 127.48036699997556,
+          "completePaginationMs": 127.48036699997556,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 27.4421499999562,
+          "firstOrderedPageMs": 126.70495000008941,
+          "completePaginationMs": 126.70495000008941,
+          "requests": 6,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 6,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 0,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 127.48036699997556,
+      "completePaginationMedianMs": 127.48036699997556
+    },
+    "v073-all-title": {
+      "samples": [
+        {
+          "rawFirstPageMs": 30.473776000008,
+          "firstOrderedPageMs": 62.85957900001904,
+          "completePaginationMs": 150.23275800001556,
+          "requests": 6,
+          "firstPageItems": 0,
+          "firstOrderedRequests": 2,
+          "preparationResponses": 1,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 1454,
+            "EpisodeVisibilityQueries": 14,
+            "EpisodeRows": 4200
+          },
+          "titles": 122
+        },
+        {
+          "rawFirstPageMs": 30.668961999936073,
+          "firstOrderedPageMs": 70.11107799996807,
+          "completePaginationMs": 161.70479300001261,
+          "requests": 6,
+          "firstPageItems": 0,
+          "firstOrderedRequests": 2,
+          "preparationResponses": 1,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 1454,
+            "EpisodeVisibilityQueries": 14,
+            "EpisodeRows": 4200
+          },
+          "titles": 122
+        },
+        {
+          "rawFirstPageMs": 35.786352999934934,
+          "firstOrderedPageMs": 66.61440499999571,
+          "completePaginationMs": 162.62134499993408,
+          "requests": 6,
+          "firstPageItems": 0,
+          "firstOrderedRequests": 2,
+          "preparationResponses": 1,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 1454,
+            "EpisodeVisibilityQueries": 14,
+            "EpisodeRows": 4200
+          },
+          "titles": 122
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 66.61440499999571,
+      "completePaginationMedianMs": 161.70479300001261
+    },
+    "v073-single-recent": {
+      "samples": [
+        {
+          "rawFirstPageMs": 13.354134999985945,
+          "firstOrderedPageMs": 13.354134999985945,
+          "completePaginationMs": 62.80318000005991,
+          "requests": 5,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 363,
+            "EpisodeVisibilityQueries": 2,
+            "EpisodeRows": 600
+          },
+          "titles": 121
+        },
+        {
+          "rawFirstPageMs": 13.15078100003575,
+          "firstOrderedPageMs": 13.15078100003575,
+          "completePaginationMs": 62.50428200007718,
+          "requests": 5,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 363,
+            "EpisodeVisibilityQueries": 2,
+            "EpisodeRows": 600
+          },
+          "titles": 121
+        },
+        {
+          "rawFirstPageMs": 13.106065999977545,
+          "firstOrderedPageMs": 13.106065999977545,
+          "completePaginationMs": 64.03449100002945,
+          "requests": 5,
+          "firstPageItems": 25,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 363,
+            "EpisodeVisibilityQueries": 2,
+            "EpisodeRows": 600
+          },
+          "titles": 121
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 13.15078100003575,
+      "completePaginationMedianMs": 62.80318000005991
+    },
+    "v073-few-watchlists": {
+      "samples": [
+        {
+          "rawFirstPageMs": 16.07948799994574,
+          "firstOrderedPageMs": 16.07948799994574,
+          "completePaginationMs": 16.097794999950565,
+          "requests": 1,
+          "firstPageItems": 3,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 15,
+            "EpisodeVisibilityQueries": 3,
+            "EpisodeRows": 900
+          },
+          "titles": 3
+        },
+        {
+          "rawFirstPageMs": 16.081520000057026,
+          "firstOrderedPageMs": 16.081520000057026,
+          "completePaginationMs": 16.097854999998162,
+          "requests": 1,
+          "firstPageItems": 3,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 15,
+            "EpisodeVisibilityQueries": 3,
+            "EpisodeRows": 900
+          },
+          "titles": 3
+        },
+        {
+          "rawFirstPageMs": 18.394972000010057,
+          "firstOrderedPageMs": 18.394972000010057,
+          "completePaginationMs": 18.409883999993326,
+          "requests": 1,
+          "firstPageItems": 3,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 15,
+            "EpisodeVisibilityQueries": 3,
+            "EpisodeRows": 900
+          },
+          "titles": 3
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 16.081520000057026,
+      "completePaginationMedianMs": 16.097854999998162
+    },
+    "v073-few-search": {
+      "samples": [
+        {
+          "rawFirstPageMs": 20.428113000093617,
+          "firstOrderedPageMs": 20.428113000093617,
+          "completePaginationMs": 20.440562000089812,
+          "requests": 1,
+          "firstPageItems": 1,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 12,
+            "EpisodeVisibilityQueries": 0,
+            "EpisodeRows": 0
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 19.732567000005474,
+          "firstOrderedPageMs": 19.732567000005474,
+          "completePaginationMs": 19.748951999986275,
+          "requests": 1,
+          "firstPageItems": 1,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 12,
+            "EpisodeVisibilityQueries": 0,
+            "EpisodeRows": 0
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 19.605650000016794,
+          "firstOrderedPageMs": 19.605650000016794,
+          "completePaginationMs": 19.620913000039764,
+          "requests": 1,
+          "firstPageItems": 1,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 12,
+            "EpisodeVisibilityQueries": 0,
+            "EpisodeRows": 0
+          },
+          "titles": 1
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 19.732567000005474,
+      "completePaginationMedianMs": 19.748951999986275
+    },
+    "v073-few-watching": {
+      "samples": [
+        {
+          "rawFirstPageMs": 27.328368999974373,
+          "firstOrderedPageMs": 27.328368999974373,
+          "completePaginationMs": 27.342931000021053,
+          "requests": 1,
+          "firstPageItems": 1,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 13,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 27.52257700001337,
+          "firstOrderedPageMs": 27.52257700001337,
+          "completePaginationMs": 27.5350059999937,
+          "requests": 1,
+          "firstPageItems": 1,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 13,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 26.980068999932882,
+          "firstOrderedPageMs": 26.980068999932882,
+          "completePaginationMs": 27.00017899996965,
+          "requests": 1,
+          "firstPageItems": 1,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 13,
+            "EpisodeVisibilityQueries": 7,
+            "EpisodeRows": 2100
+          },
+          "titles": 1
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 27.328368999974373,
+      "completePaginationMedianMs": 27.342931000021053
+    },
+    "v073-live": {
+      "samples": [
+        {
+          "rawFirstPageMs": 10.88498800004345,
+          "firstOrderedPageMs": 10.88498800004345,
+          "completePaginationMs": 10.911967999959415,
+          "requests": 1,
+          "firstPageItems": 1,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 2,
+            "EpisodeVisibilityQueries": 0,
+            "EpisodeRows": 0
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 10.819228999935149,
+          "firstOrderedPageMs": 10.819228999935149,
+          "completePaginationMs": 10.828592999928333,
+          "requests": 1,
+          "firstPageItems": 1,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 2,
+            "EpisodeVisibilityQueries": 0,
+            "EpisodeRows": 0
+          },
+          "titles": 1
+        },
+        {
+          "rawFirstPageMs": 10.963215999936438,
+          "firstOrderedPageMs": 10.963215999936438,
+          "completePaginationMs": 10.975073999929919,
+          "requests": 1,
+          "firstPageItems": 1,
+          "firstOrderedRequests": 1,
+          "preparationResponses": 0,
+          "emptyPreparedBoundaries": 0,
+          "work": {
+            "CandidatesExamined": 2,
+            "EpisodeVisibilityQueries": 0,
+            "EpisodeRows": 0
+          },
+          "titles": 1
+        }
+      ],
+      "workerPlaybackBatchesDelta": 0,
+      "firstPageMedianMs": 10.88498800004345,
+      "completePaginationMedianMs": 10.911967999959415
+    }
+  },
+  "v060SettleMs": 265817.892236,
+  "v073SettleMs": 264810.163013,
+  "nativePermissionRevocation": "PASS",
+  "result": "PASS"
+}

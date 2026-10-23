@@ -39,7 +39,7 @@ With enforcement enabled:
 - **Protected** direct HTTP deletions without valid approval are refused (normally HTTP `409 ProtectionRequired`).
 - In supported Jellyfin Web, an administrator may explicitly **Delete Anyway** after viewing the warning. This creates a short-lived, single-use approval and continues the native DELETE once. Cancel performs no DELETE.
 - Jellyfin's native deletion permissions are never bypassed. Ordinary users cannot approve protected deletions; API keys and unsupported credential forms are not approval identities.
-- The guard covers only the verified `LibraryController.DeleteItem` and `DeleteItems` HTTP actions on explicitly supported Jellyfin 12.2.0 and 12.3.0 hosts, **not** filesystem removal, Sonarr/Radarr/Tdarr changes, internal cleanup or arbitrary other APIs.
+- The guard covers only the verified `LibraryController.DeleteItem` and `DeleteItems` HTTP actions on explicitly supported hosts (v0.7.3: Jellyfin 12.2.0 and 12.3.0; published v0.7.2: 12.2.0), **not** filesystem removal, Sonarr/Radarr/Tdarr changes, internal cleanup or arbitrary other APIs.
 
 Unsupported native/TV/mobile clients may not implement the approval flow and may therefore be unable to delete protected media. Jellyfin Web's generic deletion error after clicking WatchGuard **Cancel** is a known upstream UI limitation; Cancel still issues **zero** DELETE requests.
 
