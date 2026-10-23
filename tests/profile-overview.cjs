@@ -62,7 +62,7 @@ async function call(route, method='GET', body, token=fixture.token) {
     location.hash='/home?watchguard=watchlists&owner='+owner;
    }, i<5?'all':'mine');
    await page.locator('.watchguard-card').first().waitFor();
-   await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.disabled===false);
+   await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.matches(':not(:disabled):not([aria-disabled="true"])'));
    results.client.push({owner:i<5?'all':'mine',...await page.evaluate(()=>{window.wgTimingObserver.disconnect();window.wgCardsObserver.disconnect();const t=window.wgTiming;return {completeMs:performance.now()-t.start,firstCardMs:t.firstCard-t.start,clientInsertionAfterResponseMs:t.firstCard-Math.min(...t.responses.filter(r=>/\/Watchlists?$/.test(r.route)).map(r=>r.responseEnd)),responses:t.responses.map(r=>r.route)};})});
   }
  } finally {await browser.close();}
