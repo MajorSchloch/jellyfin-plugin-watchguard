@@ -6,7 +6,7 @@ from pathlib import Path
 def run(call,restart,docker,name,root,plugins,token,artifact):
     assert 'watchguard-poc-' in str(root)
     public=root/'experimental-catalog';public.mkdir()
-    archive=public/'Jellyfin.Plugin.WatchGuard-v0.7.1.zip'
+    archive=public/'Jellyfin.Plugin.WatchGuard-v0.7.2.zip'
     shutil.copyfile(Path(__file__).resolve().parents[1]/'artifacts'/archive.name,archive)
     with zipfile.ZipFile(archive) as z:
         assert z.namelist()==['Jellyfin.Plugin.WatchGuard.dll','LICENSE']
@@ -24,7 +24,7 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
     base='http://host.docker.internal:'+str(server.server_port)
     guid='a3c6bc84-783d-4ba8-a0db-89bfb83ab486'
     manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable PoC','category':'General','description':'Release candidate, local only','overview':'Fixture',
-        'versions':[{'version':'0.7.1.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive.read_bytes()).hexdigest(),'sourceUrl':base+'/'+archive.name,'timestamp':'2026-10-12T00:00:00Z','changelog':'Local release candidate, not published'}]}]
+        'versions':[{'version':'0.7.2.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive.read_bytes()).hexdigest(),'sourceUrl':base+'/'+archive.name,'timestamp':'2026-10-12T00:00:00Z','changelog':'Local release candidate, not published'}]}]
     baseline=Path(__file__).resolve().parents[1]/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip'
     assert hashlib.sha256(baseline.read_bytes()).hexdigest()=='439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d'
     shutil.copyfile(baseline,public/baseline.name)
@@ -87,12 +87,12 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
         shutil.move(str(plugins/'WatchGuard'),str(root/'retired-preinstall'))
         restart();call('/WatchGuard/Watchlist',token=token,expected=404)
         call('/Repositories','POST',[{'Name':'Standalone disposable fixture','Url':base+'/manifest.json','Enabled':True}],token,expected=204)
-        query=urlencode({'assemblyGuid':guid,'version':'0.7.1.0','repositoryUrl':base+'/manifest.json'})
+        query=urlencode({'assemblyGuid':guid,'version':'0.7.2.0','repositoryUrl':base+'/manifest.json'})
         install(query)
         restart()
         assert 'watchguard-standalone-loader' in call('/web/index.html',raw=True)
         assert not any('JavaScriptInjector' in p.name for p in plugins.rglob('*.dll'))
-        assert (plugins/'WatchGuard_0.7.1.0/meta.json').exists()
+        assert (plugins/'WatchGuard_0.7.2.0/meta.json').exists()
         # Seed both schema-1 stores, then use native uninstall/install for rollback and upgrade.
         movie=call('/Items?Recursive=true&IncludeItemTypes=Movie&Limit=1',token=token)['Items'][0]['Id']
         call('/WatchGuard/Watchlist/'+movie,'PUT',token=token,expected=204)
@@ -100,7 +100,7 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
         call('/WatchGuard/Preferences','PUT',prefs,token)
         paths=[plugins/'Jellyfin.Plugin.WatchGuard'/f for f in ['watchlists.json','preferences.json','watchlist-dates.json']]+[plugins/'configurations/Jellyfin.Plugin.WatchGuard.xml']
         saved={p:p.read_bytes() for p in paths}
-        for previous,version in [('0.7.1.0','0.5.2.0'),('0.5.2.0','0.4.0.0'),('0.4.0.0','0.4.1.0'),('0.4.1.0','0.4.2.0'),('0.4.2.0','0.4.3.0'),('0.4.3.0','0.4.4.0'),('0.4.4.0','0.4.5.0'),('0.4.5.0','0.4.6.0'),('0.4.6.0','0.4.7.0'),('0.4.7.0','0.4.8.0'),('0.4.8.0','0.4.9.0'),('0.4.9.0','0.4.10.0'),('0.4.10.0','0.7.1.0')]:
+        for previous,version in [('0.7.2.0','0.5.2.0'),('0.5.2.0','0.4.0.0'),('0.4.0.0','0.4.1.0'),('0.4.1.0','0.4.2.0'),('0.4.2.0','0.4.3.0'),('0.4.3.0','0.4.4.0'),('0.4.4.0','0.4.5.0'),('0.4.5.0','0.4.6.0'),('0.4.6.0','0.4.7.0'),('0.4.7.0','0.4.8.0'),('0.4.8.0','0.4.9.0'),('0.4.9.0','0.4.10.0'),('0.4.10.0','0.7.2.0')]:
             call('/Plugins/'+guid+'/'+previous,'DELETE',token=token,expected=204)
             # Native uninstall may leave a versioned folder still discoverable.
             # Enforce a clean fixture boundary while the container is stopped,
@@ -141,7 +141,7 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
                 assert unexpected, 'Native status mismatched without an identifiable stale version folder'
                 docker('stop',name)
                 for stale in unexpected:
-                    assert stale.name in ('WatchGuard_0.4.0.0','WatchGuard_0.4.1.0','WatchGuard_0.4.2.0','WatchGuard_0.4.3.0','WatchGuard_0.4.4.0','WatchGuard_0.4.5.0','WatchGuard_0.4.6.0','WatchGuard_0.4.7.0','WatchGuard_0.4.8.0','WatchGuard_0.4.9.0','WatchGuard_0.4.10.0','WatchGuard_0.5.2.0','WatchGuard_0.7.1.0')
+                    assert stale.name in ('WatchGuard_0.4.0.0','WatchGuard_0.4.1.0','WatchGuard_0.4.2.0','WatchGuard_0.4.3.0','WatchGuard_0.4.4.0','WatchGuard_0.4.5.0','WatchGuard_0.4.6.0','WatchGuard_0.4.7.0','WatchGuard_0.4.8.0','WatchGuard_0.4.9.0','WatchGuard_0.4.10.0','WatchGuard_0.5.2.0','WatchGuard_0.7.2.0')
                     destination=root/('retired-stale-'+stale.name)
                     assert not destination.exists()
                     shutil.move(str(stale),str(destination))
@@ -167,15 +167,15 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
                 assert all(p.read_bytes()==original for p,original in saved.items())
         assert call('/WatchGuard/Watchlist',token=token)[0]['AddedAtUtc'] is None
         # Normal catalog update: leave the native versioned v0.4.8 folder in place.
-        # The installer/PluginManager must select v0.7.1 without manual DLL retirement.
-        call('/Plugins/'+guid+'/0.7.1.0','DELETE',token=token,expected=204);restart()
+        # The installer/PluginManager must select v0.7.2 without manual DLL retirement.
+        call('/Plugins/'+guid+'/0.7.2.0','DELETE',token=token,expected=204);restart()
         query=urlencode({'assemblyGuid':guid,'version':'0.4.8.0','repositoryUrl':base+'/manifest.json'})
         install(query);restart()
         old_config=call('/Plugins/'+guid+'/Configuration',token=token)
         assert 'EnableServerEnforcement' not in old_config
         call('/Plugins/'+guid+'/Configuration','POST',old_config,token,expected=204)
         json_before={p:p.read_bytes() for p in paths if p.suffix=='.json'}
-        query=urlencode({'assemblyGuid':guid,'version':'0.7.1.0','repositoryUrl':base+'/manifest.json'})
+        query=urlencode({'assemblyGuid':guid,'version':'0.7.2.0','repositoryUrl':base+'/manifest.json'})
         install(query);restart()
         current_config=call('/Plugins/'+guid+'/Configuration',token=token)
         assert not current_config['EnableServerEnforcement']
@@ -184,23 +184,23 @@ def run(call,restart,docker,name,root,plugins,token,artifact):
         caps=call('/WatchGuard/ServerApproval/Capabilities',token=token)
         assert caps['State']=='Disabled' and caps['AttachedActions']==2 and not caps['RestartRequired']
         active=[p for p in call('/Plugins',token=token) if p['Id'].replace('-','')==guid.replace('-','') and p['Status']=='Active']
-        assert len(active)==1 and active[0]['Version']=='0.7.1.0'
+        assert len(active)==1 and active[0]['Version']=='0.7.2.0'
         # Retire the old version through Jellyfin, so the subsequent uninstall test
         # does not intentionally reactivate the native rollback alternative.
         if any(p['Version']=='0.4.8.0' and p['Id'].replace('-','')==guid.replace('-','') for p in call('/Plugins',token=token)):
             call('/Plugins/'+guid+'/0.4.8.0','DELETE',token=token,expected=204);restart()
-        print('Normal native v0.4.8 -> v0.7.1 catalog update passed without manual assembly operations; existing XML values and JSON preserved; enforcement off.',flush=True)
+        print('Normal native v0.4.8 -> v0.7.2 catalog update passed without manual assembly operations; existing XML values and JSON preserved; enforcement off.',flush=True)
         assert call('/WatchGuard/Watchlist',token=token)[0]['AddedAtUtc'] is None
         call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
         call('/WatchGuard/Watchlist/'+movie,'PUT',token=token,expected=204)
         assert call('/WatchGuard/Watchlist',token=token)[0]['AddedAtUtc'] is not None
         call('/WatchGuard/Watchlist/'+movie,'DELETE',token=token,expected=204)
         call('/WatchGuard/Preferences','DELETE',token=token)
-        report={'result':'PASS','baselineSha256':hashlib.sha256(baseline.read_bytes()).hexdigest(),'publishedV052Sha256':hashlib.sha256(baseline052.read_bytes()).hexdigest(),'roundTrip':'0.7.1 -> 0.5.2 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5 -> 0.4.6 -> 0.4.7 -> 0.4.8 -> 0.4.9 -> 0.4.10 -> 0.7.1','roundTripStoresAndConfigBytesPreserved':True,'normalCatalogUpgradeWithoutManualAssemblyOperations':True,'existingConfigValuesPreserved':True,'noInjector':True,'singleActiveAssembly':True}
+        report={'result':'PASS','baselineSha256':hashlib.sha256(baseline.read_bytes()).hexdigest(),'publishedV052Sha256':hashlib.sha256(baseline052.read_bytes()).hexdigest(),'roundTrip':'0.7.2 -> 0.5.2 -> 0.4.0 -> 0.4.1 -> 0.4.2 -> 0.4.3 -> 0.4.4 -> 0.4.5 -> 0.4.6 -> 0.4.7 -> 0.4.8 -> 0.4.9 -> 0.4.10 -> 0.7.2','roundTripStoresAndConfigBytesPreserved':True,'normalCatalogUpgradeWithoutManualAssemblyOperations':True,'existingConfigValuesPreserved':True,'noInjector':True,'singleActiveAssembly':True}
         (Path(__file__).resolve().parents[1]/'artifacts/catalog-upgrade-v049.json').write_text(json.dumps(report,indent=2)+'\n')
         print('v0.4.0 standalone catalog rollback/upgrade preserves both stores and configuration.',flush=True)
         print('Standalone native catalog install: fresh discovery, WatchGuard DLL only, restart loaded loader without Injector.',flush=True)
-        return plugins/'WatchGuard_0.7.1.0'
+        return plugins/'WatchGuard_0.7.2.0'
     finally:
         evidence=Path(__file__).resolve().parents[1]/'artifacts/testing'/name
         evidence.mkdir(parents=True,exist_ok=True)

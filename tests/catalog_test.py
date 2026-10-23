@@ -31,12 +31,12 @@ class CatalogTests(unittest.TestCase):
             with zipfile.ZipFile(path,'w') as z:z.writestr('OtherPlugin.dll','not allowed')
             with self.assertRaises(ValueError):catalog.inspect_zip(path)
     def test_release_archive(self):
-        path=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.7.1.zip')
+        path=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.7.2.zip')
         _,sha=catalog.inspect_zip(path)
         self.assertEqual(path.with_suffix('.zip.sha256').read_text().split(),[sha,path.name])
 
     def test_published_history_is_preserved_and_versions_are_immutable(self):
-        archive=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.7.1.zip')
+        archive=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.7.2.zip')
         published=json.loads(Path('manifest.json').read_text())
         self.assertTrue(any(v['version']=='0.4.1.0' for v in published[0]['versions']))
         # Exercise a synthetic future release so publication of the current

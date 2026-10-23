@@ -270,10 +270,13 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.waitForFunction(()=>document.querySelectorAll('.watchguard-card').length===6);
         await selectOwner('mine');
         await page.waitForFunction(()=>document.querySelectorAll('.watchguard-card').length===2);
+        const latestOwnerView=page.url();
         await page.goBack();
-        await page.waitForFunction(()=>document.querySelectorAll('.watchguard-card').length===6);
+        if(fixture.activityIndex) await myList().waitFor({state:'detached'});
+        else await page.waitForFunction(()=>document.querySelectorAll('.watchguard-card').length===6);
         await page.goForward();
         await page.waitForFunction(()=>document.querySelectorAll('.watchguard-card').length===2);
+        if(fixture.activityIndex) assert.equal(page.url(),latestOwnerView,'Forward restores the latest owner view');
         await page.reload(); await myList().getByRole('link',{name:'PoC Series Detail',exact:true}).waitFor();
         await page.screenshot({path:path.join(output,'my-watchlist.png')});
         const failedRemovalRequests = [];
@@ -568,8 +571,12 @@ const report = { target: 'Jellyfin 12.2', paths: [], diagnostics: [], deletes: [
         await page.locator('.watchguard-filter').getByRole('button',{name:'Reset to Defaults'}).click();
         await page.waitForFunction(()=>!document.querySelector('.watchguard-filter input[value="watched"]').checked);
         await page.locator('.watchguard-filter').getByRole('button',{name:'Reset to Defaults'}).press('Escape');
-        await page.goBack(); await myList().getByRole('link',{name:'PoC Zero',exact:true}).waitFor();
+        const resetView=page.url();
+        await page.goBack();
+        if(fixture.activityIndex) await myList().waitFor({state:'detached'});
+        else await myList().getByRole('link',{name:'PoC Zero',exact:true}).waitFor();
         await page.goForward(); await page.waitForFunction(()=>!document.querySelector('.watchguard-filter input[value="watched"]').checked);
+        if(fixture.activityIndex) assert.equal(page.url(),resetView,'Forward restores Reset defaults, not an earlier filter');
         await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.disabled===false);
         assert.equal(await myList().getByRole('link',{name:'PoC Zero',exact:true}).count(),0);
         await selectOwner('all'); // Reset now restores the complete personal view, including My list.
