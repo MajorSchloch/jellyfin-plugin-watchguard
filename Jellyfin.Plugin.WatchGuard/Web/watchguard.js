@@ -1154,7 +1154,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     if (root.WatchGuardPoc) return;
     let diagnostic = /*WATCHGUARD_DIAGNOSTICS*/false;
     let identity, panel, detailButton, signature, membership, epoch = 0;
-    let navigation, pagePanel, pageSignature, pageLifetime;
+    let navigation, navigationRow, pagePanel, pageSignature, pageLifetime;
+    function clearNavigation() { (navigationRow || navigation)?.remove(); navigation = navigationRow = null; }
     let lifetime = new AbortController();
     function syncIdentity() {
         const api = root.ApiClient;
@@ -1162,7 +1163,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         if (!identity || next.some((v, i) => v !== identity[i])) {
             lifetime.abort(); lifetime = new AbortController();
             panel?.remove(); detailButton?.remove(); panel = null; signature = null; epoch++;
-            navigation?.remove(); navigation = null; closePage();
+            clearNavigation(); closePage();
             identity = next;
             membership = next[1] && next[2] ? createMembership(api, lifetime.signal, () => { signature = null; updateDetail(); }) : null;
             document.querySelectorAll('.watchguard-native-action').forEach(e => e.remove());
@@ -1193,7 +1194,14 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-nav {display:inline-flex;align-items:center;gap:.35em;white-space:nowrap;text-decoration:none;padding:.5em .7em;color:inherit;border-radius:4px;box-sizing:border-box}
         .watchguard-nav:hover {background:rgba(128,128,128,.2)}
         .watchguard-nav[aria-current="page"] {color:#00a4dc}
-        .watchguard-nav .material-icons {font-size:1.25em}
+        .watchguard-nav:not(.watchguard-nav-legacy) .material-icons {font-size:1.25em}
+        .watchguard-nav:focus-visible {outline:2px solid currentColor;outline-offset:-2px}
+        .watchguard-nav-row {display:flex;list-style:none;padding:0;margin:0;min-width:0}
+        .watchguard-nav-modern {display:flex;flex:1;min-width:0;gap:0;border-radius:0;text-align:start}
+        .watchguard-nav-modern .watchguard-nav-icon {display:flex;flex-shrink:0;align-items:center}
+        .watchguard-nav-modern .watchguard-nav-text {flex:1;min-width:0}
+        .watchguard-nav-modern[aria-current="page"] {color:inherit;background:var(--watchguard-nav-selected,rgba(0,164,220,.16))}
+        .watchguard-nav-legacy {width:100%;gap:0;border-radius:0}
         body.watchguard-page-open .skinBody {display:none!important}
         .watchguard-page {position:fixed;inset:var(--watchguard-top,64px) 0 0;overflow:auto;background:var(--jf-palette-background-default,#101010);z-index:10;padding-bottom:5em;box-sizing:border-box}
         .watchguard-page [hidden] {display:none!important}
@@ -1380,19 +1388,59 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         const hash = root.location.hash;
         // Never add a user-content entry to dashboard, login, video or setup screens.
         const eligible = api && /^#\/(?:home|details|movies|tv|list|search|music|livetv)(?:[/?]|$)/.test(hash);
-        if (!eligible) { navigation?.remove(); navigation = null; closePage(); return; }
+        if (!eligible) { clearNavigation(); closePage(); return; }
         const visible = element => element && element.getClientRects().length > 0;
-        const favorite = Array.from(document.querySelectorAll('a[href="#/home?tab=1"]')).find(visible);
         const legacy = document.querySelector('.skinHeader');
-        const toolbar = favorite?.parentElement || (visible(legacy) ? legacy.querySelector('.headerLeft') : document.querySelector('header .MuiToolbar-root'));
-        if (toolbar && (!navigation?.isConnected || navigation.parentElement !== toolbar)) {
-            navigation?.remove(); navigation = document.createElement('a');
-            navigation.className = (favorite?.className || 'emby-button button-flat') + ' watchguard-nav';
+        const modernDrawer = Array.from(document.querySelectorAll('.MuiDrawer-root .MuiDrawer-paper')).find(visible);
+        const modernFavorite = modernDrawer?.querySelector('a[href="#/home?tab=1"]');
+        const modernRow = modernFavorite?.closest('li');
+        const legacyHome = document.querySelector('.mainDrawer.drawer-open .scrollContainer > a[href="#/home"]');
+        // A MUI favourite belongs to a list item, not the list. Own a sibling
+        // row; never append a second link inside React's existing row. Legacy
+        // navigation uses direct anchors and delegates drawer closing itself.
+        const drawer = modernRow?.parentElement?.tagName === 'UL' ? 'modern' : legacyHome ? 'legacy' : null;
+        const headerFavorite = Array.from(document.querySelectorAll('header a[href="#/home?tab=1"]')).find(visible);
+        const container = drawer === 'modern' ? modernRow.parentElement : drawer === 'legacy' ? legacyHome.parentElement :
+            (headerFavorite?.parentElement || (visible(legacy) ? legacy.querySelector('.headerLeft') : document.querySelector('header .MuiToolbar-root')));
+        const anchor = drawer === 'modern' ? modernRow : drawer === 'legacy' ? legacyHome : null;
+        const kind = drawer || 'header';
+        if (container && (!navigation?.isConnected || (navigationRow || navigation).parentElement !== container || navigation.dataset.layout !== kind)) {
+            clearNavigation(); navigation = document.createElement('a');
+            navigation.className = 'watchguard-nav ' + (drawer === 'legacy' ? 'navMenuOption emby-button watchguard-nav-legacy' : drawer === 'modern' ? 'watchguard-nav-modern' : 'emby-button button-flat');
+            navigation.dataset.layout = kind;
             navigation.href = '#/home?watchguard=watchlists';
-            const icon = document.createElement('span'); icon.className = 'material-icons'; icon.textContent = 'bookmarks'; icon.setAttribute('aria-hidden', 'true');
-            const text = document.createElement('span'); text.textContent = 'Watchlists'; navigation.append(icon, text);
-            // One owned link only: never replace or reorder Jellyfin's React nodes or legacy tabs.
-            toolbar.append(navigation);
+            const icon = document.createElement('span');
+            icon.className = drawer === 'legacy' ? 'material-icons navMenuOptionIcon bookmarks' : 'material-icons watchguard-nav-icon';
+            icon.textContent = drawer === 'legacy' ? '' : 'bookmarks'; icon.setAttribute('aria-hidden', 'true');
+            const text = document.createElement('span'); text.className = drawer === 'legacy' ? 'navMenuOptionText' : 'watchguard-nav-text';
+            text.textContent = 'Watchlists'; navigation.append(icon, text);
+            if (drawer === 'modern') {
+                navigationRow = document.createElement('li'); navigationRow.className = 'watchguard-nav-row'; navigationRow.append(navigation);
+                // Native click delegation closes the drawer. Let Enter produce that
+                // single click: its ancestor also handles keydown and otherwise closes
+                // early, restoring focus to the opener before keyboard activation ends.
+                navigation.addEventListener('keydown', event => { if (event.key === 'Enter') event.stopPropagation(); });
+            }
+            if (anchor) anchor.after(navigationRow || navigation); else container.append(navigation);
+        }
+        if (drawer === 'modern' && navigation) {
+            // Read presentation from stable semantic slots, not generated CSS class
+            // names or guessed pixel offsets. Theme, text size and RTL remain native.
+            const copy = (target, source, properties) => {
+                if (!source) return;
+                const native = root.getComputedStyle(source);
+                for (const property of properties) if (target.style[property] !== native[property]) target.style[property] = native[property];
+            };
+            copy(navigation, modernFavorite, ['padding', 'font', 'color']);
+            copy(navigation.children[0], modernFavorite.querySelector('.MuiListItemIcon-root'), ['minWidth', 'color']);
+            copy(navigation.children[0], modernFavorite.querySelector('.MuiSvgIcon-root'), ['fontSize']);
+            copy(navigation.children[1], modernFavorite.querySelector('.MuiListItemText-root'), ['margin']);
+            copy(navigation.children[1], modernFavorite.querySelector('.MuiListItemText-primary'), ['font']);
+            const selected = modernDrawer.querySelector('a.Mui-selected');
+            if (selected) {
+                const color = root.getComputedStyle(selected).backgroundColor;
+                if (navigation.style.getPropertyValue('--watchguard-nav-selected') !== color) navigation.style.setProperty('--watchguard-nav-selected', color);
+            }
         }
         const params = new URLSearchParams(hash.split('?')[1] || '');
         const open = /^#\/home(?:\?|$)/.test(hash) && params.get('watchguard') === 'watchlists';

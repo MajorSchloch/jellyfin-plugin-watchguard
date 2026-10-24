@@ -1,0 +1,35 @@
+{
+  "serverVersion": "12.3.0",
+  "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+  "result": "PASS",
+  "initialPopulation": {
+    "result": "PASS",
+    "initialTitles": 3,
+    "loadedTitles": 23,
+    "elapsedMs": 273112
+  },
+  "watchedPolling": "PASS",
+  "playbackPolling": "PASS",
+  "checkRecovery": {
+    "result": "PASS",
+    "unchanged": true,
+    "changed": true,
+    "injectedStatus": 503,
+    "retainedLiveLabel": true
+  },
+  "deeperView": {
+    "result": "PASS",
+    "titles": 47,
+    "scroll": 400,
+    "orderAndPosterPreserved": true,
+    "retainedLiveLabel": true
+  },
+  "presentation": {
+    "result": "PASS",
+    "users": 7,
+    "longName": true,
+    "datesKeyboard": true,
+    "retainedError": true,
+    "additionalPresentationRequests": 0
+  }
+}
