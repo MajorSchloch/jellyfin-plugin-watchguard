@@ -1,0 +1,19 @@
+{
+  "publishedVersion": "0.7.4",
+  "publishedAt": "2026-10-24T09:22:11Z",
+  "publishedZipSha256": "47c93012c620bc2a85fe75992e26e0614a733218c5bdfc2edf9d7429b716feab",
+  "catalogCommit": "fe24bc1",
+  "interimPrBuild": {
+    "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40083323973",
+    "result": "FAIL",
+    "reason": "New v0.7.4 catalog entry merged into the PR check while current-release docs still reported v0.7.3; release-v074.md was absent."
+  },
+  "resolvedBy": "289af755cd0b7af42636333a5f95871488e724c5",
+  "subsequentBuilds": [
+    "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40083555866",
+    "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40083551145"
+  ],
+  "subsequentBuildResult": "PASS",
+  "publishedAssetsChanged": false,
+  "catalogMatchesMaster": true
+}

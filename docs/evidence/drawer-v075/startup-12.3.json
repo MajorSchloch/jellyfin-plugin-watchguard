@@ -1,0 +1,459 @@
+{
+  "serverVersion": "12.3.0",
+  "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+  "baseline": false,
+  "cases": [
+    {
+      "name": "desktop-legacy-1280-direct-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 134,
+      "homeFrames": 0,
+      "loadingFrames": 104,
+      "panelFrames": 30,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 64.30000000004657,
+      "firstPanelMs": 2383.70000000007,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-direct-script.js",
+      "beforeBootstrap": true,
+      "frames": 191,
+      "homeFrames": 0,
+      "loadingFrames": 165,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 33,
+      "firstPanelMs": 3323.3000000000466,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-reload-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 132,
+      "homeFrames": 0,
+      "loadingFrames": 106,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 49.699999999953434,
+      "firstPanelMs": 2352.6999999999534,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-reload-script.js",
+      "beforeBootstrap": true,
+      "frames": 191,
+      "homeFrames": 0,
+      "loadingFrames": 165,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 55.300000000046566,
+      "firstPanelMs": 3348.3000000000466,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-hard-reload-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 136,
+      "homeFrames": 0,
+      "loadingFrames": 110,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 55.20000000006985,
+      "firstPanelMs": 2356.5,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-hard-reload-script.js",
+      "beforeBootstrap": true,
+      "frames": 188,
+      "homeFrames": 0,
+      "loadingFrames": 162,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 49.79999999993015,
+      "firstPanelMs": 3263,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-direct-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 136,
+      "homeFrames": 0,
+      "loadingFrames": 110,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 46.800000000046566,
+      "firstPanelMs": 2339,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-direct-script.js",
+      "beforeBootstrap": true,
+      "frames": 194,
+      "homeFrames": 0,
+      "loadingFrames": 169,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 30.29999999993015,
+      "firstPanelMs": 3314.0999999999767,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-reload-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 137,
+      "homeFrames": 0,
+      "loadingFrames": 111,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 54.59999999997672,
+      "firstPanelMs": 2360.29999999993,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-reload-script.js",
+      "beforeBootstrap": true,
+      "frames": 189,
+      "homeFrames": 0,
+      "loadingFrames": 163,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 52,
+      "firstPanelMs": 3263.5999999999767,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-hard-reload-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 136,
+      "homeFrames": 0,
+      "loadingFrames": 110,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 52.39999999990687,
+      "firstPanelMs": 2344.399999999907,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-hard-reload-script.js",
+      "beforeBootstrap": true,
+      "frames": 188,
+      "homeFrames": 0,
+      "loadingFrames": 163,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 48.300000000046566,
+      "firstPanelMs": 3254.0999999999767,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-direct-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 145,
+      "homeFrames": 0,
+      "loadingFrames": 119,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 30.900000000023283,
+      "firstPanelMs": 2340.5999999999767,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-direct-script.js",
+      "beforeBootstrap": true,
+      "frames": 205,
+      "homeFrames": 0,
+      "loadingFrames": 179,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 34,
+      "firstPanelMs": 3384.4000000000233,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-reload-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 144,
+      "homeFrames": 0,
+      "loadingFrames": 119,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 49.59999999997672,
+      "firstPanelMs": 2351,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-reload-script.js",
+      "beforeBootstrap": true,
+      "frames": 202,
+      "homeFrames": 0,
+      "loadingFrames": 177,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 56.10000000009313,
+      "firstPanelMs": 3312.4000000000233,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-hard-reload-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 142,
+      "homeFrames": 0,
+      "loadingFrames": 117,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 49.5,
+      "firstPanelMs": 2337.29999999993,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-hard-reload-script.js",
+      "beforeBootstrap": true,
+      "frames": 207,
+      "homeFrames": 0,
+      "loadingFrames": 181,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 37.699999999953434,
+      "firstPanelMs": 3351,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-direct-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 144,
+      "homeFrames": 0,
+      "loadingFrames": 119,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 52.59999999997672,
+      "firstPanelMs": 2378.1999999999534,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-direct-script.js",
+      "beforeBootstrap": true,
+      "frames": 199,
+      "homeFrames": 0,
+      "loadingFrames": 174,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 45.300000000046566,
+      "firstPanelMs": 3319.70000000007,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-reload-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 146,
+      "homeFrames": 0,
+      "loadingFrames": 120,
+      "panelFrames": 26,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 48.90000000002328,
+      "firstPanelMs": 2350.9000000000233,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-reload-script.js",
+      "beforeBootstrap": true,
+      "frames": 204,
+      "homeFrames": 0,
+      "loadingFrames": 179,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 49.199999999953434,
+      "firstPanelMs": 3340.5,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-hard-reload-bootstrap.js",
+      "beforeBootstrap": true,
+      "frames": 145,
+      "homeFrames": 0,
+      "loadingFrames": 120,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 31.5,
+      "firstPanelMs": 2340.20000000007,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-hard-reload-script.js",
+      "beforeBootstrap": true,
+      "frames": 206,
+      "homeFrames": 0,
+      "loadingFrames": 181,
+      "panelFrames": 25,
+      "replacements": 0,
+      "firstHomeMs": null,
+      "firstLoadingMs": 30.5,
+      "firstPanelMs": 3341.1999999999534,
+      "privateRequests": 1,
+      "maxConcurrentQueries": 1
+    }
+  ],
+  "refresh": [
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "samePanel": true,
+      "disclosure": true,
+      "focus": true,
+      "homeFrames": 0,
+      "history": true,
+      "handoff": false
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 390,
+      "samePanel": true,
+      "disclosure": true,
+      "focus": true,
+      "homeFrames": 0,
+      "history": true,
+      "handoff": false
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "samePanel": true,
+      "disclosure": true,
+      "focus": true,
+      "homeFrames": 0,
+      "history": true,
+      "handoff": false
+    },
+    {
+      "layout": "modern",
+      "width": 390,
+      "samePanel": true,
+      "disclosure": true,
+      "focus": true,
+      "homeFrames": 0,
+      "history": true,
+      "handoff": false
+    }
+  ],
+  "recovery": [
+    {
+      "kind": "bootstrap-503",
+      "nativeHomeUsable": true,
+      "overlayRemoved": true,
+      "elapsedMs": 1426
+    },
+    {
+      "kind": "401",
+      "nativeHomeUsable": true,
+      "overlayRemoved": true,
+      "elapsedMs": 1277
+    },
+    {
+      "kind": "403",
+      "nativeHomeUsable": true,
+      "overlayRemoved": true,
+      "elapsedMs": 1362
+    },
+    {
+      "kind": "503",
+      "nativeHomeUsable": true,
+      "overlayRemoved": true,
+      "elapsedMs": 1299
+    },
+    {
+      "kind": "invalid-script",
+      "nativeHomeUsable": true,
+      "overlayRemoved": true,
+      "elapsedMs": 1355
+    },
+    {
+      "kind": "csp-blob",
+      "nativeHomeUsable": true,
+      "overlayRemoved": true,
+      "elapsedMs": 1331
+    },
+    {
+      "kind": "timeout",
+      "nativeHomeUsable": true,
+      "overlayRemoved": true,
+      "elapsedMs": 20117
+    },
+    {
+      "kind": "csp-inline",
+      "policyHonored": true,
+      "nativeUsable": true
+    },
+    {
+      "kind": "leave-to-#/home",
+      "overlayRemoved": true
+    },
+    {
+      "kind": "leave-to-#/home?tab=1",
+      "overlayRemoved": true
+    },
+    {
+      "kind": "leave-to-#/dashboard",
+      "overlayRemoved": true
+    },
+    {
+      "kind": "leave-to-#/login",
+      "overlayRemoved": true
+    },
+    {
+      "kind": "leave-to-#/video",
+      "overlayRemoved": true
+    },
+    {
+      "kind": "anonymous",
+      "loginUsable": true
+    }
+  ],
+  "result": "PASS"
+}
