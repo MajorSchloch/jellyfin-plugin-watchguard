@@ -1,0 +1,1436 @@
+{
+  "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+  "basePath": "",
+  "cases": [
+    {
+      "case": "portable-origin-veto",
+      "status": 403,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 40.78
+    },
+    {
+      "case": "portable-origin-veto",
+      "status": 403,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 29.93
+    },
+    {
+      "case": "portable-origin-veto",
+      "status": 403,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 27.33
+    },
+    {
+      "case": "unauthenticated",
+      "status": 401,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 3.69
+    },
+    {
+      "case": "origin-rejected",
+      "status": 403,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 29.61
+    },
+    {
+      "case": "untrusted-forwarded-origin-rejected",
+      "status": 403,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 24.74
+    },
+    {
+      "case": "fetch-site-rejected",
+      "status": 403,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 21.6
+    },
+    {
+      "case": "url-token-rejected",
+      "status": 403,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 21.57
+    },
+    {
+      "case": "missing-auth-header",
+      "status": 401,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 2.13
+    },
+    {
+      "case": "api-key",
+      "status": 403,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 11.04
+    },
+    {
+      "case": "native-permission",
+      "status": 403,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 33.87
+    },
+    {
+      "case": "ordinary-protected",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 143.67
+    },
+    {
+      "case": "ordinary-clear",
+      "status": 204,
+      "nativeContinuations": 1,
+      "fileAndRecordRemoved": true,
+      "requestMs": 144.4
+    },
+    {
+      "case": "invisible",
+      "status": 404,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.76
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 46.96
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 30.71
+    },
+    {
+      "case": "cross-session-redeem",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.31
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 30.23
+    },
+    {
+      "case": "explicit-revoke",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.91
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 31.29
+    },
+    {
+      "case": "new-watchlist-interest",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 37.31
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 31.22
+    },
+    {
+      "case": "new-playback-interest",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 36.61
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 29.87
+    },
+    {
+      "case": "interest-removed-no-fallback",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 49.86
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 29.75
+    },
+    {
+      "case": "different-target",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.17
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 29.78
+    },
+    {
+      "case": "different-action",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 20.91
+    },
+    {
+      "case": "malformed-binding",
+      "status": 400,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.48
+    },
+    {
+      "case": "unknown-approval",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.28
+    },
+    {
+      "case": "malformed-approval-header",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.12
+    },
+    {
+      "case": "duplicates",
+      "status": 400,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.3
+    },
+    {
+      "case": "overlap",
+      "status": 400,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 22.97
+    },
+    {
+      "case": "missing-last",
+      "status": 404,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 22.65
+    },
+    {
+      "case": "bulk-protected-last",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 47.55
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 42.59
+    },
+    {
+      "case": "bulk-order-changed",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 27.68
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 44.24
+    },
+    {
+      "case": "expired",
+      "status": 410,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.5
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 44.08
+    },
+    {
+      "case": "revoked-EnableContentDeletion",
+      "status": [
+        401,
+        403
+      ],
+      "filesAndRecordsPreserved": true,
+      "requestMs": 22.32
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 44.61
+    },
+    {
+      "case": "revoked-IsAdministrator",
+      "status": [
+        401,
+        403
+      ],
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.59
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 33.93
+    },
+    {
+      "case": "revoked-IsDisabled",
+      "status": [
+        401,
+        403
+      ],
+      "filesAndRecordsPreserved": true,
+      "requestMs": 5.3
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 35.06
+    },
+    {
+      "case": "session-revoked",
+      "status": 401,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 1.98
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 33.48
+    },
+    {
+      "case": "native-metadata-changed",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 48.02
+    },
+    {
+      "case": "lookup-failure",
+      "status": 503,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.32
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 370.11
+    },
+    {
+      "case": "long-series-revoke",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 14.9
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 42.01
+    },
+    {
+      "case": "episode-revoke",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 16.22
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 41.57
+    },
+    {
+      "case": "season-revoke",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 14.82
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 38.09
+    },
+    {
+      "case": "approved-single",
+      "status": 204,
+      "nativeContinuations": 1,
+      "fileAndRecordRemoved": true,
+      "requestMs": 49.75
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 53.78
+    },
+    {
+      "case": "approved-bulk",
+      "status": 204,
+      "nativeContinuations": 1,
+      "fileAndRecordRemoved": true,
+      "requestMs": 74.97
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 33.53
+    },
+    {
+      "case": "concurrent-single-approval",
+      "nativeContinuations": 1,
+      "fileAndRecordRemoved": true
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 52.06
+    },
+    {
+      "case": "concurrent-bulk-approval",
+      "nativeContinuations": 1,
+      "filesAndRecordsRemoved": true
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 35.08
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 32.76
+    },
+    {
+      "case": "first-of-two-challenges",
+      "status": 204,
+      "nativeContinuations": 1,
+      "fileAndRecordRemoved": true,
+      "requestMs": 46.68
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 41.49
+    },
+    {
+      "case": "approved-episode",
+      "status": 204,
+      "nativeContinuations": 1,
+      "fileAndRecordRemoved": true,
+      "requestMs": 58.33
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 40.2
+    },
+    {
+      "case": "approved-season",
+      "status": 204,
+      "nativeContinuations": 1,
+      "fileAndRecordRemoved": true,
+      "requestMs": 94.46
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 42.05
+    },
+    {
+      "case": "approved-series",
+      "status": 204,
+      "nativeContinuations": 1,
+      "fileAndRecordRemoved": true,
+      "requestMs": 53.2
+    },
+    {
+      "case": "challenge",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 74.73
+    },
+    {
+      "case": "restart-invalidates",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 119.61
+    },
+    {
+      "case": "saved-off-still-enforced",
+      "status": 409,
+      "filesAndRecordsPreserved": true,
+      "requestMs": 218.66
+    }
+  ],
+  "status": "PASS",
+  "publishedBaselineZipSha256": "06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5",
+  "serverVersion": "12.2.0",
+  "compatibility": {
+    "serverVersion": "12.2.0",
+    "attached": 2,
+    "assembly": "Jellyfin.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+    "controller": "Jellyfin.Api.Controllers.LibraryController",
+    "actions": [
+      {
+        "method": "DeleteItem",
+        "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+        "parameters": [
+          {
+            "name": "itemId",
+            "type": "System.Guid",
+            "attributes": [],
+            "binder": null
+          }
+        ],
+        "route": "Items/{itemId}",
+        "authorized": true
+      },
+      {
+        "method": "DeleteItems",
+        "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+        "parameters": [
+          {
+            "name": "ids",
+            "type": "System.Guid[]",
+            "attributes": [
+              "Microsoft.AspNetCore.Mvc.FromQueryAttribute",
+              "Microsoft.AspNetCore.Mvc.ModelBinderAttribute"
+            ],
+            "binder": "Jellyfin.Api.ModelBinders.CommaDelimitedCollectionModelBinder"
+          }
+        ],
+        "route": "Items",
+        "authorized": true
+      }
+    ],
+    "result": "PASS",
+    "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+    "imageIdentity": {
+      "Id": "sha256:b603f4b6dede2e060e8bb34e2dc5234926c1ced89d856f227c4a58749719b2a9",
+      "RepoDigests": [
+        "jellyfin/jellyfin@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037"
+      ],
+      "Architecture": "amd64",
+      "Os": "linux"
+    },
+    "webIndexSha256": "692ac1582fd119b0ec4712de52ec3fc82375bcd844741467df050372ccde5b40"
+  },
+  "pluginDiscovery": [
+    {
+      "name": "WatchGuard",
+      "id": "a3c6bc84783d4ba8a0db89bfb83ab486",
+      "version": "0.4.8.0"
+    }
+  ],
+  "candidateZipSha256": "47c93012c620bc2a85fe75992e26e0614a733218c5bdfc2edf9d7429b716feab",
+  "integrationStatus": {
+    "JellyfinVersion": "12.2.0",
+    "TestedCompatibility": "Jellyfin Server/Web 12.2.0 and 12.3.0 / .NET 10",
+    "ServerMatchesTestedVersion": true,
+    "BrowserExecutionVerified": false
+  },
+  "catalogUpgrade": "PASS: published v0.4.8 without setting -> catalog candidate off -> explicit save -> restart active; stores preserved; single assembly",
+  "protocolTimings": [
+    {
+      "action": "Present",
+      "ms": 29.29,
+      "status": 403
+    },
+    {
+      "action": "Present",
+      "ms": 2.54,
+      "status": 403
+    },
+    {
+      "action": "Approve",
+      "ms": 20.24,
+      "status": 403
+    },
+    {
+      "action": "Approve",
+      "ms": 2.09,
+      "status": 403
+    },
+    {
+      "action": "Approve",
+      "ms": 39.87,
+      "status": 409
+    },
+    {
+      "action": "Present",
+      "ms": 15.34,
+      "status": 409
+    },
+    {
+      "action": "Present",
+      "ms": 45.83,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 36.26,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 20.62,
+      "status": 403
+    },
+    {
+      "action": "Present",
+      "ms": 38.21,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 37.82,
+      "status": 200
+    },
+    {
+      "action": "Revoke",
+      "ms": 22.64,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 37.2,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 35.13,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 36.67,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 43.93,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 36.77,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 37.07,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 38.44,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 35.11,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 36.57,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 36.24,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 54.73,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 48.22,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 36.84,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 35.31,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 47.43,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 41.5,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 42.19,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 39.37,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 46.55,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 40.06,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 40.59,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 40.45,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 40.0,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 39.66,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 137.6,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 139.35,
+      "status": 200
+    },
+    {
+      "action": "Revoke",
+      "ms": 14.16,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 48.94,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 46.68,
+      "status": 200
+    },
+    {
+      "action": "Revoke",
+      "ms": 14.29,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 47.63,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 48.03,
+      "status": 200
+    },
+    {
+      "action": "Revoke",
+      "ms": 14.98,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 42.97,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 38.33,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 57.19,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 57.66,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 39.67,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 38.4,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 57.26,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 60.64,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 39.78,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 39.48,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 62.14,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 39.74,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 49.74,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 46.83,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 54.39,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 46.88,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 46.01,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 46.84,
+      "status": 200
+    },
+    {
+      "action": "Present",
+      "ms": 105.37,
+      "status": 200
+    },
+    {
+      "action": "Approve",
+      "ms": 76.34,
+      "status": 200
+    }
+  ],
+  "unrelatedRequestsEvaluations": 0,
+  "browser": "PASS: unchanged Cancel zero DELETE; Delete Anyway one DELETE rejected 409",
+  "web": {
+    "removed": [
+      "3ef2b76654bc23e4643e9c1847656743",
+      "320db56f43b735f850884134f73d3eae",
+      "12ab3761e2a87e629f58fa52d3c08ac7",
+      "f32cf90754ce6074ccc941ed221a67a1",
+      "757aaf417b25132670c5a172cdde3c53",
+      "13aff29492a57294e589c73392c70d80",
+      "c26e666c2b7650b1c06b0225ed795c72",
+      "33fe16ceb76fb5d97b7a1a0c0443826e"
+    ],
+    "cases": [
+      "Native settings preserve actual active state until restart",
+      "Cancel-zero-delete",
+      "Escape-zero-delete",
+      "close-zero-delete",
+      "approved-Movie",
+      "ApprovalExpired-zero-delete",
+      "ServerGuardUnsupported-zero-delete",
+      "individual-bulk-queue",
+      "approved-Episode",
+      "approved-Season",
+      "approved-Series",
+      "clear-native"
+    ],
+    "timings": [
+      {
+        "kind": "Movie",
+        "elapsedMs": 501
+      },
+      {
+        "kind": "Episode",
+        "elapsedMs": 529
+      },
+      {
+        "kind": "Season",
+        "elapsedMs": 349
+      },
+      {
+        "kind": "Series",
+        "elapsedMs": 274
+      }
+    ],
+    "requests": [
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 44
+      },
+      {
+        "phase": "Readiness",
+        "status": 200,
+        "ms": 35
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 37
+      },
+      {
+        "phase": "Readiness",
+        "status": 200,
+        "ms": 24
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 33
+      },
+      {
+        "phase": "Readiness",
+        "status": 200,
+        "ms": 31
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 59
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 123
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 67
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 50
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 45
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 25
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 49
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 26
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 41
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 29
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 50
+      },
+      {
+        "phase": "Prepare",
+        "status": 200,
+        "ms": 123
+      },
+      {
+        "phase": "Present",
+        "status": 200,
+        "ms": 76
+      },
+      {
+        "phase": "Approve",
+        "status": 200,
+        "ms": 67
+      },
+      {
+        "phase": "NativeDelete",
+        "status": 204,
+        "ms": 150
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 67
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 77
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 40
+      },
+      {
+        "phase": "Prepare",
+        "status": 200,
+        "ms": 73
+      },
+      {
+        "phase": "Present",
+        "status": 200,
+        "ms": 62
+      },
+      {
+        "phase": "Approve",
+        "status": 410,
+        "ms": 10
+      },
+      {
+        "phase": "Revoke",
+        "status": 200,
+        "ms": 36
+      },
+      {
+        "phase": "Capabilities",
+        "status": 503,
+        "ms": 2
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 26
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 40
+      },
+      {
+        "phase": "Prepare",
+        "status": 200,
+        "ms": 87
+      },
+      {
+        "phase": "Present",
+        "status": 200,
+        "ms": 68
+      },
+      {
+        "phase": "Approve",
+        "status": 200,
+        "ms": 49
+      },
+      {
+        "phase": "NativeDelete",
+        "status": 204,
+        "ms": 59
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 23
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 41
+      },
+      {
+        "phase": "Prepare",
+        "status": 200,
+        "ms": 84
+      },
+      {
+        "phase": "Present",
+        "status": 200,
+        "ms": 98
+      },
+      {
+        "phase": "Approve",
+        "status": 200,
+        "ms": 71
+      },
+      {
+        "phase": "NativeDelete",
+        "status": 204,
+        "ms": 73
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 69
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 87
+      },
+      {
+        "phase": "Prepare",
+        "status": 200,
+        "ms": 225
+      },
+      {
+        "phase": "Present",
+        "status": 200,
+        "ms": 61
+      },
+      {
+        "phase": "Approve",
+        "status": 200,
+        "ms": 72
+      },
+      {
+        "phase": "NativeDelete",
+        "status": 204,
+        "ms": 66
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 37
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 41
+      },
+      {
+        "phase": "Prepare",
+        "status": 200,
+        "ms": 56
+      },
+      {
+        "phase": "Present",
+        "status": 200,
+        "ms": 49
+      },
+      {
+        "phase": "Approve",
+        "status": 200,
+        "ms": 49
+      },
+      {
+        "phase": "NativeDelete",
+        "status": 204,
+        "ms": 103
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 83
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 51
+      },
+      {
+        "phase": "Prepare",
+        "status": 200,
+        "ms": 52
+      },
+      {
+        "phase": "Present",
+        "status": 200,
+        "ms": 53
+      },
+      {
+        "phase": "Approve",
+        "status": 200,
+        "ms": 47
+      },
+      {
+        "phase": "NativeDelete",
+        "status": 204,
+        "ms": 57
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 22
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 34
+      },
+      {
+        "phase": "NativeDelete",
+        "status": 204,
+        "ms": 53
+      }
+    ],
+    "status": "PASS",
+    "nativeDeletes": 7
+  },
+  "webProxy": {
+    "removed": [
+      "549d4ccec097fca420bc53c7238b1052"
+    ],
+    "cases": [
+      "approval-ready-not-native-proxy-policy-ready",
+      "approved-Movie"
+    ],
+    "timings": [
+      {
+        "kind": "Movie",
+        "elapsedMs": 262
+      }
+    ],
+    "requests": [
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 27
+      },
+      {
+        "phase": "Readiness",
+        "status": 200,
+        "ms": 25
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 69
+      },
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 29
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 37
+      },
+      {
+        "phase": "Prepare",
+        "status": 200,
+        "ms": 54
+      },
+      {
+        "phase": "Present",
+        "status": 200,
+        "ms": 44
+      },
+      {
+        "phase": "Approve",
+        "status": 200,
+        "ms": 44
+      },
+      {
+        "phase": "NativeDelete",
+        "status": 204,
+        "ms": 57
+      }
+    ],
+    "status": "PASS",
+    "nativeDeletes": 1
+  },
+  "caddyNoKnownProxies": "PASS: real browser approval and one native deletion over HTTPS to HTTP backend",
+  "portableProxies": [
+    {
+      "profile": "nginx",
+      "image": "nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+      "knownProxies": false,
+      "readiness": {
+        "Authenticated": true,
+        "OriginStatus": "HttpsProxySameOrigin",
+        "BrowserRequestVerified": true,
+        "GuardActive": true,
+        "ApprovalRequestsReady": true,
+        "Scope": "Request authentication and origin only; target permissions and fresh protection are checked per operation"
+      },
+      "vetoFilesAndRecordsPreserved": true,
+      "states": [
+        "Created",
+        "Presented",
+        "Approved",
+        "Consumed"
+      ],
+      "nativeContinuations": 1,
+      "replayRejected": true
+    },
+    {
+      "profile": "traefik",
+      "image": "traefik:v3.6@sha256:31267173a15b4944e797a76ffd9c419707c8d8b32fe5b610f80cd0cfa05f372d",
+      "knownProxies": false,
+      "readiness": {
+        "Authenticated": true,
+        "OriginStatus": "HttpsProxySameOrigin",
+        "BrowserRequestVerified": true,
+        "GuardActive": true,
+        "ApprovalRequestsReady": true,
+        "Scope": "Request authentication and origin only; target permissions and fresh protection are checked per operation"
+      },
+      "vetoFilesAndRecordsPreserved": true,
+      "states": [
+        "Created",
+        "Presented",
+        "Approved",
+        "Consumed"
+      ],
+      "nativeContinuations": 1,
+      "replayRejected": true
+    },
+    {
+      "profile": "tunnel",
+      "image": "nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+      "knownProxies": false,
+      "readiness": {
+        "Authenticated": true,
+        "OriginStatus": "HttpsProxySameOrigin",
+        "BrowserRequestVerified": true,
+        "GuardActive": true,
+        "ApprovalRequestsReady": true,
+        "Scope": "Request authentication and origin only; target permissions and fresh protection are checked per operation"
+      },
+      "vetoFilesAndRecordsPreserved": true,
+      "states": [
+        "Created",
+        "Presented",
+        "Approved",
+        "Consumed"
+      ],
+      "nativeContinuations": 1,
+      "replayRejected": true
+    }
+  ],
+  "nativeRemoteAccessProxyBoundary": {
+    "withoutKnownProxies": {
+      "nativePublicAccountVisible": true,
+      "nativeRestrictedSessionHttp": 200,
+      "forwardedClientTreatedAsRemote": false
+    },
+    "withKnownProxies": {
+      "nativePublicAccountVisible": false,
+      "nativeRestrictedSessionHttp": 403,
+      "forwardedClientTreatedAsRemote": true
+    },
+    "directUntrustedForwardedHeadersIgnored": true,
+    "syntheticRemoteIpCategory": "RFC5737-TEST-NET-2",
+    "nativePolicyChecked": "EnableRemoteAccess=false",
+    "approvalProtocolNotUsedForTheseRequests": true
+  },
+  "caddy": "PASS: trusted HTTPS same-origin challenge/approval/redemption; gzip/zstd and WebSocket unaffected",
+  "directHttps": {
+    "result": "PASS",
+    "nativeTls": true,
+    "trustedTestCertificate": true,
+    "noFetchMetadataRequired": true,
+    "vetoFilesAndRecordsPreserved": true,
+    "nativeContinuations": 1
+  },
+  "webLegacy": {
+    "removed": [
+      "002ce0eab8fcbbd6cacfb393ab736ef2"
+    ],
+    "cases": [
+      "approved-Movie"
+    ],
+    "timings": [
+      {
+        "kind": "Movie",
+        "elapsedMs": 189
+      }
+    ],
+    "requests": [
+      {
+        "phase": "Capabilities",
+        "status": 200,
+        "ms": 75
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 156
+      },
+      {
+        "phase": "Protection",
+        "status": 200,
+        "ms": 69
+      },
+      {
+        "phase": "NativeDelete",
+        "status": 204,
+        "ms": 139
+      }
+    ],
+    "status": "PASS",
+    "nativeDeletes": 1
+  },
+  "optOut": "PASS: startup-disabled filter passes through without protection work; approval endpoints unavailable",
+  "rollback": "native deletion restored after replacing the single assembly with verified published v0.4.8 and restart",
+  "watchlistsAndPreferences": "byte-identical; approved deletion did not clear memberships"
+}

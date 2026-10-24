@@ -1,0 +1,352 @@
+{
+  "target": "Jellyfin 12.3.0",
+  "paths": [
+    {
+      "path": "Progressive overview",
+      "result": "explicit cards rendered with discovery held; no false empty state; query controls superseded earlier responses; card node preserved on completion"
+    },
+    {
+      "path": "Indexed time filters",
+      "result": "7/30/90-day URL selection, older-interest toggle, reload, native-sized controls and no overflow at 1280/390"
+    },
+    {
+      "path": "My Watchlist",
+      "result": "empty/list, movie and series links, removal, failed removal/load and refresh recovery passed"
+    },
+    {
+      "path": "Overview polish",
+      "result": "keyboard disclosure; visible safety/coverage warnings; labeled colors; multi-user/unsafe text; 44px controls and no overflow at 1280/390"
+    },
+    {
+      "path": "Playback-only series",
+      "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+    },
+    {
+      "path": "Modern compatibility",
+      "result": "Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+    },
+    {
+      "path": "Inline users",
+      "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+    },
+    {
+      "path": "Watchlist controls",
+      "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+    },
+    {
+      "path": "Recent viewing activity",
+      "result": "completed movie and whole series, exact native date, four available episodes (undated extras in current UI), explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+    },
+    {
+      "path": "Caught Up",
+      "result": "native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, configurable fresh Caught Up protection, targeted viewers, Escape zero DELETE and no permanent membership"
+    },
+    {
+      "path": "PoC Zero",
+      "result": "native deletion without extra WatchGuard warning"
+    },
+    {
+      "path": "Structured confirmation accessibility",
+      "result": "unsafe long title/names rendered literally; separate ownership and six reasons; modal focus cycle, Cancel Enter and focus restoration; desktop/mobile bounds and zero DELETE"
+    },
+    {
+      "path": "Identity change during confirmation",
+      "result": "native ApiClient authentication cleared while open; lifetime cancels and removes dialog with zero DELETE; restored identity loads normally"
+    },
+    {
+      "path": "Self-only protection",
+      "result": "watchlist, native resume and session each Cancel with zero DELETE; override exactly once"
+    },
+    {
+      "path": "Explicit desktop-legacy",
+      "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+    },
+    {
+      "path": "Explicit modern",
+      "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+    },
+    {
+      "path": "Missing parent resolution",
+      "result": "404 blocks deletion with zero DELETE requests"
+    },
+    {
+      "path": "PoC Parent Interested Episode",
+      "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+    },
+    {
+      "path": "PoC Parent Interested Season",
+      "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+    },
+    {
+      "path": "PoC Parent Clear Episode",
+      "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+    },
+    {
+      "path": "PoC Parent Clear Season",
+      "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+    },
+    {
+      "path": "PoC Movie Detail",
+      "cancel": "zero DELETE",
+      "override": "one DELETE, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "PoC Series Detail",
+      "cancel": "zero DELETE",
+      "override": "one DELETE, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Escape on movie detail",
+      "cancel": "zero DELETE",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Native membership menus",
+      "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+    },
+    {
+      "path": "Card right-click menu",
+      "cancel": "zero DELETE",
+      "override": "one DELETE, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Native two-item bulk selection",
+      "cancel": "zero DELETE after cancelling both prompts",
+      "override": "one DELETE per approved item, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Account switch",
+      "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+    },
+    {
+      "path": "Account isolation and native permissions",
+      "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+    }
+  ],
+  "diagnostics": [
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] confirmation-opened 1",
+    "[WatchGuard PoC] cancelled 1",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] confirmation-opened 1",
+    "[WatchGuard PoC] cancelled 1",
+    "[WatchGuard PoC] intercepted 2",
+    "[WatchGuard PoC] check-failed 2",
+    "[WatchGuard PoC] intercepted 3",
+    "[WatchGuard PoC] clear 3",
+    "[WatchGuard PoC] native-called 3",
+    "[WatchGuard PoC] native-resolved 3",
+    "[WatchGuard PoC] intercepted 4",
+    "[WatchGuard PoC] confirmation-opened 4",
+    "[WatchGuard PoC] cancelled 4",
+    "[WatchGuard PoC] intercepted 5",
+    "[WatchGuard PoC] confirmation-opened 5",
+    "[WatchGuard PoC] cancelled 5",
+    "[WatchGuard PoC] intercepted 6",
+    "[WatchGuard PoC] confirmation-opened 6",
+    "[WatchGuard PoC] cancelled 6",
+    "[WatchGuard PoC] intercepted 7",
+    "[WatchGuard PoC] confirmation-opened 7",
+    "[WatchGuard PoC] cancelled 7",
+    "[WatchGuard PoC] intercepted 8",
+    "[WatchGuard PoC] confirmation-opened 8",
+    "[WatchGuard PoC] cancelled 8",
+    "[WatchGuard PoC] intercepted 9",
+    "[WatchGuard PoC] confirmation-opened 9",
+    "[WatchGuard PoC] cancelled 9",
+    "[WatchGuard PoC] intercepted 10",
+    "[WatchGuard PoC] confirmation-opened 10",
+    "[WatchGuard PoC] cancelled 10",
+    "[WatchGuard PoC] intercepted 11",
+    "[WatchGuard PoC] confirmation-opened 11",
+    "[WatchGuard PoC] override 11",
+    "[WatchGuard PoC] native-called 11",
+    "[WatchGuard PoC] native-resolved 11",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] confirmation-opened 1",
+    "[WatchGuard PoC] cancelled 1",
+    "[WatchGuard PoC] intercepted 2",
+    "[WatchGuard PoC] confirmation-opened 2",
+    "[WatchGuard PoC] override 2",
+    "[WatchGuard PoC] native-called 2",
+    "[WatchGuard PoC] native-resolved 2",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] confirmation-opened 1",
+    "[WatchGuard PoC] cancelled 1",
+    "[WatchGuard PoC] intercepted 2",
+    "[WatchGuard PoC] confirmation-opened 2",
+    "[WatchGuard PoC] override 2",
+    "[WatchGuard PoC] native-called 2",
+    "[WatchGuard PoC] native-resolved 2",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] check-failed 1",
+    "[WatchGuard PoC] intercepted 2",
+    "[WatchGuard PoC] confirmation-opened 2",
+    "[WatchGuard PoC] cancelled 2",
+    "[WatchGuard PoC] intercepted 3",
+    "[WatchGuard PoC] confirmation-opened 3",
+    "[WatchGuard PoC] override 3",
+    "[WatchGuard PoC] native-called 3",
+    "[WatchGuard PoC] native-resolved 3",
+    "[WatchGuard PoC] intercepted 4",
+    "[WatchGuard PoC] confirmation-opened 4",
+    "[WatchGuard PoC] cancelled 4",
+    "[WatchGuard PoC] intercepted 5",
+    "[WatchGuard PoC] confirmation-opened 5",
+    "[WatchGuard PoC] override 5",
+    "[WatchGuard PoC] native-called 5",
+    "[WatchGuard PoC] native-resolved 5",
+    "[WatchGuard PoC] intercepted 6",
+    "[WatchGuard PoC] clear 6",
+    "[WatchGuard PoC] native-called 6",
+    "[WatchGuard PoC] native-resolved 6",
+    "[WatchGuard PoC] intercepted 7",
+    "[WatchGuard PoC] clear 7",
+    "[WatchGuard PoC] native-called 7",
+    "[WatchGuard PoC] native-resolved 7",
+    "[WatchGuard PoC] intercepted 8",
+    "[WatchGuard PoC] confirmation-opened 8",
+    "[WatchGuard PoC] cancelled 8",
+    "[WatchGuard PoC] intercepted 9",
+    "[WatchGuard PoC] confirmation-opened 9",
+    "[WatchGuard PoC] override 9",
+    "[WatchGuard PoC] native-called 9",
+    "[WatchGuard PoC] native-resolved 9",
+    "[WatchGuard PoC] intercepted 10",
+    "[WatchGuard PoC] confirmation-opened 10",
+    "[WatchGuard PoC] cancelled 10",
+    "[WatchGuard PoC] intercepted 11",
+    "[WatchGuard PoC] confirmation-opened 11",
+    "[WatchGuard PoC] override 11",
+    "[WatchGuard PoC] native-called 11",
+    "[WatchGuard PoC] native-resolved 11",
+    "[WatchGuard PoC] intercepted 12",
+    "[WatchGuard PoC] confirmation-opened 12",
+    "[WatchGuard PoC] cancelled 12",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] confirmation-opened 1",
+    "[WatchGuard PoC] cancelled 1",
+    "[WatchGuard PoC] intercepted 2",
+    "[WatchGuard PoC] confirmation-opened 2",
+    "[WatchGuard PoC] override 2",
+    "[WatchGuard PoC] native-called 2",
+    "[WatchGuard PoC] native-resolved 2",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] intercepted 2",
+    "[WatchGuard PoC] confirmation-opened 1",
+    "[WatchGuard PoC] cancelled 1",
+    "[WatchGuard PoC] confirmation-opened 2",
+    "[WatchGuard PoC] cancelled 2",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] intercepted 2",
+    "[WatchGuard PoC] confirmation-opened 1",
+    "[WatchGuard PoC] override 1",
+    "[WatchGuard PoC] native-called 1",
+    "[WatchGuard PoC] native-resolved 1",
+    "[WatchGuard PoC] confirmation-opened 2",
+    "[WatchGuard PoC] override 2",
+    "[WatchGuard PoC] native-called 2",
+    "[WatchGuard PoC] native-resolved 2",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] check-failed 1"
+  ],
+  "deletes": [
+    {
+      "path": "/jellyfin/Items/b03b2625c5e3f0f63be2eb74224e767f",
+      "phase": "PoC Zero"
+    },
+    {
+      "path": "/jellyfin/Items/5f4ef098a9261926b2f99fc177f2833e",
+      "phase": "PoC Self"
+    },
+    {
+      "path": "/jellyfin/Items/0a932e52b51d3b926d10cfe990dfe537",
+      "phase": "desktop-legacy"
+    },
+    {
+      "path": "/jellyfin/Items/bc7bdda500874eda5d4d52a557cf5f2c",
+      "phase": "modern"
+    },
+    {
+      "path": "/jellyfin/Items/985e6e237f7427fcec5f26da13cc6b44",
+      "phase": "PoC Parent Interested Episode"
+    },
+    {
+      "path": "/jellyfin/Items/024d43004aef0b5eb4aee3453ef41d62",
+      "phase": "PoC Parent Interested Season"
+    },
+    {
+      "path": "/jellyfin/Items/843ee4c6c2e1bd5c93f6510924a5ecb4",
+      "phase": "PoC Parent Clear Episode"
+    },
+    {
+      "path": "/jellyfin/Items/35e0736b51d88c0e9e751a7a5afd2568",
+      "phase": "PoC Parent Clear Season"
+    },
+    {
+      "path": "/jellyfin/Items/df2b7f04340420f2e5c441af5305e5fa",
+      "phase": "PoC Movie Detail"
+    },
+    {
+      "path": "/jellyfin/Items/fc748d7e95c244931bf6a38bb5d64ff2",
+      "phase": "PoC Series Detail"
+    },
+    {
+      "path": "/jellyfin/Items/93359b701470689eba0ae71a6e812b3e",
+      "phase": "Card context menu"
+    },
+    {
+      "path": "/jellyfin/Items/0861d0d4e102153477520464665669c1",
+      "phase": "Bulk override"
+    },
+    {
+      "path": "/jellyfin/Items/f2881518d83b5415285bc70d61245e50",
+      "phase": "Bulk override"
+    }
+  ],
+  "orderingViolations": 0,
+  "loginToAdapterMs": 163,
+  "phase": "Non-admin deletion permission",
+  "seriesActivityMs": 26,
+  "extraEpisodes": {
+    "status": "PASS",
+    "viewports": [
+      1280,
+      390
+    ],
+    "keyboard": [
+      "Enter",
+      "Space",
+      "Escape"
+    ],
+    "nativeDates": [
+      "Future",
+      "ReleaseDay",
+      "UnknownDate"
+    ],
+    "protectionUnchanged": true
+  },
+  "result": "PASS",
+  "testedCommit": "1a3bc8b2f706d745b38084fcf2c126defe307c11",
+  "packageSha256": "47c93012c620bc2a85fe75992e26e0614a733218c5bdfc2edf9d7429b716feab"
+}
