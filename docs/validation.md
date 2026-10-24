@@ -1,8 +1,8 @@
 # Validation and release qualification
 
-**Current published version:** [WatchGuard v0.7.3](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.3) · Qualified Jellyfin Server/Web **12.2.0 and 12.3.0**, .NET 10.
+**Current published version:** [WatchGuard v0.7.4](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.4) · Qualified Jellyfin Server/Web **12.2.0 and 12.3.0**, .NET 10.
 
-**Published activity browser:** [v0.7.0 notes](release-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Published navigation:** [v0.7.2 notes](release-v072.md), [qualification](navigation-validation-v072.md). **Published compatibility:** [v0.7.3 notes](release-v073.md), [qualification](compatibility-v073.md). **Unpublished v0.7.4:** [preparation status](../release-preparation.md), [startup qualification](startup-validation-v074.md).
+**Published activity browser:** [v0.7.0 notes](release-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Published navigation:** [v0.7.2 notes](release-v072.md), [qualification](navigation-validation-v072.md). **Published compatibility:** [v0.7.3 notes](release-v073.md), [qualification](compatibility-v073.md). **Published startup:** [v0.7.4 notes](release-v074.md), [qualification](startup-validation-v074.md). **Unpublished v0.7.5:** [preparation status](../release-preparation.md), [drawer and unified qualification](drawer-qualification-v075.md).
 
 The historical v0.5.2 release qualification completed successfully on source commit `9a3aa7d046863687b671f316da0a138cb4f6be21`: [GitHub Actions #39219433132](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39219433132). Its build, ten integration jobs and gated publish job all passed; the official native server-enforcement suite ran with `WATCHGUARD_PROXY_MATRIX=1`. The resulting release package is SHA-256 `62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec`.
 
