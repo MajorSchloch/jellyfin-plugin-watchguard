@@ -1,0 +1,15 @@
+{
+  "testedCommit": "ab9332771bcffb15b0c7fa17e5fec47cfb39cceb",
+  "runs": [
+    40039207050,
+    40039209402
+  ],
+  "inputs": {
+    "publish": false,
+    "proxy_matrix": true
+  },
+  "reason": "12.3 basepath browser-poc.cjs:235 asserted after an obsolete Refresh.disabled wait. The focus-preserving control now uses aria-disabled. Updated fixture readiness to require both disabled representations clear, retaining older release coverage. Runtime/package unchanged. Both runs stopped for complete qualification on the corrected fixture commit.",
+  "failedJob": 120706425365,
+  "expectedSpinnerCount": 0,
+  "actualSpinnerCount": 1
+}

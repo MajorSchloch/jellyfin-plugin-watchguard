@@ -810,7 +810,7 @@
             freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false;
             grid.replaceChildren(); cards.clear(); freshness.textContent = '';
             failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
-            refresh.disabled = false; render();
+            refresh.setAttribute('aria-disabled', 'false'); render();
             return true;
         }
         function queryRequest(route, revision) {
@@ -864,7 +864,7 @@
             if (!active()) return;
             const revision = ++generation;
             const current = () => active() && revision === generation;
-            polling = false; pending = true; failures = []; coverage = ''; coverageLimited = false; coverageInfo = null; notice.hidden = true; refresh.disabled = true;
+            polling = false; pending = true; failures = []; coverage = ''; coverageLimited = false; coverageInfo = null; notice.hidden = true; refresh.setAttribute('aria-disabled', 'true');
             status.textContent = 'Loading watchlists…'; spinner.hidden = false; status.append(spinner); page.setAttribute('aria-busy', 'true'); error.textContent = '';
             try {
                 const account = await api.getCurrentUser();
@@ -922,7 +922,7 @@
                 }
                 pending = false; render();
             } catch (failure) { if (authorizationDenied(failure)) return; if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; directory = []; continuation = null; render(); } }
-            finally { if (current()) { refresh.disabled = false; schedulePoll(); } }
+            finally { if (current()) { refresh.setAttribute('aria-disabled', 'false'); schedulePoll(); } }
         }
         function indexRoute(scope, cursor, prioritize = false) {
             return 'ActivityBrowser?owner=' + encodeURIComponent(scope) + '&days=' + range + '&older=' + includeOlder +
@@ -1012,11 +1012,11 @@
         search.oninput = () => {
             if (!active()) return;
             generation++; if (searchTimer) clearTimeout(searchTimer);
-            continuation = null; polling = false; pending = true; refresh.disabled = false; render();
+            continuation = null; polling = false; pending = true; refresh.setAttribute('aria-disabled', 'false'); render();
             searchTimer = setTimeout(() => { searchTimer = null; if (search.value === searchText) load(); else change(); }, 250);
         };
         select.onchange = change; order.onchange = change; rangeSelect.onchange = change; olderToggle.onchange = change;
-        refresh.onclick = () => load(true);
+        refresh.onclick = () => { if (refresh.getAttribute('aria-disabled') !== 'true') return load(true); };
         if (!signal.aborted) load();
         return page;
     }
@@ -1415,6 +1415,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             updateNavigation();
         }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), search: params.get('search'), indexedActivity: true, preferences: true});
         document.body.classList.add('watchguard-page-open'); document.body.append(pagePanel);
+        root.WatchGuardStartup?.finish();
     }
 
     async function updateDetail() {
@@ -1561,7 +1562,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     root.addEventListener('hashchange', () => { menuIntent = null; menuAmbiguous = false; });
 
     const bind = () => { syncIdentity(); adapter.install(root.ApiClient); };
-    bind();
+    bind(); updateNavigation(); updateDetail();
     for (const name of ['viewbeforeshow', 'viewshow', 'pointerdown', 'keydown', 'click'])
         document.addEventListener(name, bind, true);
     document.addEventListener('viewshow', () => { signature = null; updateDetail(); }, true);

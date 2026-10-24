@@ -1,10 +1,8 @@
-# v0.7.3 preparation
+# v0.7.4 preparation
 
-Unpublished compatibility patch based on published v0.7.2, master `6adca8a`.
-No merge, new publication or deployment is authorized by this work.
+Unpublished startup-handoff patch based on published v0.7.3, master `0663d4b`.
+Publication copy lives separately in `docs/releases/v0.7.4.md`.
 
-Publication copy lives separately in `docs/releases/v0.7.3.md`. The release workflow consumes only that copy.
+[Full qualification](docs/startup-validation-v074.md) passed on `1a3bc8b2f706d745b38084fcf2c126defe307c11` for Jellyfin Server/Web **12.2.0 and 12.3.0**, all eleven integration suites per host, with `publish=false` and `proxy_matrix=true`. ZIP SHA-256: `47c93012c620bc2a85fe75992e26e0614a733218c5bdfc2edf9d7429b716feab`. Exact image digests, checksums and results are retained with the evidence. Subsequent commits contain documentation/evidence only.
 
-[Full compatibility qualification](docs/compatibility-v073.md) passed on `79f6cf86a053fe86450ec44f30842d6535448762`: all eleven integration suites on **both 12.3.0 and 12.2.0**, each with `publish=false` and `proxy_matrix=true`. The same ZIP checksum is `8082c08a96e4aee46fea8dc22fbde84bdd0c107cb5cc410dd49efaedbc0da20e`. Exact image digests, native versions, checksums and limitations are recorded with the evidence.
-
-Historical [v0.7.2 qualification](docs/navigation-validation-v072.md), public catalog entries and existing release assets remain unchanged. No merge, publication or deployment was performed.
+The public catalog and historical qualification evidence remain unchanged. No merge, publication or deployment was performed.

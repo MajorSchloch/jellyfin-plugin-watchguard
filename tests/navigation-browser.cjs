@@ -46,7 +46,7 @@ const report = {serverVersion:fixture.serverVersion, image:fixture.image, result
     // Clicking outside Status intentionally dismisses that popover; other open
     // disclosures, and Status while using its own controls, must stay open.
     const open=[...panel.querySelectorAll('details[open]')].filter(e=>!e.classList.contains('watchguard-filter') || e.contains(focus));
-    const data={frames:0,homeExposures:0,overlays:0,panelReplacements:0,focusLosses:0,closedDisclosures:0,hashEvents:0,popEvents:0,loadingFrames:0,historyBefore:history.length,stateBefore:JSON.stringify(history.state)};
+    const data={unexpectedHits:[],frames:0,homeExposures:0,overlays:0,panelReplacements:0,focusLosses:0,closedDisclosures:0,hashEvents:0,popEvents:0,loadingFrames:0,historyBefore:history.length,stateBefore:JSON.stringify(history.state)};
     let running=true;
     const sample=()=>{
      data.frames++;
@@ -59,7 +59,7 @@ const report = {serverVersion:fixture.serverVersion, image:fixture.image, result
       const hit=document.elementFromPoint(x,y);
       if(hit && !panel.contains(hit)) {
        if(hit.closest('.homePage, #homePage, .skinBody, main')) data.homeExposures++;
-       else data.overlays++;
+       else {data.overlays++;if(data.unexpectedHits.length<5)data.unexpectedHits.push({tag:hit.tagName,classes:String(hit.className),x,y,panelTop:rect.top,panelBottom:rect.bottom,viewport:[innerWidth,innerHeight]});}
       }
      }
     };

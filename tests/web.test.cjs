@@ -88,7 +88,7 @@ function documentFixture() {
     const nodes = [];
     const focus = { isConnected: true, focus() { this.restored = true; } };
     const doc = { activeElement: focus, body: { append(node) { nodes.push(node); } }, createElement(tag) {
-        return { tag, style: {}, children: [], events: {}, attributes: {}, setAttribute(k,v) { this.attributes[k]=v; },
+        return { tag, style: {}, children: [], events: {}, attributes: {}, setAttribute(k,v) { this.attributes[k]=v; }, getAttribute(k) { return this.attributes[k] ?? null; },
             insertBefore(child, before) { child.remove(); child.parent = this; child.removed = false; const at = this.children.indexOf(before); this.children.splice(at < 0 ? this.children.length : at, 0, child); },
             append(...children) { for(const child of children) { child.remove(); child.parent = this; child.removed = false; this.children.push(child); } }, addEventListener(event, fn) { this.events[event] = fn; },
             showModal() { this.opened = true; }, focus() { this.focused = true; }, remove() { if(this.parent) this.parent.children = this.parent.children.filter(c=>c!==this); this.parent = null; this.removed = true; } };
@@ -1138,4 +1138,15 @@ test('Missing selected owner has one persistent option through polls and valid-o
     select.value=other;select.onchange();await turn();f.calls[5].resolve([]);await turn();f.calls[6].resolve(indexedResult(automaticResult.Items));await turn();
     assert.equal(select.value,other);assert.equal(placeholders().length,0);
     assert.equal(select.children.find(n=>n.value===other),valid);assert.equal(select.children.find(n=>n.value==='mine'),mine);
+});
+
+test('Refresh stays focusable and coalesces repeated activation while loading',async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(automaticResult.Items));await turn();
+    const refresh=f.page.children[1].children[3],card=f.page.children[5].children[0];
+    const loading=refresh.onclick();await turn();
+    assert.notEqual(refresh.disabled,true);assert.equal(refresh.getAttribute('aria-disabled'),'true');
+    const count=f.calls.length;await refresh.onclick();assert.equal(f.calls.length,count);
+    f.calls[2].resolve([]);await turn();f.calls[3].resolve(indexedResult(automaticResult.Items));await loading;
+    assert.equal(refresh.getAttribute('aria-disabled'),'false');assert.equal(f.page.children[5].children[0],card);
 });

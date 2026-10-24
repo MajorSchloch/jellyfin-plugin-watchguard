@@ -84,7 +84,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
     }
     async function selectOwner(owner) {
         await page.getByRole('combobox',{name:'Watchlist owner'}).selectOption(owner);
-        await page.waitForFunction(scope=>document.querySelector('.watchguard-page')?.getAttribute('data-watchguard-scope')===scope && document.querySelector('.watchguard-refresh')?.disabled===false,owner);
+        await page.waitForFunction(scope=>document.querySelector('.watchguard-page')?.getAttribute('data-watchguard-scope')===scope && document.querySelector('.watchguard-refresh')?.matches(':not(:disabled):not([aria-disabled="true"])'),owner);
     }
     async function setStatuses(value) {
         const selected = Array.isArray(value) ? value : value === 'all' ? ['watchlisted','watching','playing','watched'] : value === 'watching' ? ['watching','playing'] : [value];
@@ -231,7 +231,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         await myList().getByRole('combobox',{name:'Sort by'}).selectOption('title');
         if (fixture.activityIndex) assert.ok(overviewRequests >= 2,'Controls restart bounded queries'); else assert.equal(overviewRequests,2,'Legacy filters stay local');
         assert.ok(releaseDiscovery); holdDiscovery = false; discoveryReleases.forEach(release => release());
-        await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
+        await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.matches(':not(:disabled):not([aria-disabled="true"])'));
         assert.equal(await myList().locator('.watchguard-spinner').count(),0);
         assert.equal(await originalCard.evaluate(e=>e===document.querySelector('.watchguard-card')),true);
         await page.unroute(mineActivity); page.off('request',countOverview);
@@ -378,7 +378,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
             await selectOwner('all'); await setStatuses('all');
             for (const width of [1280,390]) {
                 await page.setViewportSize({width,height:900});
-                await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
+                await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.matches(':not(:disabled):not([aria-disabled="true"])'));
                 const bounds=await myList().locator('.watchguard-toolbar :is(select,summary,button)').evaluateAll(nodes=>nodes.filter(n=>n.getBoundingClientRect().width).map(n=>{const b=n.getBoundingClientRect();return {x:b.x,right:b.right,height:b.height};}));
                 assert.ok(bounds.every(b=>b.x>=0 && b.right<=width && b.height>=44),'touch controls fit the viewport');
                 const remove=await myList().locator('.watchguard-remove').first().boundingBox();
@@ -424,7 +424,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
             await page.unroute(endpoint);
             await api('/WatchGuard/Watchlist/'+fixture.items['PoC Movie Detail'],'DELETE');
             await myList().getByRole('button',{name:'Refresh',exact:true}).click();
-            await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
+            await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.matches(':not(:disabled):not([aria-disabled="true"])'));
             report.paths.push({path:'Overview polish',result:'keyboard disclosure; visible safety/coverage warnings; labeled colors; multi-user/unsafe text; 44px controls and no overflow at 1280/390'});
         }
         await page.setViewportSize({width:1280,height:900});
@@ -558,7 +558,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         assert.equal((await api('/WatchGuard/Watchlist', 'GET', undefined, member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===historySeries.replaceAll('-','')),false);
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
         await selectOwner('all');
-        await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
+        await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.matches(':not(:disabled):not([aria-disabled="true"])'));
         assert.equal(await myList().getByRole('link',{name:'PoC Zero',exact:true}).count(),0);
         assert.equal(await myList().getByRole('link',{name:'PoC Parent Clear',exact:true}).count(),0);
         await myList().getByRole('link',{name:'PoC Movie Detail',exact:true}).waitFor(); // Explicit + completed remains.
@@ -577,12 +577,12 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         else await myList().getByRole('link',{name:'PoC Zero',exact:true}).waitFor();
         await page.goForward(); await page.waitForFunction(()=>!document.querySelector('.watchguard-filter input[value="watched"]').checked);
         if(fixture.activityIndex) assert.equal(page.url(),resetView,'Forward restores Reset defaults, not an earlier filter');
-        await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.disabled===false);
+        await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.matches(':not(:disabled):not([aria-disabled="true"])'));
         assert.equal(await myList().getByRole('link',{name:'PoC Zero',exact:true}).count(),0);
         await selectOwner('all'); // Reset now restores the complete personal view, including My list.
         await setStatuses('watched');
         await myList().getByRole('link',{name:'PoC Zero',exact:true}).waitFor();
-        await page.waitForFunction(()=>!document.querySelector('.watchguard-refresh').disabled);
+        await page.waitForFunction(()=>document.querySelector('.watchguard-refresh')?.matches(':not(:disabled):not([aria-disabled="true"])'));
         assert.equal(await myList().locator('.watchguard-card').count(),3);
         const completedCard=myList().locator('.watchguard-card').filter({hasText:'PoC Parent Clear'});
         assert.match(await completedCard.innerText(),/BrowserMember/);
