@@ -1,5 +1,7 @@
 """Single local/CI command table. One attempt only; preserve all command outcomes."""
 import fixture_images
+import hashlib
+import xml.etree.ElementTree as ET
 import argparse
 import json
 import os
@@ -29,6 +31,10 @@ commands={
 output=Path('artifacts/testing')/a.suite/uuid.uuid4().hex[:10]
 output.mkdir(parents=True,exist_ok=True)
 report={'jellyfinVersion':fixture_images.version(), 'image':fixture_images.image(a.suite in ('standalone-caddy','migration','websocket','server-enforcement-linuxserver')), 'suite':a.suite,'attempts':[],'status':'RUNNING','python':platform.python_version(),'node':subprocess.check_output(['node','--version'],text=True).strip(),'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
+package=next(Path('artifacts').glob('Jellyfin.Plugin.WatchGuard-v'+ET.parse('Directory.Build.props').findtext('./PropertyGroup/Version')+'.zip'))
+report['packageSha256']=hashlib.sha256(package.read_bytes()).hexdigest()
+report['runtimeSha256']=hashlib.sha256(Path('artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll').read_bytes()).hexdigest()
+report['proxyMatrix']=os.environ.get('WATCHGUARD_PROXY_MATRIX')=='1'
 report['dotnet']=subprocess.check_output(['dotnet','--version'],text=True).strip()
 report['host']=platform.platform()
 report['playwright']=json.loads(Path('tests/browser/node_modules/playwright/package.json').read_text())['version']

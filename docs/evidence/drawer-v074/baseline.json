@@ -1,0 +1,299 @@
+{
+  "serverVersion": "12.3.0",
+  "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+  "baseline": true,
+  "cases": [
+    {
+      "name": "modern-390-0",
+      "native": {
+        "x": 0,
+        "y": 122.671875,
+        "right": 131.515625,
+        "bottom": 168.984375,
+        "width": 131.515625,
+        "height": 46.3125
+      },
+      "link": {
+        "x": 131.515625,
+        "y": 128.34375,
+        "right": 247.046875,
+        "bottom": 163.296875,
+        "width": 115.53125,
+        "height": 34.953125
+      },
+      "icon": null,
+      "nativeIcon": {
+        "x": 16,
+        "y": 134.671875,
+        "right": 52,
+        "bottom": 156.984375,
+        "width": 36,
+        "height": 22.3125
+      },
+      "label": null,
+      "nativeLabel": {
+        "x": 52,
+        "y": 134.671875,
+        "right": 115.515625,
+        "bottom": 156.984375,
+        "width": 63.515625,
+        "height": 22.3125
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 247.046875,
+        "bottom": 900,
+        "width": 247.046875,
+        "height": 900
+      },
+      "sameRow": true,
+      "count": 1,
+      "overflow": false,
+      "active": "false",
+      "generatedClasses": true,
+      "separate": false,
+      "aligned": false,
+      "fullWidth": false
+    },
+    {
+      "name": "modern-600-1",
+      "native": {
+        "x": 0,
+        "y": 122.671875,
+        "right": 131.515625,
+        "bottom": 168.984375,
+        "width": 131.515625,
+        "height": 46.3125
+      },
+      "link": {
+        "x": 131.515625,
+        "y": 128.34375,
+        "right": 247.046875,
+        "bottom": 163.296875,
+        "width": 115.53125,
+        "height": 34.953125
+      },
+      "icon": null,
+      "nativeIcon": {
+        "x": 16,
+        "y": 134.671875,
+        "right": 52,
+        "bottom": 156.984375,
+        "width": 36,
+        "height": 22.3125
+      },
+      "label": null,
+      "nativeLabel": {
+        "x": 52,
+        "y": 134.671875,
+        "right": 115.515625,
+        "bottom": 156.984375,
+        "width": 63.515625,
+        "height": 22.3125
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 247.046875,
+        "bottom": 900,
+        "width": 247.046875,
+        "height": 900
+      },
+      "sameRow": true,
+      "count": 1,
+      "overflow": false,
+      "active": "false",
+      "generatedClasses": true,
+      "separate": false,
+      "aligned": false,
+      "fullWidth": false
+    },
+    {
+      "name": "modern-390-2",
+      "native": {
+        "x": 0,
+        "y": 122.671875,
+        "right": 131.515625,
+        "bottom": 168.984375,
+        "width": 131.515625,
+        "height": 46.3125
+      },
+      "link": {
+        "x": 131.515625,
+        "y": 128.34375,
+        "right": 247.046875,
+        "bottom": 163.296875,
+        "width": 115.53125,
+        "height": 34.953125
+      },
+      "icon": null,
+      "nativeIcon": {
+        "x": 16,
+        "y": 134.671875,
+        "right": 52,
+        "bottom": 156.984375,
+        "width": 36,
+        "height": 22.3125
+      },
+      "label": null,
+      "nativeLabel": {
+        "x": 52,
+        "y": 134.671875,
+        "right": 115.515625,
+        "bottom": 156.984375,
+        "width": 63.515625,
+        "height": 22.3125
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 247.046875,
+        "bottom": 900,
+        "width": 247.046875,
+        "height": 900
+      },
+      "sameRow": true,
+      "count": 1,
+      "overflow": false,
+      "active": "false",
+      "generatedClasses": true,
+      "separate": false,
+      "aligned": false,
+      "fullWidth": false
+    },
+    {
+      "name": "desktop-legacy-390-3",
+      "native": {
+        "x": 0,
+        "y": 7.4375,
+        "right": 320,
+        "bottom": 54.453125,
+        "width": 320,
+        "height": 47.015625
+      },
+      "link": null,
+      "icon": null,
+      "nativeIcon": {
+        "x": 35.703125,
+        "y": 20.828125,
+        "right": 55.9375,
+        "bottom": 41.0625,
+        "width": 20.234375,
+        "height": 20.234375
+      },
+      "label": null,
+      "nativeLabel": {
+        "x": 76.171875,
+        "y": 20.890625,
+        "right": 118.515625,
+        "bottom": 40.984375,
+        "width": 42.34375,
+        "height": 20.09375
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 320,
+        "bottom": 900,
+        "width": 320,
+        "height": 900
+      },
+      "sameRow": false,
+      "count": 1,
+      "overflow": false,
+      "separate": false,
+      "aligned": false,
+      "fullWidth": false
+    },
+    {
+      "name": "desktop-legacy-600-4",
+      "native": {
+        "x": 0,
+        "y": 7.4375,
+        "right": 320,
+        "bottom": 54.453125,
+        "width": 320,
+        "height": 47.015625
+      },
+      "link": null,
+      "icon": null,
+      "nativeIcon": {
+        "x": 35.703125,
+        "y": 20.828125,
+        "right": 55.9375,
+        "bottom": 41.0625,
+        "width": 20.234375,
+        "height": 20.234375
+      },
+      "label": null,
+      "nativeLabel": {
+        "x": 76.171875,
+        "y": 20.890625,
+        "right": 118.515625,
+        "bottom": 40.984375,
+        "width": 42.34375,
+        "height": 20.09375
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 320,
+        "bottom": 900,
+        "width": 320,
+        "height": 900
+      },
+      "sameRow": false,
+      "count": 1,
+      "overflow": false,
+      "separate": false,
+      "aligned": false,
+      "fullWidth": false
+    },
+    {
+      "name": "desktop-legacy-390-5",
+      "native": {
+        "x": 0,
+        "y": 7.4375,
+        "right": 320,
+        "bottom": 54.453125,
+        "width": 320,
+        "height": 47.015625
+      },
+      "link": null,
+      "icon": null,
+      "nativeIcon": {
+        "x": 35.703125,
+        "y": 20.828125,
+        "right": 55.9375,
+        "bottom": 41.0625,
+        "width": 20.234375,
+        "height": 20.234375
+      },
+      "label": null,
+      "nativeLabel": {
+        "x": 76.171875,
+        "y": 20.890625,
+        "right": 118.515625,
+        "bottom": 40.984375,
+        "width": 42.34375,
+        "height": 20.09375
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 320,
+        "bottom": 900,
+        "width": 320,
+        "height": 900
+      },
+      "sameRow": false,
+      "count": 1,
+      "overflow": false,
+      "separate": false,
+      "aligned": false,
+      "fullWidth": false
+    }
+  ],
+  "result": "REPRODUCED"
+}

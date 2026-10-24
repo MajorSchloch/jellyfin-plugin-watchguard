@@ -6,11 +6,6 @@ on:
         description: Publish v0.7.4 and update the public catalog (requires release environment approval)
         type: boolean
         default: false
-      jellyfin_version:
-        description: Pinned Server/Web version to qualify (12.2 regression or 12.3)
-        type: choice
-        options: ['12.3', '12.2']
-        default: '12.3'
       proxy_matrix:
         description: Include disposable Nginx, Traefik, tunnel-style and native HTTPS qualification
         type: boolean
@@ -18,9 +13,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  # Read-only qualifications may run concurrently across host versions.
-  # Publication retains its single global lock.
-  group: ${{ inputs.publish && 'watchguard-release' || format('watchguard-qualification-{0}-{1}', github.ref, inputs.jellyfin_version) }}
+  # One qualification covers both supported hosts. Publication has a global lock.
+  group: ${{ inputs.publish && 'watchguard-release' || format('watchguard-qualification-{0}', github.ref) }}
   cancel-in-progress: false
 jobs:
   build:
@@ -88,15 +82,16 @@ jobs:
             artifacts/Jellyfin.Plugin.WatchGuard-v0.7.4.zip.sha256
 
   integration:
-    name: Integration / ${{ inputs.jellyfin_version }} / ${{ matrix.suite }}
+    name: Integration / ${{ matrix.jellyfin_version }} / ${{ matrix.suite }}
     env:
-      WATCHGUARD_JELLYFIN_VERSION: ${{ inputs.jellyfin_version }}
+      WATCHGUARD_JELLYFIN_VERSION: ${{ matrix.jellyfin_version }}
     needs: build
     timeout-minutes: 45
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
+        jellyfin_version: ['12.2', '12.3']
         suite: [standalone-caddy, migration, basepath, legacy, websocket, discovery, verification, activity-index, server-enforcement, server-enforcement-basepath, server-enforcement-linuxserver]
     steps:
       - uses: actions/checkout@v6
@@ -220,7 +215,7 @@ jobs:
           echo '62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec  artifacts/Jellyfin.Plugin.WatchGuard-v0.5.2.zip' | sha256sum -c -
       - name: Complete disposable regression suite
         env:
-          WATCHGUARD_PROXY_MATRIX: ${{ matrix.suite == 'server-enforcement' && inputs.proxy_matrix && '1' || '0' }}
+          WATCHGUARD_PROXY_MATRIX: ${{ matrix.suite == 'server-enforcement' && (inputs.proxy_matrix || inputs.publish) && '1' || '0' }}
         run: python3 tests/run_suite.py "${{ matrix.suite }}"
       - name: Summarize first failed fixture phase
         if: always()
@@ -229,7 +224,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-browser-failure-${{ matrix.suite }}
+          name: WatchGuard-browser-failure-${{ matrix.jellyfin_version }}-${{ matrix.suite }}
           path: |
             artifacts/testing/
             artifacts/v049/
@@ -239,10 +234,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-evidence-${{ matrix.suite }}
+          name: WatchGuard-evidence-${{ matrix.jellyfin_version }}-${{ matrix.suite }}
           path: |
             artifacts/server-enforcement/
             artifacts/navigation-browser/
+            artifacts/drawer-browser/
             artifacts/startup-browser/
             artifacts/settings-validation.json
             artifacts/preference-roundtrip-v051.json
@@ -260,9 +256,35 @@ jobs:
             artifacts/activity-browser/*.png
           if-no-files-found: warn
 
+  qualification:
+    name: Verify complete compatibility evidence
+    needs: [build, integration]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.0'
+      - uses: actions/download-artifact@v6
+        with:
+          name: WatchGuard-v0.7.4-validated
+          path: artifacts
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: WatchGuard-evidence-*
+          path: artifacts/qualification
+      - name: Require every host and suite to have tested this exact package
+        run: python3 scripts/qualification.py --package artifacts/Jellyfin.Plugin.WatchGuard-v0.7.4.zip --evidence artifacts/qualification --commit "$GITHUB_SHA" --proxy-matrix '${{ inputs.proxy_matrix || inputs.publish }}' --output artifacts/qualification.json
+      - uses: actions/upload-artifact@v6
+        with:
+          name: WatchGuard-qualification
+          path: artifacts/qualification.json
+          if-no-files-found: error
+
   publish:
     if: inputs.publish && github.ref_name == github.event.repository.default_branch
-    needs: [build, integration]
+    needs: [build, integration, qualification]
     environment: release
     runs-on: ubuntu-24.04
     permissions:
@@ -292,6 +314,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           test "$(gh repo view "$GITHUB_REPOSITORY" --json isPrivate --jq .isPrivate)" = false
+          (cd artifacts && sha256sum -c Jellyfin.Plugin.WatchGuard-v0.7.4.zip.sha256)
           python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.4.zip
           python3 scripts/check-release-notes.py
           # Publication copy is separate from release-preparation.md.

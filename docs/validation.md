@@ -21,6 +21,8 @@ The dashboard's authenticated approval-readiness POST is **non-mutating** and on
 
 ## Reproducing checks
 
-Run ordinary tests with the pinned SDK and Node.js environment, following the [repository README](../README.md#development-and-verification). The manually dispatched [release workflow](../.github/workflows/release.yaml) defaults to `publish=false`. Enabling `proxy_matrix=true` adds the full reverse-proxy and native HTTPS security fixture; **never** publish without reviewing its completed results.
+Run ordinary tests with the pinned SDK and Node.js environment, following the [repository README](../README.md#development-and-verification). The manually dispatched [release workflow](../.github/workflows/release.yaml) defaults to `publish=false`. One dispatch builds one package and runs all eleven integration suites against both pinned Server/Web versions, 12.2.0 and 12.3.0. Enabling `proxy_matrix=true` adds the full reverse-proxy and native HTTPS security fixture; publication requests always enable it. A final evidence gate rejects missing/failed suites, mixed commits or differing package/runtime checksums before publication can proceed. **Never** publish without reviewing the completed results.
 
 Historical phase and release-candidate reports are indexed in [docs/README.md](README.md) and intentionally preserved with their original results. Those snapshot statements do not override the latest validated release.
+
+The [capability-based compatibility proposal](compatibility-capabilities.md) is design documentation only; exact-version gating and deletion-failure behavior remain unchanged.

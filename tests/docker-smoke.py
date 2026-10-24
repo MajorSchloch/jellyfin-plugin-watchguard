@@ -248,6 +248,7 @@ def main():
             elif options.startup:
                 subprocess.run(['node', str(ROOT/'tests/startup-browser.cjs'), str(fixture)], check=True, timeout=360)
             elif options.navigation:
+                subprocess.run(['node', str(ROOT/'tests/drawer-browser.cjs'), str(fixture)], check=True, timeout=180)
                 subprocess.run(['node', str(ROOT/'tests/navigation-browser.cjs'), str(fixture)], check=True, timeout=300)
             elif options.serve:
                 while True: time.sleep(1)
