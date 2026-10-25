@@ -2,14 +2,14 @@
   {
     "guid": "a3c6bc84-783d-4ba8-a0db-89bfb83ab486",
     "name": "WatchGuard",
-    "overview": "Personal watchlists, Web warnings and opt-in HTTP deletion enforcement.",
-    "description": "Standalone Web loader. Server enforcement defaults off; opt-in protection covers only qualified native item deletion HTTP routes and requires administrator approval for protected media. External file changes are not protected.",
+    "overview": "Personal watchlists, shared viewing progress and smarter deletion warnings.",
+    "description": "Keep track of what you want to watch and see what others on your server are watching. WatchGuard adds personal watchlists, shared viewing progress and warnings before you delete something someone still wants to watch. Optional server-side protection can also block supported Jellyfin deletions until an administrator approves them.",
     "owner": "MajorSchloch",
     "category": "General",
     "versions": [
       {
         "version": "0.7.6.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Report runtime, browser integration and active deletion protection separately in settings.\n- Identify compatible but untested patch versions and explain failed capability checks.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.6.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.6/Jellyfin.Plugin.WatchGuard-v0.7.6.zip",
         "checksum": "cbac8985ee543721aa4816e00d55085c",
@@ -17,7 +17,7 @@
       },
       {
         "version": "0.7.5.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Give Watchlists a separate full-width entry in the mobile drawer.\n- Keep navigation aligned and free of duplicates when reopening the drawer or resizing.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.5.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.5/Jellyfin.Plugin.WatchGuard-v0.7.5.zip",
         "checksum": "10f26cff9fb0e5bccedd5adc43b5700d",
@@ -25,7 +25,7 @@
       },
       {
         "version": "0.7.4.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Show Loading Watchlists during reload and direct-link startup instead of flashing Home.\n- Recover from failed startup and release the loading state when navigating away.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.4.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.4/Jellyfin.Plugin.WatchGuard-v0.7.4.zip",
         "checksum": "e84c219c4e369021115c9f3712932cb2",
@@ -33,7 +33,7 @@
       },
       {
         "version": "0.7.3.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Support Jellyfin Server and Web 12.3.0 alongside 12.2.0.\n- Keep existing Watchlists, approvals and deletion behavior with the same plugin package.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.3.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.3/Jellyfin.Plugin.WatchGuard-v0.7.3.zip",
         "checksum": "55d0d43843a681f9a0fa565afc4d802d",
@@ -41,7 +41,7 @@
       },
       {
         "version": "0.7.2.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Keep filter, search and Reset changes inside Watchlists without briefly navigating through Home.\n- Preserve focus and shareable URLs with normal Back and Forward navigation.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.2.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.2/Jellyfin.Plugin.WatchGuard-v0.7.2.zip",
         "checksum": "f119f85649ea69eafbde2e4ca30c9992",
@@ -49,7 +49,7 @@
       },
       {
         "version": "0.7.1.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Simplify Watchlists controls and loading states, especially on phones.\n- Improve names, Added and Last played dates, expandable user rows and episode details.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.1.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.1/Jellyfin.Plugin.WatchGuard-v0.7.1.zip",
         "checksum": "d4f0f24eace3f74370ceae08eaa5390d",
@@ -57,7 +57,7 @@
       },
       {
         "version": "0.7.0.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Filter, sort and search the combined known activity and watchlist results before pagination.\n- Automatically prepare the first page and update visible results; keep deeper pages stable with an Updates available action.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.0.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.0/Jellyfin.Plugin.WatchGuard-v0.7.0.zip",
         "checksum": "9c0e40913b6154bc347ba9329ad855c2",
@@ -65,7 +65,7 @@
       },
       {
         "version": "0.6.0.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Load activity from a background index with incremental playback and watched-state updates.\n- Add activity date ranges and progressive loading while keeping personal watchlists promptly available.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v060.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.6.0/Jellyfin.Plugin.WatchGuard-v0.6.0.zip",
         "checksum": "9c5c5351b8450c8f10e1a7668a06ff23",
@@ -73,7 +73,7 @@
       },
       {
         "version": "0.5.2.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Open additional available episode details with the +N control beside progress.\n- Distinguish future and unknown-date episodes from confirmed aired progress.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v052.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.5.2/Jellyfin.Plugin.WatchGuard-v0.5.2.zip",
         "checksum": "bcca0cdd343f75a188f8c36b355d3b31",
@@ -81,7 +81,7 @@
       },
       {
         "version": "0.5.1.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Save Recently added as your default Watchlists ordering.\n- Keep saved views compatible with older versions and respect explicit filters in shared links.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v051.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.5.1/Jellyfin.Plugin.WatchGuard-v0.5.1.zip",
         "checksum": "4128639bfb6cf717f26cac8fcaf2906a",
@@ -89,7 +89,7 @@
       },
       {
         "version": "0.5.0.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Show when each person added a title to their watchlist.\n- Add Recently added sorting while keeping legacy membership dates unknown.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v050.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.5.0/Jellyfin.Plugin.WatchGuard-v0.5.0.zip",
         "checksum": "c9df7d223b304c077409cd3ada732a76",
@@ -97,7 +97,7 @@
       },
       {
         "version": "0.4.10.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Allow deletion approvals through common HTTPS reverse proxies without a WatchGuard-specific proxy allowlist.\n- Clarify approval readiness separately from Jellyfin’s own proxy trust settings.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v0410.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.10/Jellyfin.Plugin.WatchGuard-v0.4.10.zip",
         "checksum": "63263ac78a3696d6fbae886da3f727ac",
@@ -105,7 +105,7 @@
       },
       {
         "version": "0.4.9.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Add optional server-side protection for supported Jellyfin item deletions, off by default.\n- Require administrator approval before deleting protected media and show enforcement status in settings.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/server-enforcement-v049.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.9/Jellyfin.Plugin.WatchGuard-v0.4.9.zip",
         "checksum": "a83bfce2e35037cf19262fb8fe6f3f1b",
@@ -113,7 +113,7 @@
       },
       {
         "version": "0.4.8.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Reduce episode-query work when building series activity across multiple users.\n- Keep native permissions and incomplete-series explanations intact.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/episode-query-performance-v048.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.8/Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
         "checksum": "c09115ba15d1ec4f6e2b46566e040257",
@@ -121,7 +121,7 @@
       },
       {
         "version": "0.4.7.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Speed up multi-user activity verification with shared native reads.\n- Preserve per-user visibility, viewing states and honest coverage limits.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/verification-performance-v047.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.7/Jellyfin.Plugin.WatchGuard-v0.4.7.zip",
         "checksum": "5c0ed51730eeaff62f7d87da453ad671",
@@ -129,7 +129,7 @@
       },
       {
         "version": "0.4.6.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Improve bounded activity discovery across users and avoid oversized series stopping the whole overview.\n- Explain which discovery or verification limits left activity incomplete.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/activity-discovery-v046.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.6/Jellyfin.Plugin.WatchGuard-v0.4.6.zip",
         "checksum": "022545349f97aa852701d2d09380f59c",
@@ -137,7 +137,7 @@
       },
       {
         "version": "0.4.5.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Make Watchlists filters, poster cards and user statuses easier to scan.\n- Keep detailed coverage explanations expandable while leaving loading problems visible.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/watchlists-ui-v045.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.5/Jellyfin.Plugin.WatchGuard-v0.4.5.zip",
         "checksum": "60aaf3f6fc37d03e3c47e6596eefc808",
@@ -145,7 +145,7 @@
       },
       {
         "version": "0.4.4.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Expand series viewing activity below the title without squeezing native actions.\n- Make user rows and deletion warnings easier to read on phones.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/ui-polish-v044.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.4/Jellyfin.Plugin.WatchGuard-v0.4.4.zip",
         "checksum": "a2958238a470c618a0a0ca4f8c4d1855",
@@ -153,7 +153,7 @@
       },
       {
         "version": "0.4.3.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Let administrators inspect viewing progress for a specific series.\n- Show each person’s status, episode progress and last-played date with coverage explanations.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/series-viewing-activity.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.3/Jellyfin.Plugin.WatchGuard-v0.4.3.zip",
         "checksum": "72b509048d92dee46cbd203ba4f68187",
@@ -161,7 +161,7 @@
       },
       {
         "version": "0.4.2.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Show the exact deletion target, parent series and each person’s interest in a clearer confirmation.\n- Improve keyboard focus, cancellation and long-name handling on small screens.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/deletion-dialog-ux.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.2/Jellyfin.Plugin.WatchGuard-v0.4.2.zip",
         "checksum": "4f205ee6190487d41549543d955bff10",
@@ -169,7 +169,7 @@
       },
       {
         "version": "0.4.1.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Warn before Web deletion when your own watchlist or unfinished viewing is affected.\n- Distinguish Caught Up from Watched for continuing series.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v041.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.1/Jellyfin.Plugin.WatchGuard-v0.4.1.zip",
         "checksum": "3484d80f51d1570d033f305a1179ac1f",
@@ -177,7 +177,7 @@
       },
       {
         "version": "0.4.0.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Install WatchGuard as a standalone plugin without JavaScript Injector.\n- Keep watchlists and saved preferences when migrating from the older integration.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/migration-v040.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.0/Jellyfin.Plugin.WatchGuard-v0.4.0.zip",
         "checksum": "83025bb9b85dfc03d91a1875aabc9926",
@@ -185,7 +185,7 @@
       },
       {
         "version": "0.3.1.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Save personal Watchlists defaults and reset the view to them.\n- Configure WatchGuard and check its integration from the Jellyfin dashboard.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v031.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.3.1/Jellyfin.Plugin.WatchGuard-v0.3.1.zip",
         "checksum": "9a06e162ad2d1d4ecd4d35e6a94a6f8b",
@@ -193,12 +193,13 @@
       },
       {
         "version": "0.3.0.0",
-        "changelog": "See the matching release notes.",
+        "changelog": "- Add and remove personal watchlist titles from native movie and series menus.\n- Browse interests by owner and status, with native catalog installation.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v030.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.3.0/Jellyfin.Plugin.WatchGuard-v0.3.0.zip",
         "checksum": "1cc2343cf4f536252b80ec727e9075af",
         "timestamp": "2026-10-11T14:02:34Z"
       }
-    ]
+    ],
+    "imageUrl": "https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/77ab0ead33ab133e44800aea57c0b9ff4b9c75af/assets/watchguard-v1.webp"
   }
 ]

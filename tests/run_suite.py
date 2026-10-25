@@ -18,7 +18,7 @@ a=parser.parse_args()
 commands={
  'standalone-caddy':[(['tests/docker-smoke.py','--linuxserver','--catalog','--caddy','--preference-roundtrip'],{})],
  'migration':[(['tests/docker-smoke.py','--linuxserver','--migration','--injector-dll',a.injector_dll],{})],
- 'basepath':[(['tests/docker-smoke.py','--base-path','/jellyfin','--proxy'],{}),(['tests/docker-smoke.py','--navigation','--base-path','/jellyfin','--proxy'],{}),(['tests/docker-smoke.py','--startup','--base-path','/jellyfin','--proxy'],{})],
+ 'basepath':[(['tests/docker-smoke.py','--listing','--base-path','/jellyfin','--proxy'],{}),(['tests/docker-smoke.py','--base-path','/jellyfin','--proxy'],{}),(['tests/docker-smoke.py','--navigation','--base-path','/jellyfin','--proxy'],{}),(['tests/docker-smoke.py','--startup','--base-path','/jellyfin','--proxy'],{})],
  'legacy':[(['tests/docker-smoke.py','--legacy-injector','--catalog','--injector-dll',a.injector_dll],{}),(['tests/docker-smoke.py','--legacy-injector','--injector-dll',a.injector_dll],{})],
  'websocket':[(['tests/docker-smoke.py','--linuxserver','--caddy','--measure'],{})],
  'activity-index':[(['tests/docker-smoke.py','--profile','activity-index'],{})],

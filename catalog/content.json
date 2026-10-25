@@ -1,0 +1,182 @@
+{
+  "overview": "Personal watchlists, shared viewing progress and smarter deletion warnings.",
+  "description": "Keep track of what you want to watch and see what others on your server are watching. WatchGuard adds personal watchlists, shared viewing progress and warnings before you delete something someone still wants to watch. Optional server-side protection can also block supported Jellyfin deletions until an administrator approves them.",
+  "imageUrl": "https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/77ab0ead33ab133e44800aea57c0b9ff4b9c75af/assets/watchguard-v1.webp",
+  "versions": {
+    "0.3.0.0": {
+      "summary": [
+        "Add and remove personal watchlist titles from native movie and series menus.",
+        "Browse interests by owner and status, with native catalog installation."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v030.md"
+    },
+    "0.3.1.0": {
+      "summary": [
+        "Save personal Watchlists defaults and reset the view to them.",
+        "Configure WatchGuard and check its integration from the Jellyfin dashboard."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v031.md"
+    },
+    "0.4.0.0": {
+      "summary": [
+        "Install WatchGuard as a standalone plugin without JavaScript Injector.",
+        "Keep watchlists and saved preferences when migrating from the older integration."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/migration-v040.md"
+    },
+    "0.4.1.0": {
+      "summary": [
+        "Warn before Web deletion when your own watchlist or unfinished viewing is affected.",
+        "Distinguish Caught Up from Watched for continuing series."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v041.md"
+    },
+    "0.4.2.0": {
+      "summary": [
+        "Show the exact deletion target, parent series and each person’s interest in a clearer confirmation.",
+        "Improve keyboard focus, cancellation and long-name handling on small screens."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/deletion-dialog-ux.md"
+    },
+    "0.4.3.0": {
+      "summary": [
+        "Let administrators inspect viewing progress for a specific series.",
+        "Show each person’s status, episode progress and last-played date with coverage explanations."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/series-viewing-activity.md"
+    },
+    "0.4.4.0": {
+      "summary": [
+        "Expand series viewing activity below the title without squeezing native actions.",
+        "Make user rows and deletion warnings easier to read on phones."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/ui-polish-v044.md"
+    },
+    "0.4.5.0": {
+      "summary": [
+        "Make Watchlists filters, poster cards and user statuses easier to scan.",
+        "Keep detailed coverage explanations expandable while leaving loading problems visible."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/watchlists-ui-v045.md"
+    },
+    "0.4.6.0": {
+      "summary": [
+        "Improve bounded activity discovery across users and avoid oversized series stopping the whole overview.",
+        "Explain which discovery or verification limits left activity incomplete."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/activity-discovery-v046.md"
+    },
+    "0.4.7.0": {
+      "summary": [
+        "Speed up multi-user activity verification with shared native reads.",
+        "Preserve per-user visibility, viewing states and honest coverage limits."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/verification-performance-v047.md"
+    },
+    "0.4.8.0": {
+      "summary": [
+        "Reduce episode-query work when building series activity across multiple users.",
+        "Keep native permissions and incomplete-series explanations intact."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/episode-query-performance-v048.md"
+    },
+    "0.4.9.0": {
+      "summary": [
+        "Add optional server-side protection for supported Jellyfin item deletions, off by default.",
+        "Require administrator approval before deleting protected media and show enforcement status in settings."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/server-enforcement-v049.md"
+    },
+    "0.4.10.0": {
+      "summary": [
+        "Allow deletion approvals through common HTTPS reverse proxies without a WatchGuard-specific proxy allowlist.",
+        "Clarify approval readiness separately from Jellyfin’s own proxy trust settings."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v0410.md"
+    },
+    "0.5.0.0": {
+      "summary": [
+        "Show when each person added a title to their watchlist.",
+        "Add Recently added sorting while keeping legacy membership dates unknown."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v050.md"
+    },
+    "0.5.1.0": {
+      "summary": [
+        "Save Recently added as your default Watchlists ordering.",
+        "Keep saved views compatible with older versions and respect explicit filters in shared links."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v051.md"
+    },
+    "0.5.2.0": {
+      "summary": [
+        "Open additional available episode details with the +N control beside progress.",
+        "Distinguish future and unknown-date episodes from confirmed aired progress."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v052.md"
+    },
+    "0.6.0.0": {
+      "summary": [
+        "Load activity from a background index with incremental playback and watched-state updates.",
+        "Add activity date ranges and progressive loading while keeping personal watchlists promptly available."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v060.md"
+    },
+    "0.7.0.0": {
+      "summary": [
+        "Filter, sort and search the combined known activity and watchlist results before pagination.",
+        "Automatically prepare the first page and update visible results; keep deeper pages stable with an Updates available action."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.0.md"
+    },
+    "0.7.1.0": {
+      "summary": [
+        "Simplify Watchlists controls and loading states, especially on phones.",
+        "Improve names, Added and Last played dates, expandable user rows and episode details."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.1.md"
+    },
+    "0.7.2.0": {
+      "summary": [
+        "Keep filter, search and Reset changes inside Watchlists without briefly navigating through Home.",
+        "Preserve focus and shareable URLs with normal Back and Forward navigation."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.2.md"
+    },
+    "0.7.3.0": {
+      "summary": [
+        "Support Jellyfin Server and Web 12.3.0 alongside 12.2.0.",
+        "Keep existing Watchlists, approvals and deletion behavior with the same plugin package."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.3.md"
+    },
+    "0.7.4.0": {
+      "summary": [
+        "Show Loading Watchlists during reload and direct-link startup instead of flashing Home.",
+        "Recover from failed startup and release the loading state when navigating away."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.4.md"
+    },
+    "0.7.5.0": {
+      "summary": [
+        "Give Watchlists a separate full-width entry in the mobile drawer.",
+        "Keep navigation aligned and free of duplicates when reopening the drawer or resizing."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.5.md"
+    },
+    "0.7.6.0": {
+      "summary": [
+        "Report runtime, browser integration and active deletion protection separately in settings.",
+        "Identify compatible but untested patch versions and explain failed capability checks."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.6.md"
+    },
+    "0.7.7.0": {
+      "summary": [
+        "Refresh the native plugin listing with WatchGuard artwork and a clearer description.",
+        "Show useful release summaries throughout the revision history."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.7.md"
+    }
+  }
+}

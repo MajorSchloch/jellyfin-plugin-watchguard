@@ -1,6 +1,6 @@
 # WatchGuard v0.4.9 deployment candidate (historical)
 
-> **Historical release-candidate snapshot:** The v0.4.9 publication-status and installation-folder statements below describe that candidate at the time of testing. **Current published release is [v0.5.2](release-v052.md); [v0.6.0 preparation](release-v060.md) remains unpublished.** For installation, rollback preparation and current deployment limitations, use the [repository README](../README.md). Archived fixture paths and v0.4.9 screenshots are intentionally unchanged.
+> **Historical release-candidate snapshot:** The v0.4.9 publication-status and installation-folder statements below describe that candidate at the time of testing. **Current published release is [v0.7.6](release-v076.md).** For installation, rollback preparation and current deployment limitations, use the [repository README](../README.md). Archived fixture paths and v0.4.9 screenshots are intentionally unchanged.
 
 Target: Jellyfin Server/Web 12.2, .NET 10. Standalone loading is compiled and enabled in the normal plugin. There is no JavaScript Injector dependency or special environment variable. **The candidate is not published; the public catalog still advertises existing releases.**
 

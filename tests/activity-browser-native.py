@@ -107,7 +107,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
                  ('live', 'all', 'playing', '', 'title')]
     expected = {}
     try:
-        for label, payload in [('v060', old), ('v076', candidate)]:
+        for label, payload in [('v060', old), ('v077', candidate)]:
             docker('stop', name); dll.write_bytes(payload); restart(); report[label + 'SettleMs'] = settle()
             live_user = call('/Users/AuthenticateByName', 'POST', {'Username': 'IndexUser0', 'Pw': 'DisposableIndex123!'})
             call('/Sessions/Playing', 'POST', {'ItemId': movies[1]['Id'], 'PlayMethod': 'DirectPlay', 'PositionTicks': 10000}, live_user['AccessToken'], expected=204)
