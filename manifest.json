@@ -4,9 +4,18 @@
     "name": "WatchGuard",
     "overview": "Personal watchlists, shared viewing progress and smarter deletion warnings.",
     "description": "Keep track of what you want to watch and see what others on your server are watching. WatchGuard adds personal watchlists, shared viewing progress and warnings before you delete something someone still wants to watch. Optional server-side protection can also block supported Jellyfin deletions until an administrator approves them.",
+    "imageUrl": "https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/77ab0ead33ab133e44800aea57c0b9ff4b9c75af/assets/watchguard-v1.webp",
     "owner": "MajorSchloch",
     "category": "General",
     "versions": [
+      {
+        "version": "0.7.7.0",
+        "changelog": "- Refresh the native plugin listing with WatchGuard artwork and a clearer description.\n- Show useful release summaries throughout the revision history.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.7.md)",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.7/Jellyfin.Plugin.WatchGuard-v0.7.7.zip",
+        "checksum": "50e4b394df4231164a76564f76417860",
+        "timestamp": "2026-10-25T23:57:51Z"
+      },
       {
         "version": "0.7.6.0",
         "changelog": "- Report runtime, browser integration and active deletion protection separately in settings.\n- Identify compatible but untested patch versions and explain failed capability checks.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.6.md)",
@@ -97,7 +106,7 @@
       },
       {
         "version": "0.4.10.0",
-        "changelog": "- Allow deletion approvals through common HTTPS reverse proxies without a WatchGuard-specific proxy allowlist.\n- Clarify approval readiness separately from Jellyfin’s own proxy trust settings.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v0410.md)",
+        "changelog": "- Allow deletion approvals through common HTTPS reverse proxies without a WatchGuard-specific proxy allowlist.\n- Clarify approval readiness separately from Jellyfin\u2019s own proxy trust settings.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v0410.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.10/Jellyfin.Plugin.WatchGuard-v0.4.10.zip",
         "checksum": "63263ac78a3696d6fbae886da3f727ac",
@@ -153,7 +162,7 @@
       },
       {
         "version": "0.4.3.0",
-        "changelog": "- Let administrators inspect viewing progress for a specific series.\n- Show each person’s status, episode progress and last-played date with coverage explanations.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/series-viewing-activity.md)",
+        "changelog": "- Let administrators inspect viewing progress for a specific series.\n- Show each person\u2019s status, episode progress and last-played date with coverage explanations.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/series-viewing-activity.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.3/Jellyfin.Plugin.WatchGuard-v0.4.3.zip",
         "checksum": "72b509048d92dee46cbd203ba4f68187",
@@ -161,7 +170,7 @@
       },
       {
         "version": "0.4.2.0",
-        "changelog": "- Show the exact deletion target, parent series and each person’s interest in a clearer confirmation.\n- Improve keyboard focus, cancellation and long-name handling on small screens.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/deletion-dialog-ux.md)",
+        "changelog": "- Show the exact deletion target, parent series and each person\u2019s interest in a clearer confirmation.\n- Improve keyboard focus, cancellation and long-name handling on small screens.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/deletion-dialog-ux.md)",
         "targetAbi": "12.2.0.0",
         "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.2/Jellyfin.Plugin.WatchGuard-v0.4.2.zip",
         "checksum": "4f205ee6190487d41549543d955bff10",
@@ -199,7 +208,6 @@
         "checksum": "1cc2343cf4f536252b80ec727e9075af",
         "timestamp": "2026-10-11T14:02:34Z"
       }
-    ],
-    "imageUrl": "https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/77ab0ead33ab133e44800aea57c0b9ff4b9c75af/assets/watchguard-v1.webp"
+    ]
   }
 ]
