@@ -79,6 +79,13 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
             await page.evaluate(() => { ApiClient.getImageUrl=window.wgOriginalImageUrl; delete window.wgOriginalImageUrl; });
             await refreshStatus();
             await page.locator('[data-capability="watchlists-api"][data-status="Tested"]').waitFor({state:'attached'});
+            await page.evaluate(() => { window.wgOriginalAppVersion=ApiClient.appVersion; ApiClient.appVersion=()=>{throw Error('simulated optional Web API failure');}; });
+            await refreshStatus();
+            await page.locator('[data-capability="web-version"][data-status="Unavailable"]').waitFor();
+            assert.equal(await page.locator('[data-capability="guard-attachment"]').getAttribute('data-status'),'Tested');
+            await page.evaluate(() => { ApiClient.appVersion=window.wgOriginalAppVersion; delete window.wgOriginalAppVersion; });
+            await refreshStatus();
+            await page.locator('[data-capability="web-version"][data-status="Tested"]').waitFor({state:'attached'});
             assert.equal(await page.locator('#wgIntegration').getByText('Authenticated script available to this browser now: true').count(),1,'status refresh must not duplicate availability lines');
             await page.route('**/WatchGuard/IntegrationStatus', async route => {
                 const response=await route.fetch(), result=await response.json();

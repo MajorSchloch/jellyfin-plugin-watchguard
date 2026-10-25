@@ -104,7 +104,9 @@
             } else if (window.WatchGuardStandalone) {
                 field('#wgBrowser').textContent = 'This browser: retained standalone loader after a mode change. Fully reload this tab before verifying integration.'; return;
             }
-            const browser = window.WatchGuardPoc?.compatibility?.();
+            let browser;
+            try { browser = window.WatchGuardPoc?.compatibility?.(); }
+            catch { /* Optional browser diagnostics must retain verified server status. */ }
             if (browser) renderChecks(field('#wgBrowserCapabilities'), browser.Checks);
             else field('#wgBrowserCapabilities').textContent = 'Browser capabilities unavailable. Fully reload and check loader/authentication/CSP. Server protection has its own status above.';
             field('#wgBrowser').textContent = window.WatchGuardPoc?.isInstalled() === true

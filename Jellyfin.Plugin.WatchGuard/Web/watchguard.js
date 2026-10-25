@@ -6,7 +6,9 @@
     // Read-only feature checks: no requests, timers, credentials or DOM mutations.
     // Web's reported version is qualification context, never evidence of server protection.
     function browserCapabilities(api, document, host, installed) {
-        const version = typeof api?.appVersion === 'function' ? api.appVersion() : null;
+        let version = null;
+        try { if (typeof api?.appVersion === 'function') { const reported = api.appVersion(); if (typeof reported === 'string') version = reported; } }
+        catch { /* An optional version accessor cannot hide working feature checks. */ }
         const tested = ['12.2.0', '12.3.0'].includes(version);
         const inRange = typeof version === 'string' && /^12\.(?:2|3)\.\d+$/.test(version);
         const accepted = tested ? 'Tested' : 'CompatibleUntested';

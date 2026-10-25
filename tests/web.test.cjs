@@ -1172,6 +1172,9 @@ test('compatibility reports feature independence, unqualified simulations and cu
     api.appVersion = () => '13.0.0'; // Simulated unknown family.
     assert.equal(read()['web-version'].Status,'Unsupported');
     assert.equal(read()['browser-api'].Status,'CompatibleUntested');
+    api.appVersion = () => { throw Error('optional accessor unavailable'); };
+    assert.equal(read()['web-version'].Status,'Unavailable');
+    assert.equal(read()['watchlists-api'].Status,'CompatibleUntested');
     delete api.getImageUrl;
     assert.equal(read()['watchlists-api'].Status,'Unsupported');
     assert.equal(read()['deletion-adapter'].Status,'CompatibleUntested');
