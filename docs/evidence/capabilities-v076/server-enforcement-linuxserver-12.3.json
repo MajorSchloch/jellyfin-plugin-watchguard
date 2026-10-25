@@ -1,0 +1,304 @@
+{
+  "image": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+  "basePath": "",
+  "status": "PASS",
+  "serverVersion": "12.3.0",
+  "candidateZipSha256": "fb39974d66d93d56959c5b97d6b0fca77a6bc1e8b9803db17dfb56eac36c950b",
+  "integrationStatus": {
+    "JellyfinVersion": "12.3.0",
+    "TestedCompatibility": "Jellyfin Server/Web 12.2.0 and 12.3.0 / .NET 10",
+    "ServerMatchesTestedVersion": true,
+    "BrowserExecutionVerified": false
+  },
+  "capabilities": {
+    "Active": true,
+    "Configured": true,
+    "Compatible": true,
+    "CompatibilityStatus": "Tested",
+    "AttachedActions": 2,
+    "RuntimeApi": {
+      "Id": "runtime-api",
+      "Status": "Tested",
+      "Detail": "Plugin loaded; 159 compiled Jellyfin type/member references resolved; required identity, library, user-data and session services are present. Behavioral coverage is limited to qualified releases.",
+      "Action": "",
+      "Passed": true
+    },
+    "Checks": [
+      {
+        "Id": "version-range",
+        "Status": "Tested",
+        "Detail": "12.2.x and 12.3.x release versions; .NET 10; minimum ABI 12.2.0.0",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-inventory",
+        "Status": "Tested",
+        "Detail": "Exactly one native LibraryController and both known deletion actions, with no additional DELETE actions in that controller.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-signatures",
+        "Status": "Tested",
+        "Detail": "DeleteItem(Guid itemId) and DeleteItems(Guid[] ids), returning ActionResult.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-routes",
+        "Status": "Tested",
+        "Detail": "Only DELETE Items/{itemId} and DELETE Items with the native empty controller prefix.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-authorization",
+        "Status": "Tested",
+        "Detail": "Native default authorization required; no anonymous override or changed policy/scheme/roles.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-binding",
+        "Status": "Tested",
+        "Detail": "Native route Guid and query Guid[] with Jellyfin's comma-delimited model binder.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "guard-attachment",
+        "Status": "Tested",
+        "Detail": "Final MVC endpoints must each retain the expected route, authorization, binding and exactly one action guard; no extra item deletion selector.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "native-authentication",
+        "Status": "Tested",
+        "Detail": "Native policy requirements: Jellyfin.Api.Auth.DefaultAuthorizationPolicy.DefaultAuthorizationRequirement; policy schemes: CustomAuthentication; default scheme: CustomAuthentication. Live identity and permissions are rechecked per operation.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "startup-configuration",
+        "Status": "Tested",
+        "Detail": "Enforcement setting captured once at plugin startup.",
+        "Action": "",
+        "Passed": true
+      }
+    ],
+    "TestedVersions": [
+      "12.2.0",
+      "12.3.0"
+    ],
+    "CompatibilityRange": "12.2.x and 12.3.x release versions; .NET 10; minimum ABI 12.2.0.0"
+  },
+  "unrelatedRequestsEvaluations": 0,
+  "optOut": "PASS: startup-disabled filter passes through without protection work; approval endpoints unavailable",
+  "rollback": "native deletion restored after replacing the single assembly with verified published v0.4.8 and restart",
+  "watchlistsAndPreferences": "byte-identical; approved deletion did not clear memberships",
+  "nativeContract": {
+    "serverVersion": "12.3.0",
+    "attached": 2,
+    "checks": [
+      {
+        "Id": "version-range",
+        "Status": "Tested",
+        "Detail": "12.2.x and 12.3.x release versions; .NET 10; minimum ABI 12.2.0.0",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-inventory",
+        "Status": "Tested",
+        "Detail": "Exactly one native LibraryController and both known deletion actions, with no additional DELETE actions in that controller.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-signatures",
+        "Status": "Tested",
+        "Detail": "DeleteItem(Guid itemId) and DeleteItems(Guid[] ids), returning ActionResult.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-routes",
+        "Status": "Tested",
+        "Detail": "Only DELETE Items/{itemId} and DELETE Items with the native empty controller prefix.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-authorization",
+        "Status": "Tested",
+        "Detail": "Native default authorization required; no anonymous override or changed policy/scheme/roles.",
+        "Action": "",
+        "Passed": true
+      },
+      {
+        "Id": "deletion-binding",
+        "Status": "Tested",
+        "Detail": "Native route Guid and query Guid[] with Jellyfin's comma-delimited model binder.",
+        "Action": "",
+        "Passed": true
+      }
+    ],
+    "assembly": "Jellyfin.Api, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null",
+    "controller": "Jellyfin.Api.Controllers.LibraryController",
+    "authenticationTypes": [
+      "Jellyfin.Api.Auth.CustomAuthenticationHandler",
+      "Jellyfin.Api.Auth.DefaultAuthorizationPolicy.DefaultAuthorizationHandler",
+      "Jellyfin.Api.Auth.DefaultAuthorizationPolicy.DefaultAuthorizationRequirement"
+    ],
+    "actions": [
+      {
+        "method": "DeleteItem",
+        "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+        "authorization": [
+          {
+            "Policy": null,
+            "Roles": null,
+            "AuthenticationSchemes": null
+          }
+        ],
+        "controllerAttributes": [
+          "[System.Runtime.CompilerServices.NullableContextAttribute((Byte)1)]",
+          "[System.Runtime.CompilerServices.NullableAttribute((Byte)0)]",
+          "[Microsoft.AspNetCore.Mvc.RouteAttribute(\"\")]"
+        ],
+        "parameters": [
+          {
+            "name": "itemId",
+            "type": "System.Guid",
+            "attributes": [],
+            "binder": null
+          }
+        ],
+        "route": "Items/{itemId}",
+        "authorized": true
+      },
+      {
+        "method": "DeleteItems",
+        "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+        "authorization": [
+          {
+            "Policy": null,
+            "Roles": null,
+            "AuthenticationSchemes": null
+          }
+        ],
+        "controllerAttributes": [
+          "[System.Runtime.CompilerServices.NullableContextAttribute((Byte)1)]",
+          "[System.Runtime.CompilerServices.NullableAttribute((Byte)0)]",
+          "[Microsoft.AspNetCore.Mvc.RouteAttribute(\"\")]"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "type": "System.Guid[]",
+            "attributes": [
+              "Microsoft.AspNetCore.Mvc.FromQueryAttribute",
+              "Microsoft.AspNetCore.Mvc.ModelBinderAttribute"
+            ],
+            "binder": "Jellyfin.Api.ModelBinders.CommaDelimitedCollectionModelBinder"
+          }
+        ],
+        "route": "Items",
+        "authorized": true
+      }
+    ],
+    "result": "PASS",
+    "image": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+    "imageIdentity": {
+      "Id": "sha256:6818dd2187535d810f2384cbb478aa7ae208da5410e058fae75bf26a0cc9f190",
+      "RepoDigests": [
+        "lscr.io/linuxserver/jellyfin@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308"
+      ],
+      "Architecture": "amd64",
+      "Os": "linux"
+    },
+    "webIndexSha256": "0d2db1233e520dbf038acb73f074c4c1faab0745b05ef794e20b3a8855f0be96"
+  },
+  "caseCount": 77,
+  "caseNames": [
+    "portable-origin-veto",
+    "portable-origin-veto",
+    "portable-origin-veto",
+    "unauthenticated",
+    "origin-rejected",
+    "untrusted-forwarded-origin-rejected",
+    "fetch-site-rejected",
+    "url-token-rejected",
+    "missing-auth-header",
+    "api-key",
+    "native-permission",
+    "ordinary-protected",
+    "ordinary-clear",
+    "invisible",
+    "challenge",
+    "challenge",
+    "cross-session-redeem",
+    "challenge",
+    "explicit-revoke",
+    "challenge",
+    "new-watchlist-interest",
+    "challenge",
+    "new-playback-interest",
+    "challenge",
+    "interest-removed-no-fallback",
+    "challenge",
+    "different-target",
+    "challenge",
+    "different-action",
+    "malformed-binding",
+    "unknown-approval",
+    "malformed-approval-header",
+    "duplicates",
+    "overlap",
+    "missing-last",
+    "bulk-protected-last",
+    "challenge",
+    "bulk-order-changed",
+    "challenge",
+    "expired",
+    "challenge",
+    "revoked-EnableContentDeletion",
+    "challenge",
+    "revoked-IsAdministrator",
+    "challenge",
+    "revoked-IsDisabled",
+    "challenge",
+    "session-revoked",
+    "challenge",
+    "native-metadata-changed",
+    "lookup-failure",
+    "challenge",
+    "long-series-revoke",
+    "challenge",
+    "episode-revoke",
+    "challenge",
+    "season-revoke",
+    "challenge",
+    "approved-single",
+    "challenge",
+    "approved-bulk",
+    "challenge",
+    "concurrent-single-approval",
+    "challenge",
+    "concurrent-bulk-approval",
+    "challenge",
+    "challenge",
+    "first-of-two-challenges",
+    "challenge",
+    "approved-episode",
+    "challenge",
+    "approved-season",
+    "challenge",
+    "approved-series",
+    "challenge",
+    "restart-invalidates",
+    "saved-off-still-enforced"
+  ]
+}

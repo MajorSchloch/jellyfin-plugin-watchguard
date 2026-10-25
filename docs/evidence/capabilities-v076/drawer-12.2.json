@@ -1,0 +1,722 @@
+{
+  "serverVersion": "12.2.0",
+  "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+  "baseline": false,
+  "cases": [
+    {
+      "name": "modern-390-0",
+      "native": {
+        "x": 0,
+        "y": 122.671875,
+        "right": 210,
+        "bottom": 168.984375,
+        "width": 210,
+        "height": 46.3125
+      },
+      "link": {
+        "x": 0,
+        "y": 168.984375,
+        "right": 210,
+        "bottom": 215.296875,
+        "width": 210,
+        "height": 46.3125
+      },
+      "icon": {
+        "x": 16,
+        "y": 180.984375,
+        "right": 52,
+        "bottom": 203.296875,
+        "width": 36,
+        "height": 22.3125
+      },
+      "nativeIcon": {
+        "x": 16,
+        "y": 134.671875,
+        "right": 52,
+        "bottom": 156.984375,
+        "width": 36,
+        "height": 22.3125
+      },
+      "label": {
+        "x": 52,
+        "y": 180.984375,
+        "right": 194,
+        "bottom": 203.296875,
+        "width": 142,
+        "height": 22.3125
+      },
+      "nativeLabel": {
+        "x": 52,
+        "y": 134.671875,
+        "right": 194,
+        "bottom": 156.984375,
+        "width": 142,
+        "height": 22.3125
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 210,
+        "bottom": 900,
+        "width": 210,
+        "height": 900
+      },
+      "sameRow": false,
+      "count": 1,
+      "overflow": false,
+      "active": "false",
+      "generatedClasses": false,
+      "separate": true,
+      "aligned": true,
+      "fullWidth": true,
+      "capabilities": {
+        "WebVersion": "12.2.0",
+        "TestedVersions": [
+          "12.2.0",
+          "12.3.0"
+        ],
+        "Checks": [
+          {
+            "Id": "web-version",
+            "Status": "Tested",
+            "Detail": "Web reports 12.2.0 (qualified release).",
+            "Action": ""
+          },
+          {
+            "Id": "browser-api",
+            "Status": "Tested",
+            "Detail": "Required authenticated request API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "watchlists-api",
+            "Status": "Tested",
+            "Detail": "Watchlists API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "deletion-adapter",
+            "Status": "Tested",
+            "Detail": "Browser deletion adapter is attached to the current ApiClient.",
+            "Action": ""
+          },
+          {
+            "Id": "browser-loader",
+            "Status": "Tested",
+            "Detail": "Standalone bootstrap: loaded. Build identity and authenticated script delivery are checked separately.",
+            "Action": ""
+          },
+          {
+            "Id": "navigation-layout",
+            "Status": "Tested",
+            "Detail": "Recognized layout/navigation entry is present.",
+            "Action": ""
+          },
+          {
+            "Id": "filter-history",
+            "Status": "Tested",
+            "Detail": "History replacement keeps Jellyfin-owned state; behavioral Back/Forward coverage is limited to qualified Web releases.",
+            "Action": ""
+          }
+        ]
+      },
+      "navigation": "PASS"
+    },
+    {
+      "name": "modern-600-1",
+      "native": {
+        "x": 0,
+        "y": 122.671875,
+        "right": 210,
+        "bottom": 168.984375,
+        "width": 210,
+        "height": 46.3125
+      },
+      "link": {
+        "x": 0,
+        "y": 168.984375,
+        "right": 210,
+        "bottom": 215.296875,
+        "width": 210,
+        "height": 46.3125
+      },
+      "icon": {
+        "x": 16,
+        "y": 180.984375,
+        "right": 52,
+        "bottom": 203.296875,
+        "width": 36,
+        "height": 22.3125
+      },
+      "nativeIcon": {
+        "x": 16,
+        "y": 134.671875,
+        "right": 52,
+        "bottom": 156.984375,
+        "width": 36,
+        "height": 22.3125
+      },
+      "label": {
+        "x": 52,
+        "y": 180.984375,
+        "right": 194,
+        "bottom": 203.296875,
+        "width": 142,
+        "height": 22.3125
+      },
+      "nativeLabel": {
+        "x": 52,
+        "y": 134.671875,
+        "right": 194,
+        "bottom": 156.984375,
+        "width": 142,
+        "height": 22.3125
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 210,
+        "bottom": 900,
+        "width": 210,
+        "height": 900
+      },
+      "sameRow": false,
+      "count": 1,
+      "overflow": false,
+      "active": "false",
+      "generatedClasses": false,
+      "separate": true,
+      "aligned": true,
+      "fullWidth": true,
+      "capabilities": {
+        "WebVersion": "12.2.0",
+        "TestedVersions": [
+          "12.2.0",
+          "12.3.0"
+        ],
+        "Checks": [
+          {
+            "Id": "web-version",
+            "Status": "Tested",
+            "Detail": "Web reports 12.2.0 (qualified release).",
+            "Action": ""
+          },
+          {
+            "Id": "browser-api",
+            "Status": "Tested",
+            "Detail": "Required authenticated request API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "watchlists-api",
+            "Status": "Tested",
+            "Detail": "Watchlists API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "deletion-adapter",
+            "Status": "Tested",
+            "Detail": "Browser deletion adapter is attached to the current ApiClient.",
+            "Action": ""
+          },
+          {
+            "Id": "browser-loader",
+            "Status": "Tested",
+            "Detail": "Standalone bootstrap: loaded. Build identity and authenticated script delivery are checked separately.",
+            "Action": ""
+          },
+          {
+            "Id": "navigation-layout",
+            "Status": "Tested",
+            "Detail": "Recognized layout/navigation entry is present.",
+            "Action": ""
+          },
+          {
+            "Id": "filter-history",
+            "Status": "Tested",
+            "Detail": "History replacement keeps Jellyfin-owned state; behavioral Back/Forward coverage is limited to qualified Web releases.",
+            "Action": ""
+          }
+        ]
+      },
+      "navigation": "PASS"
+    },
+    {
+      "name": "modern-390-2",
+      "native": {
+        "x": 0,
+        "y": 122.671875,
+        "right": 210,
+        "bottom": 168.984375,
+        "width": 210,
+        "height": 46.3125
+      },
+      "link": {
+        "x": 0,
+        "y": 168.984375,
+        "right": 210,
+        "bottom": 215.296875,
+        "width": 210,
+        "height": 46.3125
+      },
+      "icon": {
+        "x": 16,
+        "y": 180.984375,
+        "right": 52,
+        "bottom": 203.296875,
+        "width": 36,
+        "height": 22.3125
+      },
+      "nativeIcon": {
+        "x": 16,
+        "y": 134.671875,
+        "right": 52,
+        "bottom": 156.984375,
+        "width": 36,
+        "height": 22.3125
+      },
+      "label": {
+        "x": 52,
+        "y": 180.984375,
+        "right": 194,
+        "bottom": 203.296875,
+        "width": 142,
+        "height": 22.3125
+      },
+      "nativeLabel": {
+        "x": 52,
+        "y": 134.671875,
+        "right": 194,
+        "bottom": 156.984375,
+        "width": 142,
+        "height": 22.3125
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 210,
+        "bottom": 900,
+        "width": 210,
+        "height": 900
+      },
+      "sameRow": false,
+      "count": 1,
+      "overflow": false,
+      "active": "false",
+      "generatedClasses": false,
+      "separate": true,
+      "aligned": true,
+      "fullWidth": true,
+      "capabilities": {
+        "WebVersion": "12.2.0",
+        "TestedVersions": [
+          "12.2.0",
+          "12.3.0"
+        ],
+        "Checks": [
+          {
+            "Id": "web-version",
+            "Status": "Tested",
+            "Detail": "Web reports 12.2.0 (qualified release).",
+            "Action": ""
+          },
+          {
+            "Id": "browser-api",
+            "Status": "Tested",
+            "Detail": "Required authenticated request API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "watchlists-api",
+            "Status": "Tested",
+            "Detail": "Watchlists API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "deletion-adapter",
+            "Status": "Tested",
+            "Detail": "Browser deletion adapter is attached to the current ApiClient.",
+            "Action": ""
+          },
+          {
+            "Id": "browser-loader",
+            "Status": "Tested",
+            "Detail": "Standalone bootstrap: loaded. Build identity and authenticated script delivery are checked separately.",
+            "Action": ""
+          },
+          {
+            "Id": "navigation-layout",
+            "Status": "Tested",
+            "Detail": "Recognized layout/navigation entry is present.",
+            "Action": ""
+          },
+          {
+            "Id": "filter-history",
+            "Status": "Tested",
+            "Detail": "History replacement keeps Jellyfin-owned state; behavioral Back/Forward coverage is limited to qualified Web releases.",
+            "Action": ""
+          }
+        ]
+      },
+      "navigation": "PASS"
+    },
+    {
+      "name": "desktop-legacy-390-3",
+      "native": {
+        "x": 0,
+        "y": 7.4375,
+        "right": 320,
+        "bottom": 54.453125,
+        "width": 320,
+        "height": 47.015625
+      },
+      "link": {
+        "x": 0,
+        "y": 54.453125,
+        "right": 320,
+        "bottom": 101.46875,
+        "width": 320,
+        "height": 47.015625
+      },
+      "icon": {
+        "x": 35.703125,
+        "y": 67.84375,
+        "right": 55.703125,
+        "bottom": 88.078125,
+        "width": 20,
+        "height": 20.234375
+      },
+      "nativeIcon": {
+        "x": 35.703125,
+        "y": 20.828125,
+        "right": 55.703125,
+        "bottom": 41.0625,
+        "width": 20,
+        "height": 20.234375
+      },
+      "label": {
+        "x": 75.9375,
+        "y": 67.90625,
+        "right": 145.9375,
+        "bottom": 88,
+        "width": 70,
+        "height": 20.09375
+      },
+      "nativeLabel": {
+        "x": 75.9375,
+        "y": 20.890625,
+        "right": 117.9375,
+        "bottom": 40.984375,
+        "width": 42,
+        "height": 20.09375
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 320,
+        "bottom": 900,
+        "width": 320,
+        "height": 900
+      },
+      "sameRow": false,
+      "count": 1,
+      "overflow": false,
+      "active": "false",
+      "generatedClasses": false,
+      "separate": true,
+      "aligned": true,
+      "fullWidth": true,
+      "capabilities": {
+        "WebVersion": "12.2.0",
+        "TestedVersions": [
+          "12.2.0",
+          "12.3.0"
+        ],
+        "Checks": [
+          {
+            "Id": "web-version",
+            "Status": "Tested",
+            "Detail": "Web reports 12.2.0 (qualified release).",
+            "Action": ""
+          },
+          {
+            "Id": "browser-api",
+            "Status": "Tested",
+            "Detail": "Required authenticated request API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "watchlists-api",
+            "Status": "Tested",
+            "Detail": "Watchlists API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "deletion-adapter",
+            "Status": "Tested",
+            "Detail": "Browser deletion adapter is attached to the current ApiClient.",
+            "Action": ""
+          },
+          {
+            "Id": "browser-loader",
+            "Status": "Tested",
+            "Detail": "Standalone bootstrap: loaded. Build identity and authenticated script delivery are checked separately.",
+            "Action": ""
+          },
+          {
+            "Id": "navigation-layout",
+            "Status": "Tested",
+            "Detail": "Recognized layout/navigation entry is present.",
+            "Action": ""
+          },
+          {
+            "Id": "filter-history",
+            "Status": "Tested",
+            "Detail": "History replacement keeps Jellyfin-owned state; behavioral Back/Forward coverage is limited to qualified Web releases.",
+            "Action": ""
+          }
+        ]
+      },
+      "navigation": "PASS"
+    },
+    {
+      "name": "desktop-legacy-600-4",
+      "native": {
+        "x": 0,
+        "y": 7.4375,
+        "right": 320,
+        "bottom": 54.453125,
+        "width": 320,
+        "height": 47.015625
+      },
+      "link": {
+        "x": 0,
+        "y": 54.453125,
+        "right": 320,
+        "bottom": 101.46875,
+        "width": 320,
+        "height": 47.015625
+      },
+      "icon": {
+        "x": 35.703125,
+        "y": 67.84375,
+        "right": 55.703125,
+        "bottom": 88.078125,
+        "width": 20,
+        "height": 20.234375
+      },
+      "nativeIcon": {
+        "x": 35.703125,
+        "y": 20.828125,
+        "right": 55.703125,
+        "bottom": 41.0625,
+        "width": 20,
+        "height": 20.234375
+      },
+      "label": {
+        "x": 75.9375,
+        "y": 67.90625,
+        "right": 145.9375,
+        "bottom": 88,
+        "width": 70,
+        "height": 20.09375
+      },
+      "nativeLabel": {
+        "x": 75.9375,
+        "y": 20.890625,
+        "right": 117.9375,
+        "bottom": 40.984375,
+        "width": 42,
+        "height": 20.09375
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 320,
+        "bottom": 900,
+        "width": 320,
+        "height": 900
+      },
+      "sameRow": false,
+      "count": 1,
+      "overflow": false,
+      "active": "false",
+      "generatedClasses": false,
+      "separate": true,
+      "aligned": true,
+      "fullWidth": true,
+      "capabilities": {
+        "WebVersion": "12.2.0",
+        "TestedVersions": [
+          "12.2.0",
+          "12.3.0"
+        ],
+        "Checks": [
+          {
+            "Id": "web-version",
+            "Status": "Tested",
+            "Detail": "Web reports 12.2.0 (qualified release).",
+            "Action": ""
+          },
+          {
+            "Id": "browser-api",
+            "Status": "Tested",
+            "Detail": "Required authenticated request API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "watchlists-api",
+            "Status": "Tested",
+            "Detail": "Watchlists API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "deletion-adapter",
+            "Status": "Tested",
+            "Detail": "Browser deletion adapter is attached to the current ApiClient.",
+            "Action": ""
+          },
+          {
+            "Id": "browser-loader",
+            "Status": "Tested",
+            "Detail": "Standalone bootstrap: loaded. Build identity and authenticated script delivery are checked separately.",
+            "Action": ""
+          },
+          {
+            "Id": "navigation-layout",
+            "Status": "Tested",
+            "Detail": "Recognized layout/navigation entry is present.",
+            "Action": ""
+          },
+          {
+            "Id": "filter-history",
+            "Status": "Tested",
+            "Detail": "History replacement keeps Jellyfin-owned state; behavioral Back/Forward coverage is limited to qualified Web releases.",
+            "Action": ""
+          }
+        ]
+      },
+      "navigation": "PASS"
+    },
+    {
+      "name": "desktop-legacy-390-5",
+      "native": {
+        "x": 0,
+        "y": 7.4375,
+        "right": 320,
+        "bottom": 54.453125,
+        "width": 320,
+        "height": 47.015625
+      },
+      "link": {
+        "x": 0,
+        "y": 54.453125,
+        "right": 320,
+        "bottom": 101.46875,
+        "width": 320,
+        "height": 47.015625
+      },
+      "icon": {
+        "x": 35.703125,
+        "y": 67.84375,
+        "right": 55.703125,
+        "bottom": 88.078125,
+        "width": 20,
+        "height": 20.234375
+      },
+      "nativeIcon": {
+        "x": 35.703125,
+        "y": 20.828125,
+        "right": 55.703125,
+        "bottom": 41.0625,
+        "width": 20,
+        "height": 20.234375
+      },
+      "label": {
+        "x": 75.9375,
+        "y": 67.90625,
+        "right": 145.9375,
+        "bottom": 88,
+        "width": 70,
+        "height": 20.09375
+      },
+      "nativeLabel": {
+        "x": 75.9375,
+        "y": 20.890625,
+        "right": 117.9375,
+        "bottom": 40.984375,
+        "width": 42,
+        "height": 20.09375
+      },
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "right": 320,
+        "bottom": 900,
+        "width": 320,
+        "height": 900
+      },
+      "sameRow": false,
+      "count": 1,
+      "overflow": false,
+      "active": "false",
+      "generatedClasses": false,
+      "separate": true,
+      "aligned": true,
+      "fullWidth": true,
+      "capabilities": {
+        "WebVersion": "12.2.0",
+        "TestedVersions": [
+          "12.2.0",
+          "12.3.0"
+        ],
+        "Checks": [
+          {
+            "Id": "web-version",
+            "Status": "Tested",
+            "Detail": "Web reports 12.2.0 (qualified release).",
+            "Action": ""
+          },
+          {
+            "Id": "browser-api",
+            "Status": "Tested",
+            "Detail": "Required authenticated request API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "watchlists-api",
+            "Status": "Tested",
+            "Detail": "Watchlists API is present.",
+            "Action": ""
+          },
+          {
+            "Id": "deletion-adapter",
+            "Status": "Tested",
+            "Detail": "Browser deletion adapter is attached to the current ApiClient.",
+            "Action": ""
+          },
+          {
+            "Id": "browser-loader",
+            "Status": "Tested",
+            "Detail": "Standalone bootstrap: loaded. Build identity and authenticated script delivery are checked separately.",
+            "Action": ""
+          },
+          {
+            "Id": "navigation-layout",
+            "Status": "Tested",
+            "Detail": "Recognized layout/navigation entry is present.",
+            "Action": ""
+          },
+          {
+            "Id": "filter-history",
+            "Status": "Tested",
+            "Detail": "History replacement keeps Jellyfin-owned state; behavioral Back/Forward coverage is limited to qualified Web releases.",
+            "Action": ""
+          }
+        ]
+      },
+      "navigation": "PASS"
+    }
+  ],
+  "result": "PASS"
+}

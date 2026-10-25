@@ -1,0 +1,1188 @@
+{
+  "serverVersion": "12.3.0",
+  "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+  "result": "PASS",
+  "phase": "usability presentation",
+  "responses": [
+    {
+      "phase": "initial background population",
+      "durationMs": 33,
+      "status": 200,
+      "search": null,
+      "statuses": "none",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 0,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 1.799,
+        "CandidatesExamined": 0,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 55,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 34.4415,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 2,
+        "EpisodeRows": 600
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 53,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 3,
+      "more": false,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 34.7066,
+        "CandidatesExamined": 306,
+        "EpisodeVisibilityQueries": 2,
+        "EpisodeRows": 600
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 47,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 29.6826,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 3,
+        "EpisodeRows": 900
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 46,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 25,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 30.1987,
+        "CandidatesExamined": 410,
+        "EpisodeVisibilityQueries": 3,
+        "EpisodeRows": 900
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 50,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 30.6763,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 3,
+        "EpisodeRows": 900
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 45,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 25,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 30.1274,
+        "CandidatesExamined": 411,
+        "EpisodeVisibilityQueries": 3,
+        "EpisodeRows": 900
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 53,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 32.4747,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 3,
+        "EpisodeRows": 900
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 47,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 25,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 31.5609,
+        "CandidatesExamined": 425,
+        "EpisodeVisibilityQueries": 3,
+        "EpisodeRows": 900
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 58,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 35.9179,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 5,
+        "EpisodeRows": 1500
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 50,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 25,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 33.6209,
+        "CandidatesExamined": 425,
+        "EpisodeVisibilityQueries": 5,
+        "EpisodeRows": 1500
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 54,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 33.6579,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 6,
+        "EpisodeRows": 1800
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 51,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 24,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 36.1607,
+        "CandidatesExamined": 433,
+        "EpisodeVisibilityQueries": 6,
+        "EpisodeRows": 1800
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 57,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 35.2874,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 6,
+        "EpisodeRows": 1800
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 52,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 23,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 35.6291,
+        "CandidatesExamined": 435,
+        "EpisodeVisibilityQueries": 6,
+        "EpisodeRows": 1800
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 71,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 44.1675,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 57,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 24,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 41.0086,
+        "CandidatesExamined": 434,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 57,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 36.5276,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 56,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 23,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 38.1902,
+        "CandidatesExamined": 435,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 60,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 36.8711,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "initial background population",
+      "durationMs": 53,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 23,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 37.1485,
+        "CandidatesExamined": 435,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "search",
+      "durationMs": 42,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 1,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 23.708,
+        "CandidatesExamined": 12,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "automatic multi-request preparation",
+      "durationMs": 60,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 38.856,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "automatic multi-request preparation",
+      "durationMs": 70,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 23,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 50.754,
+        "CandidatesExamined": 435,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "native watched and unwatched polling",
+      "durationMs": 23,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "watched",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 1,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 4.5715,
+        "CandidatesExamined": 2,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "native watched and unwatched polling",
+      "durationMs": 19,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "watched",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 0,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 0.8362,
+        "CandidatesExamined": 0,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "native watched and unwatched polling",
+      "durationMs": 26,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "watched",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 1,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 4.4,
+        "CandidatesExamined": 2,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "native playback start and stop",
+      "durationMs": 19,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "playing",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 0,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 1.1887,
+        "CandidatesExamined": 0,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "native playback start and stop",
+      "durationMs": 25,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "playing",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 1,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 4.2212,
+        "CandidatesExamined": 2,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "native playback start and stop",
+      "durationMs": 20,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "playing",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 0,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 1.0865,
+        "CandidatesExamined": 0,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 64,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 43.945,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 57,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 23,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 41.1575,
+        "CandidatesExamined": 435,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 64,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 25,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 39.5772,
+        "CandidatesExamined": 148,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 6,
+      "status": 503,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": true,
+      "continuation": false,
+      "more": false
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 65,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": true,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "changed": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 42.1765,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 42,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": true,
+      "continuation": true,
+      "preparing": false,
+      "items": 0,
+      "more": false,
+      "changed": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 24.9073,
+        "CandidatesExamined": 301,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 5,
+      "status": 503,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": true,
+      "continuation": false,
+      "more": false
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 47,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": true,
+      "continuation": false,
+      "preparing": false,
+      "items": 0,
+      "more": false,
+      "changed": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 25.2801,
+        "CandidatesExamined": 102,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 63,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 44.0866,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "durationMs": 73,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 23,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 53.0257,
+        "CandidatesExamined": 435,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "added ordering",
+      "durationMs": 81,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 59.1975,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "added ordering",
+      "durationMs": 71,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 20,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 51.4765,
+        "CandidatesExamined": 436,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 62,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 40.4927,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 55,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 20,
+      "more": true,
+      "populationPending": true,
+      "work": {
+        "DurationMs": 39.2505,
+        "CandidatesExamined": 436,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": [
+        "PendingVerification"
+      ]
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 61,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 40.648,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 54,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 20,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 37.7572,
+        "CandidatesExamined": 436,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 60,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 39.76,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 55,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 20,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 39.282,
+        "CandidatesExamined": 436,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 75,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": true,
+      "items": 0,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 49.1847,
+        "CandidatesExamined": 427,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 59,
+      "status": 200,
+      "search": "",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": true,
+      "preparing": false,
+      "items": 20,
+      "more": true,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 45.2187,
+        "CandidatesExamined": 436,
+        "EpisodeVisibilityQueries": 7,
+        "EpisodeRows": 2100
+      },
+      "causes": []
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 58,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 1,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 36.6245,
+        "CandidatesExamined": 14,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 47,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "watchlisted,watching,playing,watched",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 1,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 24.8491,
+        "CandidatesExamined": 14,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    },
+    {
+      "phase": "usability presentation",
+      "durationMs": 28,
+      "status": 200,
+      "search": "Index Movie 120",
+      "statuses": "playing",
+      "check": false,
+      "continuation": false,
+      "preparing": false,
+      "items": 1,
+      "more": false,
+      "populationPending": false,
+      "work": {
+        "DurationMs": 7.6175,
+        "CandidatesExamined": 2,
+        "EpisodeVisibilityQueries": 0,
+        "EpisodeRows": 0
+      },
+      "causes": []
+    }
+  ],
+  "views": [
+    {
+      "phase": "initial background population",
+      "readyMs": 325,
+      "queryResponses": 2,
+      "preparationResponses": 1,
+      "titles": 3
+    },
+    {
+      "phase": "search",
+      "readyMs": 439,
+      "queryResponses": 1,
+      "titles": 1
+    },
+    {
+      "phase": "automatic multi-request preparation",
+      "readyMs": 516,
+      "queryResponses": 2,
+      "preparationResponses": 1,
+      "titles": 23
+    },
+    {
+      "phase": "native watched and unwatched polling",
+      "readyMs": 152,
+      "queryResponses": 1,
+      "preparationResponses": 0,
+      "titles": 1
+    },
+    {
+      "phase": "native playback start and stop",
+      "readyMs": 92,
+      "queryResponses": 1,
+      "preparationResponses": 0,
+      "titles": 0
+    },
+    {
+      "phase": "deeper view authorized changes",
+      "readyMs": 239,
+      "queryResponses": 2,
+      "preparationResponses": 1,
+      "titles": 23
+    },
+    {
+      "phase": "usability presentation",
+      "readyMs": 152,
+      "queryResponses": 1,
+      "preparationResponses": 0,
+      "titles": 1
+    },
+    {
+      "phase": "usability presentation",
+      "width": 1280,
+      "firstCardTop": 303.375,
+      "users": 7,
+      "expansionAndFocusPreserved": true
+    },
+    {
+      "phase": "usability presentation",
+      "width": 390,
+      "firstCardTop": 376.96875,
+      "users": 7,
+      "expansionAndFocusPreserved": true
+    },
+    {
+      "phase": "usability presentation",
+      "readyMs": 115,
+      "queryResponses": 1,
+      "preparationResponses": 0,
+      "titles": 1
+    }
+  ],
+  "initialPopulation": {
+    "result": "PASS",
+    "initialTitles": 3,
+    "loadedTitles": 23,
+    "elapsedMs": 276015
+  },
+  "watchedPolling": "PASS",
+  "playbackPolling": "PASS",
+  "checkRecovery": {
+    "result": "PASS",
+    "unchanged": true,
+    "changed": true,
+    "injectedStatus": 503,
+    "retainedLiveLabel": true
+  },
+  "deeperView": {
+    "result": "PASS",
+    "titles": 47,
+    "scroll": 400,
+    "orderAndPosterPreserved": true,
+    "retainedLiveLabel": true
+  },
+  "presentation": {
+    "result": "PASS",
+    "users": 7,
+    "longName": true,
+    "datesKeyboard": true,
+    "retainedError": true,
+    "additionalPresentationRequests": 0
+  }
+}

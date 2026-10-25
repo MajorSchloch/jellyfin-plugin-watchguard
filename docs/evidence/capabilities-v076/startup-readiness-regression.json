@@ -1,0 +1,22 @@
+{
+  "scenario": "Simulated asynchronous native authorization provider; not a real Jellyfin release qualification",
+  "baselineRuntimeCommit": "e230d38c242b4983526cd7b473a9f1b1b56957c1",
+  "baselineTestFixture": "New pending-authentication regression added before runtime correction",
+  "baseline": {
+    "test": "FinalDescriptorsAndNativeServicesMustRemainComplete(pending-authentication, true, 12.3.0)",
+    "result": "FAIL",
+    "expectedActiveWhileAuthorizationPending": false,
+    "observedActiveWhileAuthorizationPending": true,
+    "targetedTestsPassed": 18,
+    "targetedTestsFailed": 1
+  },
+  "correctedRuntimeCommit": "72d0973035cd02caafc9ba6464b3d421ec942ec9",
+  "corrected": {
+    "result": "PASS",
+    "activeWhileAuthorizationPending": false,
+    "compatibleWhileAuthorizationPending": false,
+    "activeAfterAllChecksSucceed": true,
+    "completeBackendTestsPassed": 354
+  },
+  "command": "dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore --filter FullyQualifiedName~FinalDescriptorsAndNativeServicesMustRemainComplete"
+}

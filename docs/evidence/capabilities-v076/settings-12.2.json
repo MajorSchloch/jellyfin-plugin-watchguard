@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "nativeConfiguration": true,
+  "settingsPersistence": true,
+  "serverAndBrowserStatus": true,
+  "saveDefaults": true,
+  "urlPrecedence": true,
+  "reset": true,
+  "savedRecentlyAdded": true,
+  "preferenceAccountSwitching": true,
+  "capabilityChecks": true
+}
