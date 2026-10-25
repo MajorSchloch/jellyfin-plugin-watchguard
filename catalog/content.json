@@ -12,7 +12,7 @@
     },
     "0.3.1.0": {
       "summary": [
-        "Save personal Watchlists defaults and reset the view to them.",
+        "Save or reset your personal Watchlists defaults.",
         "Configure WatchGuard and check its integration from the Jellyfin dashboard."
       ],
       "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/release-v031.md"
