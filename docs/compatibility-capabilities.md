@@ -19,7 +19,7 @@ The package still references Jellyfin Controller/Model **12.2.0**, targets .NET 
 
 The Integration status page presents **tested**, **compatible but untested**, **unsupported**, or **unavailable**, with failed checks and recovery actions visible and passing details expandable. Configured enforcement, restart requirement and **actual active enforcement** are separate. Even on a qualified version, missing required hooks means no protection claim. Browser failure does not change the server's protection status.
 
-The MVC convention prepares attachment; final descriptor verification establishes structural attachment. This follows the [ASP.NET Core application-model lifecycle](https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/application-model?view=aspnetcore-10.0). Native integration tests, rather than reflection, establish observed deletion/permission/approval behavior.
+The MVC convention prepares attachment; final descriptor verification establishes structural attachment. Active enforcement remains unavailable until all required checks, including asynchronous native authorization validation, finish successfully. This follows the [ASP.NET Core application-model lifecycle](https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/application-model?view=aspnetcore-10.0). Native integration tests, rather than reflection, establish observed deletion/permission/approval behavior.
 
 ## Unchanged deletion-failure boundary
 

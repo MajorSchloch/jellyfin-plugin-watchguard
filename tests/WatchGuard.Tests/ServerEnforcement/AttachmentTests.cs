@@ -163,6 +163,7 @@ public class AttachmentTests
 
     [Theory]
     [InlineData(null, true)]
+    [InlineData("pending-authentication", true)]
     [InlineData(null, true, "12.3.1")] // Simulated patch with unchanged contracts.
     [InlineData(null, false, "12.4.0")] // Simulated new minor, outside envelope.
     [InlineData("missing-filter", false)]
@@ -224,7 +225,10 @@ public class AttachmentTests
         var descriptors = new Mock<IActionDescriptorCollectionProvider>();
         descriptors.SetupGet(p => p.ActionDescriptors).Returns(new ActionDescriptorCollection(actions.Cast<ActionDescriptor>().ToArray(), 0));
         var policy = new Mock<IAuthorizationPolicyProvider>();
+        var pendingPolicy = new TaskCompletionSource<AuthorizationPolicy>(TaskCreationOptions.RunContinuationsAsynchronously);
         policy.Setup(p => p.GetDefaultPolicyAsync()).ReturnsAsync(fault == "native-policy" ? new AuthorizationPolicyBuilder().RequireAssertion(_ => true).Build() : new AuthorizationPolicyBuilder("CustomAuthentication").AddRequirements((IAuthorizationRequirement)Activator.CreateInstance(first.ControllerTypeInfo.Assembly.GetType("Jellyfin.Api.Auth.DefaultAuthorizationPolicy.DefaultAuthorizationRequirement")!)!).Build());
+        var verifiedPolicy = await policy.Object.GetDefaultPolicyAsync();
+        if (fault == "pending-authentication") policy.Setup(p => p.GetDefaultPolicyAsync()).Returns(pendingPolicy.Task);
         var scheme = new Mock<Microsoft.AspNetCore.Authentication.IAuthenticationSchemeProvider>();
         scheme.Setup(p => p.GetDefaultAuthenticateSchemeAsync()).ReturnsAsync(fault == "native-scheme" ? null :
             new Microsoft.AspNetCore.Authentication.AuthenticationScheme("CustomAuthentication", null, first.ControllerTypeInfo.Assembly.GetType("Jellyfin.Api.Auth.CustomAuthenticationHandler")!));
@@ -234,7 +238,12 @@ public class AttachmentTests
         if (fault != "native-handler") collection.AddSingleton((IAuthorizationHandler)Activator.CreateInstance(first.ControllerTypeInfo.Assembly.GetType("Jellyfin.Api.Auth.DefaultAuthorizationPolicy.DefaultAuthorizationHandler")!)!);
         if (fault != "missing-service") collection.AddSingleton(Mock.Of<ILibraryManager>());
         using var services = collection.BuildServiceProvider();
-        await new AttachmentReport(descriptors.Object, state, NullLogger<AttachmentReport>.Instance, services).StartAsync(default);
+        var reporting = new AttachmentReport(descriptors.Object, state, NullLogger<AttachmentReport>.Instance, services).StartAsync(default);
+        if (fault == "pending-authentication") {
+            try { Assert.False(state.Active); Assert.False(state.Compatible); }
+            finally { pendingPolicy.SetResult(verifiedPolicy); }
+        }
+        await reporting;
         Assert.Equal(expected, state.Active);
         Assert.Equal(expected, state.Compatible);
         Assert.Equal(expected ? version == "12.3.1" ? "CompatibleUntested" : "Tested" : "Unsupported", state.CompatibilityStatus);

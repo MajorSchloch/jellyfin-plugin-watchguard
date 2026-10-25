@@ -112,6 +112,7 @@ public sealed class AttachmentReport(IActionDescriptorCollectionProvider descrip
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        state.AttachmentVerified = false;
         _ = descriptors.ActionDescriptors; // Force all MVC conventions before checking final descriptors.
         state.Runtime = JellyfinCompatibility.RuntimeCheck(state.ServerVersion, services);
         var all = descriptors.ActionDescriptors.Items;
@@ -125,9 +126,9 @@ public sealed class AttachmentReport(IActionDescriptorCollectionProvider descrip
             DeletionContract.ItemRoute(a.AttributeRouteInfo?.Template) &&
             (a.ActionConstraints?.OfType<HttpMethodActionConstraint>().Any() != true ||
                 a.ActionConstraints.OfType<HttpMethodActionConstraint>().Any(c => c.HttpMethods.Contains("DELETE")))).ToArray();
-        state.AttachmentVerified = state.Supported && native.Length == 2 && attached.Length == 2 && itemRoutes.Length == 2 &&
+        var verifiedAttachment = state.Supported && native.Length == 2 && attached.Length == 2 && itemRoutes.Length == 2 &&
             native.Select(a => a.MethodInfo.Name).Distinct().Count() == 2 && native.All(a => attached.Contains(a) && DeletionContract.Descriptor(a));
-        state.Check("guard-attachment", state.AttachmentVerified,
+        state.Check("guard-attachment", verifiedAttachment,
             "Final MVC endpoints must each retain the expected route, authorization, binding and exactly one action guard; no extra item deletion selector.",
             "Restart with a qualified server/plugin combination. Native deletion may be unguarded when attachment is incomplete.");
         try
@@ -152,6 +153,9 @@ public sealed class AttachmentReport(IActionDescriptorCollectionProvider descrip
         }
         state.Check("startup-configuration", state.ConfigurationCaptured, "Enforcement setting captured once at plugin startup.", "Restart and inspect plugin initialization errors.");
         state.Supported &= state.Runtime.Passed && state.Checks.All(c => c.Passed) && state.ConfigurationCaptured;
+        // Publish readiness only after every required check, including asynchronous
+        // native authorization validation, has finished successfully.
+        state.AttachmentVerified = verifiedAttachment && state.Supported;
         if (state.Compatible)
             logger.LogInformation("WG-GUARD attached=2 supported=true enabledAtStartup={Enabled}; native HTTP item routes only", state.EnabledAtStartup);
         else
