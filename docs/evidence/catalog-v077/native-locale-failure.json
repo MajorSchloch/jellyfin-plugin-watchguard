@@ -1,0 +1,13 @@
+{
+  "run": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40235079654",
+  "job": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40235079654/job/121295093242",
+  "commit": "742b143837c82585a6a29294959471e7a477a047",
+  "host": "12.3.0",
+  "phase": "Available catalog details before plugin installation",
+  "result": "FAIL",
+  "nativeError": "RangeError: Invalid language tag: en-us@posix",
+  "assertion": "Requested description did not render within 15 seconds.",
+  "correction": "Pin Playwright locale en-US and timezone UTC; keep native rendering, timeout and assertions unchanged.",
+  "runtimeChanged": false,
+  "remainder": "Remaining jobs cancelled; this run is not qualification success."
+}
