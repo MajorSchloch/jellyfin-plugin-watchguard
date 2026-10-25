@@ -169,6 +169,7 @@ public class AttachmentTests
     [InlineData("duplicate-filter", false)]
     [InlineData("binding-source", false)]
     [InlineData("binding-name", false)]
+    [InlineData("replacement-binder", false)]
     [InlineData("route", false)]
     [InlineData("anonymous", false)]
     [InlineData("authorization", false)]
@@ -204,6 +205,11 @@ public class AttachmentTests
             case "missing-filter": first.FilterDescriptors.Clear(); break;
             case "duplicate-filter": first.FilterDescriptors.Add(first.FilterDescriptors[0]); break;
             case "binding-source": first.Parameters[0].BindingInfo!.BindingSource = BindingSource.Body; break;
+            case "replacement-binder":
+                var foreign = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("ForeignBinder"), AssemblyBuilderAccess.Run).DefineDynamicModule("binder")
+                    .DefineType("Jellyfin.Api.ModelBinders.CommaDelimitedCollectionModelBinder", TypeAttributes.Public, typeof(TestBinder)).CreateType();
+                actions.Single(a => a.MethodInfo.Name == "DeleteItems").Parameters[0].BindingInfo!.BinderType = foreign;
+                break;
             case "binding-name": first.Parameters[0].BindingInfo!.BinderModelName = "other"; break;
             case "route": first.AttributeRouteInfo!.Template = "New/Items/{itemId}"; break;
             case "anonymous": first.EndpointMetadata.Add(new AllowAnonymousAttribute()); break;

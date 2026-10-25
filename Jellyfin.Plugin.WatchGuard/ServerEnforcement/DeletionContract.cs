@@ -65,7 +65,8 @@ internal static class DeletionContract
             p.ParameterType == (single ? typeof(Guid) : typeof(Guid[])) && p.BindingInfo?.BinderModelName is null &&
             // Single Guid is inferred from the route. Bulk uses the explicit query binder.
             (single ? p.BindingInfo?.BinderType is null && (p.BindingInfo?.BindingSource is null || p.BindingInfo.BindingSource == BindingSource.Path) :
-                p.BindingInfo?.BindingSource == BindingSource.Query && p.BindingInfo.BinderType?.FullName == Binder) &&
+                p.BindingInfo?.BindingSource == BindingSource.Query &&
+                p.BindingInfo.BinderType == action.MethodInfo.GetParameters()[0].GetCustomAttribute<ModelBinderAttribute>()?.BinderType) &&
             filters.Count(f => f.Filter is ServiceFilterAttribute s && s.ServiceType == typeof(Guard) && s.Order == 0 && !s.IsReusable) == 1;
     }
 }
