@@ -1,8 +1,8 @@
 # WatchGuard documentation index
 
-**Current published version: [v0.7.4](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.4)** · Qualified target: Jellyfin Server/Web 12.2.0 and 12.3.0, .NET 10.
+**Current published version: [v0.7.5](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.5)** · Qualified target: Jellyfin Server/Web 12.2.0 and 12.3.0, .NET 10.
 
-**Published activity browser:** [v0.7.0 notes](release-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Published navigation:** [v0.7.2 notes](release-v072.md), [qualification](navigation-validation-v072.md). **Published compatibility:** [v0.7.3 notes](release-v073.md), [qualification](compatibility-v073.md). **Published startup:** [v0.7.4 notes](release-v074.md), [qualification](startup-validation-v074.md). **Unpublished v0.7.5:** [preparation status](../release-preparation.md), [drawer and unified qualification](drawer-qualification-v075.md).
+**Published activity browser:** [v0.7.0 notes](release-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Published navigation:** [v0.7.2 notes](release-v072.md), [qualification](navigation-validation-v072.md). **Published compatibility:** [v0.7.3 notes](release-v073.md), [qualification](compatibility-v073.md). **Published startup:** [v0.7.4 notes](release-v074.md), [qualification](startup-validation-v074.md). **Published drawer/qualification:** [v0.7.5 notes](release-v075.md), [qualification](drawer-qualification-v075.md). **Unpublished v0.7.6:** [preparation](../release-preparation.md), [compatibility policy](compatibility-capabilities.md).
 
 Start with the repository [README](../README.md) for features, installation, limitations, and the non-mutating status/approval checks. The repository includes historical design experiments and release-candidate reports. Their *as-of-version* statements (for example, “not published” or “requires Injector”) describe historical candidates, **not the current public release**.
 

@@ -1150,3 +1150,36 @@ test('Refresh stays focusable and coalesces repeated activation while loading',a
     f.calls[2].resolve([]);await turn();f.calls[3].resolve(indexedResult(automaticResult.Items));await loading;
     assert.equal(refresh.getAttribute('aria-disabled'),'false');assert.equal(f.page.children[5].children[0],card);
 });
+
+test('compatibility reports feature independence, unqualified simulations and current adapter identity', () => {
+    const {browserCapabilities} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const api = Object.fromEntries(['getCurrentUserId','accessToken','getUrl','ajax','getCurrentUser','serverId','getImageUrl','deleteItem','getItem'].map(n => [n,()=>{}]));
+    api.appVersion = () => '12.3.0';
+    let layout = true, navigation = true;
+    const doc = {querySelector: s => s === '.watchguard-nav' ? navigation ? {isConnected:true} : null : layout ? {} : null};
+    const host = {location:{hash:'#/home'},history:{replaceState(){}},WatchGuardStandalone:{status:()=> 'loaded'}};
+    const read = (installed=true) => Object.fromEntries(browserCapabilities(api,doc,host,installed).Checks.map(c=>[c.Id,c]));
+    assert.ok(Object.values(read()).every(c=>c.Status==='Tested'));
+    layout = false; navigation = false;
+    assert.equal(read()['navigation-layout'].Status,'Unsupported');
+    assert.equal(read()['deletion-adapter'].Status,'Tested');
+    assert.equal(read()['watchlists-api'].Status,'Tested');
+    assert.equal(read(false)['deletion-adapter'].Status,'Unsupported');
+    host.location.hash = '#/configurationpage?name=WatchGuard';
+    assert.equal(read()['navigation-layout'].Status,'Unavailable');
+    api.appVersion = () => '12.3.1'; // Simulated patch, never a qualified release.
+    assert.equal(read()['browser-api'].Status,'CompatibleUntested');
+    api.appVersion = () => '13.0.0'; // Simulated unknown family.
+    assert.equal(read()['web-version'].Status,'Unsupported');
+    assert.equal(read()['browser-api'].Status,'CompatibleUntested');
+    api.appVersion = () => { throw Error('optional accessor unavailable'); };
+    assert.equal(read()['web-version'].Status,'Unavailable');
+    assert.equal(read()['watchlists-api'].Status,'CompatibleUntested');
+    delete api.getImageUrl;
+    assert.equal(read()['watchlists-api'].Status,'Unsupported');
+    assert.equal(read()['deletion-adapter'].Status,'CompatibleUntested');
+    delete api.ajax;
+    assert.equal(read()['browser-api'].Status,'Unsupported');
+    assert.equal(read()['deletion-adapter'].Status,'Unsupported');
+    assert.equal(browserCapabilities(null,doc,host,false).Checks.find(c=>c.Id==='browser-api').Status,'Unavailable');
+});

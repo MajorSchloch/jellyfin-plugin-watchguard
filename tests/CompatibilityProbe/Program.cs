@@ -41,21 +41,25 @@ var conventionType = plugin.GetType("Jellyfin.Plugin.WatchGuard.ServerEnforcemen
 var logger = Activator.CreateInstance(typeof(NullLogger<>).MakeGenericType(conventionType));
 var convention = (IApplicationModelConvention)Activator.CreateInstance(conventionType, state, logger)!;
 var controller = new ControllerModel(type.GetTypeInfo(), type.GetCustomAttributes().ToArray());
-foreach (var action in actions) controller.Actions.Add(new ActionModel(action, action.GetCustomAttributes().ToArray()));
+foreach (var action in type.GetMethods().Where(m => m.GetCustomAttributes<HttpDeleteAttribute>().Any() || m.Name is "DeleteItem" or "DeleteItems")) controller.Actions.Add(new ActionModel(action, action.GetCustomAttributes().ToArray()));
+
 var model = new ApplicationModel();
 model.Controllers.Add(controller);
 convention.Apply(model);
 var attached = controller.Actions.Count(a => a.Filters.OfType<ServiceFilterAttribute>().Any(f =>
     f.ServiceType.FullName == "Jellyfin.Plugin.WatchGuard.ServerEnforcement.Guard"));
 if (!(bool)stateType.GetProperty("Supported")!.GetValue(state)! || attached != 2)
-    throw new InvalidOperationException("Production convention did not attach to both native actions");
+    throw new InvalidOperationException("Production convention did not attach to both native actions: " + JsonSerializer.Serialize(stateType.GetProperty("Checks")!.GetValue(state)));
 
 Console.WriteLine(JsonSerializer.Serialize(new
 {
-    serverVersion = args[2], attached, assembly = assembly.FullName, controller = type.FullName,
+    serverVersion = args[2], attached, checks = stateType.GetProperty("Checks")!.GetValue(state), assembly = assembly.FullName, controller = type.FullName,
+    authenticationTypes = assembly.GetTypes().Where(t => t.Namespace?.Contains("Auth", StringComparison.Ordinal) == true && (t.Name.Contains("DefaultAuthorization", StringComparison.Ordinal) || t.Name.Contains("CustomAuthentication", StringComparison.Ordinal))).Select(t => t.FullName),
     actions = actions.Select(m => new
     {
         method = m.Name, returns = m.ReturnType.FullName,
+        authorization = m.GetCustomAttributes<AuthorizeAttribute>().Select(a => new { a.Policy, a.Roles, a.AuthenticationSchemes }),
+        controllerAttributes = type.CustomAttributes.Select(a => a.ToString()),
         parameters = m.GetParameters().Select(p => new
         {
             name = p.Name, type = p.ParameterType.FullName,

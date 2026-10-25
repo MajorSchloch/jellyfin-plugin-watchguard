@@ -41,3 +41,11 @@ test('Logout dismisses handoff before a pending script resolves',async()=>{
     const f=fixture();f.login();const pending=f.tick();f.logout();await f.tick();
     assert.equal(f.handoffs(),1);f.resolve();await pending;assert.equal(f.sandbox.WatchGuardPoc,undefined);
 });
+
+test('missing authenticated request methods report unsupported and release startup handoff without requests',async()=>{
+    for (const name of ['ajax','getUrl']) {
+        const f=fixture();f.login();delete f.sandbox.ApiClient[name];await f.tick();
+        assert.equal(f.sandbox.WatchGuardStandalone.status(),'unsupported-browser-api');
+        assert.equal(f.calls.length,0);assert.equal(f.handoffs(),1);
+    }
+});

@@ -36,7 +36,7 @@ public sealed class Guard(Identity identity, Evaluator evaluator, ApprovalStore 
         var proceed = false;
         try
         {
-            if (!attachment.ConfigurationCaptured || !attachment.Supported) throw new GuardFailure(503, "ServerGuardUnsupported");
+            if (!attachment.ConfigurationCaptured || !attachment.Compatible) throw new GuardFailure(503, "ServerGuardUnsupported");
             principal = await identity.Read(context.HttpContext);
             admission = work.Enter(principal.User.Id);
             var header = context.HttpContext.Request.Headers[ApprovalHeader];

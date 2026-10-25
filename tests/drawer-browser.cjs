@@ -44,6 +44,10 @@ const report={serverVersion:fixture.serverVersion,image:fixture.image,baseline,c
     const fullWidth=!!geometry.link&&Math.abs(geometry.link.x-geometry.native.x)<=1&&Math.abs(geometry.link.right-geometry.native.right)<=1;
     const result={name,...geometry,separate,aligned,fullWidth};report.cases.push(result);
     if(baseline){await close();continue;}
+    const capabilities=await page.evaluate(()=>window.WatchGuardPoc.compatibility());
+    assert.equal(capabilities.WebVersion,fixture.serverVersion);
+    assert.ok(capabilities.Checks.every(c=>c.Status==='Tested'),JSON.stringify(capabilities));
+    result.capabilities=capabilities;
     assert.ok(separate,'Watchlists has its own drawer row');assert.ok(aligned,'Native icon/text columns and row height');assert.ok(fullWidth,'Full-width row');assert.equal(geometry.overflow,false);assert.equal(geometry.count,1);assert.equal(geometry.generatedClasses,false);
     await drawer.locator('.watchguard-nav').tap();await drawer.waitFor({state:'hidden'});
     await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');

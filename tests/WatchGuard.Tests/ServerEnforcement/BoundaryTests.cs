@@ -67,7 +67,7 @@ public sealed class BoundaryTests : IDisposable
         return t.Id;
     }
     private async Task<(int Calls, IActionResult? Result)> Invoke(string? id, bool nativeFailure = false, bool cancelled = false, bool enabled = true,
-        Operation? operation = null, DefaultHttpContext? http = null, Action? native = null)
+        Operation? operation = null, DefaultHttpContext? http = null, Action? native = null, Attachment? attachment = null)
     {
         operation ??= Operation;
         http ??= Context(); if (id is not null) http.Request.Headers[Guard.ApprovalHeader] = id;
@@ -78,13 +78,24 @@ public sealed class BoundaryTests : IDisposable
             : new Dictionary<string, object?> { ["ids"] = operation.Targets };
         var executing = new ActionExecutingContext(context, [], arguments, new object());
         var calls = 0;
-        var guard = new Guard(identity, evaluator, approvals, work, new Attachment { Supported = true, EnabledAtStartup = enabled }, NullLogger<Guard>.Instance);
+        var guard = new Guard(identity, evaluator, approvals, work, attachment ?? new Attachment { Supported = true, AttachmentVerified = true, Count = 2, Runtime = new("runtime-api", "Tested", "test fixture"), EnabledAtStartup = enabled }, NullLogger<Guard>.Instance);
         await guard.OnActionExecutionAsync(executing, () =>
         {
             calls++; native?.Invoke(); if (nativeFailure) throw new InvalidOperationException("native");
             return Task.FromResult(new ActionExecutedContext(context, [], new object()) { Result = new NoContentResult() });
         });
         return (calls, executing.Result);
+    }
+    [Fact]
+    public async Task AttachedGuardWithoutFinalVerificationDoesNotInvokeNativeOrReadInterest()
+    {
+        var state = new Attachment { Supported = true, EnabledAtStartup = true, Count = 2 };
+        auth.Invocations.Clear(); library.Invocations.Clear();
+        var result = await Invoke(null, attachment: state);
+        Assert.Equal(0, result.Calls);
+        Assert.Equal(503, Assert.IsType<ObjectResult>(result.Result).StatusCode);
+        Assert.Empty(auth.Invocations); Assert.Empty(library.Invocations);
+        Assert.Equal(1, (await Invoke(null, attachment: new Attachment { EnabledAtStartup = false })).Calls);
     }
     [Theory]
     [InlineData(false, false, "none", 409, "ApprovalAlreadyUsed")]
@@ -289,7 +300,7 @@ public sealed class BoundaryTests : IDisposable
     [Fact] public async Task PrepareIsNonAuthorizingAndBoundToFreshNativePermission()
     {
         watchlists.Set(user.Id, movie.Id, true);
-        using var services = new ServiceCollection().AddSingleton(new Attachment { Supported = true, EnabledAtStartup = true })
+        using var services = new ServiceCollection().AddSingleton(new Attachment { Supported = true, AttachmentVerified = true, Count = 2, Runtime = new("runtime-api", "Tested", "test fixture"), EnabledAtStartup = true })
             .AddSingleton(identity).AddSingleton(evaluator).AddSingleton(approvals).AddSingleton(work).BuildServiceProvider();
         var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new ControllerContext { HttpContext = Context() } };
         var result = Assert.IsType<OkObjectResult>(await controller.Prepare(new("DeleteItem", [movie.Id])));
@@ -304,7 +315,7 @@ public sealed class BoundaryTests : IDisposable
     }
     [Fact] public async Task PrepareDoesNotGrantOrdinaryUserOrApiKeyOverrides()
     {
-        using var services = new ServiceCollection().AddSingleton(new Attachment { Supported = true, EnabledAtStartup = true }).AddSingleton(identity).BuildServiceProvider();
+        using var services = new ServiceCollection().AddSingleton(new Attachment { Supported = true, AttachmentVerified = true, Count = 2, Runtime = new("runtime-api", "Tested", "test fixture"), EnabledAtStartup = true }).AddSingleton(identity).BuildServiceProvider();
         var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new ControllerContext { HttpContext = Context() } };
         user.SetPermission(PermissionKind.IsAdministrator, false);
         Assert.Equal(403, Assert.IsType<ObjectResult>(await controller.Prepare(new("DeleteItem", [movie.Id]))).StatusCode);
@@ -318,7 +329,7 @@ public sealed class BoundaryTests : IDisposable
     public async Task CapabilitiesReportActualServerAttachment(bool registered, bool supported, string expected)
     {
         var collection = new ServiceCollection().AddSingleton(approvals).AddSingleton(identity);
-        if (registered) collection.AddSingleton(new Attachment { Supported = supported, EnabledAtStartup = true });
+        if (registered) collection.AddSingleton(new Attachment { Supported = supported, AttachmentVerified = supported, Count = supported ? 2 : 0, Runtime = new("runtime-api", "Tested", "test fixture"), EnabledAtStartup = true });
         using var services = collection.BuildServiceProvider();
         var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new ControllerContext { HttpContext = Context() } };
         var result = Assert.IsType<OkObjectResult>(await controller.Capabilities());
@@ -343,12 +354,12 @@ public sealed class BoundaryTests : IDisposable
         var restored = (Configuration)serializer.Deserialize(new StringReader(output.ToString()))!;
         Assert.True(restored.EnableServerEnforcement); Assert.False(restored.ProtectCaughtUpSeries);
         Assert.False(new Attachment { Supported = true }.Active);
-        Assert.True(new Attachment { Supported = true, EnabledAtStartup = true }.Active);
+        Assert.True(new Attachment { Supported = true, AttachmentVerified = true, Count = 2, Runtime = new("runtime-api", "Tested", "test fixture"), EnabledAtStartup = true }.Active);
     }
     [Fact] public async Task CapabilityOriginMismatchIsUnhealthyAndCannotDowngrade()
     {
         using var services = new ServiceCollection().AddSingleton(approvals).AddSingleton(identity)
-            .AddSingleton(new Attachment { Supported = true, EnabledAtStartup = true }).BuildServiceProvider();
+            .AddSingleton(new Attachment { Supported = true, AttachmentVerified = true, Count = 2, Runtime = new("runtime-api", "Tested", "test fixture"), EnabledAtStartup = true }).BuildServiceProvider();
         var context = Context(); context.Request.Headers.Origin = "https://proxy.invalid";
         var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new ControllerContext { HttpContext = context } };
         var result = Assert.IsType<OkObjectResult>(await controller.Capabilities());
@@ -359,7 +370,7 @@ public sealed class BoundaryTests : IDisposable
     [Fact] public async Task CapabilityRejectsUnsupportedCredentialTransportAsUnhealthy()
     {
         using var services = new ServiceCollection().AddSingleton(approvals).AddSingleton(identity)
-            .AddSingleton(new Attachment { Supported = true, EnabledAtStartup = true }).BuildServiceProvider();
+            .AddSingleton(new Attachment { Supported = true, AttachmentVerified = true, Count = 2, Runtime = new("runtime-api", "Tested", "test fixture"), EnabledAtStartup = true }).BuildServiceProvider();
         var context = Context(); context.Request.Headers.Authorization = "";
         var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new ControllerContext { HttpContext = context } };
         var result = Assert.IsType<OkObjectResult>(await controller.Capabilities());
@@ -377,7 +388,7 @@ public sealed class BoundaryTests : IDisposable
     public async Task HttpsProxyReadinessUsesPostBoundaryWithoutEvaluatingMedia(string? site, bool expected)
     {
         using var services = new ServiceCollection().AddSingleton(identity)
-            .AddSingleton(new Attachment { Supported = true, EnabledAtStartup = true }).BuildServiceProvider();
+            .AddSingleton(new Attachment { Supported = true, AttachmentVerified = true, Count = 2, Runtime = new("runtime-api", "Tested", "test fixture"), EnabledAtStartup = true }).BuildServiceProvider();
         var context = Context(); context.Request.Method = "POST"; context.Request.Scheme = "http";
         context.Request.Headers.Origin = "https://fixture.invalid";
         if (site is not null) context.Request.Headers["Sec-Fetch-Site"] = site;
@@ -404,7 +415,7 @@ public sealed class BoundaryTests : IDisposable
     public async Task ReadinessDoesNotClaimBrowserOrInactiveGuardFromAuthenticationAlone(bool active, bool origin)
     {
         using var services = new ServiceCollection().AddSingleton(identity)
-            .AddSingleton(new Attachment { Supported = true, EnabledAtStartup = active }).BuildServiceProvider();
+            .AddSingleton(new Attachment { Supported = true, AttachmentVerified = true, Count = 2, Runtime = new("runtime-api", "Tested", "test fixture"), EnabledAtStartup = active }).BuildServiceProvider();
         var context = Context();
         if (origin) context.Request.Headers.Origin = "https://fixture.invalid";
         var controller = new WebProtocol(services, auth.Object, users.Object) { ControllerContext = new() { HttpContext = context } };

@@ -1,12 +1,13 @@
-# v0.7.5 preparation
+# WatchGuard v0.7.6 preparation
 
-Unpublished mobile drawer and unified qualification patch, based on master `fe24bc1`. The v0.7.4 release was published during development; its package and catalog entry remain unchanged. Publication copy is `docs/releases/v0.7.5.md`.
+Unpublished. Compatibility capabilities only; no menu styling or cleanup-review page. Published catalog and existing releases remain unchanged.
 
-[Full qualification](docs/drawer-qualification-v075.md) passed in [run 40083551172](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40083551172) on runtime commit `289af755cd0b7af42636333a5f95871488e724c5`, with `publish=false`, `proxy_matrix=true`. All eleven integration suites passed on both Jellyfin Server/Web **12.2.0 and 12.3.0**; the final gate verified the same package and DLL across all 22 reports. Publication was skipped. Subsequent commits contain documentation/evidence only.
+Runtime commit: `72d0973035cd02caafc9ba6464b3d421ec942ec9`.
 
-ZIP SHA-256: `03ac773e2b82fec870f4bd0a7200cd128e0bc2360bf3492461a2662490813dbc`.
-DLL SHA-256: `a9b22eef117d6c590773df35262861b34c03703dfa474767e163729deeff6bd8`.
+ZIP SHA-256: `fb39974d66d93d56959c5b97d6b0fca77a6bc1e8b9803db17dfb56eac36c950b`.
 
-The first successful run before the version change is retained as [pre-version evidence](docs/evidence/drawer-v075/pre-version/qualification.json); it does not qualify the final v0.7.5 artifact. Historical startup qualification and published v0.7.4 ZIP `47c93012c620bc2a85fe75992e26e0614a733218c5bdfc2edf9d7429b716feab` remain unchanged.
+Packaged DLL SHA-256: `c9f94ee475886b73d1ed847c7cdb8ee9a75ed7b6c10101aeb3158b3b7ac8734d`.
 
-The [capability-based compatibility proposal](docs/compatibility-capabilities.md) changes no runtime policy. No PR merge, publication or deployment was performed.
+[Unified qualification](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40204322776) **passed** with **publish=false**, **proxy_matrix=true**, both supported Server/Web versions and one identical package. All 22 integration suites and the final evidence gate passed; the publish job was skipped. Backend 354, JavaScript 193, infrastructure 26 and catalog 4 checks passed. See [validation and limitations](docs/qualification-v076.md).
+
+Qualified release set: Jellyfin Server/Web 12.2.0 and 12.3.0. Same .NET 10 / 12.2 dependency and minimum ABI. Patch-version tests are simulations, not real future-release qualification. Publication copy is maintained separately in [docs/releases/v0.7.6.md](docs/releases/v0.7.6.md).
