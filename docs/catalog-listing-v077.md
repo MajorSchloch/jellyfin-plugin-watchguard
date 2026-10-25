@@ -18,4 +18,4 @@ Upgrading and restarting is necessary for the installed runtime description. Cat
 
 ## Verification
 
-Native verification and final package evidence are recorded here after the checks finish. All fixtures use disposable accounts and synthetic media; no production server is involved.
+Native browser checks cover Available catalog cards/details before installation (public image URL), then All/Installed cards/details after a real catalog install and restart (cached native image endpoint). They expand all 25 revisions, check the exact description, image bytes/dimensions, repository link and version at 1280 and 390 px. Final package evidence is recorded here after the checks finish. All fixtures use disposable accounts and synthetic media; no production server is involved.

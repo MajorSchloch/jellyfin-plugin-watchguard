@@ -6,6 +6,7 @@ import importlib.util
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import threading
 from urllib.parse import urlencode
 
@@ -13,7 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('catalog',ROOT/'scripts/catalog.py')
 catalog=importlib.util.module_from_spec(spec);spec.loader.exec_module(catalog)
 
-def prepare(call,restart,root,plugins,token,artifact):
+def prepare(call,restart,root,plugins,token,artifact,browser_fixture):
     public=root/'listing-catalog';public.mkdir()
     archive=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip'
     shutil.copyfile(archive,public/archive.name)
@@ -38,6 +39,14 @@ def prepare(call,restart,root,plugins,token,artifact):
         packages=call('/Packages',token=token)
         package=next(p for p in packages if p['guid'].replace('-','')==catalog.GUID.replace('-',''))
         assert all(package[key]==data[0][key] for key in ('imageUrl','overview','description'))
+        # Exercise the real available catalog before installing, including the
+        # browser's direct public image URL (installed cards use a cached endpoint).
+        fixture=root/'available-listing.json'
+        fixture.write_text(json.dumps({**browser_fixture(), 'available':True,
+            'repositoryUrl':base+'/manifest.json',
+            'imageSha256':hashlib.sha256((ROOT/'assets/watchguard-v1.webp').read_bytes()).hexdigest()}))
+        fixture.chmod(0o600)
+        subprocess.run(['node',str(ROOT/'tests/catalog-listing-browser.cjs'),str(fixture)],check=True,timeout=240)
         query=urlencode({'assemblyGuid':catalog.GUID,'version':'0.7.7.0','repositoryUrl':base+'/manifest.json'})
         call('/Packages/Installed/WatchGuard?'+query,'POST',token=token,expected=204,raw=True)
         restart()

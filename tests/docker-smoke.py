@@ -178,7 +178,9 @@ def main():
             phases.phase('installation-and-regressions')
             installed_folder = plugins/'WatchGuard'
             if options.listing:
-                listing = runpy.run_path(str(ROOT/'tests/catalog-listing-fixture.py'))['prepare'](call,restart,root,plugins,token,artifact)
+                listing = runpy.run_path(str(ROOT/'tests/catalog-listing-fixture.py'))['prepare'](call,restart,root,plugins,token,artifact,
+                    lambda: {'base':base,'username':username,'password':password,'userId':admin['User']['Id'],
+                             'serverVersion':version,'image':image,'reportDirectory':str(ROOT/'artifacts/testing'/name/'available-listing')})
                 installed_folder = listing['folder']
             if options.standalone_catalog:
                 assert options.standalone and not options.injector_dll
