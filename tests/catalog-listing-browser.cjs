@@ -9,7 +9,9 @@ const output=path.join(fixture.reportDirectory,'catalog-listing');fs.mkdirSync(o
  const browser=await chromium.launch({headless:true});const results=[];
  try{
   for(const width of [1280,390]){
-   const context=await browser.newContext({viewport:{width,height:900},isMobile:width===390,hasTouch:width===390,ignoreHTTPSErrors:!!fixture.tls,reducedMotion:'reduce'});
+   const context=await browser.newContext({viewport:{width,height:900},isMobile:width===390,hasTouch:width===390,ignoreHTTPSErrors:!!fixture.tls,reducedMotion:'reduce',locale:'en-US',timezoneId:'UTC'});
+   // Pin a valid BCP 47 browser locale; Linux runners may inherit en-US@POSIX,
+   // which native Jellyfin date formatting rejects before rendering revisions.
    const page=await context.newPage();page.setDefaultTimeout(15000);
    try{
     if(fixture.available){
