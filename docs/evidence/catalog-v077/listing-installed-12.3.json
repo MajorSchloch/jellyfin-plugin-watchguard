@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "available": false,
+  "hostImage": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+  "imageSha256": "7e7a11794105d73eef3ae81fba6a236f5d97d85ccb32cde078dba7b2ddaf75e1",
+  "cases": [
+    {
+      "width": 1280,
+      "serverVersion": "12.3.0",
+      "webVersion": "12.3.0",
+      "description": true,
+      "revisions": 25,
+      "repositoryLink": true,
+      "installedVersion": "0.7.7.0",
+      "image": {
+        "url": "http://127.0.0.1:33397/jellyfin/Plugins/a3c6bc84783d4ba8a0db89bfb83ab486/0.7.7.0/Image",
+        "width": 1672,
+        "height": 941,
+        "visible": true
+      },
+      "cardImage": {
+        "width": 1672,
+        "height": 941,
+        "url": "http://127.0.0.1:33397/jellyfin/Plugins/a3c6bc84783d4ba8a0db89bfb83ab486/0.7.7.0/Image"
+      },
+      "installedCardImage": true
+    },
+    {
+      "width": 390,
+      "serverVersion": "12.3.0",
+      "webVersion": "12.3.0",
+      "description": true,
+      "revisions": 25,
+      "repositoryLink": true,
+      "installedVersion": "0.7.7.0",
+      "image": {
+        "url": "http://127.0.0.1:33397/jellyfin/Plugins/a3c6bc84783d4ba8a0db89bfb83ab486/0.7.7.0/Image",
+        "width": 1672,
+        "height": 941,
+        "visible": false
+      },
+      "cardImage": {
+        "width": 1672,
+        "height": 941,
+        "url": "http://127.0.0.1:33397/jellyfin/Plugins/a3c6bc84783d4ba8a0db89bfb83ab486/0.7.7.0/Image"
+      },
+      "installedCardImage": true
+    }
+  ]
+}

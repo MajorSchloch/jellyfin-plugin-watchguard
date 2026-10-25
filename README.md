@@ -1,8 +1,8 @@
 # Jellyfin WatchGuard
 
-**Current release: [v0.7.5](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.5)** · Published target: **Jellyfin Server/Web 12.2.0 and 12.3.0 / .NET 10** · [Plugin catalog](manifest.json)
+**Current release: [v0.7.6](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.6)** · Published target: **Jellyfin Server/Web 12.2.0 and 12.3.0 / .NET 10** · [Plugin catalog](manifest.json)
 
-WatchGuard adds personal watchlists, shared viewing-interest indicators and deletion warnings to Jellyfin. An optional **server-side guard** prevents protected media from being deleted through the two qualified native HTTP item-deletion routes without an explicit administrator approval.
+Keep track of what you want to watch and see what others on your server are watching. WatchGuard adds personal watchlists, shared viewing progress and warnings before you delete something someone still wants to watch. Optional server-side protection can also block supported Jellyfin deletions until an administrator approves them.
 
 WatchGuard is a **single Jellyfin plugin** with an authenticated, standalone Web loader. No JavaScript Injector, Web-file edits, external database or companion service is required.
 
@@ -21,17 +21,17 @@ WatchGuard is a **single Jellyfin plugin** with an authenticated, standalone Web
 
    `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
 
-2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.7.3.0`).
+2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.7.6.0`).
 3. **Restart Jellyfin**, then **fully reload Jellyfin Web** in each browser.
 4. Open **Dashboard → Plugins → WatchGuard**. Confirm the installed plugin version, standalone loader, the current browser's installed adapter and the active server-guard state. The approval **POST readiness** check is non-mutating.
 
 Use the native catalog installer; do **not** copy DLLs into multiple plugin discovery folders. Existing memberships/preferences and configuration use the same plugin GUID and data schema when upgrading from recent standalone releases. Migrating an older Injector-based installation requires [explicit cleanup of only the old WatchGuard Injector entry](docs/migration-v040.md).
 
-**Back up before upgrading.** On LinuxServer.io, the usual locations under `/config/data/plugins` are `Jellyfin.Plugin.WatchGuard/watchlists.json`, `Jellyfin.Plugin.WatchGuard/watchlist-dates.json` (where present), `Jellyfin.Plugin.WatchGuard/preferences.json` and `Jellyfin.Plugin.WatchGuard/preference-sorts.json` (where present), the versioned `WatchGuard_0.7.4.0` directory and `configurations/Jellyfin.Plugin.WatchGuard.xml`. Back up the actual paths used by your installation. Never delete the unversioned WatchGuard data directory to remove a version.
+**Back up before upgrading.** On LinuxServer.io, the usual locations under `/config/data/plugins` are `Jellyfin.Plugin.WatchGuard/watchlists.json`, `Jellyfin.Plugin.WatchGuard/watchlist-dates.json` (where present), `Jellyfin.Plugin.WatchGuard/preferences.json` and `Jellyfin.Plugin.WatchGuard/preference-sorts.json` (where present), the versioned `WatchGuard_0.7.6.0` directory and `configurations/Jellyfin.Plugin.WatchGuard.xml`. Back up the actual paths used by your installation. Never delete the unversioned WatchGuard data directory to remove a version.
 
 ## Server-side deletion protection
 
-**Off by default.** In the WatchGuard plugin settings, enable **server-side deletion enforcement**, save, **restart Jellyfin**, and fully reload clients. The dashboard must report `Runtime: Enabled`, `2/2` attached native DELETE actions, and `Restart required: false`. A checked preference without active hooks is not protection.
+**Off by default.** In the WatchGuard plugin settings, enable **server-side deletion enforcement**, save, **restart Jellyfin**, and fully reload clients. Integration status must report actual server enforcement as active, all required capability checks passing, `2/2` attached native DELETE actions, and no restart required. A checked preference without active hooks is not protection.
 
 With enforcement enabled:
 
@@ -39,7 +39,7 @@ With enforcement enabled:
 - **Protected** direct HTTP deletions without valid approval are refused (normally HTTP `409 ProtectionRequired`).
 - In supported Jellyfin Web, an administrator may explicitly **Delete Anyway** after viewing the warning. This creates a short-lived, single-use approval and continues the native DELETE once. Cancel performs no DELETE.
 - Jellyfin's native deletion permissions are never bypassed. Ordinary users cannot approve protected deletions; API keys and unsupported credential forms are not approval identities.
-- The guard covers only the verified `LibraryController.DeleteItem` and `DeleteItems` HTTP actions on explicitly supported hosts (Jellyfin 12.2.0 and 12.3.0), **not** filesystem removal, Sonarr/Radarr/Tdarr changes, internal cleanup or arbitrary other APIs.
+- The guard covers only the verified `LibraryController.DeleteItem` and `DeleteItems` HTTP actions on hosts passing the [compatibility checks](docs/compatibility-capabilities.md) (qualified on Jellyfin 12.2.0 and 12.3.0), **not** filesystem removal, Sonarr/Radarr/Tdarr changes, internal cleanup or arbitrary other APIs.
 
 Unsupported native/TV/mobile clients may not implement the approval flow and may therefore be unable to delete protected media. Jellyfin Web's generic deletion error after clicking WatchGuard **Cancel** is a known upstream UI limitation; Cancel still issues **zero** DELETE requests.
 
@@ -57,7 +57,7 @@ The dashboard distinguishes approval POST readiness from **Jellyfin client-IP fo
 
 Playback-derived interest is a **bounded snapshot, not an exhaustive library audit**. Missing air dates, restricted episode visibility and safety limits can prevent a confident Caught Up classification. Missing entries in the overview never authorize deletion: deletion checks independently re-evaluate the exact target. Completed history alone is not a permanent watchlist membership.
 
-The supported Web integration is version-specific. Future Jellyfin Server/Web versions, custom Web bundles, native TV/mobile apps, nonstandard proxies and restrictive CSPs require separate compatibility testing. The loader uses Blob scripts; successful server delivery alone does not prove that the current browser executed the adapter.
+Qualified Server/Web versions are 12.2.0 and 12.3.0. Other patch releases in those two families are compatible but untested only when the required capability checks pass. New minor/major versions, custom Web bundles, native TV/mobile apps, nonstandard proxies and restrictive CSPs require separate compatibility testing. The loader uses Blob scripts; successful server delivery alone does not prove that the current browser executed the adapter.
 
 ## Watchlist-added dates (v0.5.0)
 
@@ -81,7 +81,7 @@ dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release
 node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/server-enforcement.test.cjs
 python3 scripts/build-release.py
 python3 tests/catalog_test.py
-python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.6.zip
+python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip
 ```
 
 The release packager produces a deterministic ZIP containing only the WatchGuard DLL and LICENSE; Web resources are embedded. Building and testing do **not** publish releases or modify the public catalog. The optional full GitHub Actions release workflow defaults to `publish=false`; it tests disposable Jellyfin instances and generated media. **Do not point fixture scripts at production media.**
@@ -97,4 +97,4 @@ See the [documentation index](docs/README.md) for the current security, deployme
 
 Published v0.6.0 provides the background activity index and native reconciliation. Published v0.7.0 adds a combined server query for filtering, ordering and title search before pagination. Preparation advances automatically within four requests. Visible first pages update automatically; deeper views keep their order and show when authorized checks find updates. See the [query contract](docs/activity-browser-v070.md) and [release notes](docs/release-v070.md). Published v0.7.0 is installed and manually validated on the maintainer’s server.
 
-Published v0.7.5 includes the mobile drawer, startup handoff and in-place filter navigation fixes. See [drawer and unified qualification](docs/drawer-qualification-v075.md). Unpublished v0.7.6 adds independent compatibility capabilities and a bounded patch-release policy; see [policy](docs/compatibility-capabilities.md) and [preparation status](release-preparation.md).
+Published v0.7.5 includes the mobile drawer, startup handoff and in-place filter navigation fixes. See [drawer and unified qualification](docs/drawer-qualification-v075.md). Published v0.7.6 adds independent compatibility capabilities and a bounded patch-release policy; see [policy](docs/compatibility-capabilities.md) and [qualification](docs/qualification-v076.md). Unpublished v0.7.7 polishes the native plugin listing; see [preparation status](release-preparation.md).

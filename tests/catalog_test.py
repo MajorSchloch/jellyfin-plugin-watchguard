@@ -31,12 +31,12 @@ class CatalogTests(unittest.TestCase):
             with zipfile.ZipFile(path,'w') as z:z.writestr('OtherPlugin.dll','not allowed')
             with self.assertRaises(ValueError):catalog.inspect_zip(path)
     def test_release_archive(self):
-        path=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.7.6.zip')
+        path=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip')
         _,sha=catalog.inspect_zip(path)
         self.assertEqual(path.with_suffix('.zip.sha256').read_text().split(),[sha,path.name])
 
     def test_published_history_is_preserved_and_versions_are_immutable(self):
-        archive=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.7.6.zip')
+        archive=Path('artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip')
         published=json.loads(Path('manifest.json').read_text())
         self.assertTrue(any(v['version']=='0.4.1.0' for v in published[0]['versions']))
         # Exercise a synthetic future release so publication of the current
@@ -59,7 +59,9 @@ class CatalogTests(unittest.TestCase):
             elif url.endswith('.sha256'): content=f'{catalog.inspect_zip(archive)[1]}  {asset_name}\n'.encode()
             else: content=archive.read_bytes()
             Path(destination).write_bytes(content)
-        with tempfile.TemporaryDirectory() as temp, patch.object(catalog,'download',download):
+        content=catalog.editorial()
+        content['versions'][version]={'summary':['Synthetic next-release test summary.'], 'documentation':'https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/README.md'}
+        with tempfile.TemporaryDirectory() as temp, patch.object(catalog,'download',download), patch.object(catalog,'editorial',return_value=content):
             manifest=Path(temp)/'manifest.json';manifest.write_text(json.dumps(original))
             catalog.add_release(manifest,'Fixture/WatchGuard',tag,archive)
             updated=json.loads(manifest.read_text())
@@ -69,5 +71,48 @@ class CatalogTests(unittest.TestCase):
             saved=manifest.read_bytes();release['published_at']='2026-10-13T00:00:00Z'
             with self.assertRaises(ValueError):catalog.add_release(manifest,'Fixture/WatchGuard',tag,archive)
             self.assertEqual(manifest.read_bytes(),saved)
+
+    def test_editorial_corrections_preserve_every_installation_field(self):
+        original=json.loads(Path('manifest.json').read_text())
+        edited=json.loads(json.dumps(original))
+        edited[0]['description']='Clearer description'
+        edited[0]['versions'][0]['changelog']='- Corrected release summary.'
+        catalog.preserve_history(original,edited)
+        for key,value in [('version','99.0.0.0'),('sourceUrl','https://example.com/other.zip'),
+                          ('checksum','0'*32),('timestamp','2026-01-01T00:00:00Z'),('targetAbi','99.0.0.0')]:
+            with self.subTest(field=key):
+                changed=json.loads(json.dumps(edited));changed[0]['versions'][0][key]=value
+                with self.assertRaises(ValueError):catalog.preserve_history(original,changed)
+        removed=json.loads(json.dumps(edited));removed[0]['versions'].pop()
+        with self.assertRaises(ValueError):catalog.preserve_history(original,removed)
+        changed=json.loads(json.dumps(edited));changed[0]['versions'][0]['futureInstallField']='new'
+        with self.assertRaises(ValueError):catalog.preserve_history(original,changed)
+        duplicate=json.loads(json.dumps(edited));duplicate[0]['versions'].append(duplicate[0]['versions'][0])
+        with self.assertRaises(ValueError):catalog.preserve_history(original,duplicate)
+
+    def test_missing_and_placeholder_future_release_notes_are_rejected(self):
+        with self.assertRaises(ValueError):catalog.changelog('99.0.0.0')
+        for value in ['',None,'See the matching release notes.','- See the matching release notes.', '- TODO']:
+            with self.subTest(value=value), self.assertRaises(ValueError):catalog.check_changelog(value)
+        catalog.check_changelog('- Show readable viewing progress.\n- Improve keyboard navigation.')
+
+    def test_catalog_generation_is_idempotent_and_runtime_description_matches(self):
+        original=json.loads(Path('manifest.json').read_text())
+        refreshed=catalog.refresh_editorial(original)
+        self.assertEqual(original,refreshed)
+        self.assertEqual(refreshed,catalog.refresh_editorial(refreshed))
+        catalog.preserve_history(original,refreshed)
+        description=catalog.editorial()['description']
+        self.assertIn('public override string Description => "'+description+'";',Path('Jellyfin.Plugin.WatchGuard/Plugin.cs').read_text())
+        for notes in catalog.editorial()['versions'].values():
+            path=notes['documentation'].split('/blob/master/',1)[1]
+            self.assertTrue(Path(path).is_file(),path)
+
+    def test_image_is_public_immutable_and_small(self):
+        url=catalog.editorial()['imageUrl']
+        self.assertRegex(url,r'/[a-f0-9]{40}/assets/watchguard-v1\.webp$')
+        image=Path('assets/watchguard-v1.webp').read_bytes()
+        self.assertEqual(image[:4],b'RIFF');self.assertEqual(image[8:12],b'WEBP')
+        self.assertLess(len(image),50000)
 
 if __name__=='__main__':unittest.main()

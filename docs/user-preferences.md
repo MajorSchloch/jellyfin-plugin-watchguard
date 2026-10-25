@@ -1,4 +1,4 @@
-> **v0.5.1 candidate:** [Saved Recently added sorting](saved-sort-v051.md) adds a backward-compatible preference sidecar. The historical v0.3.1 persistence description below applies to legacy sorts; current public v0.5.0 still cannot save added. The candidate keeps the same routes, owner/status rules and URL precedence.
+> **Current behavior:** v0.5.1 and later support [saved Recently added sorting](saved-sort-v051.md) through a backward-compatible sidecar. The historical v0.3.1 storage description below applies to legacy sorts. For current installation instructions, see the [README](../README.md).
 
 # Personal Watchlists preferences — v0.3.1
 

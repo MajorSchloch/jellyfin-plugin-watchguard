@@ -31,10 +31,14 @@ jobs:
       - run: python3 scripts/build-release.py
       - run: python3 scripts/check-release-notes.py
       - run: python3 tests/catalog_test.py
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.6.zip
+      - name: Protect published installation metadata
+        run: |
+          curl --fail --silent --show-error --location https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json -o /tmp/watchguard-published-catalog.json
+          python3 scripts/catalog.py --check-history /tmp/watchguard-published-catalog.json
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip
       - uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-v0.7.6
+          name: WatchGuard-v0.7.7
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.6.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.6.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip.sha256

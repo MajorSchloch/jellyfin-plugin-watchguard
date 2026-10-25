@@ -32,7 +32,7 @@ public sealed class Plugin : BasePlugin<Configuration>, IHasWebPages
     public IEnumerable<PluginPageInfo> GetPages() => [new() { Name = "WatchGuard", EmbeddedResourcePath = "Jellyfin.Plugin.WatchGuard.Web.settings.html" }];
     public override string Name => "WatchGuard";
     public override Guid Id => Guid.Parse("a3c6bc84-783d-4ba8-a0db-89bfb83ab486");
-    public override string Description => "Personal watchlists, native interest detection, Web warnings and opt-in HTTP deletion enforcement.";
+    public override string Description => "Keep track of what you want to watch and see what others on your server are watching. WatchGuard adds personal watchlists, shared viewing progress and warnings before you delete something someone still wants to watch. Optional server-side protection can also block supported Jellyfin deletions until an administrator approves them.";
 }
 
 public sealed class ServiceRegistrator : IPluginServiceRegistrator

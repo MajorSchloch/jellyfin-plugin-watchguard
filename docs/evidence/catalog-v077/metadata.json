@@ -1,0 +1,59 @@
+{
+  "baseCommit": "414cc772d6413e232fc18b31c6a45af795dc06ff",
+  "testedCommit": "b7a69f2907990fce396e1cb97e3a11c86eac7194",
+  "publishedVersionCount": 24,
+  "versions": [
+    "0.7.6.0",
+    "0.7.5.0",
+    "0.7.4.0",
+    "0.7.3.0",
+    "0.7.2.0",
+    "0.7.1.0",
+    "0.7.0.0",
+    "0.6.0.0",
+    "0.5.2.0",
+    "0.5.1.0",
+    "0.5.0.0",
+    "0.4.10.0",
+    "0.4.9.0",
+    "0.4.8.0",
+    "0.4.7.0",
+    "0.4.6.0",
+    "0.4.5.0",
+    "0.4.4.0",
+    "0.4.3.0",
+    "0.4.2.0",
+    "0.4.1.0",
+    "0.4.0.0",
+    "0.3.1.0",
+    "0.3.0.0"
+  ],
+  "installationMetadataUnchanged": true,
+  "installationMetadataSha256": "9655011c7de4b5e03d83d3677feaaa595fb5c8d208d098fa70d75a16e94f2833",
+  "protectedFields": [
+    "version",
+    "targetAbi",
+    "sourceUrl",
+    "checksum",
+    "timestamp"
+  ],
+  "editedPackageFields": [
+    "overview",
+    "description",
+    "imageUrl"
+  ],
+  "editedVersionFields": [
+    "changelog"
+  ],
+  "candidateAdvertised": false,
+  "image": {
+    "url": "https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/77ab0ead33ab133e44800aea57c0b9ff4b9c75af/assets/watchguard-v1.webp",
+    "sha256": "7e7a11794105d73eef3ae81fba6a236f5d97d85ccb32cde078dba7b2ddaf75e1",
+    "bytes": 23782,
+    "sourceBytes": 1232289,
+    "width": 1672,
+    "height": 941
+  },
+  "packageSha256": "1e8d4dbeb02c3ae2379b35263a02a6b274ef4b493414f018becb2832b6d0d831",
+  "runtimeSha256": "80e371f38ab459259460a3bbe12127a6b60f86150f35fda0de87c97373553a4d"
+}

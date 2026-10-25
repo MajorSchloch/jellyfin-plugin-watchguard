@@ -39,6 +39,7 @@ def main():
     parser.add_argument('--base-path', default='')
     parser.add_argument('--proxy',action='store_true')
     mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--listing', action='store_true', help='Verify native plugin catalog and installed details.')
     mode.add_argument('--serve', action='store_true')
     mode.add_argument('--startup', action='store_true', help='Observe initial document rendering and startup recovery.')
     mode.add_argument('--navigation', action='store_true', help='Observe real filter routing transitions and browser history.')
@@ -61,6 +62,7 @@ def main():
         raise SystemExit('Publish WatchGuard first.')
     pristine_web_hash = docker('run', '--rm', '--entrypoint', 'sha256sum', image, web_index).split()[0]
     proxy = None
+    listing = None
     name = 'watchguard-poc-' + uuid.uuid4().hex[:10]
     phases=Phases(ROOT/'artifacts/testing'/name/'phases.json')
     with tempfile.TemporaryDirectory(prefix='watchguard-poc-') as temp:
@@ -175,6 +177,11 @@ def main():
                                  ROOT/'artifacts/testing'/name/'inventory.json')
             phases.phase('installation-and-regressions')
             installed_folder = plugins/'WatchGuard'
+            if options.listing:
+                listing = runpy.run_path(str(ROOT/'tests/catalog-listing-fixture.py'))['prepare'](call,restart,root,plugins,token,artifact,
+                    lambda: {'base':base,'username':username,'password':password,'userId':admin['User']['Id'],
+                             'serverVersion':version,'image':image,'reportDirectory':str(ROOT/'artifacts/testing'/name/'available-listing')})
+                installed_folder = listing['folder']
             if options.standalone_catalog:
                 assert options.standalone and not options.injector_dll
                 installed_folder = runpy.run_path(str(ROOT/'tests/standalone-catalog.py'))['run'](call,restart,docker,name,root,plugins,token,artifact)
@@ -225,10 +232,14 @@ def main():
             fixture = root / 'fixture.json'
             fixture.write_text(json.dumps({'base': browser_base, 'username': username, 'password': password,
                 'serverVersion':version, 'image':image, 'standalone':options.standalone, 'activityIndex':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')/name), 'token': token, 'userId': admin['User']['Id'], 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
+            if listing:
+                values=json.loads(fixture.read_text());values.update({k:listing[k] for k in ('repositoryUrl','imageSha256')});fixture.write_text(json.dumps(values))
             fixture.chmod(0o600)
             if caddy: os.environ['NODE_EXTRA_CA_CERTS'] = str(caddy.ca)
             print('READY fixture=' + str(fixture), flush=True)
-            if options.measure:
+            if options.listing:
+                subprocess.run(['node', str(ROOT/'tests/catalog-listing-browser.cjs'), str(fixture)], check=True, timeout=240)
+            elif options.measure:
                 subprocess.run(['node', str(ROOT/'tests/socket-browser.cjs'), str(fixture)], check=True,timeout=600)
                 runpy.run_path(str(ROOT/'tests/standalone-measure.py'))['run'](base,options.standalone)
             elif options.catalog and not options.standalone:
@@ -273,7 +284,7 @@ def main():
                 # background projection may legitimately checkpoint until the
                 # loaded plugin stops; snapshot it at that lifecycle boundary.
                 saved = {p:p.read_bytes() for p in data_folder.glob('*.json') if p != derived}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.6.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.7.0','DELETE',token=token,expected=204)
                 docker('stop', name)
                 if derived_present:
                     assert derived.exists(), 'Uninstall must retain the derived index'
@@ -292,6 +303,7 @@ def main():
             raise
         finally:
             phases.phase('teardown')
+            if listing: listing['close']()
             if caddy: caddy.close()
             if proxy:
                 proxy[0].shutdown(); proxy[0].server_close(); proxy[1].join()
