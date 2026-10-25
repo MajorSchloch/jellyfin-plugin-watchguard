@@ -14,6 +14,7 @@
 <p id="wgSettingsMessage" role="status"></p>
 <h2>Integration status</h2><p id="wgApprovalReadiness" role="status">Approval request readiness has not been checked.</p><p id="wgProxyNetworkNote" class="fieldDescription" role="status">Jellyfin client-IP forwarding and native remote-access restrictions are not verified by WatchGuard.</p><div id="wgIntegration" role="status">Loading…</div>
 <button is="emby-button" class="button-flat" id="wgCheck" type="button">Refresh status and check this browser</button>
+<div id="wgBrowserCapabilities"></div>
 <p id="wgBrowser" class="fieldDescription">Server registration alone cannot verify browser execution.</p>
 </div></div>
 <script>
@@ -23,10 +24,23 @@
     let epoch = 0, statusGeneration = 0;
     function identity() { return [ApiClient, ApiClient.getCurrentUserId(), ApiClient.accessToken()]; }
     function valid(who, revision) { return revision === epoch && who.every((v,i) => v === identity()[i]); }
+    function label(value) { return ({Tested:'tested', CompatibleUntested:'compatible but untested', Unsupported:'unsupported', Unavailable:'unavailable'})[value] || 'unavailable'; }
+    function renderChecks(target, checks) {
+        const details = document.createElement('details'), summary = document.createElement('summary');
+        summary.textContent = 'Capability check details'; details.append(summary);
+        for (const check of checks) {
+            const row = document.createElement('p'); row.dataset.capability = check.Id; row.dataset.status = check.Status;
+            row.textContent = check.Id + ': ' + label(check.Status) + '. ' + check.Detail + (check.Action ? ' Action: ' + check.Action : '');
+            // Failed checks and recovery stay visible; passing detail is expandable.
+            (['Tested','CompatibleUntested'].includes(check.Status) ? details : target).append(row);
+        }
+        target.append(details);
+    }
     async function status() {
         field('#wgApprovalReadiness').textContent = 'Checking approval request readiness…';
         field('#wgProxyNetworkNote').textContent = 'Jellyfin client-IP forwarding and native remote-access restrictions are not verified by WatchGuard.';
         const who = identity(), revision = epoch, statusRevision = ++statusGeneration;
+        field('#wgBrowserCapabilities').replaceChildren();
         const current = () => valid(who, revision) && statusRevision === statusGeneration;
         try {
             const result = await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/IntegrationStatus'), dataType:'json'});
@@ -34,7 +48,8 @@
             const target = field('#wgIntegration'); target.replaceChildren();
             const standalone = result.Standalone?.Enabled === true;
             const lines = [ 'Plugin loaded: true · WatchGuard ' + result.PluginVersion + ' · Jellyfin ' + result.JellyfinVersion,
-                result.TestedCompatibility + (result.ServerMatchesTestedVersion ? ' — server version matches' : ' — server version not validated'),
+                'Qualified server releases: ' + result.TestedVersions.join(', ') + ' · Compatibility range: ' + result.CompatibilityRange,
+                'Server version: ' + label(result.VersionCapability.Status) + '. Version alone does not establish protection.',
                 ...(standalone ? [
                     'Standalone loader active: ' + result.Standalone.LoaderActive + ' · ' + result.Standalone.State,
                     'Injector detected: ' + result.Standalone.Injector.Discovered + ' · Configuration interface understood: ' + result.Standalone.Injector.InterfaceCompatible + ' · Conflicting WatchGuard registration: ' + result.Standalone.Injector.WatchGuardRegistration,
@@ -50,15 +65,18 @@
             if (!current()) return;
             for (const text of [
                 'Server enforcement configured: ' + guard.Configured + ' · Runtime: ' + guard.Runtime,
+                'Actual server enforcement: ' + (guard.Active === true ? 'ACTIVE for the verified native HTTP item routes' : 'INACTIVE — no server protection claimed'),
+                'Deletion capability: ' + label(guard.CompatibilityStatus),
                 'Native delete actions attached: ' + guard.AttachedActions + '/2 · Compatible: ' + guard.Compatible,
                 'Restart required: ' + guard.RestartRequired,
-                guard.State === 'Enabled' && guard.Compatible && guard.AttachedActions === 2
+                guard.Active === true && guard.Compatible && guard.AttachedActions === 2
                     ? 'Server guard attached. Approval protocol available; browser/proxy execution still requires validation.'
-                    : guard.Expected ? 'Server enforcement expected but unavailable. Resolve compatibility and reload clients; do not assume protection.' : 'Web-only protection. Server enforcement is inactive.',
+                    : guard.Expected ? 'Server enforcement expected but unavailable. Resolve compatibility and reload clients; do not assume protection.' : 'Server enforcement is inactive. Browser warnings are a separate capability.',
                 'Request environment: ' + guard.RequestEnvironment,
                 'Approval authentication: ' + guard.AuthorizationState,
                 'Coverage: ' + guard.Coverage + '. External filesystem operations are outside this boundary.'
             ]) { const p = document.createElement('p'); p.textContent = text; target.append(p); }
+            renderChecks(target, [guard.RuntimeApi, ...(guard.Checks || [])].filter(Boolean));
             field('#wgApprovalReadiness').textContent = 'Checking authenticated approval request boundary…';
             try {
                 const readiness = await ApiClient.ajax({type:'POST', url:ApiClient.getUrl('WatchGuard/ServerApproval/Readiness'), contentType:'application/json', dataType:'json', data:'{}'});
@@ -86,6 +104,9 @@
             } else if (window.WatchGuardStandalone) {
                 field('#wgBrowser').textContent = 'This browser: retained standalone loader after a mode change. Fully reload this tab before verifying integration.'; return;
             }
+            const browser = window.WatchGuardPoc?.compatibility?.();
+            if (browser) renderChecks(field('#wgBrowserCapabilities'), browser.Checks);
+            else field('#wgBrowserCapabilities').textContent = 'Browser capabilities unavailable. Fully reload and check loader/authentication/CSP. Server protection has its own status above.';
             field('#wgBrowser').textContent = window.WatchGuardPoc?.isInstalled() === true
                 ? 'This browser: adapter installed on its current ApiClient. This does not verify every deletion path; test Cancel on disposable media.'
                 : 'This browser: adapter not detected. Check the selected loader, authentication and CSP, then fully reload this tab.';
@@ -104,7 +125,7 @@
             field('#wgEnforcement').checked = config.EnableServerEnforcement === true; field('#wgCaughtUp').checked = config.ProtectCaughtUpSeries !== false; field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
         } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not load settings. Administrator access is required.'; }
     });
-    page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgApprovalReadiness').textContent = 'Approval request readiness has not been checked.'; field('#wgProxyNetworkNote').textContent = 'Jellyfin proxy/network health: not checked.'; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; });
+    page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgApprovalReadiness').textContent = 'Approval request readiness has not been checked.'; field('#wgProxyNetworkNote').textContent = 'Jellyfin proxy/network health: not checked.'; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; field('#wgBrowserCapabilities').replaceChildren(); });
     field('#wgCheck').onclick = status;
     field('#WatchGuardSettingsForm').onsubmit = async function (event) {
         event.preventDefault();

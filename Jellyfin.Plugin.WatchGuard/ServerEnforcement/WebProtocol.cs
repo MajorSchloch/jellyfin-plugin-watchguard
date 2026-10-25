@@ -41,8 +41,11 @@ public sealed class WebProtocol(IServiceProvider services, IAuthorizationContext
         return Ok(new { Protocol = 1, State = state, Expected = attachment?.EnabledAtStartup != false,
             Configured = Plugin.Instance?.Configuration.EnableServerEnforcement == true,
             RestartRequired = attachment?.RestartRequired == true,
-            AttachedActions = attachment?.Count ?? 0, Compatible = attachment?.Supported == true,
-            Runtime = attachment?.ConfigurationCaptured != true ? "RegistrationFailure" : attachment.Supported != true ? "Incompatible" : state,
+            AttachedActions = attachment?.Count ?? 0, Compatible = attachment?.Compatible == true, Active = attachment?.Active == true,
+            CompatibilityStatus = attachment?.CompatibilityStatus ?? "Unavailable",
+            Checks = attachment?.Checks.ToArray() ?? [], RuntimeApi = attachment?.Runtime,
+            TestedVersions = JellyfinCompatibility.TestedVersions, CompatibilityRange = JellyfinCompatibility.Range,
+            Runtime = attachment?.ConfigurationCaptured != true ? "RegistrationFailure" : attachment.Compatible != true ? "Incompatible" : state,
             RequestEnvironment = environment, AuthorizationState = authorizationState,
             Generation = attachment?.Active == true ? services.GetRequiredService<ApprovalStore>().Generation : null,
             Coverage = "Native LibraryController.DeleteItem/DeleteItems only" });

@@ -3,6 +3,33 @@
     'use strict';
     const message = 'WatchGuard: This item may still be in use.';
 
+    // Read-only feature checks: no requests, timers, credentials or DOM mutations.
+    // Web's reported version is qualification context, never evidence of server protection.
+    function browserCapabilities(api, document, host, installed) {
+        const version = typeof api?.appVersion === 'function' ? api.appVersion() : null;
+        const tested = ['12.2.0', '12.3.0'].includes(version);
+        const inRange = typeof version === 'string' && /^12\.(?:2|3)\.\d+$/.test(version);
+        const accepted = tested ? 'Tested' : 'CompatibleUntested';
+        const check = (id, ok, detail, action, unavailable = false) => ({Id:id, Status:ok ? accepted : unavailable ? 'Unavailable' : 'Unsupported', Detail:detail, Action:ok ? '' : action});
+        const missing = methods => methods.filter(name => typeof api?.[name] !== 'function');
+        const core = missing(['getCurrentUserId', 'accessToken', 'getUrl', 'ajax']);
+        const activity = missing(['getCurrentUser', 'serverId', 'getImageUrl']);
+        const deletion = missing(['deleteItem', 'getItem']);
+        const layout = document.querySelector('.skinHeader, header.MuiAppBar-root, .mainDrawer, .MuiDrawer-root');
+        const navigation = document.querySelector('.watchguard-nav');
+        const contentRoute = /^#\/(?:home|details|movies|tv|list|search|music|livetv)(?:[/?]|$)/.test(host.location?.hash || '');
+        const loader = host.WatchGuardStandalone?.status?.();
+        return { WebVersion:version, TestedVersions:['12.2.0', '12.3.0'], Checks:[
+            check('web-version', inRange, version ? 'Web reports ' + version + (tested ? ' (qualified release).' : ' (not a qualified release).') : 'Web version is not reported.', 'Use packaged Web 12.2/12.3; custom or newer Web requires separate qualification.', !version),
+            check('browser-api', !!api && !core.length, 'Required authenticated request API' + (core.length ? ': missing ' + core.join(', ') : ' is present.'), 'Sign in and fully reload a supported Web client.', !api),
+            check('watchlists-api', !!api && !core.length && !activity.length, 'Watchlists API' + (activity.length ? ': missing ' + activity.join(', ') : ' is present.'), 'Restore the native Web API. Other features have independent checks.', !api),
+            check('deletion-adapter', !!api && !core.length && !deletion.length && installed, 'Browser deletion adapter ' + (installed ? 'is attached to the current ApiClient.' : 'is not attached to the current ApiClient.'), 'Fully reload; check native API methods and competing adapters. This does not change server protection.', !api),
+            check('browser-loader', loader === 'loaded', 'Standalone bootstrap: ' + (loader || 'not observed') + '. Build identity and authenticated script delivery are checked separately.', 'Fully reload; inspect standalone registration, CSP and authentication.', !loader),
+            check('navigation-layout', !!layout && !!navigation?.isConnected, 'Recognized layout/navigation entry ' + (navigation?.isConnected ? 'is present.' : 'is not present on this screen.'), contentRoute ? 'Use a recognized native layout or open the saved Watchlists URL. Server enforcement is independent.' : 'Open Home or Watchlists to check navigation; dashboard/login/playback have no Watchlists entry.', !contentRoute),
+            check('filter-history', typeof host.history?.replaceState === 'function', 'History replacement keeps Jellyfin-owned state; behavioral Back/Forward coverage is limited to qualified Web releases.', 'Use a browser with the History API.')
+        ]};
+    }
+
     function createAdapter(ask, log = () => {}, check = async () => message, contextValid = () => true) {
         const installed = new WeakMap();
         let queue = Promise.resolve();
@@ -1148,7 +1175,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
 }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
+        module.exports = { browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -1183,7 +1210,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     }, api => syncIdentity() === api);
     root.WatchGuardPoc = Object.freeze({
         setDiagnostics: enabled => { diagnostic = enabled === true; },
-        isInstalled: () => adapter.isInstalled(root.ApiClient)
+        isInstalled: () => adapter.isInstalled(root.ApiClient),
+        compatibility: () => browserCapabilities(root.ApiClient, document, root, adapter.isInstalled(root.ApiClient))
     });
 
     const style = document.createElement('style');

@@ -1,8 +1,8 @@
 # Validation and release qualification
 
-**Current published version:** [WatchGuard v0.7.4](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.4) · Qualified Jellyfin Server/Web **12.2.0 and 12.3.0**, .NET 10.
+**Current published version:** [WatchGuard v0.7.5](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.5) · Qualified Jellyfin Server/Web **12.2.0 and 12.3.0**, .NET 10.
 
-**Published activity browser:** [v0.7.0 notes](release-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Published navigation:** [v0.7.2 notes](release-v072.md), [qualification](navigation-validation-v072.md). **Published compatibility:** [v0.7.3 notes](release-v073.md), [qualification](compatibility-v073.md). **Published startup:** [v0.7.4 notes](release-v074.md), [qualification](startup-validation-v074.md). **Unpublished v0.7.5:** [preparation status](../release-preparation.md), [drawer and unified qualification](drawer-qualification-v075.md).
+**Published activity browser:** [v0.7.0 notes](release-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Published navigation:** [v0.7.2 notes](release-v072.md), [qualification](navigation-validation-v072.md). **Published compatibility:** [v0.7.3 notes](release-v073.md), [qualification](compatibility-v073.md). **Published startup:** [v0.7.4 notes](release-v074.md), [qualification](startup-validation-v074.md). **Published drawer/qualification:** [v0.7.5 notes](release-v075.md), [qualification](drawer-qualification-v075.md). **Unpublished v0.7.6:** [preparation](../release-preparation.md), [compatibility policy](compatibility-capabilities.md).
 
 The historical v0.5.2 release qualification completed successfully on source commit `9a3aa7d046863687b671f316da0a138cb4f6be21`: [GitHub Actions #39219433132](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/39219433132). Its build, ten integration jobs and gated publish job all passed; the official native server-enforcement suite ran with `WATCHGUARD_PROXY_MATRIX=1`. The resulting release package is SHA-256 `62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec`.
 
@@ -17,7 +17,7 @@ The release build passed 212 backend tests, 112 JavaScript tests, 14 Python infr
 - **Packaging and recovery:** deterministic single-DLL + LICENSE ZIP, immutable catalog/checksum history, published-version upgrade/rollback fixtures, intact watchlist/preferences/configuration stores and rollback-compatible watchlist-date sidecar, and no Injector dependency in current installations.
 - **Isolation:** CI creates short-lived local Jellyfin/Docker installations with generated accounts, configuration and media. It never uses the owner's production media or authentication tokens.
 
-The dashboard's authenticated approval-readiness POST is **non-mutating** and only verifies the current request's authentication/origin boundary. It does not grant deletion consent, prove permission for a future target, establish successful JavaScript execution in every client or audit the underlying Jellyfin network policy. For server or UI upgrades beyond the qualified 12.2.0 baseline, repeat version-specific tests.
+The dashboard's authenticated approval-readiness POST is **non-mutating** and only verifies the current request's authentication/origin boundary. It does not grant deletion consent, prove permission for a future target, establish successful JavaScript execution in every client or audit the underlying Jellyfin network policy. For server or UI upgrades beyond the qualified 12.2.0/12.3.0 releases, repeat version-specific tests.
 
 ## Reproducing checks
 
@@ -25,4 +25,4 @@ Run ordinary tests with the pinned SDK and Node.js environment, following the [r
 
 Historical phase and release-candidate reports are indexed in [docs/README.md](README.md) and intentionally preserved with their original results. Those snapshot statements do not override the latest validated release.
 
-The [capability-based compatibility proposal](compatibility-capabilities.md) is design documentation only; exact-version gating and deletion-failure behavior remain unchanged.
+The unpublished v0.7.6 [capability policy](compatibility-capabilities.md) separates qualified releases from structurally compatible patches. Deletion-failure behavior remains unchanged; actual active enforcement requires complete verification. Tests of hypothetical patches are simulations, not qualification of those releases.

@@ -15,6 +15,7 @@
         const current = [api, api?.getCurrentUserId?.(), api?.accessToken?.()];
         if (current.some((v, i) => v !== identity[i])) { if (identity[1] && (!current[1] || !current[2])) handoff(); identity = current; generation++; nextAttempt = 0; }
         if (!current[1] || !current[2]) { state = 'waiting-for-login'; return; }
+        if (typeof api.getUrl !== 'function' || typeof api.ajax !== 'function') { state = 'unsupported-browser-api'; handoff(); return; }
         if (window.WatchGuardPoc) { state = 'existing-adapter'; done = true; stop(); handoff(); return; }
         if (pending || Date.now() < nextAttempt) return;
         const target = new URL(api.getUrl('WatchGuard/Standalone/script.js'), location.href);

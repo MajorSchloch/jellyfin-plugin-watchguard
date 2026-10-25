@@ -60,6 +60,25 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         }
         if (fixture.standalone) {
             await page.locator('#wgIntegration').getByText('Authenticated script available to this browser now: true').waitFor();
+            await page.waitForFunction(() => document.querySelector('[data-capability="browser-api"]')?.dataset.status === 'Tested');
+            const observed = await page.evaluate(() => ({
+                browser: window.WatchGuardPoc.compatibility(),
+                server: Array.from(document.querySelectorAll('#wgIntegration [data-capability]')).map(e => ({id:e.dataset.capability,status:e.dataset.status})),
+                text: document.querySelector('#wgIntegration').textContent
+            }));
+            assert.ok(observed.server.length >= 9);
+            assert.ok(observed.server.every(c=>c.status==='Tested'), JSON.stringify(observed.server));
+            assert.match(observed.text, /Actual server enforcement: INACTIVE/);
+            assert.equal(observed.browser.WebVersion, fixture.serverVersion);
+            assert.equal(observed.browser.Checks.find(c=>c.Id==='navigation-layout').Status,'Unavailable');
+            // Native Web API failures are diagnostic and cannot change server attachment.
+            await page.evaluate(() => { window.wgOriginalImageUrl=ApiClient.getImageUrl; ApiClient.getImageUrl=undefined; });
+            await refreshStatus();
+            await page.locator('[data-capability="watchlists-api"][data-status="Unsupported"]').waitFor();
+            assert.equal(await page.locator('[data-capability="guard-attachment"]').getAttribute('data-status'),'Tested');
+            await page.evaluate(() => { ApiClient.getImageUrl=window.wgOriginalImageUrl; delete window.wgOriginalImageUrl; });
+            await refreshStatus();
+            await page.locator('[data-capability="watchlists-api"][data-status="Tested"]').waitFor({state:'attached'});
             assert.equal(await page.locator('#wgIntegration').getByText('Authenticated script available to this browser now: true').count(),1,'status refresh must not duplicate availability lines');
             await page.route('**/WatchGuard/IntegrationStatus', async route => {
                 const response=await route.fetch(), result=await response.json();
@@ -94,7 +113,7 @@ assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyf
         await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
         await region.locator('.watchguard-filter summary').click(); assert.equal(await region.locator('.watchguard-filter input:checked').count(),3);
         if(fixture.standalone) await require('./preference-browser.cjs')(page,fixture);
-        const report={result:'PASS',nativeConfiguration:true,settingsPersistence:true,serverAndBrowserStatus:true,saveDefaults:true,urlPrecedence:true,reset:true,savedRecentlyAdded:fixture.standalone,preferenceAccountSwitching:fixture.standalone};
+        const report={result:'PASS',nativeConfiguration:true,settingsPersistence:true,serverAndBrowserStatus:true,saveDefaults:true,urlPrecedence:true,reset:true,savedRecentlyAdded:fixture.standalone,preferenceAccountSwitching:fixture.standalone,capabilityChecks:fixture.standalone};
         fs.mkdirSync('artifacts',{recursive:true});fs.writeFileSync('artifacts/settings-validation.json',JSON.stringify(report,null,2)+'\n');
         console.log('Settings/preferences browser checks passed.');
     } catch (error) { await readiness.failure(page,{...fixture,output:fixture.reportDirectory},'settings',error).catch(()=>console.warn('Diagnostic capture failed')); throw error; }

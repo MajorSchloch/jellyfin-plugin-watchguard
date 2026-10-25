@@ -56,6 +56,8 @@ public sealed class PreferencesController(IAuthorizationContext authorization, I
             JellyfinVersion = host.ApplicationVersionString, TestedCompatibility = "Jellyfin Server/Web 12.2.0 and 12.3.0 / .NET 10",
             ServerMatchesTestedVersion = JellyfinCompatibility.IsTestedVersion(host.ApplicationVersion),
             PluginLoaded = true,
+            TestedVersions = JellyfinCompatibility.TestedVersions, CompatibilityRange = JellyfinCompatibility.Range,
+            VersionCapability = JellyfinCompatibility.VersionCheck(host.ApplicationVersion, host.ApplicationVersionString),
             Standalone = standalone.Snapshot,
             BrowserExecutionVerified = false,
             Instructions = "Standalone loading. No Injector dependency. Completed responses do not verify browser execution. Fully reload clients and check this browser; CSP must permit Blob scripts. If Injector conflicts, remove only its watchguard-v1 entry; preserve other scripts and settings." });
