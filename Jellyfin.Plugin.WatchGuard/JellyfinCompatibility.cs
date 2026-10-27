@@ -18,13 +18,13 @@ public sealed record CapabilityCheck(string Id, string Status, string Detail, st
 
 internal static class JellyfinCompatibility
 {
-    internal static readonly string[] TestedVersions = ["12.2.0", "12.3.0"];
-    internal const string Range = "12.2.x and 12.3.x release versions; .NET 10; minimum ABI 12.2.0.0";
+    internal static readonly string[] TestedVersions = ["12.2.0", "12.3.0", "12.4.0"];
+    internal const string Range = "12.2.x, 12.3.x and 12.4.x release versions; .NET 10; minimum ABI 12.2.0.0";
     internal static bool IsTestedVersion(Version version) =>
-        version is { Major: 12, Minor: 2 or 3, Build: 0, Revision: -1 or 0 };
+        version is { Major: 12, Minor: 2 or 3 or 4, Build: 0, Revision: -1 or 0 };
     // Patch releases only. New minor/major families need behavioral and ABI review.
     internal static bool InRange(Version version) =>
-        version is { Major: 12, Minor: 2 or 3, Build: >= 0, Revision: -1 or 0 };
+        version is { Major: 12, Minor: 2 or 3 or 4, Build: >= 0, Revision: -1 or 0 };
     internal static string AcceptedStatus(Version version) => IsTestedVersion(version) ? "Tested" : "CompatibleUntested";
     internal static CapabilityCheck VersionCheck(Version version, string? reportedVersion = null)
     {

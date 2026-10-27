@@ -1,0 +1,136 @@
+{
+  "serverVersion": "12.4.0",
+  "inspectOnly": true,
+  "attached": 0,
+  "checks": [
+    {
+      "Id": "version-range",
+      "Status": "Unsupported",
+      "Detail": "12.2.x and 12.3.x release versions; .NET 10; minimum ABI 12.2.0.0",
+      "Action": "Use a qualified release or obtain a WatchGuard build qualified for this server family. Prereleases, revision builds and incomplete versions are not qualified release versions.",
+      "Passed": false
+    },
+    {
+      "Id": "deletion-inventory",
+      "Status": "CompatibleUntested",
+      "Detail": "Exactly one native LibraryController and both known deletion actions, with no additional DELETE actions in that controller.",
+      "Action": "",
+      "Passed": true
+    },
+    {
+      "Id": "deletion-signatures",
+      "Status": "CompatibleUntested",
+      "Detail": "DeleteItem(Guid itemId) and DeleteItems(Guid[] ids), returning ActionResult.",
+      "Action": "",
+      "Passed": true
+    },
+    {
+      "Id": "deletion-routes",
+      "Status": "CompatibleUntested",
+      "Detail": "Only DELETE Items/{itemId} and DELETE Items with the native empty controller prefix.",
+      "Action": "",
+      "Passed": true
+    },
+    {
+      "Id": "deletion-authorization",
+      "Status": "CompatibleUntested",
+      "Detail": "Native default authorization required; no anonymous override or changed policy/scheme/roles.",
+      "Action": "",
+      "Passed": true
+    },
+    {
+      "Id": "deletion-binding",
+      "Status": "CompatibleUntested",
+      "Detail": "Native route Guid and query Guid[] with Jellyfin's comma-delimited model binder.",
+      "Action": "",
+      "Passed": true
+    }
+  ],
+  "assembly": "Jellyfin.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "controller": "Jellyfin.Api.Controllers.LibraryController",
+  "authenticationTypes": [
+    "Jellyfin.Api.Auth.CustomAuthenticationHandler",
+    "Jellyfin.Api.Auth.DefaultAuthorizationPolicy.DefaultAuthorizationHandler",
+    "Jellyfin.Api.Auth.DefaultAuthorizationPolicy.DefaultAuthorizationRequirement"
+  ],
+  "actions": [
+    {
+      "method": "DeleteItem",
+      "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+      "authorization": [
+        {
+          "Policy": null,
+          "Roles": null,
+          "AuthenticationSchemes": null
+        }
+      ],
+      "controllerAttributes": [
+        "[System.Runtime.CompilerServices.NullableContextAttribute((Byte)1)]",
+        "[System.Runtime.CompilerServices.NullableAttribute((Byte)0)]",
+        "[Microsoft.AspNetCore.Mvc.RouteAttribute(\"\")]"
+      ],
+      "parameters": [
+        {
+          "name": "itemId",
+          "type": "System.Guid",
+          "attributes": [],
+          "binder": null
+        }
+      ],
+      "route": "Items/{itemId}",
+      "authorized": true
+    },
+    {
+      "method": "DeleteItems",
+      "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+      "authorization": [
+        {
+          "Policy": null,
+          "Roles": null,
+          "AuthenticationSchemes": null
+        }
+      ],
+      "controllerAttributes": [
+        "[System.Runtime.CompilerServices.NullableContextAttribute((Byte)1)]",
+        "[System.Runtime.CompilerServices.NullableAttribute((Byte)0)]",
+        "[Microsoft.AspNetCore.Mvc.RouteAttribute(\"\")]"
+      ],
+      "parameters": [
+        {
+          "name": "ids",
+          "type": "System.Guid[]",
+          "attributes": [
+            "Microsoft.AspNetCore.Mvc.FromQueryAttribute",
+            "Microsoft.AspNetCore.Mvc.ModelBinderAttribute"
+          ],
+          "binder": "Jellyfin.Api.ModelBinders.CommaDelimitedCollectionModelBinder"
+        }
+      ],
+      "route": "Items",
+      "authorized": true
+    }
+  ],
+  "result": "STRUCTURAL_INSPECTION_ONLY",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "runtime": {
+    "runtimeOptions": {
+      "tfm": "net10.0",
+      "includedFrameworks": [
+        {
+          "name": "Microsoft.NETCore.App",
+          "version": "10.0.14"
+        },
+        {
+          "name": "Microsoft.AspNetCore.App",
+          "version": "10.0.14"
+        }
+      ],
+      "configProperties": {
+        "System.GC.Server": false,
+        "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
+        "System.Reflection.NullabilityInfoContext.IsSupported": true,
+        "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false
+      }
+    }
+  }
+}

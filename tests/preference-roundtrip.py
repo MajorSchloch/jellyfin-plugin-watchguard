@@ -45,7 +45,7 @@ def run(call, restart, docker, name, root, plugins, token, installed):
             if operation == 'save-identical': call(route, 'PUT', fallback, token)
             if operation == 'recent': call(route, 'PUT', dict(fallback, Sort='recent'), token)
             if operation == 'reset': call(route, 'DELETE', token=token)
-            install(candidate, '0.7.7')
+            install(candidate, '0.7.8')
             expected = added if operation == 'unchanged' else defaults if operation == 'reset' else dict(fallback, Sort='recent') if operation == 'recent' else fallback
             assert call(route, token=token) == expected, f'Unexpected {version} {operation} re-upgrade defaults'
             print(f'Published {version} preference {operation} round-trip passed.', flush=True)

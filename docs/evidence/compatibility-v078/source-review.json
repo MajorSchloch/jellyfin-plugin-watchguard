@@ -1,0 +1,123 @@
+{
+  "server": {
+    "url": "https://github.com/jellyfin/jellyfin/compare/v12.3...v12.4",
+    "base": "06de749d435e2d0be0c5119a41f2300fdd7143e5",
+    "head": "83d0d0e7f76e23e2e085c8ff67d28b772d35967d",
+    "files": [
+      {
+        "filename": ".config/dotnet-tools.json",
+        "status": "modified",
+        "patch": "@@ -3,7 +3,7 @@\n   \"isRoot\": true,\n   \"tools\": {\n     \"dotnet-ef\": {\n-      \"version\": \"10.0.11\",\n+      \"version\": \"10.0.14\",\n       \"commands\": [\n         \"dotnet-ef\"\n       ]"
+      },
+      {
+        "filename": "Directory.Packages.props",
+        "status": "modified",
+        "patch": "@@ -26,27 +26,27 @@\n     <PackageVersion Include=\"libse\" Version=\"4.0.12\" />\n     <PackageVersion Include=\"LrcParser\" Version=\"2025.623.0\" />\n     <PackageVersion Include=\"MetaBrainz.MusicBrainz\" Version=\"8.0.1\" />\n-    <PackageVersion Include=\"Microsoft.AspNetCore.Authorization\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.AspNetCore.Mvc.Testing\" Version=\"10.0.12\" />\n+    <PackageVersion Include=\"Microsoft.AspNetCore.Authorization\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.AspNetCore.Mvc.Testing\" Version=\"10.0.14\" />\n     <PackageVersion Include=\"Microsoft.CodeAnalysis.BannedApiAnalyzers\" Version=\"5.6.0\" />\n     <PackageVersion Include=\"Microsoft.CodeAnalysis.Common\" Version=\"5.9.0\" />\n     <PackageVersion Include=\"Microsoft.CodeAnalysis.CSharp\" Version=\"5.9.0\" />\n     <PackageVersion Include=\"Microsoft.CodeAnalysis.Analyzers\" Version=\"5.9.0\" />\n-    <PackageVersion Include=\"Microsoft.Data.Sqlite\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.EntityFrameworkCore.Design\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.EntityFrameworkCore.Relational\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.EntityFrameworkCore.Sqlite\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.EntityFrameworkCore.Tools\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.Caching.Abstractions\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.Caching.Memory\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.Configuration.Abstractions\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.Configuration.Binder\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.DependencyInjection\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.Hosting.Abstractions\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.Http\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.Logging\" Version=\"10.0.12\" />\n-    <PackageVersion Include=\"Microsoft.Extensions.Options\" Version=\"10.0.12\" />\n+    <PackageVersion Include=\"Microsoft.Data.Sqlite\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.EntityFrameworkCore.Design\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.EntityFrameworkCore.Relational\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.EntityFrameworkCore.Sqlite\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.EntityFrameworkCore.Tools\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.Caching.Abstractions\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.Caching.Memory\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.Configuration.Abstractions\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.Configuration.Binder\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.DependencyInjection\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.Hosting.Abstractions\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.Http\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.Logging\" Version=\"10.0.14\" />\n+    <PackageVersion Include=\"Microsoft.Extensions.Options\" Version=\"10.0.14\" />\n     <PackageVersion Include=\"Microsoft.NET.Test.Sdk\" Version=\"18.11.0\" />\n     <PackageVersion Include=\"MimeTypes\" Version=\"2.5.2\" />\n     <PackageVersion Include=\"Morestachio\" Version=\"5.0.1.670\" />\n@@ -78,7 +78,7 @@\n     <PackageVersion Include=\"Svg.Skia\" Version=\"3.7.0\" />\n     <PackageVersion Include=\"Swashbuckle.AspNetCore.ReDoc\" Version=\"10.2.3\" />\n     <PackageVersion Include=\"Swashbuckle.AspNetCore\" Version=\"10.2.3\" />\n-    <PackageVersion Include=\"System.Text.Json\" Version=\"10.0.13\" />\n+    <PackageVersion Include=\"System.Text.Json\" Version=\"10.0.14\" />\n     <PackageVersion Include=\"TagLibSharp\" Version=\"2.3.0\" />\n     <PackageVersion Include=\"z440.atl.core\" Version=\"7.18.0\" />\n     <PackageVersion Include=\"TMDbLib\" Version=\"3.0.0\" />"
+      },
+      {
+        "filename": "Emby.Naming/Emby.Naming.csproj",
+        "status": "modified",
+        "patch": "@@ -36,7 +36,7 @@\n   <PropertyGroup>\n     <Authors>Jellyfin Contributors</Authors>\n     <PackageId>Jellyfin.Naming</PackageId>\n-    <VersionPrefix>12.3.0</VersionPrefix>\n+    <VersionPrefix>12.4.0</VersionPrefix>\n     <RepositoryUrl>https://github.com/jellyfin/jellyfin</RepositoryUrl>\n     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>\n   </PropertyGroup>"
+      },
+      {
+        "filename": "Jellyfin.Data/Jellyfin.Data.csproj",
+        "status": "modified",
+        "patch": "@@ -18,7 +18,7 @@\n   <PropertyGroup>\n     <Authors>Jellyfin Contributors</Authors>\n     <PackageId>Jellyfin.Data</PackageId>\n-    <VersionPrefix>12.3.0</VersionPrefix>\n+    <VersionPrefix>12.4.0</VersionPrefix>\n     <RepositoryUrl>https://github.com/jellyfin/jellyfin</RepositoryUrl>\n     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>\n   </PropertyGroup>"
+      },
+      {
+        "filename": "MediaBrowser.Common/MediaBrowser.Common.csproj",
+        "status": "modified",
+        "patch": "@@ -8,7 +8,7 @@\n   <PropertyGroup>\n     <Authors>Jellyfin Contributors</Authors>\n     <PackageId>Jellyfin.Common</PackageId>\n-    <VersionPrefix>12.3.0</VersionPrefix>\n+    <VersionPrefix>12.4.0</VersionPrefix>\n     <RepositoryUrl>https://github.com/jellyfin/jellyfin</RepositoryUrl>\n     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>\n   </PropertyGroup>"
+      },
+      {
+        "filename": "MediaBrowser.Controller/MediaBrowser.Controller.csproj",
+        "status": "modified",
+        "patch": "@@ -8,7 +8,7 @@\n   <PropertyGroup>\n     <Authors>Jellyfin Contributors</Authors>\n     <PackageId>Jellyfin.Controller</PackageId>\n-    <VersionPrefix>12.3.0</VersionPrefix>\n+    <VersionPrefix>12.4.0</VersionPrefix>\n     <RepositoryUrl>https://github.com/jellyfin/jellyfin</RepositoryUrl>\n     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>\n   </PropertyGroup>"
+      },
+      {
+        "filename": "MediaBrowser.Model/MediaBrowser.Model.csproj",
+        "status": "modified",
+        "patch": "@@ -8,7 +8,7 @@\n   <PropertyGroup>\n     <Authors>Jellyfin Contributors</Authors>\n     <PackageId>Jellyfin.Model</PackageId>\n-    <VersionPrefix>12.3.0</VersionPrefix>\n+    <VersionPrefix>12.4.0</VersionPrefix>\n     <RepositoryUrl>https://github.com/jellyfin/jellyfin</RepositoryUrl>\n     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>\n   </PropertyGroup>"
+      },
+      {
+        "filename": "SharedVersion.cs",
+        "status": "modified",
+        "patch": "@@ -1,4 +1,4 @@\n using System.Reflection;\n \n-[assembly: AssemblyVersion(\"12.3.0\")]\n-[assembly: AssemblyFileVersion(\"12.3.0\")]\n+[assembly: AssemblyVersion(\"12.4.0\")]\n+[assembly: AssemblyFileVersion(\"12.4.0\")]"
+      },
+      {
+        "filename": "src/Jellyfin.Extensions/Jellyfin.Extensions.csproj",
+        "status": "modified",
+        "patch": "@@ -15,7 +15,7 @@\n   <PropertyGroup>\n     <Authors>Jellyfin Contributors</Authors>\n     <PackageId>Jellyfin.Extensions</PackageId>\n-    <VersionPrefix>12.3.0</VersionPrefix>\n+    <VersionPrefix>12.4.0</VersionPrefix>\n     <RepositoryUrl>https://github.com/jellyfin/jellyfin</RepositoryUrl>\n     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>\n   </PropertyGroup>"
+      }
+    ]
+  },
+  "web": {
+    "url": "https://github.com/jellyfin/jellyfin-web/compare/v12.3...v12.4",
+    "base": "c06cb17b274c10f9015412305edb0afdc010ae7a",
+    "head": "0a580ce8df89282dfd120b6d5efb8e106da23bd5",
+    "files": [
+      {
+        "filename": "package-lock.json",
+        "status": "modified",
+        "patch": "@@ -1,12 +1,12 @@\n {\n   \"name\": \"jellyfin-web\",\n-  \"version\": \"12.3.0\",\n+  \"version\": \"12.4.0\",\n   \"lockfileVersion\": 3,\n   \"requires\": true,\n   \"packages\": {\n     \"\": {\n       \"name\": \"jellyfin-web\",\n-      \"version\": \"12.3.0\",\n+      \"version\": \"12.4.0\",\n       \"license\": \"GPL-2.0-or-later\",\n       \"dependencies\": {\n         \"@emotion/react\": \"11.14.0\",\n@@ -18,7 +18,7 @@\n         \"@fontsource/noto-sans-sc\": \"5.3.0\",\n         \"@fontsource/noto-sans-tc\": \"5.3.0\",\n         \"@jellyfin/libass-wasm\": \"4.2.4\",\n-        \"@jellyfin/sdk\": \"1.0.1\",\n+        \"@jellyfin/sdk\": \"1.0.2\",\n         \"@jellyfin/ux-web\": \"1.0.0\",\n         \"@mui/icons-material\": \"6.5.0\",\n         \"@mui/material\": \"6.5.0\",\n@@ -4641,9 +4641,9 @@\n       \"license\": \"LGPL-2.1-or-later AND (FTL OR GPL-2.0-or-later) AND MIT AND MIT-Modern-Variant AND ISC AND NTP AND Zlib AND BSL-1.0\"\n     },\n     \"node_modules/@jellyfin/sdk\": {\n-      \"version\": \"1.0.1\",\n-      \"resolved\": \"https://registry.npmjs.org/@jellyfin/sdk/-/sdk-1.0.1.tgz\",\n-      \"integrity\": \"sha512-PQy8sXOWWHygfd89wCVv/NA3n8+XlJvNh7wNQS+twUEgvQbbxq1JE5KTbRBRwPACGEzaPV/TV2VOTLMmi/0N+Q==\",\n+      \"version\": \"1.0.2\",\n+      \"resolved\": \"https://registry.npmjs.org/@jellyfin/sdk/-/sdk-1.0.2.tgz\",\n+      \"integrity\": \"sha512-aO++9TsHIhtHFuK3c+kewt/7iFJKGgZ1080Vp1VwSFZsRvKDdr/UhQo4g7ZIKrZMCYWzvcD+2vKuC2ZZkcb+Wg==\",\n       \"license\": \"MPL-2.0\",\n       \"peerDependencies\": {\n         \"axios\": \"^1.12.0\""
+      },
+      {
+        "filename": "package.json",
+        "status": "modified",
+        "patch": "@@ -1,6 +1,6 @@\n {\n   \"name\": \"jellyfin-web\",\n-  \"version\": \"12.3.0\",\n+  \"version\": \"12.4.0\",\n   \"description\": \"Web interface for Jellyfin\",\n   \"repository\": \"https://github.com/jellyfin/jellyfin-web\",\n   \"license\": \"GPL-2.0-or-later\",\n@@ -86,7 +86,7 @@\n     \"@fontsource/noto-sans-sc\": \"5.3.0\",\n     \"@fontsource/noto-sans-tc\": \"5.3.0\",\n     \"@jellyfin/libass-wasm\": \"4.2.4\",\n-    \"@jellyfin/sdk\": \"1.0.1\",\n+    \"@jellyfin/sdk\": \"1.0.2\",\n     \"@jellyfin/ux-web\": \"1.0.0\",\n     \"@mui/icons-material\": \"6.5.0\",\n     \"@mui/material\": \"6.5.0\","
+      }
+    ]
+  },
+  "sdk": {
+    "url": "https://github.com/jellyfin/jellyfin-sdk-typescript/compare/v1.0.1...v1.0.2",
+    "base": "2619192807fbaec310ca1929a7cc88bf6858ff39",
+    "head": "780ffa49788bebf161e6aeba38712bab44a9bc7d",
+    "files": [
+      {
+        "filename": "CHANGELOG.md",
+        "status": "modified",
+        "patch": "@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).\n \n ## [Unreleased]\n \n+## [1.0.2] - 2026-10-23\n+\n+### Fixed\n+\n+* WebSocket calls were attempted without an active session ([#1107](https://github.com/jellyfin/jellyfin-sdk-typescript/pull/1107)).\n+\n ## [1.0.1] - 2026-10-16\n \n ### Fixed\n@@ -147,7 +153,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).\n \n ## [0.1.0] - 2021-09-19\n \n-[unreleased]: https://github.com/jellyfin/jellyfin-sdk-typescript/compare/v1.0.1...HEAD\n+[unreleased]: https://github.com/jellyfin/jellyfin-sdk-typescript/compare/v1.0.2...HEAD\n+[1.0.2]: https://github.com/jellyfin/jellyfin-sdk-typescript/compare/v1.0.1...v1.0.2\n [1.0.1]: https://github.com/jellyfin/jellyfin-sdk-typescript/compare/v1.0.0...v1.0.1\n [1.0.0]: https://github.com/jellyfin/jellyfin-sdk-typescript/compare/v0.13.0...v1.0.0\n [0.13.0]: https://github.com/jellyfin/jellyfin-sdk-typescript/compare/v0.12.0...v0.13.0"
+      },
+      {
+        "filename": "openapi.json",
+        "status": "modified",
+        "patch": "@@ -1,3 +1,3 @@\n version https://git-lfs.github.com/spec/v1\n-oid sha256:bc8c668b38b65e48ac6ec8c6f763b4bce36b955a0d4a58a27198ee4ec636ab80\n+oid sha256:b21bccdbb75d599de74961ad31401092162b0cb3ae553b3320f19f0294f0604f\n size 943399"
+      },
+      {
+        "filename": "package-lock.json",
+        "status": "modified",
+        "patch": "@@ -1,12 +1,12 @@\n {\n   \"name\": \"@jellyfin/sdk\",\n-  \"version\": \"1.0.1\",\n+  \"version\": \"1.0.2\",\n   \"lockfileVersion\": 3,\n   \"requires\": true,\n   \"packages\": {\n     \"\": {\n       \"name\": \"@jellyfin/sdk\",\n-      \"version\": \"1.0.1\",\n+      \"version\": \"1.0.2\",\n       \"license\": \"MPL-2.0\",\n       \"devDependencies\": {\n         \"@openapitools/openapi-generator-cli\": \"2.39.1\","
+      },
+      {
+        "filename": "package.json",
+        "status": "modified",
+        "patch": "@@ -1,6 +1,6 @@\n {\n   \"name\": \"@jellyfin/sdk\",\n-  \"version\": \"1.0.1\",\n+  \"version\": \"1.0.2\",\n   \"description\": \"A TypeScript SDK for Jellyfin.\",\n   \"keywords\": [\n     \"jellyfin\"\n@@ -21,6 +21,7 @@\n     \"docs\": \"typedoc --tsconfig .\",\n     \"fix-schema\": \"node scripts/modify-schema.mjs openapi.json\",\n     \"lint\": \"eslint \\\".\\\"\",\n+    \"postversion\": \"node scripts/postversion.mjs\",\n     \"prepublishOnly\": \"npm run clean:build:sdk\",\n     \"test\": \"vitest --exclude **/integration.test.ts\",\n     \"test:integration\": \"vitest integration\""
+      },
+      {
+        "filename": "scripts/postversion.mjs",
+        "status": "added",
+        "patch": "@@ -0,0 +1,20 @@\n+/**\n+ * This script updates the CHANGELOG.md file with the new version information.\n+ */\n+import { readFileSync, writeFileSync } from 'node:fs';\n+\n+const { version } = JSON.parse(readFileSync('package.json', 'utf8'));\n+const date = new Date().toISOString().slice(0, 10);\n+const repo = 'https://github.com/jellyfin/jellyfin-sdk-typescript';\n+\n+const linkRegex = /^\\[unreleased\\]: .*\\/compare\\/v(.+)\\.\\.\\.HEAD$/m;\n+let changelog = readFileSync('CHANGELOG.md', 'utf8');\n+\n+const previous = changelog.match(linkRegex)?.[1];\n+if (!previous) throw new Error('Unreleased link not found in CHANGELOG.md');\n+\n+changelog = changelog\n+\t.replace('## [Unreleased]\\n', `## [Unreleased]\\n\\n## [${version}] - ${date}\\n`)\n+\t.replace(linkRegex, `[unreleased]: ${repo}/compare/v${version}...HEAD\\n[${version}]: ${repo}/compare/v${previous}...v${version}`);\n+\n+writeFileSync('CHANGELOG.md', changelog);"
+      },
+      {
+        "filename": "src/api.ts",
+        "status": "modified",
+        "patch": "@@ -135,8 +135,9 @@ export class Api {\n \t\t\tthis._accessToken = data.accessToken;\n \t\t}\n \n-\t\tif (data.basePath ||\n-\t\t\t(data.accessToken && data.accessToken !== '')\n+\t\tif (\n+\t\t\tdata.accessToken ||\n+\t\t\t(data.basePath && this.accessToken)\n \t\t) {\n \t\t\tthis.webSocket?.updateUrl(\n \t\t\t\tthis.getUri(WEBSOCKET_URL_PATH, {"
+      },
+      {
+        "filename": "src/utils/api/session-api.ts",
+        "status": "modified",
+        "patch": "@@ -21,11 +21,10 @@ class AugmentedSessionApi extends SessionApi {\n \t// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-object-type\n \tpublic reportSessionEnded(options?: RawAxiosRequestConfig): Promise<AxiosResponse<void, any, {}>> {\n \t\treturn super.reportSessionEnded(options)\n-\t\t\t.then(response => {\n+\t\t\t.finally(() => {\n \t\t\t\tthis.api.update({\n \t\t\t\t\taccessToken: ''\n \t\t\t\t});\n-\t\t\t\treturn response;\n \t\t\t});\n \t}\n }"
+      },
+      {
+        "filename": "src/versions.ts",
+        "status": "modified",
+        "patch": "@@ -5,7 +5,7 @@\n  */\n \n /** The current API version of the generated client. */\n-export const API_VERSION = '12.2.0';\n+export const API_VERSION = '12.3.0';\n \n /** The minimum supported server version. */\n export const MINIMUM_VERSION = '10.10.0';"
+      },
+      {
+        "filename": "src/websocket/websocket-service.ts",
+        "status": "modified",
+        "patch": "@@ -19,17 +19,17 @@ import { OutboundWebSocketMessageType, type SocketMessageHandler, type SocketSta\n  */\n export class WebSocketService {\n \t/**\n-     * The URL to connect to.\n+\t * The URL to connect to.\n \t *\n \t * Created in the constructor (or later via {@link updateUrl}), using the fields from\n \t * the authenticated Api instance. If undefined, the socket will not connect until\n \t * a URL is provided via {@link updateUrl}.\n-     */\n+\t */\n \tprivate url: URL | undefined;\n \n \t/**\n-     * The active websocket connection, if one exists.\n-     */\n+\t * The active websocket connection, if one exists.\n+\t */\n \tprivate socket: WebSocket | undefined;\n \n \t/**\n@@ -63,22 +63,22 @@ export class WebSocketService {\n \tprivate autoReconnectDisabled = false;\n \n \t/**\n-     * Status change event listeners\n-     */\n+\t * Status change event listeners\n+\t */\n \tprivate readonly statusListeners: SocketStatusHandler[] = [];\n \n \t/**\n-     * Current connection status\n-     */\n+\t * Current connection status\n+\t */\n \tprivate currentStatus: WebSocketStatus = 'disconnected';\n \n \t/**\n-     * Constructs a new instance of the {@link WebSocketService}\n-     *\n-     * @param uri The full URI path with the Authorization Header included as a query parameter.\n-     *            May be omitted when no access token is available yet \u2014 subscriptions will be\n-     *            preserved and the socket will connect once {@link updateUrl} is called.\n-     */\n+\t * Constructs a new instance of the {@link WebSocketService}\n+\t *\n+\t * @param uri The full URI path with the Authorization Header included as a query parameter.\n+\t *            May be omitted when no access token is available yet \u2014 subscriptions will be\n+\t *            preserved and the socket will connect once {@link updateUrl} is called.\n+\t */\n \tconstructor(\n \t\turi?: string\n \t) {\n@@ -191,8 +191,8 @@ export class WebSocketService {\n \t}\n \n \t/**\n-     * Internal method to update status and notify all listeners\n-     */\n+\t * Internal method to update status and notify all listeners\n+\t */\n \tprivate setStatus(status: WebSocketStatus) {\n \t\tif (this.currentStatus !== status) {\n \t\t\tthis.currentStatus = status;\n@@ -201,9 +201,9 @@ export class WebSocketService {\n \t}\n \n \t/**\n-     * Gets the current status of the websocket connection\n-     * @returns The connection status\n-     */\n+\t * Gets the current status of the websocket connection\n+\t * @returns The connection status\n+\t */\n \tget socketStatus(): WebSocketStatus | undefined {\n \t\treturn this.currentStatus;\n \t}\n@@ -215,6 +215,7 @@ export class WebSocketService {\n \t * when `updateUrl` is called with a new valid URL.\n \t */\n \tdisconnect(): void {\n+\t\tthis.url = undefined;\n \t\tthis.autoReconnectDisabled = true;\n \t\tthis.socket?.close();\n \t\tthis.setStatus('disconnected');\n@@ -258,11 +259,11 @@ export class WebSocketService {\n \t}\n \n \t/**\n-     * Adds a listener for websocket status changes\n-     *\n-     * @param onStatusChange Callback invoked when the connection status changes\n-     * @returns A function which can be invoked to remove the listener\n-     */\n+\t * Adds a listener for websocket status changes\n+\t *\n+\t * @param onStatusChange Callback invoked when the connection status changes\n+\t * @returns A function which can be invoked to remove the listener\n+\t */\n \tonStatusChange(onStatusChange: SocketStatusHandler): () => void {\n \t\tthis.statusListeners.push(onStatusChange);\n \t\treturn () => {\n@@ -274,24 +275,24 @@ export class WebSocketService {\n \t}\n \n \t/**\n-     * Adds message listeners for the provided message types.\n-     *\n-     * Adding a listener will establish a websocket connection if one does not already exist.\n-     *\n-     * Listeners will be automatically resubscribed if the connection is lost and re-established.\n-     *\n-     * Listeners can be removed by invoking the returned unsubscribe function.\n-     *\n-     * @param messageTypes Any array of {@link OutboundWebSocketMessage} message types to listen for\n-     * @param onMessage The callback to invoke when a message is received\n-     *\n+\t * Adds message listeners for the provided message types.\n+\t *\n+\t * Adding a listener will establish a websocket connection if one does not already exist.\n+\t *\n+\t * Listeners will be automatically resubscribed if the connection is lost and re-established.\n+\t *\n+\t * Listeners can be removed by invoking the returned unsubscribe function.\n+\t *\n+\t * @param messageTypes Any array of {@link OutboundWebSocketMessage} message types to listen for\n+\t * @param onMessage The callback to invoke when a message is received\n+\t *\n \t * @example\n \t * const unsubscribe = api.webSocket.subscribe([OutboundWebSocketMessageType.Sessions], (message) => {\n \t *   console.log('Received session update:', message);\n \t * });\n \t *\n-     * @returns A function which can be invoked to remove the added listeners\n-     */\n+\t * @returns A function which can be invoked to remove the added listeners\n+\t */\n \tsubscribe<T extends OutboundWebSocketMessageType>(\n \t\tmessageTypes: T[], onMessage: SocketMessageHandler<T>,\n \t\tsubscriptionIntervals?: WebSocketSubscriptionIntervals"
+      }
+    ]
+  }
+}

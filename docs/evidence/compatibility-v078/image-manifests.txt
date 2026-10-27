@@ -1,0 +1,38 @@
+Name:      docker.io/jellyfin/jellyfin:12.4
+MediaType: application/vnd.docker.distribution.manifest.list.v2+json
+Digest:    sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771
+           
+Manifests: 
+  Name:      docker.io/jellyfin/jellyfin:12.4@sha256:7da5184caa38c553f219f6772476540081f392a68049e2b68c923f6daf877f8e
+  MediaType: application/vnd.docker.distribution.manifest.v2+json
+  Platform:  linux/amd64
+             
+  Name:      docker.io/jellyfin/jellyfin:12.4@sha256:c9f6c6d162f8eedc7344a7c66fb4a2f1fe5c871322794ba477a38ca04add9405
+  MediaType: application/vnd.docker.distribution.manifest.v2+json
+  Platform:  linux/arm64
+Name:      lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044
+           
+Manifests: 
+  Name:        lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:50b431edbea22045f97c5d662b4ab22a48e0aeab1e186702ec2a02bf70dd0eec
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/amd64
+               
+  Name:        lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:28bfcf6defeb21c1020c96416b7276856bf8ad0ea17fcfa72d4e974b67efc28e
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations: 
+    vnd.docker.reference.digest: sha256:50b431edbea22045f97c5d662b4ab22a48e0aeab1e186702ec2a02bf70dd0eec
+    vnd.docker.reference.type:   attestation-manifest
+               
+  Name:        lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:edac137a661e64b0c3e9349c9bc6c4d7d2e2ae0c7e5cce68228dbe0d70e0b260
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/arm64
+               
+  Name:        lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:2383aef57ce249d56cd27fcd5e333e81c793f655765391a132a7cde1666f82ba
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations: 
+    vnd.docker.reference.digest: sha256:edac137a661e64b0c3e9349c9bc6c4d7d2e2ae0c7e5cce68228dbe0d70e0b260
+    vnd.docker.reference.type:   attestation-manifest

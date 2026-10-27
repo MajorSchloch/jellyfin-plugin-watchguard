@@ -72,7 +72,12 @@ public class AttachmentTests
     [InlineData("12.3.0.0", true, true)]
     [InlineData("12.2.0", false, false)]
     [InlineData("12.3.0", false, false)]
-    [InlineData("12.4.0", true, false)]
+    [InlineData("12.4.0", true, true)]
+    [InlineData("12.4.0.0", true, true)]
+    [InlineData("12.4.1", true, true)] // Simulated patch, not a qualified release.
+    [InlineData("12.4.0", false, false)]
+    [InlineData("12.4.0.1", true, false)]
+    [InlineData("12.5.0", true, false)] // Simulated future minor.
     [InlineData("13.0.0", true, false)]
     [InlineData("12.1.0", true, false)]
     [InlineData("12.3.1", true, true)]
@@ -99,6 +104,19 @@ public class AttachmentTests
     [InlineData("12.3.0", true, false, "extra-delete")]
     [InlineData("12.2.0", true, false, "assembly")]
     [InlineData("12.3.0", true, false, "assembly")]
+    [InlineData("12.4.0", true, false, "route")]
+    [InlineData("12.4.0", true, false, "return")]
+    [InlineData("12.4.0", true, false, "parameter")]
+    [InlineData("12.4.0", true, false, "name")]
+    [InlineData("12.4.0", true, false, "authorization")]
+    [InlineData("12.4.0", true, false, "anonymous")]
+    [InlineData("12.4.0", true, false, "policy")]
+    [InlineData("12.4.0", true, false, "binding")]
+    [InlineData("12.4.0", true, false, "binder")]
+    [InlineData("12.4.0", true, false, "query-name")]
+    [InlineData("12.4.0", true, false, "extra-route")]
+    [InlineData("12.4.0", true, false, "extra-delete")]
+    [InlineData("12.4.0", true, false, "assembly")]
     public void ContractAndBoundedVersionMatching_IncludingSimulatedPatchVersions(string version, bool both, bool expected, string? fault = null)
     {
         var model = Model(both, fault);
@@ -165,7 +183,7 @@ public class AttachmentTests
     [InlineData(null, true)]
     [InlineData("pending-authentication", true)]
     [InlineData(null, true, "12.3.1")] // Simulated patch with unchanged contracts.
-    [InlineData(null, false, "12.4.0")] // Simulated new minor, outside envelope.
+    [InlineData(null, false, "12.5.0")] // Simulated new minor, outside envelope.
     [InlineData("missing-filter", false)]
     [InlineData("duplicate-filter", false)]
     [InlineData("binding-source", false)]

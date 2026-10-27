@@ -17,13 +17,17 @@ IMAGES = {
         'official': 'jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5',
         'linuxserver': 'lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308',
     },
+    '12.4': {
+        'official': 'jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771',
+        'linuxserver': 'lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044',
+    },
 }
 
 
 def version():
-    selected = os.environ.get('WATCHGUARD_JELLYFIN_VERSION', '12.3')
+    selected = os.environ.get('WATCHGUARD_JELLYFIN_VERSION', '12.4')
     if selected not in IMAGES:
-        raise ValueError('Only pinned Jellyfin 12.2 and 12.3 fixtures are supported')
+        raise ValueError('Only pinned Jellyfin 12.2, 12.3 and 12.4 fixtures are supported')
     return selected
 
 
@@ -42,6 +46,11 @@ def inspect(container, linuxserver, plugin, server_version, output):
             source.extractall(temp, filter='data')
         result = subprocess.check_output(['dotnet', str(project.parent / 'bin/Release/net10.0/CompatibilityProbe.dll'), temp, str(plugin), server_version], text=True)
         report = json.loads(result)
+    report['packagedRuntime'] = json.loads(subprocess.check_output(['docker', 'exec', container, 'cat', folder + '/jellyfin.runtimeconfig.json'], text=True))
+    frameworks = report['packagedRuntime']['runtimeOptions']['includedFrameworks']
+    assert all(f['version'].startswith('10.') for f in frameworks), 'Unexpected packaged runtime family'
+    if server_version == '12.4.0':
+        assert {f['name']: f['version'] for f in frameworks} == {'Microsoft.NETCore.App':'10.0.14', 'Microsoft.AspNetCore.App':'10.0.14'}, 'Verify the released 12.4 runtime'
     report['image'] = image(linuxserver)
     report['imageIdentity'] = json.loads(subprocess.check_output(['docker', 'image', 'inspect', image(linuxserver), '--format', '{{json .}}'], text=True))
     # Retain immutable provenance, not unrelated daemon configuration.

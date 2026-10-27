@@ -68,7 +68,11 @@ public sealed class BackendTests : IDisposable
     [InlineData("12.2.0.0", true)]
     [InlineData("12.3.0.0", true)]
     [InlineData("12.1.0", false)]
-    [InlineData("12.4.0", false)]
+    [InlineData("12.4.0", true)]
+    [InlineData("12.4.0.0", true)]
+    [InlineData("12.4.1", false)]
+    [InlineData("12.4.0.1", false)]
+    [InlineData("12.5.0", false)]
     [InlineData("13.0.0", false)]
     [InlineData("12.2.1", false)]
     [InlineData("12.3.1", false)]
@@ -502,7 +506,7 @@ public sealed class BackendTests : IDisposable
     [Fact]
     public void ReleaseMetadataAndDiagnosticDefault()
     {
-        Assert.Equal(new Version(0, 7, 7, 0), typeof(Plugin).Assembly.GetName().Version);
+        Assert.Equal(new Version(0, 7, 8, 0), typeof(Plugin).Assembly.GetName().Version);
         Assert.False(new Configuration().DiagnosticMode);
         Assert.True(new Configuration().ProtectCaughtUpSeries);
         Assert.Contains("Jellyfin.Plugin.WatchGuard.Web.watchguard.js", typeof(Plugin).Assembly.GetManifestResourceNames());

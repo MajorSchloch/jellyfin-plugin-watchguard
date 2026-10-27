@@ -1,0 +1,42 @@
+{
+  "packageSha256": "a7fdde2c055aea70fa2e62ab59ade32aeff4cc24c0a0d1f83e0bc4a6503423a4",
+  "scope": "Preflight before tightening notification suppression; not final qualification",
+  "serverWeb": "12.4.0",
+  "architecture": "arm64",
+  "nativeBrowser": "PASS",
+  "orderingViolations": 0,
+  "actions": [
+    {
+      "path": "Watchlist action 1280",
+      "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+      "appearance": {
+        "text": "bookmark_remove",
+        "color": "rgba(23, 172, 223, 0.96)",
+        "visible": true
+      }
+    },
+    {
+      "path": "Watchlist action 390",
+      "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+      "appearance": {
+        "text": "bookmark_remove",
+        "color": "rgba(38, 177, 225, 0.94)",
+        "visible": true
+      }
+    },
+    {
+      "path": "Watchlist navigation during write",
+      "result": "Delayed failure cannot repaint the new detail route or mutate membership"
+    },
+    {
+      "path": "Account switch",
+      "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+    },
+    {
+      "path": "Account isolation and native permissions",
+      "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+    }
+  ],
+  "linuxserverEnforcementCases": 77,
+  "linuxserverEnforcementResult": "PASS"
+}

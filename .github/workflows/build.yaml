@@ -35,10 +35,10 @@ jobs:
         run: |
           curl --fail --silent --show-error --location https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json -o /tmp/watchguard-published-catalog.json
           python3 scripts/catalog.py --check-history /tmp/watchguard-published-catalog.json
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip
+      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.8.zip
       - uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-v0.7.7
+          name: WatchGuard-v0.7.8
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip.sha256
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.8.zip
+            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.8.zip.sha256

@@ -1,14 +1,16 @@
-# Compatibility capabilities (v0.7.6)
+# Compatibility capabilities (v0.7.8)
 
-WatchGuard separates runtime/API requirements, native deletion interception and browser integration. The qualified Server/Web releases are **12.2.0 and 12.3.0**. Qualification uses one package on both hosts, including official and LinuxServer images. A version match alone never means that server enforcement is active.
+This page describes the v0.7.8 candidate policy. Released v0.7.7 accepts the 12.2 and 12.3 families; 12.4 support requires v0.7.8. See [preparation status and exact qualification evidence](compatibility-v078.md).
+
+WatchGuard separates runtime/API requirements, native deletion interception and browser integration. The qualified Server/Web releases are **12.2.0, 12.3.0 and 12.4.0**. Qualification uses one package on all three hosts, including official and LinuxServer images. A version match alone never means that server enforcement is active.
 
 ## Bounded acceptance
 
-The runtime/deletion envelope is **12.2.x and 12.3.x release versions on .NET 10**, with a nonnegative patch number and no nonzero fourth revision. Unknown minor/major families, incomplete versions and revision builds are unsupported. Patch releases within these two already-qualified API families may pass the mandatory capability checks, but are labelled **compatible but untested** until their exact release is integration-qualified. Tests using 12.2.1/12.3.1 are simulations, not qualification of real releases.
+The runtime/deletion envelope is **12.2.x, 12.3.x and 12.4.x release versions on .NET 10**, with a nonnegative patch number and no nonzero fourth revision. Unknown minor/major families, incomplete versions and revision builds are unsupported. Patch releases within these three qualified API families may pass the mandatory capability checks, but are labelled **compatible but untested** until their exact release is integration-qualified. Tests using 12.2.1/12.3.1/12.4.1 are simulations, not qualification of real releases.
 
 This deliberately small expansion removes the exact patch-zero restriction. It does not assume a new minor release preserves ABI, authentication, controller semantics or Web routing. There is no remaining exact server-release gate: exact versions identify the real qualification set; the minor-family/runtime boundary and explicit structural contracts restrict acceptance. Method signatures alone cannot prove implementation behavior.
 
-The package still references Jellyfin Controller/Model **12.2.0**, targets .NET 10 and keeps the minimum catalog ABI **12.2.0.0**. The same artifact must continue passing both hosts. A catalog minimum is an installation floor, not an open-ended compatibility claim. Assembly/type/member resolution can fail before WatchGuard loads; those failures require server-log diagnosis and cannot be reported by an unloaded plugin.
+The package still references Jellyfin Controller/Model **12.2.0**, targets .NET 10 and keeps the minimum catalog ABI **12.2.0.0**. The same artifact must continue passing all three hosts. A catalog minimum is an installation floor, not an open-ended compatibility claim. Assembly/type/member resolution can fail before WatchGuard loads; those failures require server-log diagnosis and cannot be reported by an unloaded plugin.
 
 ## Independent checks
 
@@ -29,4 +31,4 @@ Coverage is the verified native HTTP item deletion surface only. A new unrelated
 
 ## Evidence
 
-See [v0.7.6 preparation and qualification](../release-preparation.md). Historical [v0.7.3 compatibility](compatibility-v073.md) and [v0.7.5 two-host qualification](drawer-qualification-v075.md) remain preserved. Simulated future contracts must stay labelled separately from real host qualification.
+See [v0.7.8 preparation and qualification](compatibility-v078.md) and [historical v0.7.6 qualification](qualification-v076.md). Historical [v0.7.3 compatibility](compatibility-v073.md) and [v0.7.5 two-host qualification](drawer-qualification-v075.md) remain preserved. Simulated future contracts must stay labelled separately from real host qualification.
