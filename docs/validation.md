@@ -25,4 +25,4 @@ Run ordinary tests with the pinned SDK and Node.js environment, following the [r
 
 Historical phase and release-candidate reports are indexed in [docs/README.md](README.md) and intentionally preserved with their original results. Those snapshot statements do not override the latest validated release.
 
-The published v0.7.6 [capability policy](compatibility-capabilities.md) separates qualified releases from structurally compatible patches. Deletion-failure behavior remains unchanged; actual active enforcement requires complete verification. Tests of hypothetical patches are simulations, not qualification of those releases.
+Capability checks introduced in v0.7.6 separate qualified releases from structurally compatible patches. The [v0.7.8 candidate policy](compatibility-capabilities.md) extends the qualified set to 12.4 after [three-version validation](compatibility-v078.md). Deletion-failure behavior remains unchanged; actual active enforcement requires complete verification. Tests of hypothetical patches are simulations, not qualification of those releases.

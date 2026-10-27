@@ -1,5 +1,7 @@
 # Compatibility capabilities (v0.7.8)
 
+This page describes the v0.7.8 candidate policy. Released v0.7.7 accepts the 12.2 and 12.3 families; 12.4 support requires v0.7.8. See [preparation status and exact qualification evidence](compatibility-v078.md).
+
 WatchGuard separates runtime/API requirements, native deletion interception and browser integration. The qualified Server/Web releases are **12.2.0, 12.3.0 and 12.4.0**. Qualification uses one package on all three hosts, including official and LinuxServer images. A version match alone never means that server enforcement is active.
 
 ## Bounded acceptance
