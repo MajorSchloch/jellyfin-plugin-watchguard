@@ -9,6 +9,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "0.7.8.0",
+        "changelog": "- Recognize the remove action at a glance with a minus on saved-title buttons.\n- Use WatchGuard with Jellyfin 12.4, alongside continued support for 12.2 and 12.3.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.8.md)",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.8/Jellyfin.Plugin.WatchGuard-v0.7.8.zip",
+        "checksum": "c283bb3c86021d5b3507b8cd55f1df41",
+        "timestamp": "2026-10-27T19:41:20Z"
+      },
+      {
         "version": "0.7.7.0",
         "changelog": "- Refresh the native plugin listing with WatchGuard artwork and a clearer description.\n- Show useful release summaries throughout the revision history.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.7.md)",
         "targetAbi": "12.2.0.0",
