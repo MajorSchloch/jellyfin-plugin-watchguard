@@ -546,11 +546,11 @@
                 }
                 return pending;
             },
-            async set(id, present) {
+            async set(id, present, notify = true) {
                 if (!valid()) throw new Error('Account changed');
                 await request(api, 'Watchlist/' + encodeURIComponent(id), present ? 'PUT' : 'DELETE');
                 if (!valid()) throw new Error('Account changed');
-                revision++; entries = undefined; changed(id, present);
+                revision++; entries = undefined; if (notify) changed(id, present);
             }
         };
     }
@@ -1182,7 +1182,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     }
     if (root.WatchGuardPoc) return;
     let diagnostic = /*WATCHGUARD_DIAGNOSTICS*/false;
-    let identity, panel, detailButton, signature, membership, detailWrite, epoch = 0;
+    let identity, panel, detailButton, signature, membership, epoch = 0;
     let navigation, navigationRow, pagePanel, pageSignature, pageLifetime;
     function clearNavigation() { (navigationRow || navigation)?.remove(); navigation = navigationRow = null; }
     let lifetime = new AbortController();
@@ -1193,13 +1193,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             lifetime.abort(); lifetime = new AbortController();
             panel?.remove(); detailButton?.remove(); panel = null; signature = null; epoch++;
             clearNavigation(); closePage();
-            identity = next; detailWrite = null;
-            membership = next[1] && next[2] ? createMembership(api, lifetime.signal, id => {
-                // The detail action renders its own successful write in place.
-                // Other entry points still invalidate the current detail view.
-                if (detailWrite?.api === api && detailWrite.revision === epoch && detailWrite.id === key(id)) return;
-                signature = null; updateDetail();
-            }) : null;
+            identity = next;
+            membership = next[1] && next[2] ? createMembership(api, lifetime.signal, () => { signature = null; updateDetail(); }) : null;
             document.querySelectorAll('.watchguard-native-action').forEach(e => e.remove());
         }
         return next[1] && next[2] ? api : null;
@@ -1572,18 +1567,16 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             toggle.onclick = async () => {
                 if (!current() || toggle.disabled) return;
                 const focused = document.activeElement === toggle;
-                const write = {api, revision, id:key(scopeId)};
-                detailWrite = write;
                 toggle.disabled = true; error.textContent = '';
                 try {
-                    await membership.set(scopeId, !member);
+                    // This action renders its own result; other entry points still notify.
+                    await membership.set(scopeId, !member, false);
                     if (!current()) return;
                     member = !member; render();
                     try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
                 } catch {
                     if (current()) { error.textContent = 'WatchGuard: Could not update your watchlist. Please retry.'; toggle.disabled = false; }
                 } finally {
-                    if (detailWrite === write) detailWrite = null;
                     // Do not steal focus after the user navigates or focuses another control.
                     if (focused && current() && document.activeElement === document.body) toggle.focus({preventScroll:true});
                 }

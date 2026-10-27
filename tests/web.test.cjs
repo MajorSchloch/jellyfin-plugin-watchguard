@@ -415,6 +415,18 @@ test('Shared personal membership helper coalesces reads and rejects stale accoun
     await assert.rejects(helper.set(other,false));assert.equal(calls.length,3);
 });
 
+test('Detail-origin membership writes invalidate cached reads without suppressing other entry points',async()=>{
+    const {createMembership}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const changes=[],calls=[];let entries=[];
+    const api={getCurrentUserId:()=>me,accessToken:()=> 'token',getUrl:p=>p,ajax:async o=>{calls.push(o);return entries;}};
+    const helper=createMembership(api,new AbortController().signal,(...args)=>changes.push(args));
+    await helper.read();entries=[{ItemId:other}];
+    await helper.set(other,true,false); // The detail button owns this render.
+    assert.deepEqual(changes,[]);assert.deepEqual(await helper.read(),entries);
+    assert.equal(calls.filter(c=>c.url==='WatchGuard/Watchlist').length,2,'A suppressed notification still invalidates membership cache');
+    await helper.set(other,false);assert.deepEqual(changes,[[other,false]],'Menu/card writes retain their notification');
+});
+
 test('Saved defaults apply only to absent URL parameters, including an explicit empty status selection', () => {
     const {preferenceView} = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
     const saved = {Owner:'all', Statuses:['watched'], Sort:'recent'};

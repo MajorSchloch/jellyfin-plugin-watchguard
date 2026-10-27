@@ -1,7 +1,23 @@
 {
-  "result": "FAIL",
-  "scope": "Local arm64 preflight before temporary cache mount",
-  "fixture": "watchguard-poc-3fa0bb051f",
-  "cause": "Native server startup refused /cache with 1003.3MiB available; minimum 2GiB. No browser tests ran.",
-  "resolution": "Mount a disposable host temporary cache directory in both fixture runners. No readiness or server disk-space assertion was weakened."
+  "preflights": [
+    {
+      "result": "FAIL",
+      "scope": "Local arm64 preflight before temporary cache mount",
+      "fixture": "watchguard-poc-3fa0bb051f",
+      "cause": "Native server startup refused /cache with 1003.3MiB available; minimum 2GiB. No browser tests ran.",
+      "resolution": "Mount a disposable host temporary cache directory in both fixture runners. No readiness or server disk-space assertion was weakened."
+    },
+    {
+      "result": "FAIL",
+      "scope": "Native desktop detail action before in-place completion fix",
+      "cause": "Successful shared membership callback replaced the button; node identity assertion failed before mobile case.",
+      "resolution": "Preserve the button for its own writes and restore focus only in the current view/account."
+    },
+    {
+      "result": "FAIL",
+      "scope": "Initial LinuxServer 12.4 integration test",
+      "cause": "TestedVersions assertion still expected the previous two-host list.",
+      "resolution": "Expected list extended to 12.2.0, 12.3.0 and 12.4.0; all native enforcement assertions retained."
+    }
+  ]
 }
