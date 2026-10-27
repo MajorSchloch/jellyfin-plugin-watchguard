@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 // Test executable only: inspect assemblies copied from a disposable native host.
 var folder = args[0];
+var inspectOnly = args.Skip(3).Contains("--inspect-only");
 AssemblyLoadContext.Default.Resolving += (_, name) =>
 {
     var path = Path.Combine(folder, name.Name + ".dll");
@@ -48,12 +49,12 @@ model.Controllers.Add(controller);
 convention.Apply(model);
 var attached = controller.Actions.Count(a => a.Filters.OfType<ServiceFilterAttribute>().Any(f =>
     f.ServiceType.FullName == "Jellyfin.Plugin.WatchGuard.ServerEnforcement.Guard"));
-if (!(bool)stateType.GetProperty("Supported")!.GetValue(state)! || attached != 2)
+if (!inspectOnly && (!(bool)stateType.GetProperty("Supported")!.GetValue(state)! || attached != 2))
     throw new InvalidOperationException("Production convention did not attach to both native actions: " + JsonSerializer.Serialize(stateType.GetProperty("Checks")!.GetValue(state)));
 
 Console.WriteLine(JsonSerializer.Serialize(new
 {
-    serverVersion = args[2], attached, checks = stateType.GetProperty("Checks")!.GetValue(state), assembly = assembly.FullName, controller = type.FullName,
+    serverVersion = args[2], inspectOnly, attached, checks = stateType.GetProperty("Checks")!.GetValue(state), assembly = assembly.FullName, controller = type.FullName,
     authenticationTypes = assembly.GetTypes().Where(t => t.Namespace?.Contains("Auth", StringComparison.Ordinal) == true && (t.Name.Contains("DefaultAuthorization", StringComparison.Ordinal) || t.Name.Contains("CustomAuthentication", StringComparison.Ordinal))).Select(t => t.FullName),
     actions = actions.Select(m => new
     {
@@ -69,5 +70,5 @@ Console.WriteLine(JsonSerializer.Serialize(new
         route = m.GetCustomAttribute<HttpDeleteAttribute>()!.Template,
         authorized = m.GetCustomAttribute<AuthorizeAttribute>() is not null
     }),
-    result = "PASS"
+    result = inspectOnly ? "STRUCTURAL_INSPECTION_ONLY" : "PASS"
 }, new JsonSerializerOptions { WriteIndented = true }));

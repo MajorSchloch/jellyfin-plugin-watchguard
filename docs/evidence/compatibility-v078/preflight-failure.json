@@ -1,0 +1,7 @@
+{
+  "result": "FAIL",
+  "scope": "Local arm64 preflight before temporary cache mount",
+  "fixture": "watchguard-poc-3fa0bb051f",
+  "cause": "Native server startup refused /cache with 1003.3MiB available; minimum 2GiB. No browser tests ran.",
+  "resolution": "Mount a disposable host temporary cache directory in both fixture runners. No readiness or server disk-space assertion was weakened."
+}

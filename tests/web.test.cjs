@@ -1167,7 +1167,11 @@ test('compatibility reports feature independence, unqualified simulations and cu
     assert.equal(read(false)['deletion-adapter'].Status,'Unsupported');
     host.location.hash = '#/configurationpage?name=WatchGuard';
     assert.equal(read()['navigation-layout'].Status,'Unavailable');
-    api.appVersion = () => '12.3.1'; // Simulated patch, never a qualified release.
+    api.appVersion = () => '12.4.0';
+    assert.equal(read()['web-version'].Status,'Tested');
+    api.appVersion = () => '12.5.0'; // Simulated new minor is outside the bounded range.
+    assert.equal(read()['web-version'].Status,'Unsupported');
+    api.appVersion = () => '12.4.1'; // Simulated patch, never a qualified release.
     assert.equal(read()['browser-api'].Status,'CompatibleUntested');
     api.appVersion = () => '13.0.0'; // Simulated unknown family.
     assert.equal(read()['web-version'].Status,'Unsupported');

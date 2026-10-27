@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import zipfile
 
-VERSIONS = ('12.2', '12.3')
+VERSIONS = ('12.2', '12.3', '12.4')
 SUITES = ('standalone-caddy', 'migration', 'basepath', 'legacy', 'websocket', 'discovery',
           'verification', 'activity-index', 'server-enforcement', 'server-enforcement-basepath',
           'server-enforcement-linuxserver')
@@ -45,4 +45,4 @@ if __name__ == '__main__':
     reports = [json.loads(p.read_text()) for p in sorted(args.evidence.rglob('suite.json'))]
     result = verify(reports, args.commit, package_sha256, runtime_sha256, args.proxy_matrix == 'true')
     args.output.write_text(json.dumps(result, indent=2) + '\n')
-    print(f'PASS: {len(reports)} suites, both supported hosts, package {package_sha256}')
+    print(f'PASS: {len(reports)} suites, all three supported hosts, package {package_sha256}')

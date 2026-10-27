@@ -448,6 +448,8 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         assert.ok(!(await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken)).some(e=>e.ItemId.replaceAll('-','')===automaticId.replaceAll('-','')));
         report.paths.push({path:'Playback-only series',result:'no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created'});
         report.paths.push({path:'Modern compatibility',result:'Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source'});
+        report.phase = 'Detail watchlist actions';
+        if (fixture.standalone) await require('./watchlist-action-browser.cjs')({page,api,detail,fixture,member,output,report});
         report.phase = 'Watchlist UI';
         await detail('PoC Movie Detail');
         await page.getByRole('button', { name:'Add to Watchlist', exact:true }).click();
@@ -1037,6 +1039,15 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         await detail('PoC Modern Movie');
         await page.getByRole('button',{name:'Add to Watchlist',exact:true}).waitFor();
         assert.equal(await page.locator('.watchguard-interest').innerText(),'');
+        if (fixture.standalone) {
+            const administratorMemberships=await api('/WatchGuard/Watchlist');
+            await page.getByRole('button',{name:'Add to Watchlist',exact:true}).click();
+            const remove=page.getByRole('button',{name:'Remove from Watchlist',exact:true});await remove.waitFor();
+            assert.equal(await remove.locator('.material-icons').textContent(),'bookmark_remove');
+            await remove.click();await page.getByRole('button',{name:'Add to Watchlist',exact:true}).waitFor();
+            assert.deepEqual(await api('/WatchGuard/Watchlist'),administratorMemberships,'Switched account cannot alter the previous account memberships');
+            await exists(fixture.items['PoC Modern Movie']);
+        }
         report.paths.push({path:'Account switch',result:'old controls removed on sign-out; normal-user detail has no cross-user indicator'});
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
         await myList().getByRole('link',{name:'PoC Parent Interested',exact:true}).waitFor();

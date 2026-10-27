@@ -39,7 +39,7 @@ const output=path.join(fixture.reportDirectory,'catalog-listing');fs.mkdirSync(o
     await page.locator('#addPluginPage').waitFor();
     await page.getByText(content.description,{exact:true}).waitFor();
     const table=page.locator('#addPluginPage table');
-    await table.getByText('0.7.7.0',{exact:true}).waitFor();
+    await table.getByText('0.7.8.0',{exact:true}).waitFor();
     assert.match(await table.innerText(),fixture.available?/Not installed/i:/Active/);
     const repo=table.getByRole('link',{name:'WatchGuard listing fixture'});
     assert.equal(await repo.getAttribute('href'),fixture.repositoryUrl);
@@ -61,10 +61,10 @@ const output=path.join(fixture.reportDirectory,'catalog-listing');fs.mkdirSync(o
      await bullet.waitFor();assert.equal(await bullet.isVisible(),true);
      const region=page.locator('.MuiAccordion-root').filter({has:revision});
      assert.equal(await region.getByRole('link',{name:'Details',exact:true}).getAttribute('href'),content.versions[version].documentation);
-     if(version==='0.7.7.0'&&!fixture.available)assert.equal(await region.getByRole('button',{name:'Installed',exact:true}).isDisabled(),true);
+     if(version==='0.7.8.0'&&!fixture.available)assert.equal(await region.getByRole('button',{name:'Installed',exact:true}).isDisabled(),true);
      await revision.click();
     }
-    for(const version of ['0.7.7.0','0.7.6.0','0.7.5.0'])await page.getByRole('button',{name:new RegExp('^'+version.replaceAll('.','\\.')+'\\s')}).click();
+    for(const version of ['0.7.8.0','0.7.7.0','0.7.6.0'])await page.getByRole('button',{name:new RegExp('^'+version.replaceAll('.','\\.')+'\\s')}).click();
     await page.evaluate(()=>window.scrollTo(0,0));
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'No horizontal overflow');
     assert.equal(await page.getByText('See the matching release notes.',{exact:true}).count(),0);
@@ -79,7 +79,7 @@ const output=path.join(fixture.reportDirectory,'catalog-listing');fs.mkdirSync(o
      await page.screenshot({path:path.join(output,'installed-'+width+'.png'),fullPage:false,animations:'disabled'});
      await installedCard.click();await page.getByText(content.description,{exact:true}).waitFor();
     }
-    results.push({width,serverVersion:fixture.serverVersion,webVersion:await page.evaluate(()=>ApiClient.appVersion()),description:true,revisions:versions.length,repositoryLink:true,installedVersion:fixture.available?null:'0.7.7.0',image,cardImage:cardData,installedCardImage:!fixture.available});
+    results.push({width,serverVersion:fixture.serverVersion,webVersion:await page.evaluate(()=>ApiClient.appVersion()),description:true,revisions:versions.length,repositoryLink:true,installedVersion:fixture.available?null:'0.7.8.0',image,cardImage:cardData,installedCardImage:!fixture.available});
    }catch(error){await page.screenshot({path:path.join(output,'failure-'+width+'.png'),fullPage:false,animations:'disabled'}).catch(()=>{});fs.writeFileSync(path.join(output,'failure.txt'),String(error));throw error;}
    finally{await context.close();}
   }

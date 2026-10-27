@@ -78,7 +78,7 @@ def inspect_zip(path):
     return hashlib.md5(content).hexdigest(), hashlib.sha256(content).hexdigest()
 
 
-def entry(path, url, timestamp, version='0.7.7.0'):
+def entry(path, url, timestamp, version='0.7.8.0'):
     md5, _ = inspect_zip(path)
     return {'version': version, 'changelog': changelog(version), 'targetAbi': ABI,
             'sourceUrl': url, 'checksum': md5, 'timestamp': timestamp}

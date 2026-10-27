@@ -1,4 +1,4 @@
-"""Publication evidence must cover both hosts using the exact same runtime."""
+"""Publication evidence must cover all three hosts using the exact same runtime."""
 import copy
 import importlib.util
 from pathlib import Path
@@ -20,12 +20,13 @@ class QualificationTests(unittest.TestCase):
         return qualification.verify(reports, 'commit', 'zip', 'dll')
 
     def test_complete_identical_package_matrix(self):
+        self.assertEqual(33, len(self.reports()))
         self.assertEqual('PASS', self.verify(self.reports())['result'])
 
     def test_one_host_or_missing_duplicate_or_extra_suite_cannot_publish(self):
         reports = self.reports()
-        for invalid in (reports[:11], reports[:-1], reports + [reports[0]],
-                        reports + [dict(reports[0], jellyfinVersion='12.4')]):
+        for invalid in (reports[:11], reports[:22], reports[:-1], reports + [reports[0]],
+                        reports + [dict(reports[0], jellyfinVersion='12.5')]):
             with self.subTest(count=len(invalid)), self.assertRaises(ValueError):
                 self.verify(invalid)
 
@@ -38,13 +39,18 @@ class QualificationTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 self.verify(reports)
 
-    def test_requested_proxy_coverage_is_required_on_both_hosts(self):
+    def test_requested_proxy_coverage_is_required_on_all_hosts(self):
         reports = self.reports()
         with self.assertRaises(ValueError):
             qualification.verify(reports, 'commit', 'zip', 'dll', True)
         for report in reports:
             report['proxyMatrix'] = report['suite'] == 'server-enforcement'
         self.assertEqual('PASS', qualification.verify(reports, 'commit', 'zip', 'dll', True)['result'])
+        for version in qualification.VERSIONS:
+            incomplete = copy.deepcopy(reports)
+            next(r for r in incomplete if r['jellyfinVersion'] == version and r['suite'] == 'server-enforcement')['proxyMatrix'] = False
+            with self.subTest(version=version), self.assertRaises(ValueError):
+                qualification.verify(incomplete, 'commit', 'zip', 'dll', True)
 
     def test_workflow_requires_full_matrix_and_reuses_build_artifact(self):
         # Keep the gate's expected matrix synchronized with the dispatch workflow.

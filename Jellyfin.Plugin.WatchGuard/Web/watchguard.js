@@ -9,8 +9,8 @@
         let version = null;
         try { if (typeof api?.appVersion === 'function') { const reported = api.appVersion(); if (typeof reported === 'string') version = reported; } }
         catch { /* An optional version accessor cannot hide working feature checks. */ }
-        const tested = ['12.2.0', '12.3.0'].includes(version);
-        const inRange = typeof version === 'string' && /^12\.(?:2|3)\.\d+$/.test(version);
+        const tested = ['12.2.0', '12.3.0', '12.4.0'].includes(version);
+        const inRange = typeof version === 'string' && /^12\.(?:2|3|4)\.\d+$/.test(version);
         const accepted = tested ? 'Tested' : 'CompatibleUntested';
         const check = (id, ok, detail, action, unavailable = false) => ({Id:id, Status:ok ? accepted : unavailable ? 'Unavailable' : 'Unsupported', Detail:detail, Action:ok ? '' : action});
         const missing = methods => methods.filter(name => typeof api?.[name] !== 'function');
@@ -21,8 +21,8 @@
         const navigation = document.querySelector('.watchguard-nav');
         const contentRoute = /^#\/(?:home|details|movies|tv|list|search|music|livetv)(?:[/?]|$)/.test(host.location?.hash || '');
         const loader = host.WatchGuardStandalone?.status?.();
-        return { WebVersion:version, TestedVersions:['12.2.0', '12.3.0'], Checks:[
-            check('web-version', inRange, version ? 'Web reports ' + version + (tested ? ' (qualified release).' : ' (not a qualified release).') : 'Web version is not reported.', 'Use packaged Web 12.2/12.3; custom or newer Web requires separate qualification.', !version),
+        return { WebVersion:version, TestedVersions:['12.2.0', '12.3.0', '12.4.0'], Checks:[
+            check('web-version', inRange, version ? 'Web reports ' + version + (tested ? ' (qualified release).' : ' (not a qualified release).') : 'Web version is not reported.', 'Use packaged Web 12.2/12.3/12.4; custom or newer Web requires separate qualification.', !version),
             check('browser-api', !!api && !core.length, 'Required authenticated request API' + (core.length ? ': missing ' + core.join(', ') : ' is present.'), 'Sign in and fully reload a supported Web client.', !api),
             check('watchlists-api', !!api && !core.length && !activity.length, 'Watchlists API' + (activity.length ? ': missing ' + activity.join(', ') : ' is present.'), 'Restore the native Web API. Other features have independent checks.', !api),
             check('deletion-adapter', !!api && !core.length && !deletion.length && installed, 'Browser deletion adapter ' + (installed ? 'is attached to the current ApiClient.' : 'is not attached to the current ApiClient.'), 'Fully reload; check native API methods and competing adapters. This does not change server protection.', !api),
@@ -1182,7 +1182,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     }
     if (root.WatchGuardPoc) return;
     let diagnostic = /*WATCHGUARD_DIAGNOSTICS*/false;
-    let identity, panel, detailButton, signature, membership, epoch = 0;
+    let identity, panel, detailButton, signature, membership, detailWrite, epoch = 0;
     let navigation, navigationRow, pagePanel, pageSignature, pageLifetime;
     function clearNavigation() { (navigationRow || navigation)?.remove(); navigation = navigationRow = null; }
     let lifetime = new AbortController();
@@ -1193,8 +1193,13 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             lifetime.abort(); lifetime = new AbortController();
             panel?.remove(); detailButton?.remove(); panel = null; signature = null; epoch++;
             clearNavigation(); closePage();
-            identity = next;
-            membership = next[1] && next[2] ? createMembership(api, lifetime.signal, () => { signature = null; updateDetail(); }) : null;
+            identity = next; detailWrite = null;
+            membership = next[1] && next[2] ? createMembership(api, lifetime.signal, id => {
+                // The detail action renders its own successful write in place.
+                // Other entry points still invalidate the current detail view.
+                if (detailWrite?.api === api && detailWrite.revision === epoch && detailWrite.id === key(id)) return;
+                signature = null; updateDetail();
+            }) : null;
             document.querySelectorAll('.watchguard-native-action').forEach(e => e.remove());
         }
         return next[1] && next[2] ? api : null;
@@ -1542,7 +1547,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             const render = () => {
                 label.textContent = member ? 'Remove from Watchlist' : 'Add to Watchlist';
                 toggle.title = seriesLabel + label.textContent;
-                icon.textContent = member ? 'bookmark' : 'bookmark_add';
+                icon.textContent = member ? 'bookmark_remove' : 'bookmark_add';
                 toggle.setAttribute('aria-pressed', String(member)); toggle.disabled = false;
             };
             async function refreshInterest() {
@@ -1565,7 +1570,10 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                 finally { if (current()) interest.setAttribute('aria-busy', 'false'); }
             }
             toggle.onclick = async () => {
-                if (!current()) return;
+                if (!current() || toggle.disabled) return;
+                const focused = document.activeElement === toggle;
+                const write = {api, revision, id:key(scopeId)};
+                detailWrite = write;
                 toggle.disabled = true; error.textContent = '';
                 try {
                     await membership.set(scopeId, !member);
@@ -1574,6 +1582,10 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                     try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
                 } catch {
                     if (current()) { error.textContent = 'WatchGuard: Could not update your watchlist. Please retry.'; toggle.disabled = false; }
+                } finally {
+                    if (detailWrite === write) detailWrite = null;
+                    // Do not steal focus after the user navigates or focuses another control.
+                    if (focused && current() && document.activeElement === document.body) toggle.focus({preventScroll:true});
                 }
             };
             try {

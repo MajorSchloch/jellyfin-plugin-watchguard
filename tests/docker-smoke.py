@@ -67,6 +67,7 @@ def main():
     phases=Phases(ROOT/'artifacts/testing'/name/'phases.json')
     with tempfile.TemporaryDirectory(prefix='watchguard-poc-') as temp:
         root = Path(temp)
+        (root/'cache').mkdir()
         plugins = root / ('config/data/plugins' if options.linuxserver else 'config/plugins')
         for folder, source in [('WatchGuard', artifact)] + ([('JavaScriptInjector', options.injector_dll)] if options.injector_dll else []):
             (plugins / folder).mkdir(parents=True)
@@ -82,7 +83,7 @@ def main():
             phases.phase('container-start')
             docker('run', '-d', '--name', name, *run_user,
                    '-p', '127.0.0.1::8096',
-                   '--add-host', 'host.docker.internal:host-gateway', '-v', f'{root}/config:/config', image)
+                   '--add-host', 'host.docker.internal:host-gateway', '-v', f'{root}/config:/config', '-v', f'{root}/cache:/cache', image)
             port = docker('port', name, '8096/tcp').split(':')[-1]
             base = 'http://127.0.0.1:' + port + options.base_path
 
@@ -284,7 +285,7 @@ def main():
                 # background projection may legitimately checkpoint until the
                 # loaded plugin stops; snapshot it at that lifecycle boundary.
                 saved = {p:p.read_bytes() for p in data_folder.glob('*.json') if p != derived}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.7.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.8.0','DELETE',token=token,expected=204)
                 docker('stop', name)
                 if derived_present:
                     assert derived.exists(), 'Uninstall must retain the derived index'

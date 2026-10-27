@@ -53,8 +53,9 @@ def main():
                 call('/Startup/User' if token is None else '/Users/Me',timeout=timeout)
             wait_ready(probe)
         def start(enabled=None,web=False):
+            (root/'cache').mkdir(exist_ok=True)
             if enabled is not None: set_enabled(enabled, offline=True)
-            docker('run','-d','--name',name,*run_user,'-p','127.0.0.1::8096',*(['-p','127.0.0.1::8920'] if a.proxy_matrix else []),'--add-host','host.docker.internal:host-gateway','-v',str(root/'config')+':/config','-v',str(root/'media')+':/media',image);ready()
+            docker('run','-d','--name',name,*run_user,'-p','127.0.0.1::8096',*(['-p','127.0.0.1::8920'] if a.proxy_matrix else []),'--add-host','host.docker.internal:host-gateway','-v',str(root/'config')+':/config','-v',str(root/'media')+':/media','-v',str(root/'cache')+':/cache',image);ready()
         def set_enabled(enabled,offline=False):
             if not offline:
                 config=call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/Configuration');config['EnableServerEnforcement']=enabled
@@ -141,7 +142,7 @@ def main():
             assert 'EnableServerEnforcement' not in configuration
             configuration['ProtectCaughtUpSeries']=False
             call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/Configuration','POST',configuration,expected=204)
-            public=root/'catalog';public.mkdir();archive_path=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.7.zip'
+            public=root/'catalog';public.mkdir();archive_path=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.8.zip'
             digest=archive_path.with_suffix('.zip.sha256').read_text().split()[0]
             assert hashlib.sha256(archive_path.read_bytes()).hexdigest()==digest
             report['candidateZipSha256']=digest
@@ -153,13 +154,13 @@ def main():
             thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
             catalog_url='http://host.docker.internal:'+str(server.server_port)
             guid='a3c6bc84-783d-4ba8-a0db-89bfb83ab486'
-            manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable qualification','category':'General','description':'Local candidate','overview':'Fixture','versions':[{'version':'0.7.7.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive_path.read_bytes()).hexdigest(),'sourceUrl':catalog_url+'/'+archive_path.name,'timestamp':'2026-10-16T00:00:00Z','changelog':'Unpublished local fixture'}]}]
+            manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable qualification','category':'General','description':'Local candidate','overview':'Fixture','versions':[{'version':'0.7.8.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive_path.read_bytes()).hexdigest(),'sourceUrl':catalog_url+'/'+archive_path.name,'timestamp':'2026-10-16T00:00:00Z','changelog':'Unpublished local fixture'}]}]
             (public/'manifest.json').write_text(json.dumps(manifest))
             try:
                 call('/Repositories','POST',[{'Name':'Disposable candidate','Url':catalog_url+'/manifest.json','Enabled':True}],expected=204)
                 from urllib.parse import urlencode
-                call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':guid,'version':'0.7.7.0','repositoryUrl':catalog_url+'/manifest.json'}),'POST',expected=204)
-                docker('stop',name);shutil.move(str(guard),str(root/'retired-v048'));guard=plugins/'WatchGuard_0.7.7.0'
+                call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':guid,'version':'0.7.8.0','repositoryUrl':catalog_url+'/manifest.json'}),'POST',expected=204)
+                docker('stop',name);shutil.move(str(guard),str(root/'retired-v048'));guard=plugins/'WatchGuard_0.7.8.0'
                 assert (guard/'meta.json').exists()
                 assert (guard/DLL.name).read_bytes()==DLL.read_bytes()
                 docker('start',name);ready()
@@ -178,7 +179,7 @@ def main():
             docker('restart',name);ready()
             caps=call('/WatchGuard/ServerApproval/Capabilities');assert caps['State']=='Enabled' and not caps['RestartRequired'] and caps['AttachedActions']==2
             assert caps['Active'] and caps['Compatible'] and caps['CompatibilityStatus']=='Tested'
-            assert caps['TestedVersions']==['12.2.0','12.3.0']
+            assert caps['TestedVersions']==['12.2.0','12.3.0','12.4.0']
             report['capabilities']={k:caps[k] for k in ['Active','Configured','Compatible','CompatibilityStatus','AttachedActions','RuntimeApi','Checks','TestedVersions','CompatibilityRange']}
             assert 'WG-GUARD attached=2 supported=true enabledAtStartup=True' in docker('logs',name)
             status=call('/WatchGuard/IntegrationStatus')
