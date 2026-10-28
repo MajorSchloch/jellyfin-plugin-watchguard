@@ -1,0 +1,52 @@
+name: Benchmark browser environment
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [host, preinstalled]
+        sample: [1, 2]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.0'
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24.22.0'
+      - run: python3 scripts/build-release.py
+      - run: npm ci --prefix tests/browser
+      - name: Host browser setup
+        if: matrix.environment == 'host'
+        run: cd tests/browser && npx playwright install --with-deps chromium
+      - name: Preinstalled browser setup
+        if: matrix.environment == 'preinstalled'
+        run: |
+          image="$(python3 -c 'import runpy; print(runpy.run_path("scripts/ci/browser-node.py")["IMAGE"])')"
+          docker pull "$image"
+          echo "WATCHGUARD_HOST_NODE=$(command -v node)" >> "$GITHUB_ENV"
+          mkdir -p /tmp/watchguard-browser-bin
+          cp scripts/ci/browser-node.py /tmp/watchguard-browser-bin/node
+          chmod +x /tmp/watchguard-browser-bin/node
+          echo /tmp/watchguard-browser-bin >> "$GITHUB_PATH"
+      - name: Proxy decoder
+        run: sudo apt-get update && sudo apt-get install -y zstd
+      - name: Native startup and base-path checks
+        run: python3 tests/docker-smoke.py --startup --base-path /jellyfin --proxy
+      - name: Native trusted Caddy and WebSocket checks
+        run: python3 tests/docker-smoke.py --linuxserver --caddy --measure
+      - name: Diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: browser-benchmark-${{ matrix.environment }}-${{ matrix.sample }}
+          path: artifacts/
