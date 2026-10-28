@@ -1,0 +1,91 @@
+{
+  "fullQualification": "PASS",
+  "testedCommit": "2fffa6cca2440dfb0f6a32f7df00256359edc429",
+  "runtimeCommit": "1a9b4e746bc2871928c6cce91900c1a6b9e6b857",
+  "run": 40769893542,
+  "runUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40769893542",
+  "inputs": {
+    "publish": false,
+    "proxy_matrix": true
+  },
+  "successfulJobs": 20,
+  "publication": "skipped",
+  "suites": 39,
+  "primaryFixtureCommands": 54,
+  "packageSha256": "fd4e0301c312406e4ada3301e64bcb504aa29fd16c80157beb735b5ddc2b0681",
+  "runtimeSha256": "5ddb76713367f3bc8f1559285db26ec68a07f188d868d095f3a721c9c6e48a95",
+  "checks": {
+    "backend": 376,
+    "javascript": 199,
+    "infrastructure": 37,
+    "catalog": 8
+  },
+  "images": {
+    "12.2": {
+      "official": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+      "linuxserver": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b"
+    },
+    "12.3": {
+      "official": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+      "linuxserver": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308"
+    },
+    "12.4": {
+      "official": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+      "linuxserver": "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044"
+    }
+  },
+  "native": {
+    "12.2": {
+      "detailShortcutCases": 6,
+      "presentation": 12,
+      "earlyEntry": 8,
+      "missingEntryFrames": 0,
+      "insertionMovementPx": 0,
+      "navigation-arrival": 48,
+      "navigation-shell": 8,
+      "drawer-browser": 12,
+      "navigation-browser": 72,
+      "refresh": 8,
+      "startupRecovery": 14,
+      "startup-browser": 48,
+      "activity": "PASS",
+      "enforcementCases": 231,
+      "nativeCatalogCases": 4
+    },
+    "12.3": {
+      "detailShortcutCases": 6,
+      "presentation": 12,
+      "earlyEntry": 8,
+      "missingEntryFrames": 0,
+      "insertionMovementPx": 0,
+      "navigation-arrival": 48,
+      "navigation-shell": 8,
+      "drawer-browser": 12,
+      "navigation-browser": 72,
+      "refresh": 8,
+      "startupRecovery": 14,
+      "startup-browser": 48,
+      "activity": "PASS",
+      "enforcementCases": 231,
+      "nativeCatalogCases": 4
+    },
+    "12.4": {
+      "detailShortcutCases": 6,
+      "presentation": 12,
+      "earlyEntry": 8,
+      "missingEntryFrames": 0,
+      "insertionMovementPx": 0,
+      "navigation-arrival": 48,
+      "navigation-shell": 8,
+      "drawer-browser": 12,
+      "navigation-browser": 72,
+      "refresh": 8,
+      "startupRecovery": 14,
+      "startup-browser": 48,
+      "activity": "PASS",
+      "enforcementCases": 231,
+      "nativeCatalogCases": 4
+    }
+  },
+  "device": "Local macOS arm64 and CI Linux amd64 Chromium 141.0.7390.37 with viewport/touch emulation; no physical-device testing"
+}
