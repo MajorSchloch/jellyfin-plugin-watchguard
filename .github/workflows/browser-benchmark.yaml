@@ -1,5 +1,8 @@
 name: Benchmark browser environment
 on:
+  push:
+    branches: [ci/qualification-efficiency]
+    paths: ['.github/workflows/browser-benchmark.yaml', 'scripts/ci/browser-node.py']
   workflow_dispatch:
 permissions:
   contents: read
