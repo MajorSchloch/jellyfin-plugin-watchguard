@@ -1,0 +1,3429 @@
+{
+  "version": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "baseline": true,
+  "device": "Chromium emulation, not physical devices",
+  "cases": [
+    {
+      "beforeBootstrap": true,
+      "firstNative": null,
+      "firstEntry": null,
+      "firstAuth": 220.80000001192093,
+      "firstRuntime": 276.30000001192093,
+      "missingFrames": 0,
+      "replacements": 0,
+      "movements": [],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": null,
+      "styles": null,
+      "name": "auto-390-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": null,
+      "firstEntry": null,
+      "firstAuth": 222.5,
+      "firstRuntime": 257.5,
+      "missingFrames": 0,
+      "replacements": 0,
+      "movements": [],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": null,
+      "styles": null,
+      "name": "auto-390-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": null,
+      "firstEntry": null,
+      "firstAuth": 232.7000000178814,
+      "firstRuntime": 1682.7000000178814,
+      "missingFrames": 0,
+      "replacements": 0,
+      "movements": [],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": null,
+      "styles": null,
+      "name": "auto-390-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": null,
+      "firstEntry": null,
+      "firstAuth": 265.40000000596046,
+      "firstRuntime": 1448.699999988079,
+      "missingFrames": 0,
+      "replacements": 0,
+      "movements": [],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": null,
+      "styles": null,
+      "name": "auto-390-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 229.69999998807907,
+      "firstEntry": 263.40000000596046,
+      "firstAuth": 208.09999999403954,
+      "firstRuntime": 263.40000000596046,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 248.5,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 263.40000000596046,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 502.546875,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "auto-1280-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 258.10000002384186,
+      "firstEntry": 287.40000000596046,
+      "firstAuth": 237.10000002384186,
+      "firstRuntime": 287.40000000596046,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 274.60000002384186,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 287.40000000596046,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 502.546875,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "auto-1280-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 264.2000000178814,
+      "firstEntry": 1693.300000011921,
+      "firstAuth": 264.2000000178814,
+      "firstRuntime": 1693.300000011921,
+      "missingFrames": 86,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1673.6000000238419,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1693.300000011921,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 502.546875,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "auto-1280-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 251.80000001192093,
+      "firstEntry": 1469,
+      "firstAuth": 251.80000001192093,
+      "firstRuntime": 1469,
+      "missingFrames": 73,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1444.9000000059605,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1469,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 502.546875,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "auto-1280-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 253.39999997615814,
+      "firstEntry": 273.39999997615814,
+      "firstAuth": 221.89999997615814,
+      "firstRuntime": 273.39999997615814,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 257.5,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 273.39999997615814,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 527.890625,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "auto-2048-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 249.5,
+      "firstEntry": 292.09999999403954,
+      "firstAuth": 223.7000000178814,
+      "firstRuntime": 292.09999999403954,
+      "missingFrames": 3,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 279.40000000596046,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 292.09999999403954,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 527.890625,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "auto-2048-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 260.09999999403954,
+      "firstEntry": 1706,
+      "firstAuth": 237.09999999403954,
+      "firstRuntime": 1706,
+      "missingFrames": 87,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1687.2000000178814,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1706,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 527.890625,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "auto-2048-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 262,
+      "firstEntry": 1473.2999999821186,
+      "firstAuth": 239.89999997615814,
+      "firstRuntime": 1473.2999999821186,
+      "missingFrames": 73,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1456.699999988079,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1473.2999999821186,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 527.890625,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "auto-2048-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": null,
+      "firstEntry": null,
+      "firstAuth": 215.90000000596046,
+      "firstRuntime": 266.2000000178814,
+      "missingFrames": 0,
+      "replacements": 0,
+      "movements": [],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": null,
+      "styles": null,
+      "name": "modern-390-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": null,
+      "firstEntry": null,
+      "firstAuth": 221.40000000596046,
+      "firstRuntime": 276.30000001192093,
+      "missingFrames": 0,
+      "replacements": 0,
+      "movements": [],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": null,
+      "styles": null,
+      "name": "modern-390-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": null,
+      "firstEntry": null,
+      "firstAuth": 240.5,
+      "firstRuntime": 1711.0999999940395,
+      "missingFrames": 0,
+      "replacements": 0,
+      "movements": [],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": null,
+      "styles": null,
+      "name": "modern-390-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": null,
+      "firstEntry": null,
+      "firstAuth": 238.19999998807907,
+      "firstRuntime": 1454.699999988079,
+      "missingFrames": 0,
+      "replacements": 0,
+      "movements": [],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": null,
+      "styles": null,
+      "name": "modern-390-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 239.59999999403954,
+      "firstEntry": 270.90000000596046,
+      "firstAuth": 214.80000001192093,
+      "firstRuntime": 270.90000000596046,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 257.7000000178814,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 270.90000000596046,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 502.546875,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "modern-1280-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 260.30000001192093,
+      "firstEntry": 293.5,
+      "firstAuth": 243.09999999403954,
+      "firstRuntime": 293.5,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 283.59999999403954,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 293.5,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 502.546875,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "modern-1280-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 281.80000001192093,
+      "firstEntry": 1727.4000000059605,
+      "firstAuth": 260.7000000178814,
+      "firstRuntime": 1727.4000000059605,
+      "missingFrames": 87,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1710.800000011921,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1727.4000000059605,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 502.546875,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "modern-1280-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 267.40000000596046,
+      "firstEntry": 1471.2999999821186,
+      "firstAuth": 229.09999999403954,
+      "firstRuntime": 1471.2999999821186,
+      "missingFrames": 72,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1445.4000000059605,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1471.2999999821186,
+            "native": {
+              "x": 202.1875,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 502.546875,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "modern-1280-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 230.2000000178814,
+      "firstEntry": 260.40000000596046,
+      "firstAuth": 206.7000000178814,
+      "firstRuntime": 260.40000000596046,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 247.40000000596046,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 260.40000000596046,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 527.890625,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "modern-2048-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 243.90000000596046,
+      "firstEntry": 275.10000002384186,
+      "firstAuth": 224.80000001192093,
+      "firstRuntime": 275.10000002384186,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 265.10000002384186,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 275.10000002384186,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 527.890625,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "modern-2048-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 264.80000001192093,
+      "firstEntry": 1708.5,
+      "firstAuth": 247.40000000596046,
+      "firstRuntime": 1708.5,
+      "missingFrames": 86,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1680.800000011921,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1708.5,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 527.890625,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "modern-2048-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 265.5,
+      "firstEntry": 1468.5999999940395,
+      "firstAuth": 246.40000000596046,
+      "firstRuntime": 1468.5999999940395,
+      "missingFrames": 72,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1446.4000000059605,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1468.5999999940395,
+            "native": {
+              "x": 227.53125,
+              "y": 2.25,
+              "w": 95.578125,
+              "h": 43.5
+            },
+            "link": {
+              "x": 527.890625,
+              "y": 2.25,
+              "w": 121.71875,
+              "h": 43.5
+            }
+          },
+          "dx": 0,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingRight": "8px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "20.088px",
+        "paddingTop": "7.44px",
+        "paddingRight": "10.416px",
+        "paddingBottom": "7.44px",
+        "paddingLeft": "10.416px",
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "4px"
+      },
+      "name": "modern-2048-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 221.40000000596046,
+      "firstEntry": 239.90000000596046,
+      "firstAuth": 199.40000000596046,
+      "firstRuntime": 239.90000000596046,
+      "missingFrames": 1,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 221.40000000596046,
+            "native": {
+              "x": 184.6875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": null
+          },
+          "after": {
+            "t": 239.90000000596046,
+            "native": {
+              "x": 133.875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": {
+              "x": 228.546875,
+              "y": 57.578125,
+              "w": 101.609375,
+              "h": 52.78125
+            }
+          },
+          "dx": -50.8125,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-390-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 221.19999998807907,
+      "firstEntry": 235.5,
+      "firstAuth": 184.2999999821186,
+      "firstRuntime": 235.5,
+      "missingFrames": 1,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 221.19999998807907,
+            "native": {
+              "x": 184.6875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": null
+          },
+          "after": {
+            "t": 235.5,
+            "native": {
+              "x": 133.875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": {
+              "x": 228.546875,
+              "y": 57.578125,
+              "w": 101.609375,
+              "h": 52.78125
+            }
+          },
+          "dx": -50.8125,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-390-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 269.60000002384186,
+      "firstEntry": 1707.800000011921,
+      "firstAuth": 232.30000001192093,
+      "firstRuntime": 1707.800000011921,
+      "missingFrames": 86,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1682.4000000059605,
+            "native": {
+              "x": 184.6875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1707.800000011921,
+            "native": {
+              "x": 133.875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": {
+              "x": 228.546875,
+              "y": 57.578125,
+              "w": 101.609375,
+              "h": 52.78125
+            }
+          },
+          "dx": -50.8125,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-390-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 247.5,
+      "firstEntry": 1447.0999999940395,
+      "firstAuth": 212.5,
+      "firstRuntime": 1447.0999999940395,
+      "missingFrames": 72,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1429.300000011921,
+            "native": {
+              "x": 184.6875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1447.0999999940395,
+            "native": {
+              "x": 133.875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": {
+              "x": 228.546875,
+              "y": 57.578125,
+              "w": 101.609375,
+              "h": 52.78125
+            }
+          },
+          "dx": -50.8125,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-390-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 212.40000000596046,
+      "firstEntry": 241.40000000596046,
+      "firstAuth": 190.90000000596046,
+      "firstRuntime": 241.40000000596046,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 224.80000001192093,
+            "native": {
+              "x": 629.6875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": null
+          },
+          "after": {
+            "t": 241.40000000596046,
+            "native": {
+              "x": 578.875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": {
+              "x": 673.546875,
+              "y": 57.578125,
+              "w": 101.609375,
+              "h": 52.78125
+            }
+          },
+          "dx": -50.8125,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-1280-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 217,
+      "firstEntry": 228.5,
+      "firstAuth": 195.30000001192093,
+      "firstRuntime": 228.5,
+      "missingFrames": 1,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 217,
+            "native": {
+              "x": 629.6875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": null
+          },
+          "after": {
+            "t": 228.5,
+            "native": {
+              "x": 578.875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": {
+              "x": 673.546875,
+              "y": 57.578125,
+              "w": 101.609375,
+              "h": 52.78125
+            }
+          },
+          "dx": -50.8125,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-1280-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 256.80000001192093,
+      "firstEntry": 1690.1000000238419,
+      "firstAuth": 232.5,
+      "firstRuntime": 1690.1000000238419,
+      "missingFrames": 86,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1666,
+            "native": {
+              "x": 629.6875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1690.1000000238419,
+            "native": {
+              "x": 578.875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": {
+              "x": 673.546875,
+              "y": 57.578125,
+              "w": 101.609375,
+              "h": 52.78125
+            }
+          },
+          "dx": -50.8125,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-1280-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 248.09999999403954,
+      "firstEntry": 1482.4000000059605,
+      "firstAuth": 231.5,
+      "firstRuntime": 1482.4000000059605,
+      "missingFrames": 74,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1464.9000000059605,
+            "native": {
+              "x": 629.6875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1482.4000000059605,
+            "native": {
+              "x": 578.875,
+              "y": 57.578125,
+              "w": 94.671875,
+              "h": 52.765625
+            },
+            "link": {
+              "x": 673.546875,
+              "y": 57.578125,
+              "w": 101.609375,
+              "h": 52.78125
+            }
+          },
+          "dx": -50.8125,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingRight": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-1280-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 240.09999999403954,
+      "firstEntry": 258.40000000596046,
+      "firstAuth": 217.80000001192093,
+      "firstRuntime": 258.40000000596046,
+      "missingFrames": 1,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 240.09999999403954,
+            "native": {
+              "x": 1011.640625,
+              "y": 1.1875,
+              "w": 113.421875,
+              "h": 63.21875
+            },
+            "link": null
+          },
+          "after": {
+            "t": 258.40000000596046,
+            "native": {
+              "x": 950.78125,
+              "y": 1.1875,
+              "w": 113.421875,
+              "h": 63.21875
+            },
+            "link": {
+              "x": 1064.203125,
+              "y": 1.1875,
+              "w": 121.71875,
+              "h": 63.21875
+            }
+          },
+          "dx": -60.859375,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18.6px",
+        "paddingTop": "22.32px",
+        "paddingRight": "22.32px",
+        "paddingBottom": "22.32px",
+        "paddingLeft": "22.32px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18.6px",
+        "paddingTop": "22.32px",
+        "paddingRight": "22.32px",
+        "paddingBottom": "22.32px",
+        "paddingLeft": "22.32px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-2048-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 263.2000000178814,
+      "firstEntry": 286.40000000596046,
+      "firstAuth": 216.5,
+      "firstRuntime": 286.40000000596046,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 272.10000002384186,
+            "native": {
+              "x": 1011.640625,
+              "y": 1.1875,
+              "w": 113.421875,
+              "h": 63.21875
+            },
+            "link": null
+          },
+          "after": {
+            "t": 286.40000000596046,
+            "native": {
+              "x": 950.78125,
+              "y": 1.1875,
+              "w": 113.421875,
+              "h": 63.21875
+            },
+            "link": {
+              "x": 1064.203125,
+              "y": 1.1875,
+              "w": 121.71875,
+              "h": 63.21875
+            }
+          },
+          "dx": -60.859375,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18.6px",
+        "paddingTop": "22.32px",
+        "paddingRight": "22.32px",
+        "paddingBottom": "22.32px",
+        "paddingLeft": "22.32px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18.6px",
+        "paddingTop": "22.32px",
+        "paddingRight": "22.32px",
+        "paddingBottom": "22.32px",
+        "paddingLeft": "22.32px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-2048-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 272.7000000178814,
+      "firstEntry": 1690,
+      "firstAuth": 234,
+      "firstRuntime": 1690,
+      "missingFrames": 85,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1668.2000000178814,
+            "native": {
+              "x": 1011.640625,
+              "y": 1.1875,
+              "w": 113.421875,
+              "h": 63.21875
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1690,
+            "native": {
+              "x": 950.78125,
+              "y": 1.1875,
+              "w": 113.421875,
+              "h": 63.21875
+            },
+            "link": {
+              "x": 1064.203125,
+              "y": 1.1875,
+              "w": 121.71875,
+              "h": 63.21875
+            }
+          },
+          "dx": -60.859375,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18.6px",
+        "paddingTop": "22.32px",
+        "paddingRight": "22.32px",
+        "paddingBottom": "22.32px",
+        "paddingLeft": "22.32px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18.6px",
+        "paddingTop": "22.32px",
+        "paddingRight": "22.32px",
+        "paddingBottom": "22.32px",
+        "paddingLeft": "22.32px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-2048-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 246.80000001192093,
+      "firstEntry": 1462.9000000059605,
+      "firstAuth": 228.40000000596046,
+      "firstRuntime": 1462.9000000059605,
+      "missingFrames": 73,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1444.9000000059605,
+            "native": {
+              "x": 1011.640625,
+              "y": 1.1875,
+              "w": 113.421875,
+              "h": 63.21875
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1462.9000000059605,
+            "native": {
+              "x": 950.78125,
+              "y": 1.1875,
+              "w": 113.421875,
+              "h": 63.21875
+            },
+            "link": {
+              "x": 1064.203125,
+              "y": 1.1875,
+              "w": 121.71875,
+              "h": 63.21875
+            }
+          },
+          "dx": -60.859375,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18.6px",
+        "paddingTop": "22.32px",
+        "paddingRight": "22.32px",
+        "paddingBottom": "22.32px",
+        "paddingLeft": "22.32px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "14.88px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18.6px",
+        "paddingTop": "22.32px",
+        "paddingRight": "22.32px",
+        "paddingBottom": "22.32px",
+        "paddingLeft": "22.32px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "desktop-legacy-2048-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 218.30000001192093,
+      "firstEntry": 250.30000001192093,
+      "firstAuth": 202.30000001192093,
+      "firstRuntime": 250.30000001192093,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 235.59999999403954,
+            "native": {
+              "x": 185.015625,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": null
+          },
+          "after": {
+            "t": 250.30000001192093,
+            "native": {
+              "x": 135.84375,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": {
+              "x": 227.484375,
+              "y": 55.71875,
+              "w": 98.34375,
+              "h": 51.09375
+            }
+          },
+          "dx": -49.171875,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-390-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 227.90000000596046,
+      "firstEntry": 265.40000000596046,
+      "firstAuth": 210.2000000178814,
+      "firstRuntime": 265.40000000596046,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 244,
+            "native": {
+              "x": 185.015625,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": null
+          },
+          "after": {
+            "t": 265.40000000596046,
+            "native": {
+              "x": 135.84375,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": {
+              "x": 227.484375,
+              "y": 55.71875,
+              "w": 98.34375,
+              "h": 51.09375
+            }
+          },
+          "dx": -49.171875,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-390-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 262,
+      "firstEntry": 1701.5999999940395,
+      "firstAuth": 224.09999999403954,
+      "firstRuntime": 1701.5999999940395,
+      "missingFrames": 86,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1674,
+            "native": {
+              "x": 185.015625,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1701.5999999940395,
+            "native": {
+              "x": 135.84375,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": {
+              "x": 227.484375,
+              "y": 55.71875,
+              "w": 98.34375,
+              "h": 51.09375
+            }
+          },
+          "dx": -49.171875,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-390-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 258.39999997615814,
+      "firstEntry": 1482.7999999821186,
+      "firstAuth": 223.39999997615814,
+      "firstRuntime": 1482.7999999821186,
+      "missingFrames": 73,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1457.2999999821186,
+            "native": {
+              "x": 185.015625,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1482.7999999821186,
+            "native": {
+              "x": 135.84375,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": {
+              "x": 227.484375,
+              "y": 55.71875,
+              "w": 98.34375,
+              "h": 51.09375
+            }
+          },
+          "dx": -49.171875,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-390-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 206.90000000596046,
+      "firstEntry": 226.69999998807907,
+      "firstAuth": 189.69999998807907,
+      "firstRuntime": 226.69999998807907,
+      "missingFrames": 1,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 206.90000000596046,
+            "native": {
+              "x": 630.015625,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": null
+          },
+          "after": {
+            "t": 226.69999998807907,
+            "native": {
+              "x": 580.84375,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": {
+              "x": 672.484375,
+              "y": 55.71875,
+              "w": 98.34375,
+              "h": 51.09375
+            }
+          },
+          "dx": -49.171875,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-1280-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 240.69999998807907,
+      "firstEntry": 263.59999999403954,
+      "firstAuth": 213.40000000596046,
+      "firstRuntime": 263.59999999403954,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 248.19999998807907,
+            "native": {
+              "x": 630.015625,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": null
+          },
+          "after": {
+            "t": 263.59999999403954,
+            "native": {
+              "x": 580.84375,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": {
+              "x": 672.484375,
+              "y": 55.71875,
+              "w": 98.34375,
+              "h": 51.09375
+            }
+          },
+          "dx": -49.171875,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-1280-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 248.59999999403954,
+      "firstEntry": 1692,
+      "firstAuth": 231.69999998807907,
+      "firstRuntime": 1692,
+      "missingFrames": 86,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1665.9000000059605,
+            "native": {
+              "x": 630.015625,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1692,
+            "native": {
+              "x": 580.84375,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": {
+              "x": 672.484375,
+              "y": 55.71875,
+              "w": 98.34375,
+              "h": 51.09375
+            }
+          },
+          "dx": -49.171875,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-1280-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 263.19999998807907,
+      "firstEntry": 1486.2999999821186,
+      "firstAuth": 242.7999999821186,
+      "firstRuntime": 1486.2999999821186,
+      "missingFrames": 73,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1458.4000000059605,
+            "native": {
+              "x": 630.015625,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1486.2999999821186,
+            "native": {
+              "x": 580.84375,
+              "y": 55.71875,
+              "w": 91.640625,
+              "h": 51.09375
+            },
+            "link": {
+              "x": 672.484375,
+              "y": 55.71875,
+              "w": 98.34375,
+              "h": 51.09375
+            }
+          },
+          "dx": -49.171875,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingRight": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-1280-slow-bootstrap"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 210.5,
+      "firstEntry": 243.59999999403954,
+      "firstAuth": 192.59999999403954,
+      "firstRuntime": 243.59999999403954,
+      "missingFrames": 2,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 228.09999999403954,
+            "native": {
+              "x": 1012.03125,
+              "y": 1.171875,
+              "w": 109.765625,
+              "h": 61.1875
+            },
+            "link": null
+          },
+          "after": {
+            "t": 243.59999999403954,
+            "native": {
+              "x": 953.140625,
+              "y": 1.171875,
+              "w": 109.765625,
+              "h": 61.1875
+            },
+            "link": {
+              "x": 1062.90625,
+              "y": 1.171875,
+              "w": 117.796875,
+              "h": 61.1875
+            }
+          },
+          "dx": -58.890625,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "14.4px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18px",
+        "paddingTop": "21.6px",
+        "paddingRight": "21.6px",
+        "paddingBottom": "21.6px",
+        "paddingLeft": "21.6px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "14.4px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18px",
+        "paddingTop": "21.6px",
+        "paddingRight": "21.6px",
+        "paddingBottom": "21.6px",
+        "paddingLeft": "21.6px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-2048-warm"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 228.30000001192093,
+      "firstEntry": 239.5,
+      "firstAuth": 206.09999999403954,
+      "firstRuntime": 239.5,
+      "missingFrames": 1,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 228.30000001192093,
+            "native": {
+              "x": 1012.03125,
+              "y": 1.171875,
+              "w": 109.765625,
+              "h": 61.1875
+            },
+            "link": null
+          },
+          "after": {
+            "t": 239.5,
+            "native": {
+              "x": 953.140625,
+              "y": 1.171875,
+              "w": 109.765625,
+              "h": 61.1875
+            },
+            "link": {
+              "x": 1062.90625,
+              "y": 1.171875,
+              "w": 117.796875,
+              "h": 61.1875
+            }
+          },
+          "dx": -58.890625,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "14.4px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18px",
+        "paddingTop": "21.6px",
+        "paddingRight": "21.6px",
+        "paddingBottom": "21.6px",
+        "paddingLeft": "21.6px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "14.4px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18px",
+        "paddingTop": "21.6px",
+        "paddingRight": "21.6px",
+        "paddingBottom": "21.6px",
+        "paddingLeft": "21.6px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-2048-cold"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 258.5,
+      "firstEntry": 1705.5999999940395,
+      "firstAuth": 238.39999997615814,
+      "firstRuntime": 1705.5999999940395,
+      "missingFrames": 87,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1687.199999988079,
+            "native": {
+              "x": 1012.03125,
+              "y": 1.171875,
+              "w": 109.765625,
+              "h": 61.1875
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1705.5999999940395,
+            "native": {
+              "x": 953.140625,
+              "y": 1.171875,
+              "w": 109.765625,
+              "h": 61.1875
+            },
+            "link": {
+              "x": 1062.90625,
+              "y": 1.171875,
+              "w": 117.796875,
+              "h": 61.1875
+            }
+          },
+          "dx": -58.890625,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "14.4px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18px",
+        "paddingTop": "21.6px",
+        "paddingRight": "21.6px",
+        "paddingBottom": "21.6px",
+        "paddingLeft": "21.6px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "14.4px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18px",
+        "paddingTop": "21.6px",
+        "paddingRight": "21.6px",
+        "paddingBottom": "21.6px",
+        "paddingLeft": "21.6px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-2048-slow-runtime"
+    },
+    {
+      "beforeBootstrap": true,
+      "firstNative": 283.69999998807907,
+      "firstEntry": 1496.4000000059605,
+      "firstAuth": 261.90000000596046,
+      "firstRuntime": 1496.4000000059605,
+      "missingFrames": 73,
+      "replacements": 0,
+      "movements": [
+        {
+          "before": {
+            "t": 1478.9000000059605,
+            "native": {
+              "x": 1012.03125,
+              "y": 1.171875,
+              "w": 109.765625,
+              "h": 61.1875
+            },
+            "link": null
+          },
+          "after": {
+            "t": 1496.4000000059605,
+            "native": {
+              "x": 953.140625,
+              "y": 1.171875,
+              "w": 109.765625,
+              "h": 61.1875
+            },
+            "link": {
+              "x": 1062.90625,
+              "y": 1.171875,
+              "w": 117.796875,
+              "h": 61.1875
+            }
+          },
+          "dx": -58.890625,
+          "dy": 0
+        }
+      ],
+      "drawerFrames": 0,
+      "drawerMissingFrames": 0,
+      "nativeStyles": {
+        "fontSize": "14.4px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18px",
+        "paddingTop": "21.6px",
+        "paddingRight": "21.6px",
+        "paddingBottom": "21.6px",
+        "paddingLeft": "21.6px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "styles": {
+        "fontSize": "14.4px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "18px",
+        "paddingTop": "21.6px",
+        "paddingRight": "21.6px",
+        "paddingBottom": "21.6px",
+        "paddingLeft": "21.6px",
+        "color": "rgba(255, 255, 255, 0.7)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px"
+      },
+      "name": "mobile-legacy-2048-slow-bootstrap"
+    }
+  ],
+  "result": "BASELINE",
+  "interactions": [
+    {
+      "layout": "auto",
+      "width": 390,
+      "normal": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "400",
+          "lineHeight": "20.088px"
+        },
+        "watchguard": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "400",
+          "lineHeight": "20.088px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "400",
+          "lineHeight": "20.088px"
+        },
+        "watchguard": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(128, 128, 128, 0.2)",
+          "fontSize": "14.88px",
+          "fontWeight": "400",
+          "lineHeight": "20.088px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "drawer": {
+        "frames": 93,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "auto",
+      "width": 1280,
+      "normal": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "13.02px",
+          "fontWeight": "500",
+          "lineHeight": "22.785px"
+        },
+        "watchguard": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "20.088px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "13.02px",
+          "fontWeight": "500",
+          "lineHeight": "22.785px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(128, 128, 128, 0.2)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "20.088px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "auto",
+      "width": 2048,
+      "normal": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "13.02px",
+          "fontWeight": "500",
+          "lineHeight": "22.785px"
+        },
+        "watchguard": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "20.088px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "13.02px",
+          "fontWeight": "500",
+          "lineHeight": "22.785px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(128, 128, 128, 0.2)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "20.088px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 390,
+      "normal": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "400",
+          "lineHeight": "20.088px"
+        },
+        "watchguard": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "400",
+          "lineHeight": "20.088px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "400",
+          "lineHeight": "20.088px"
+        },
+        "watchguard": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(128, 128, 128, 0.2)",
+          "fontSize": "14.88px",
+          "fontWeight": "400",
+          "lineHeight": "20.088px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "drawer": {
+        "frames": 86,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "normal": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "13.02px",
+          "fontWeight": "500",
+          "lineHeight": "22.785px"
+        },
+        "watchguard": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "20.088px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "13.02px",
+          "fontWeight": "500",
+          "lineHeight": "22.785px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(128, 128, 128, 0.2)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "20.088px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 2048,
+      "normal": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "13.02px",
+          "fontWeight": "500",
+          "lineHeight": "22.785px"
+        },
+        "watchguard": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "20.088px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "13.02px",
+          "fontWeight": "500",
+          "lineHeight": "22.785px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(128, 128, 128, 0.2)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "20.088px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 390,
+      "normal": {
+        "native": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.4248px",
+          "fontWeight": "600",
+          "lineHeight": "15.531px"
+        },
+        "watchguard": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.4248px",
+          "fontWeight": "600",
+          "lineHeight": "15.531px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.4248px",
+          "fontWeight": "600",
+          "lineHeight": "15.531px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.4248px",
+          "fontWeight": "600",
+          "lineHeight": "15.531px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "normal": {
+        "native": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.4248px",
+          "fontWeight": "600",
+          "lineHeight": "15.531px"
+        },
+        "watchguard": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.4248px",
+          "fontWeight": "600",
+          "lineHeight": "15.531px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.4248px",
+          "fontWeight": "600",
+          "lineHeight": "15.531px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.4248px",
+          "fontWeight": "600",
+          "lineHeight": "15.531px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 2048,
+      "normal": {
+        "native": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "18.6px"
+        },
+        "watchguard": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "18.6px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "18.6px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.88px",
+          "fontWeight": "600",
+          "lineHeight": "18.6px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "normal": {
+        "native": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.024px",
+          "fontWeight": "600",
+          "lineHeight": "15.03px"
+        },
+        "watchguard": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.024px",
+          "fontWeight": "600",
+          "lineHeight": "15.03px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.024px",
+          "fontWeight": "600",
+          "lineHeight": "15.03px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.024px",
+          "fontWeight": "600",
+          "lineHeight": "15.03px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 1280,
+      "normal": {
+        "native": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.024px",
+          "fontWeight": "600",
+          "lineHeight": "15.03px"
+        },
+        "watchguard": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.024px",
+          "fontWeight": "600",
+          "lineHeight": "15.03px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.024px",
+          "fontWeight": "600",
+          "lineHeight": "15.03px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "12.024px",
+          "fontWeight": "600",
+          "lineHeight": "15.03px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 2048,
+      "normal": {
+        "native": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.4px",
+          "fontWeight": "600",
+          "lineHeight": "18px"
+        },
+        "watchguard": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.4px",
+          "fontWeight": "600",
+          "lineHeight": "18px"
+        }
+      },
+      "hover": {
+        "native": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.4px",
+          "fontWeight": "600",
+          "lineHeight": "18px"
+        },
+        "watchguard": {
+          "color": "rgb(0, 164, 220)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14.4px",
+          "fontWeight": "600",
+          "lineHeight": "18px"
+        }
+      },
+      "focus": {
+        "visible": true
+      },
+      "selected": "page",
+      "sameNode": false,
+      "drawer": {
+        "frames": 0,
+        "missingFrames": 0
+      }
+    }
+  ]
+}

@@ -1,16 +1,16 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 const source=fs.readFileSync('Jellyfin.Plugin.WatchGuard/Standalone/bootstrap.js','utf8');
 function fixture(blocked=false){
-    let user='',token='',tick,cleared=false,finish,handoffs=0;const calls=[],events=new Map();
+    let user='',token='',tick,cleared=false,finish,handoffs=0,mutation,disconnected=false;const calls=[],events=new Map();
     const api={getCurrentUserId:()=>user,accessToken:()=>token,getUrl:p=>'http://localhost/'+p,
         ajax:options=>{calls.push(options);return new Promise(resolve=>{finish=resolve;});}};
-    const sandbox={URL,Blob,Date,setInterval:f=>{tick=f;return 1;},clearInterval:()=>{cleared=true;},
+    const sandbox={MutationObserver:class {constructor(f){mutation=f;} observe(){} disconnect(){disconnected=true;}},URL,Blob,Date,setInterval:f=>{tick=f;return 1;},clearInterval:()=>{cleared=true;},
         addEventListener:(n,f)=>events.set(n,f),removeEventListener:n=>events.delete(n),WatchGuardStartup:{finish:()=>handoffs++,active:()=>false},
         location:{href:'http://localhost/web/',origin:'http://localhost'},ApiClient:api};sandbox.window=sandbox;
     sandbox.document={addEventListener:(n,f)=>events.set(n,f),removeEventListener:n=>events.delete(n),currentScript:{src:'http://localhost/WatchGuard/Standalone/bootstrap.js'},createElement:()=>({remove(){}}),
         head:{append:script=>{assert.match(script.src,/^blob:/);if(blocked)script.onerror();else {sandbox.WatchGuardPoc={};script.onload();}}}};
     vm.runInNewContext(source,sandbox);
-    return {sandbox,calls,events,handoffs:()=>handoffs,tick:()=>tick(),login:()=>{user='user';token='secret';},logout:()=>{user='';token='';},resolve:()=>finish('/* private static script */'),cleared:()=>cleared};
+    return {sandbox,calls,events,mutate:()=>mutation(),disconnected:()=>disconnected,handoffs:()=>handoffs,tick:()=>tick(),login:()=>{user='user';token='secret';},logout:()=>{user='';token='';},resolve:()=>finish('/* private static script */'),cleared:()=>cleared};
 }
 const turn=()=>new Promise(resolve=>setImmediate(resolve));
 test('Bootstrap is anonymous-safe and loads once with no credential-bearing URL',async()=>{
@@ -48,4 +48,9 @@ test('missing authenticated request methods report unsupported and release start
         assert.equal(f.sandbox.WatchGuardStandalone.status(),'unsupported-browser-api');
         assert.equal(f.calls.length,0);assert.equal(f.handoffs(),1);
     }
+});
+
+test('Home header commits wake authenticated bootstrap without a polling tick',async()=>{
+ const f=fixture();f.login();const pending=f.mutate();await f.mutate();assert.equal(f.calls.length,1);
+ f.resolve();await pending;assert.equal(f.disconnected(),true);assert.equal(f.cleared(),true);
 });

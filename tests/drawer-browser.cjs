@@ -35,7 +35,7 @@ const report={serverVersion:fixture.serverVersion,image:fixture.image,baseline,c
      const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
      const icon=e=>e?.querySelector('.MuiListItemIcon-root,.navMenuOptionIcon,.watchguard-nav-icon');
      const label=e=>e?.querySelector('.MuiListItemText-root,.navMenuOptionText,.watchguard-nav-text');
-     return {native:rect(native),link:rect(link),icon:rect(icon(link)),nativeIcon:rect(icon(native)),label:rect(label(link)),nativeLabel:rect(label(native)),drawer:rect(root),sameRow:!!link&&!layout.endsWith('-legacy')&&link.closest('li')===native.closest('li'),count:root.querySelectorAll('.watchguard-nav').length,overflow:root.scrollWidth>root.clientWidth+1,active:link?.getAttribute('aria-current'),generatedClasses:link?.className.includes('css-')};
+     return {native:rect(native),link:rect(link),icon:rect(icon(link)),nativeIcon:rect(icon(native)),label:rect(label(link)),nativeLabel:rect(label(native)),drawer:rect(root),sameRow:!!link&&!layout.endsWith('-legacy')&&link.closest('li')===native.closest('li'),count:root.querySelectorAll('.watchguard-nav').length,overflow:root.scrollWidth>root.clientWidth+1,active:link?.getAttribute('aria-current'),unverifiedClasses:[...(link?.classList||[])].filter(c=>c.startsWith('css-')&&!native.classList.contains(c))};
     },layout);
     const name=layout+'-'+width+'-'+report.cases.length;
     await page.screenshot({path:path.join(output,name+'.png')});
@@ -48,7 +48,7 @@ const report={serverVersion:fixture.serverVersion,image:fixture.image,baseline,c
     assert.equal(capabilities.WebVersion,fixture.serverVersion);
     assert.ok(capabilities.Checks.every(c=>c.Status==='Tested'),JSON.stringify(capabilities));
     result.capabilities=capabilities;
-    assert.ok(separate,'Watchlists has its own drawer row');assert.ok(aligned,'Native icon/text columns and row height');assert.ok(fullWidth,'Full-width row');assert.equal(geometry.overflow,false);assert.equal(geometry.count,1);assert.equal(geometry.generatedClasses,false);
+    assert.ok(separate,'Watchlists has its own drawer row');assert.ok(aligned,'Native icon/text columns and row height');assert.ok(fullWidth,'Full-width row');assert.equal(geometry.overflow,false);assert.equal(geometry.count,1);assert.deepEqual(geometry.unverifiedClasses,[]);
     await drawer.locator('.watchguard-nav').tap();await drawer.waitFor({state:'hidden'});
     await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
     assert.match(page.url(),/watchguard=watchlists/);
