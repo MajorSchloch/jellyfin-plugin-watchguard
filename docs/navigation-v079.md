@@ -16,7 +16,29 @@ There is still no supported runtime plugin-tab registration API. This is a bound
 
 ## Validation
 
-Qualification pending. Tests select the actual `auto`, `desktop-legacy`, `mobile-legacy` and `modern` layout values, and assert the rendered shell and mobile layout class. Coverage includes native drawer rows, geometry, duplicate entries per surface, header identity/position through drawer opening, native tab exit behavior, direct links, reload/hard reload, Refresh, filters, rapid changes and browser Back/Forward. Existing startup frames are observed before bootstrap and during delayed requests.
+Full unified qualification passed on `6ebe2517eadc9552ee3bbc3b6485629748ea2d97` ([run 40707196201](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40707196201)), with `publish=false` and `proxy_matrix=true`. All 20 required jobs passed; publication was skipped. The evidence gate accepted all 39 suite reports (13 suites × three supported versions), covering 54 primary fixture commands, with no retries. Tests select the actual `auto`, `desktop-legacy`, `mobile-legacy` and `modern` layout values, and assert the rendered shell and mobile layout class. Coverage includes native drawer rows, geometry, duplicate entries per surface, header identity/position through drawer opening, native tab exit behavior, direct links, reload/hard reload, Refresh, filters, rapid changes and browser Back/Forward. Existing startup frames are observed before bootstrap and during delayed requests.
+
+| Native checks per Server/Web version | 12.2.0 | 12.3.0 | 12.4.0 |
+| --- | ---: | ---: | ---: |
+| Shell placement/navigation (four layouts) | 8 | 8 | 8 |
+| Open-drawer geometry/navigation | 12 | 12 | 12 |
+| Filter transitions observed during loading | 72 | 72 | 72 |
+| Delayed direct entry/reload/hard reload | 48 | 48 | 48 |
+| Refresh / startup recovery | 8 / 14 | 8 / 14 | 8 / 14 |
+| Enforcement cases, three deployment fixtures | 231 | 231 | 231 |
+| Native catalog fixture cases, 27 revisions each | 4 | 4 | 4 |
+
+All 216 filter transitions and 144 delayed startup cases recorded zero Home exposure. Native Home/Favorites retain indexes 0/1; Legacy header identity and keyboard focus survive resizing, and opening the drawer leaves the header geometry unchanged. Activity filtering, historical comparisons, real polling, approvals, permissions, account isolation, native catalog and proxy/base-path regressions all passed. Local and CI checks also passed 376 backend, 194 JavaScript, 37 infrastructure and 8 catalog tests.
+
+The one package is `Jellyfin.Plugin.WatchGuard-v0.7.9.zip`:
+
+- ZIP SHA-256: `75caecd64bcd3b8137ba33e199ab04fc75c0becfd613cd8904cde95cd8239c6a`.
+- DLL SHA-256: `a0a0518859cf5dfc62f83b363e124e554f68de85d8829b455076810105273eb1`.
+- Runtime commit: `524cd3028a5857286dfacb67e112de46baa29a14`; qualification commit adds only the native drawer capture-readiness check. Later documentation/screenshots do not change the runtime.
+
+[Machine-readable summary](evidence/navigation-v079/summary.json), [complete gate evidence and pinned image digests](evidence/navigation-v079/qualification.json), [native reports for 12.2](evidence/navigation-v079/12.2), [12.3](evidence/navigation-v079/12.3), [12.4](evidence/navigation-v079/12.4), and [timings](evidence/navigation-v079/timings.json) are retained. The final run took **29m 52s** elapsed and **5h 57m 10s** combined job execution; integration jobs began 2–10 seconds after dependencies were ready. These are separate measures; the latter start delay includes runner provisioning.
+
+[The first run](evidence/navigation-v079/superseded-run.json) was cancelled without a failed job to strengthen screenshot readiness: removing `drawer-open` starts the native closing animation, so focus capture now waits until the drawer has left the viewport. The runtime package was identical. The entire qualification ran again on the corrected test commit.
 
 All browser evidence is headless Chromium with viewport/touch emulation, not physical-device testing. Custom CSS/themes, other browsers and TV are not newly qualified. Both Legacy modes retain a header fallback on routes without Home/Favorites, such as item details.
 
