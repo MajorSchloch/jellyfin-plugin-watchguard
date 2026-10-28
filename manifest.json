@@ -9,6 +9,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "0.7.9.0",
+        "changelog": "- Find Watchlists alongside Home and Favorites in Desktop Legacy and Mobile Legacy.\n- Open the drawer without shifting the Legacy header navigation; keep native Home and Favorites working.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/navigation-v079.md)",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.9/Jellyfin.Plugin.WatchGuard-v0.7.9.zip",
+        "checksum": "64805dfbb17da8a702719cf4cafe6cae",
+        "timestamp": "2026-10-28T16:50:39Z"
+      },
+      {
         "version": "0.7.8.0",
         "changelog": "- Recognize the remove action at a glance with a minus on saved-title buttons.\n- Use WatchGuard with Jellyfin 12.4, alongside continued support for 12.2 and 12.3.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.8.md)",
         "targetAbi": "12.2.0.0",
