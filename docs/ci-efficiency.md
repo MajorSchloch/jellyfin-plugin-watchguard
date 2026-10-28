@@ -75,3 +75,40 @@ There is no custom image build, registry publication or cross-run package promot
 ## Same-version fixture repairs
 
 Current master already published v0.7.8 without updating the current-release documentation index. Existing hygiene assertions failed; the documentation pointers are corrected without a version or catalog change. Native catalog qualification also previously appended the candidate even when that version was already published. The private fixture now replaces only that version's local install entry, validates the unchanged public input first, and preserves every other revision. Native available/installed checks still expand all 26 revisions at both widths. These repairs permit CI-only changes to qualify the current version without inventing a new release.
+
+## Qualified result
+
+[Full run 40664573087](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40664573087) passed on **`b5934b39a445b6176f89c3765af6c342316e7f43`**, with `publish=false` and `proxy_matrix=true`: build, all **18 integration jobs**, and the qualification gate succeeded; publication was skipped. The gate accepted exactly **39 suite reports / 54 primary fixture commands** across all three supported versions. Subsequent changes in this PR only record documentation/evidence.
+
+The exact package is byte-identical to published v0.7.8 and to the baseline qualification:
+
+- ZIP SHA-256: `fd4a0aba1232c4d5b57b80c336e50ed27cdd12502b31e5fd2ccc44e67aede7c3`
+- DLL SHA-256: `a19bd559f8515db062f4debce1447a88f296e4ca1b69b5b3e44cb4c2ee959e5c`
+
+| Measured quantity | Baseline 40557055801 | Revised 40664573087 |
+|---|---:|---:|
+| Workflow elapsed | 40m 40s | **26m 32s** |
+| Combined completed-job execution | 6h 38m 50s | **5h 48m 32s** |
+| Build/unit/package job | 1m 11s | 1m 13s |
+| Integration runner jobs | 33 | 18 |
+| Integration ready-to-start delay, range | 2s–10m 29s | **2s–4s** |
+| Combined integration ready-to-start delay | 1h 30m 23s | 47s |
+| Browser setup, median | 21s | 26s |
+| Browser setup, range | 15s–10m 23s | 23s–39s |
+| Combined browser setup | 1h 06m 35s | 8m 20s |
+
+Elapsed time improved by **14m 08s (34.8%)**; combined execution improved by **50m 18s (12.6%)**. These are observed differences between two runs, not a controlled attribution of every second. The revised run includes 92s before its build began, including the handoff from the cancelled experiment; the baseline includes 89s. Neither delay has been subtracted to improve the result.
+
+The extra activity fixture has a real cost: total activity command execution across all three hosts increased from **5,239.280s to 5,916.792s**, an additional **677.512s** of combined work. It buys concurrency without shortening population, historical comparisons or real polling. In the revised run, native activity comparisons took 1,041–1,048s per host, while browser activity took 923–934s, in separate jobs. The browser's initial background-population observation still took about **276s on each host**. All three loaded additional titles automatically, retained the 47-title deeper view and scroll position, and passed both unchanged/changed recovery from injected 503 check failures.
+
+Retained native evidence includes 72 startup/direct/reload cases, 12 Refresh cases, 42 startup failure recoveries, 108 navigation transitions, 18 drawer cases, 312 native catalog revision expansions, and nine enforcement fixtures with 77 cases each. Activity filtering, preparation, pagination, permissions, account isolation, historical comparisons, playback, watched-state polling, approvals and full proxy coverage all passed. Build checks passed **376 backend, 194 JavaScript, 37 infrastructure and 8 catalog tests**, plus packaging, determinism, release-note and installation-metadata checks.
+
+See the [gate output](evidence/ci-efficiency/qualification.json), [native and phase summary](evidence/ci-efficiency/summary.json), [final job timings](evidence/ci-efficiency/final-timings.json), and [superseded experiment record](evidence/ci-efficiency/superseded-run.json). Full screenshots, sanitized traces, fixture reports and logs remain in the Actions artifacts, separately scoped by suite.
+
+### Remaining bottlenecks and limits
+
+The longest final job was 12.3 verification/navigation at **23m 18s**; 12.4 verification/navigation took 22m 24s. Native verification, historical restarts/population and real polling dominate the remaining work. Six-way grouping is not perfectly balanced, but every activity job now starts immediately after the build rather than waiting for another integration job to finish.
+
+This is one full before/after comparison and a two-sample browser-environment experiment. Host load, registry downloads, package mirrors and background scheduling still vary. The pinned browser image removes the large browser dependency install from each runner; zstd, SDK/npm setup and native image downloads remain network-dependent. There is no claim of a guaranteed 34.8% improvement on future runs or lower latency on every individual scenario.
+
+Activity phases are separated into historical downloads/comparisons, current cold population/query checks, fixture preparation and browser polling. Some older non-activity profiles retain an aggregate interval in the raw fixture report (including the historical `proxy-and-browser-setup` label); that bucket includes the following native/browser scenario and must not be read as proxy setup alone. Per-command and Actions-step timings provide their execution/setup separation. No coverage reduction, timing-limit change, test retry, artifact promotion or production change is hidden in these measurements.

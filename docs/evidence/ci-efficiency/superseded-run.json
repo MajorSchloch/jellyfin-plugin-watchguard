@@ -1,0 +1,72 @@
+{
+  "run": 40662499032,
+  "commit": "b56129f701c274ca74024885221102b394a34505",
+  "status": "completed",
+  "conclusion": "cancelled",
+  "countedAsQualification": false,
+  "reason": "Same-version private catalog duplication blocked qualification. Replaced 39 separately admitted jobs with 18 balanced shards after matrix ordering failed to prioritize activity.",
+  "firstFailure": {
+    "scenario": "basepath-native-catalog",
+    "exception": "ValueError: Invalid/duplicate version",
+    "source": "tests/catalog-listing-fixture.py"
+  },
+  "activityAdmission": [
+    {
+      "job": "Integration / 12.2 / activity-index",
+      "startedAt": "2026-10-28T09:13:57Z",
+      "conclusion": "cancelled"
+    },
+    {
+      "job": "Integration / 12.2 / activity-browser",
+      "startedAt": "2026-10-28T09:13:57Z",
+      "conclusion": "cancelled"
+    },
+    {
+      "job": "Integration / 12.3 / activity-browser",
+      "startedAt": "2026-10-28T09:18:30Z",
+      "conclusion": "cancelled"
+    },
+    {
+      "job": "Integration / 12.4 / activity-browser",
+      "startedAt": "2026-10-28T09:23:52Z",
+      "conclusion": "cancelled"
+    },
+    {
+      "job": "Integration / 12.3 / activity-index",
+      "startedAt": "2026-10-28T09:22:43Z",
+      "conclusion": "cancelled"
+    },
+    {
+      "job": "Integration / 12.4 / activity-index",
+      "startedAt": "2026-10-28T09:24:56Z",
+      "conclusion": "cancelled"
+    }
+  ],
+  "passedJobs": [
+    "build",
+    "Integration / 12.2 / basepath",
+    "Integration / 12.2 / verification",
+    "Integration / 12.3 / migration",
+    "Integration / 12.2 / migration",
+    "Integration / 12.3 / verification",
+    "Integration / 12.3 / legacy",
+    "Integration / 12.2 / legacy",
+    "Integration / 12.2 / discovery",
+    "Integration / 12.2 / server-enforcement-basepath",
+    "Integration / 12.4 / server-enforcement",
+    "Integration / 12.4 / migration",
+    "Integration / 12.4 / basepath",
+    "Integration / 12.2 / server-enforcement",
+    "Integration / 12.3 / basepath",
+    "Integration / 12.4 / legacy",
+    "Integration / 12.4 / server-enforcement-basepath",
+    "Integration / 12.4 / verification",
+    "Integration / 12.2 / server-enforcement-linuxserver",
+    "Integration / 12.3 / server-enforcement-basepath",
+    "Integration / 12.4 / server-enforcement-linuxserver",
+    "Integration / 12.3 / server-enforcement-linuxserver",
+    "Integration / 12.4 / websocket",
+    "Integration / 12.3 / websocket",
+    "Integration / 12.2 / websocket"
+  ]
+}

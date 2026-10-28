@@ -1,0 +1,527 @@
+{
+  "run": 40664573087,
+  "testedCommit": "b5934b39a445b6176f89c3765af6c342316e7f43",
+  "packageSha256": "fd4a0aba1232c4d5b57b80c336e50ed27cdd12502b31e5fd2ccc44e67aede7c3",
+  "runtimeSha256": "a19bd559f8515db062f4debce1447a88f296e4ca1b69b5b3e44cb4c2ee959e5c",
+  "publishedRuntimeUnchanged": true,
+  "publish": false,
+  "proxyMatrix": true,
+  "integrationJobs": 18,
+  "requiredSuiteReports": 39,
+  "versions": [
+    "12.2",
+    "12.3",
+    "12.4"
+  ],
+  "results": {
+    "12.2": {
+      "drawer": {
+        "result": "PASS",
+        "cases": 6
+      },
+      "navigation": {
+        "result": "PASS",
+        "cases": 36
+      },
+      "startup": {
+        "result": "PASS",
+        "cases": 24,
+        "refresh": 4,
+        "recovery": 14
+      },
+      "nativeCatalogReports": 2,
+      "activityBrowser": {
+        "result": "PASS",
+        "initialPopulation": {
+          "result": "PASS",
+          "initialTitles": 9,
+          "loadedTitles": 23,
+          "elapsedMs": 276189
+        },
+        "watchedPolling": "PASS",
+        "playbackPolling": "PASS",
+        "checkRecovery": {
+          "result": "PASS",
+          "unchanged": true,
+          "changed": true,
+          "injectedStatus": 503,
+          "retainedLiveLabel": true
+        },
+        "deeperView": {
+          "result": "PASS",
+          "titles": 47,
+          "scroll": 400,
+          "orderAndPosterPreserved": true,
+          "retainedLiveLabel": true
+        },
+        "presentation": {
+          "result": "PASS",
+          "users": 7,
+          "longName": true,
+          "datesKeyboard": true,
+          "retainedError": true,
+          "additionalPresentationRequests": 0
+        },
+        "phaseTimings": [
+          {
+            "phase": "login",
+            "seconds": 2.79400551
+          },
+          {
+            "phase": "initial background population",
+            "seconds": 277.346967173
+          },
+          {
+            "phase": "search",
+            "seconds": 0.46499383499997204
+          },
+          {
+            "phase": "automatic multi-request preparation",
+            "seconds": 0.5390551219999906
+          },
+          {
+            "phase": "native watched and unwatched polling",
+            "seconds": 60.37230950500001
+          },
+          {
+            "phase": "native playback start and stop",
+            "seconds": 60.17796646699996
+          },
+          {
+            "phase": "deeper view authorized changes",
+            "seconds": 124.99776785
+          },
+          {
+            "phase": "added ordering",
+            "seconds": 0.4117855340000242
+          },
+          {
+            "phase": "usability presentation",
+            "seconds": 157.23722079499998
+          }
+        ]
+      },
+      "nativeActivity": [
+        {
+          "path": "activity-index/watchguard-poc-42a731a790/results.json",
+          "result": "PASS",
+          "comparisons": [
+            "v052-single",
+            "v052-all",
+            "index-single",
+            "index-all"
+          ]
+        },
+        {
+          "path": "activity-browser/watchguard-poc-42a731a790/results.json",
+          "result": "PASS",
+          "comparisons": [
+            "v060-all-title",
+            "v060-single-recent",
+            "v060-few-watchlists",
+            "v060-few-search",
+            "v060-few-watching",
+            "v060-live",
+            "v078-all-title",
+            "v078-single-recent",
+            "v078-few-watchlists",
+            "v078-few-search",
+            "v078-few-watching",
+            "v078-live"
+          ]
+        }
+      ],
+      "enforcement": [
+        {
+          "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+          "serverVersion": "12.2.0",
+          "basePath": "/jellyfin",
+          "cases": 77,
+          "status": "PASS"
+        },
+        {
+          "image": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+          "serverVersion": "12.2.0",
+          "basePath": "",
+          "cases": 77,
+          "status": "PASS"
+        },
+        {
+          "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+          "serverVersion": "12.2.0",
+          "basePath": "",
+          "cases": 77,
+          "status": "PASS"
+        }
+      ]
+    },
+    "12.3": {
+      "drawer": {
+        "result": "PASS",
+        "cases": 6
+      },
+      "navigation": {
+        "result": "PASS",
+        "cases": 36
+      },
+      "startup": {
+        "result": "PASS",
+        "cases": 24,
+        "refresh": 4,
+        "recovery": 14
+      },
+      "nativeCatalogReports": 2,
+      "activityBrowser": {
+        "result": "PASS",
+        "initialPopulation": {
+          "result": "PASS",
+          "initialTitles": 4,
+          "loadedTitles": 23,
+          "elapsedMs": 276321
+        },
+        "watchedPolling": "PASS",
+        "playbackPolling": "PASS",
+        "checkRecovery": {
+          "result": "PASS",
+          "unchanged": true,
+          "changed": true,
+          "injectedStatus": 503,
+          "retainedLiveLabel": true
+        },
+        "deeperView": {
+          "result": "PASS",
+          "titles": 47,
+          "scroll": 400,
+          "orderAndPosterPreserved": true,
+          "retainedLiveLabel": true
+        },
+        "presentation": {
+          "result": "PASS",
+          "users": 7,
+          "longName": true,
+          "datesKeyboard": true,
+          "retainedError": true,
+          "additionalPresentationRequests": 0
+        },
+        "phaseTimings": [
+          {
+            "phase": "login",
+            "seconds": 2.648483736
+          },
+          {
+            "phase": "initial background population",
+            "seconds": 277.299074107
+          },
+          {
+            "phase": "search",
+            "seconds": 0.47388935300003504
+          },
+          {
+            "phase": "automatic multi-request preparation",
+            "seconds": 0.5296421119999722
+          },
+          {
+            "phase": "native watched and unwatched polling",
+            "seconds": 60.30908785700001
+          },
+          {
+            "phase": "native playback start and stop",
+            "seconds": 60.391105958
+          },
+          {
+            "phase": "deeper view authorized changes",
+            "seconds": 124.72177663599997
+          },
+          {
+            "phase": "added ordering",
+            "seconds": 0.37590591999993195
+          },
+          {
+            "phase": "usability presentation",
+            "seconds": 157.63343031600002
+          }
+        ]
+      },
+      "nativeActivity": [
+        {
+          "path": "activity-index/watchguard-poc-2fed8880e4/results.json",
+          "result": "PASS",
+          "comparisons": [
+            "v052-single",
+            "v052-all",
+            "index-single",
+            "index-all"
+          ]
+        },
+        {
+          "path": "activity-browser/watchguard-poc-2fed8880e4/results.json",
+          "result": "PASS",
+          "comparisons": [
+            "v060-all-title",
+            "v060-single-recent",
+            "v060-few-watchlists",
+            "v060-few-search",
+            "v060-few-watching",
+            "v060-live",
+            "v078-all-title",
+            "v078-single-recent",
+            "v078-few-watchlists",
+            "v078-few-search",
+            "v078-few-watching",
+            "v078-live"
+          ]
+        }
+      ],
+      "enforcement": [
+        {
+          "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+          "serverVersion": "12.3.0",
+          "basePath": "/jellyfin",
+          "cases": 77,
+          "status": "PASS"
+        },
+        {
+          "image": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+          "serverVersion": "12.3.0",
+          "basePath": "",
+          "cases": 77,
+          "status": "PASS"
+        },
+        {
+          "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+          "serverVersion": "12.3.0",
+          "basePath": "",
+          "cases": 77,
+          "status": "PASS"
+        }
+      ]
+    },
+    "12.4": {
+      "drawer": {
+        "result": "PASS",
+        "cases": 6
+      },
+      "navigation": {
+        "result": "PASS",
+        "cases": 36
+      },
+      "startup": {
+        "result": "PASS",
+        "cases": 24,
+        "refresh": 4,
+        "recovery": 14
+      },
+      "nativeCatalogReports": 2,
+      "activityBrowser": {
+        "result": "PASS",
+        "initialPopulation": {
+          "result": "PASS",
+          "initialTitles": 3,
+          "loadedTitles": 23,
+          "elapsedMs": 276181
+        },
+        "watchedPolling": "PASS",
+        "playbackPolling": "PASS",
+        "checkRecovery": {
+          "result": "PASS",
+          "unchanged": true,
+          "changed": true,
+          "injectedStatus": 503,
+          "retainedLiveLabel": true
+        },
+        "deeperView": {
+          "result": "PASS",
+          "titles": 47,
+          "scroll": 400,
+          "orderAndPosterPreserved": true,
+          "retainedLiveLabel": true
+        },
+        "presentation": {
+          "result": "PASS",
+          "users": 7,
+          "longName": true,
+          "datesKeyboard": true,
+          "retainedError": true,
+          "additionalPresentationRequests": 0
+        },
+        "phaseTimings": [
+          {
+            "phase": "login",
+            "seconds": 2.2868704010000003
+          },
+          {
+            "phase": "initial background population",
+            "seconds": 277.05155606899996
+          },
+          {
+            "phase": "search",
+            "seconds": 0.4031061489999993
+          },
+          {
+            "phase": "automatic multi-request preparation",
+            "seconds": 0.4354380249999813
+          },
+          {
+            "phase": "native watched and unwatched polling",
+            "seconds": 60.23570748699998
+          },
+          {
+            "phase": "native playback start and stop",
+            "seconds": 60.193100477
+          },
+          {
+            "phase": "deeper view authorized changes",
+            "seconds": 124.77803878500004
+          },
+          {
+            "phase": "added ordering",
+            "seconds": 0.35137818999995946
+          },
+          {
+            "phase": "usability presentation",
+            "seconds": 156.88045918699993
+          }
+        ]
+      },
+      "nativeActivity": [
+        {
+          "path": "activity-index/watchguard-poc-f8ec29c23d/results.json",
+          "result": "PASS",
+          "comparisons": [
+            "v052-single",
+            "v052-all",
+            "index-single",
+            "index-all"
+          ]
+        },
+        {
+          "path": "activity-browser/watchguard-poc-f8ec29c23d/results.json",
+          "result": "PASS",
+          "comparisons": [
+            "v060-all-title",
+            "v060-single-recent",
+            "v060-few-watchlists",
+            "v060-few-search",
+            "v060-few-watching",
+            "v060-live",
+            "v078-all-title",
+            "v078-single-recent",
+            "v078-few-watchlists",
+            "v078-few-search",
+            "v078-few-watching",
+            "v078-live"
+          ]
+        }
+      ],
+      "enforcement": [
+        {
+          "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+          "serverVersion": "12.4.0",
+          "basePath": "/jellyfin",
+          "cases": 77,
+          "status": "PASS"
+        },
+        {
+          "image": "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044",
+          "serverVersion": "12.4.0",
+          "basePath": "",
+          "cases": 77,
+          "status": "PASS"
+        },
+        {
+          "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+          "serverVersion": "12.4.0",
+          "basePath": "",
+          "cases": 77,
+          "status": "PASS"
+        }
+      ]
+    }
+  },
+  "fixturePhaseTotalsSeconds": {
+    "activity-browser-fixture-population": 514.077,
+    "activity-browser-fixture-seed": 97.952,
+    "activity-index-fixture-seed": 90.005,
+    "background-tasks": 358.662,
+    "browser-actions-and-permissions": 3755.667,
+    "browser-activity-polling": 2053.254,
+    "browser-settings": 247.28,
+    "browser-standalone": 71.989,
+    "configure-libraries": 160.102,
+    "container-start": 602.436,
+    "current-backend-contracts": 177.778,
+    "current-browser-and-proxy": 447.85,
+    "current-index-cold-population": 850.681,
+    "current-index-query-and-events": 11.702,
+    "current-query-permission-revocation": 380.82,
+    "disable-and-rollback": 150.635,
+    "generate-media": 113.335,
+    "historical-preference-roundtrip": 517.637,
+    "historical-standalone-catalog-upgrades": 839.888,
+    "historical-standalone-rollback": 232.718,
+    "historical-v052-comparison": 35.491,
+    "historical-v052-download": 0.889,
+    "historical-v060-download": 3.566,
+    "installation-and-regressions": 36.945,
+    "media-indexing": 261.538,
+    "native-catalog-install-and-browser": 223.424,
+    "native-security-regressions": 963.835,
+    "native-setup-authentication": 51.229,
+    "native-uninstall-and-retained-data": 259.663,
+    "old-tab-browser": 34.181,
+    "proxy-and-browser-setup": 3800.454,
+    "teardown": 22.993,
+    "v060-query-comparison": 14.771,
+    "v060-query-population": 813.341,
+    "v078-query-comparison": 6.708,
+    "v078-query-population": 812.653,
+    "workspace": 0.08
+  },
+  "suiteSeconds": {
+    "12.2": {
+      "activity-browser": 933.593,
+      "websocket": 56.649,
+      "activity-index": 1043.414,
+      "legacy": 279.565,
+      "server-enforcement": 239.256,
+      "server-enforcement-basepath": 197.193,
+      "server-enforcement-linuxserver": 250.023,
+      "basepath": 475.669,
+      "migration": 538.276,
+      "discovery": 236.502,
+      "standalone-caddy": 966.084,
+      "basepath-navigation": 496.797,
+      "verification": 755.342
+    },
+    "12.3": {
+      "activity-browser": 927.656,
+      "websocket": 52.454,
+      "activity-index": 1047.89,
+      "legacy": 288.045,
+      "server-enforcement": 242.218,
+      "server-enforcement-basepath": 203.695,
+      "server-enforcement-linuxserver": 258.519,
+      "basepath": 479.553,
+      "migration": 539.979,
+      "discovery": 169.492,
+      "standalone-caddy": 818.036,
+      "basepath-navigation": 507.743,
+      "verification": 803.3430000000001
+    },
+    "12.4": {
+      "activity-browser": 922.947,
+      "websocket": 50.806,
+      "activity-index": 1041.292,
+      "legacy": 226.839,
+      "server-enforcement": 181.482,
+      "server-enforcement-basepath": 148.868,
+      "server-enforcement-linuxserver": 182.758,
+      "basepath": 482.152,
+      "migration": 547.083,
+      "discovery": 229.67,
+      "standalone-caddy": 952.916,
+      "basepath-navigation": 500.529,
+      "verification": 758.995
+    }
+  }
+}
