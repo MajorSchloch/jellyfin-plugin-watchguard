@@ -10,48 +10,20 @@ import zipfile
 BASELINE_SHA = '62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec'
 
 
-def run(call, restart, docker, name, plugins, token):
+def run(call, restart, docker, name, plugins, token, phases):
     assert name.startswith('watchguard-poc-')
     repo = Path(__file__).resolve().parents[1]
     evidence = repo / 'artifacts/activity-index' / name
     evidence.mkdir(parents=True)
+    phases.phase('historical-v052-download')
     baseline = evidence / 'published-v052.zip'
     subprocess.run(['curl','--fail','--location','--retry','3','--max-time','60',
         'https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.5.2/Jellyfin.Plugin.WatchGuard-v0.5.2.zip',
         '-o',str(baseline)],check=True)
     assert hashlib.sha256(baseline.read_bytes()).hexdigest() == BASELINE_SHA
-    docker('exec', name, 'sh', '-c', '''set -eu
-n=1; while [ "$n" -le 120 ]; do
- mkdir -p "/tmp/poc-movies/Index Movie $n"
- cp /tmp/fixture.mp4 "/tmp/poc-movies/Index Movie $n/Index Movie $n.mp4"
- n=$((n+1))
-done
-mkdir -p '/tmp/poc-tv/Index Continuing/Season 01'
-printf '<tvshow><title>Index Continuing</title><status>Continuing</status></tvshow>' > '/tmp/poc-tv/Index Continuing/tvshow.nfo'
-n=1; while [ "$n" -le 300 ]; do
- f=$(printf '/tmp/poc-tv/Index Continuing/Season 01/Index Continuing S01E%03d' "$n")
- cp /tmp/fixture.mp4 "$f.mp4"
- printf '<episodedetails><title>Episode %s</title><season>1</season><episode>%s</episode><aired>2020-01-01</aired></episodedetails>' "$n" "$n" > "$f.nfo"
- n=$((n+1))
-done''')
-    call('/Library/Refresh', 'POST', token=token, expected=204)
-    deadline = time.monotonic() + 180
-    while True:
-        movies = [i for i in call('/Items?Recursive=true&IncludeItemTypes=Movie&Limit=1000', token=token)['Items'] if i['Name'].startswith('Index Movie ')]
-        series = [i for i in call('/Items?Recursive=true&IncludeItemTypes=Series&Limit=100', token=token)['Items'] if i['Name'] == 'Index Continuing']
-        episodes = call('/Items?Recursive=true&IncludeItemTypes=Episode&Limit=1000', token=token)['Items']
-        episodes = [i for i in episodes if series and i.get('SeriesId') == series[0]['Id']]
-        if len(movies) == 120 and len(series) == 1 and len(episodes) == 300: break
-        assert time.monotonic() < deadline, {'movies': len(movies), 'series': len(series), 'episodes': len(episodes)}
-        time.sleep(.5)
-    owners = []
-    for n in range(6):
-        user = call('/Users/New', 'POST', {'Name': 'IndexUser' + str(n), 'Password': 'DisposableIndex123!'}, token)
-        owners.append(user['Id'])
-        for item in movies + series:
-            call('/UserPlayedItems/' + item['Id'] + '?userId=' + user['Id'], 'POST', token=token)
-        if n % 2 == 0:
-            call('/UserItems/' + episodes[0]['Id'] + '/UserData?userId=' + user['Id'], 'POST', {'Played': False, 'PlaybackPositionTicks': 10000}, token)
+    phases.phase('activity-index-fixture-seed')
+    from activity_fixture import seed
+    owners, movies, series = seed(call, docker, name, token)
     dll = plugins / 'WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
     candidate = dll.read_bytes()
     with zipfile.ZipFile(baseline) as archive: previous = archive.read('Jellyfin.Plugin.WatchGuard.dll')
@@ -62,6 +34,7 @@ done''')
         return {i['ItemId'].replace('-', ''): {u['UserId'].replace('-', ''): {k:v for k,v in u.items() if k not in ('UserId', 'DisplayName')}
                 for u in i['Users']} for i in items}
     try:
+        phases.phase('historical-v052-comparison')
         docker('stop', name); dll.write_bytes(previous); restart()
         for scope, owner in scopes:
             route = '/WatchGuard/ActivityOverview' + ('/Users/' + owner if owner != 'all' else '')
@@ -71,6 +44,7 @@ done''')
                 start = time.perf_counter(); value = call(route, token=token, timeout=120); samples.append((time.perf_counter()-start)*1000)
             old_results[scope] = normalized(value['Items'])
             result['measurements']['v052-' + scope] = {'milliseconds': samples, 'medianMs': statistics.median(samples), 'items': len(value['Items']), 'diagnostics': value['Diagnostics'], 'causes': value['Coverage']['Causes']}
+        phases.phase('current-index-cold-population')
         docker('stop', name); dll.write_bytes(candidate)
         # Remove only rebuildable state, never personal data, for cold qualification.
         for file in plugins.glob('*/activity-index.json'): file.unlink()
@@ -85,6 +59,7 @@ done''')
             time.sleep(1)
         result['coldPopulationMs'] = (time.perf_counter()-start)*1000
         result['progress'] = progress
+        phases.phase('current-index-query-and-events')
         for scope, owner in scopes:
             route = '/WatchGuard/ActivityIndex?owner=' + owner
             samples = []
@@ -144,5 +119,5 @@ done''')
         (evidence / 'results.json').write_text(json.dumps(result, indent=2) + '\n')
         if dll.read_bytes() != candidate: docker('stop', name); dll.write_bytes(candidate); restart()
     import runpy
-    runpy.run_path(str(repo / 'tests/activity-browser-native.py'))['run'](call, restart, docker, name, plugins, token, owners, movies, series)
+    runpy.run_path(str(repo / 'tests/activity-browser-native.py'))['run'](call, restart, docker, name, plugins, token, owners, movies, series, phases)
     print('Activity index native qualification: ' + str(evidence / 'results.json'), flush=True)

@@ -95,8 +95,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Long suites first, interleaved by host; scheduling remains GitHub-owned.
+        suite: [activity-index, activity-browser, standalone-caddy, verification, migration, basepath, basepath-navigation, legacy, discovery, server-enforcement, server-enforcement-basepath, server-enforcement-linuxserver, websocket]
         jellyfin_version: ['12.2', '12.3', '12.4']
-        suite: [standalone-caddy, migration, basepath, legacy, websocket, discovery, verification, activity-index, server-enforcement, server-enforcement-basepath, server-enforcement-linuxserver]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -127,7 +128,10 @@ jobs:
           git -C /tmp/watchguard-injector checkout --detach 2758804c987d490ef32fc2fbdb8a73a44facdf2c
           dotnet build /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/Jellyfin.Plugin.JavaScriptInjector.csproj -c Release -p:JellyfinTarget=jf12 -p:JellyfinVersion=12.2.0
       - run: npm ci --prefix tests/browser
-      - run: cd tests/browser && npx playwright install --with-deps chromium
+      - name: Preinstalled browser setup
+        run: bash scripts/ci/setup-browser.sh
+      - name: Verify locked browser and diagnostic tools
+        run: node tests/browser-environment.cjs
       - name: Install zstd decoder where tested
         if: matrix.suite == 'standalone-caddy' || matrix.suite == 'websocket' || startsWith(matrix.suite, 'server-enforcement')
         run: sudo apt-get update && sudo apt-get install -y zstd
@@ -262,6 +266,9 @@ jobs:
 
   qualification:
     name: Verify complete compatibility evidence
+    permissions:
+      contents: read
+      actions: read
     needs: [build, integration]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -280,10 +287,16 @@ jobs:
           path: artifacts/qualification
       - name: Require every host and suite to have tested this exact package
         run: python3 scripts/qualification.py --package artifacts/Jellyfin.Plugin.WatchGuard-v0.7.8.zip --evidence artifacts/qualification --commit "$GITHUB_SHA" --proxy-matrix '${{ inputs.proxy_matrix || inputs.publish }}' --output artifacts/qualification.json
+      - name: Report execution and queue timing separately
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci/timings.py --output artifacts/qualification-timings.json
       - uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-qualification
-          path: artifacts/qualification.json
+          path: |
+            artifacts/qualification.json
+            artifacts/qualification-timings.json
           if-no-files-found: error
 
   publish:

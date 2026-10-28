@@ -1,8 +1,5 @@
 name: Benchmark browser environment
 on:
-  push:
-    branches: [ci/qualification-efficiency]
-    paths: ['.github/workflows/browser-benchmark.yaml', 'scripts/ci/browser-node.py']
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,14 +30,9 @@ jobs:
         run: cd tests/browser && npx playwright install --with-deps chromium
       - name: Preinstalled browser setup
         if: matrix.environment == 'preinstalled'
-        run: |
-          image="$(python3 -c 'import runpy; print(runpy.run_path("scripts/ci/browser-node.py")["IMAGE"])')"
-          docker pull "$image"
-          echo "WATCHGUARD_HOST_NODE=$(command -v node)" >> "$GITHUB_ENV"
-          mkdir -p /tmp/watchguard-browser-bin
-          cp scripts/ci/browser-node.py /tmp/watchguard-browser-bin/node
-          chmod +x /tmp/watchguard-browser-bin/node
-          echo /tmp/watchguard-browser-bin >> "$GITHUB_PATH"
+        run: bash scripts/ci/setup-browser.sh
+      - name: Verify locked browser and diagnostic tools
+        run: node tests/browser-environment.cjs
       - name: Proxy decoder
         run: sudo apt-get update && sudo apt-get install -y zstd
       - name: Native startup and base-path checks

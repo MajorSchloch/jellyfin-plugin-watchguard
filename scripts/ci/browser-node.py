@@ -20,7 +20,7 @@ def command(args, node, workspace, ca=None):
               '-v', '/tmp:/tmp', '-v', f'{node.parent}:{node.parent}:ro']
     if ca:
         path = Path(ca).resolve()
-        if not path.is_relative_to('/tmp') and not path.is_relative_to(workspace):
+        if not path.is_relative_to(Path('/tmp').resolve()) and not path.is_relative_to(workspace):
             raise ValueError('Proxy CA must belong to the disposable fixture')
         result += ['-e', 'NODE_EXTRA_CA_CERTS=' + str(path)]
     return result + [IMAGE, str(node), *args]

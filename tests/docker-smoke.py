@@ -46,7 +46,7 @@ def main():
     mode.add_argument('--measure', action='store_true')
     mode.add_argument('--migration', action='store_true')
     mode.add_argument('--catalog', action='store_true', help='Exercise native catalog install, manual upgrade and missing Injector.')
-    mode.add_argument('--profile', choices=['before', 'after', 'activity', 'v030-before', 'v030-after', 'discovery', 'verification', 'activity-index'], help='Run isolated performance measurements instead of destructive browser tests.')
+    mode.add_argument('--profile', choices=['before', 'after', 'activity', 'v030-before', 'v030-after', 'discovery', 'verification', 'activity-index', 'activity-browser'], help='Run isolated performance measurements instead of destructive browser tests.')
     options = parser.parse_args()
     options.standalone = not options.legacy_injector
     if options.catalog and options.standalone: options.standalone_catalog = True
@@ -248,7 +248,11 @@ def main():
             elif options.profile == 'discovery':
                 runpy.run_path(str(ROOT/'tests/discovery-native.py'))['run'](call, restart, docker, name, root, plugins, token)
             elif options.profile == 'activity-index':
-                runpy.run_path(str(ROOT/'tests/activity-index-native.py'))['run'](call, restart, docker, name, plugins, token)
+                runpy.run_path(str(ROOT/'tests/activity-index-native.py'))['run'](call, restart, docker, name, plugins, token, phases)
+            elif options.profile == 'activity-browser':
+                from activity_fixture import prepare_browser
+                prepare_browser(call, docker, name, token, phases)
+                phases.phase('browser-activity-polling')
                 # Package comparisons restart the container; Docker may assign a
                 # new ephemeral port. Hand the browser the current native URL.
                 browser_fixture = json.loads(fixture.read_text())
@@ -278,6 +282,7 @@ def main():
                     assert docker('exec', name, 'sha256sum', web_index).split()[0] == pristine_web_hash
                     print('Deployment checks passed: v0.3.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
             if options.standalone:
+                phases.phase('native-uninstall-and-retained-data')
                 data_folder = plugins/'Jellyfin.Plugin.WatchGuard'
                 derived = data_folder/'activity-index.json'
                 derived_present = derived.exists()
