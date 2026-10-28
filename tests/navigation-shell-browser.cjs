@@ -58,7 +58,14 @@ for(const layout of layouts)for(const width of [1280,390]){
  await page.waitForFunction(selector=>Math.abs(document.querySelector(selector).getBoundingClientRect().left)<1,legacy?'.mainDrawer.drawer-open':'.MuiDrawer-paper');
  if(legacy){assert.ok(await handle.evaluate(e=>e.isConnected));assert.deepEqual(await link.boundingBox(),before);}
  await page.screenshot({path:path.join(output,`${layout}-${width}-drawer.png`)});
- await drawer.locator('.watchguard-nav').tap();await drawer.waitFor({state:'hidden'});await page.locator('.watchguard-page').waitFor();}else{await link.click();await page.locator('.watchguard-page').waitFor();}
+ await drawer.locator('.watchguard-nav').tap();await drawer.waitFor({state:'hidden'});
+ if(legacy){
+  // Removing drawer-open starts the native closing animation; it does not mean
+  // the panel has left the viewport yet. Capture focus only after that handoff.
+  await page.waitForFunction(()=>document.querySelector('.mainDrawer').getBoundingClientRect().right<=0);
+  assert.equal(await page.locator('.mainDrawer .watchguard-nav').isVisible(),false,'Closed drawer entry is excluded from keyboard/accessibility navigation');
+ }
+ await page.locator('.watchguard-page').waitFor();}else{await link.click();await page.locator('.watchguard-page').waitFor();}
  await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
  await page.keyboard.press('Tab');await link.focus();assert.equal(await link.evaluate(e=>document.activeElement===e),true);
  assert.equal(await link.getAttribute('aria-current'),'page');
