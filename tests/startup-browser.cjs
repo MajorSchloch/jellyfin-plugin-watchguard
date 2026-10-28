@@ -46,7 +46,7 @@ function observe(){
    if(name===delayTarget)await new Promise(r=>setTimeout(r,2200));await route.continue();
   });
   const settled=async()=>{await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');await page.waitForTimeout(150);};
-  for(const layout of ['desktop-legacy','modern'])for(const width of [1280,390]){
+  for(const layout of ['auto','desktop-legacy','mobile-legacy','modern'])for(const width of [1280,390]){
    await page.setViewportSize({width,height:900});await page.evaluate(l=>localStorage.setItem('layout',l),layout);
    for(const mode of ['direct','reload','hard-reload'])for(const target of ['bootstrap.js','script.js']){
     delayTarget=target;privateRequests=0;maxQueries=0;

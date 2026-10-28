@@ -16,13 +16,13 @@ const report={serverVersion:fixture.serverVersion,image:fixture.image,baseline,c
  page.setDefaultTimeout(15000);await readiness.capture(page);
  try {
   await readiness.login(page,fixture);
-  for(const layout of ['modern','desktop-legacy']) {
+  for(const layout of ['auto','modern','desktop-legacy','mobile-legacy']) {
    await page.evaluate(layout=>localStorage.setItem('layout',layout),layout);
    await page.goto(fixture.base+'/web/#/home');await page.reload();await page.getByText('My Media',{exact:true}).waitFor();
-   const drawer=page.locator(layout==='modern'?'.MuiDrawer-paper':'.mainDrawer.drawer-open');
-   const menu=layout==='modern'?page.getByRole('button',{name:'Open Menu',exact:true}):page.locator('.mainDrawerButton:visible');
+   const drawer=page.locator(!layout.endsWith('-legacy')?'.MuiDrawer-paper':'.mainDrawer.drawer-open');
+   const menu=!layout.endsWith('-legacy')?page.getByRole('button',{name:'Open Menu',exact:true}):page.locator('.mainDrawerButton:visible');
    const close=async()=>{
-    if(layout==='modern')await page.locator('.MuiDrawer-root .MuiBackdrop-root').click({position:{x:380,y:400}});
+    if(!layout.endsWith('-legacy'))await page.locator('.MuiDrawer-root .MuiBackdrop-root').click({position:{x:380,y:400}});
     else await drawer.locator('a[href="#/home"]').click();
     await drawer.waitFor({state:'hidden'});
    };
@@ -31,11 +31,11 @@ const report={serverVersion:fixture.serverVersion,image:fixture.image,baseline,c
     await menu.click();await drawer.waitFor();await page.waitForTimeout(1100);
     const geometry=await drawer.evaluate((root,layout)=>{
      const link=root.querySelector('.watchguard-nav');
-     const native=root.querySelector(layout==='modern'?'a[href="#/home?tab=1"]':'a[href="#/home"]');
+     const native=root.querySelector(!layout.endsWith('-legacy')?'a[href="#/home?tab=1"]':'a[href="#/home"]');
      const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
      const icon=e=>e?.querySelector('.MuiListItemIcon-root,.navMenuOptionIcon,.watchguard-nav-icon');
      const label=e=>e?.querySelector('.MuiListItemText-root,.navMenuOptionText,.watchguard-nav-text');
-     return {native:rect(native),link:rect(link),icon:rect(icon(link)),nativeIcon:rect(icon(native)),label:rect(label(link)),nativeLabel:rect(label(native)),drawer:rect(root),sameRow:!!link&&layout==='modern'&&link.closest('li')===native.closest('li'),count:document.querySelectorAll('.watchguard-nav').length,overflow:root.scrollWidth>root.clientWidth+1,active:link?.getAttribute('aria-current'),generatedClasses:link?.className.includes('css-')};
+     return {native:rect(native),link:rect(link),icon:rect(icon(link)),nativeIcon:rect(icon(native)),label:rect(label(link)),nativeLabel:rect(label(native)),drawer:rect(root),sameRow:!!link&&!layout.endsWith('-legacy')&&link.closest('li')===native.closest('li'),count:root.querySelectorAll('.watchguard-nav').length,overflow:root.scrollWidth>root.clientWidth+1,active:link?.getAttribute('aria-current'),generatedClasses:link?.className.includes('css-')};
     },layout);
     const name=layout+'-'+width+'-'+report.cases.length;
     await page.screenshot({path:path.join(output,name+'.png')});
@@ -59,23 +59,23 @@ const report={serverVersion:fixture.serverVersion,image:fixture.image,baseline,c
     const panel=await page.locator('.watchguard-page').elementHandle();
     await drawer.locator('.watchguard-nav').focus();await page.keyboard.press('Enter');await drawer.waitFor({state:'hidden'});
     assert.ok(await panel.evaluate(e=>e.isConnected));
-    await page.waitForTimeout(650);assert.equal(await page.locator('.watchguard-nav').count(),1);
+    await page.waitForTimeout(650);assert.equal(await page.locator('.watchguard-nav').count(),layout.endsWith('-legacy')?2:1);
     // Resize while open, then follow a native entry: no stale row or intercepted native navigation.
     await menu.click();await drawer.waitFor();await page.setViewportSize({width:width===390?600:390,height:900});await page.waitForTimeout(650);
-    assert.equal(await page.locator('.watchguard-nav').count(),1);
+    assert.equal(await page.locator('.watchguard-nav').count(),layout.endsWith('-legacy')?2:1);
     await drawer.locator('a[href="#/home"]').click();await drawer.waitFor({state:'hidden'});await page.locator('.watchguard-page').waitFor({state:'detached'});
     result.navigation='PASS';
    }
    // Cross the desktop breakpoint with the drawer open, then return to mobile.
    await page.setViewportSize({width:390,height:900});await menu.click();await drawer.waitFor();
    await page.setViewportSize({width:1280,height:900});await page.waitForTimeout(1100);
-   assert.equal(await page.locator('.watchguard-nav').count(),1);
+   assert.equal(await page.locator('.watchguard-nav').count(),layout.endsWith('-legacy')?2:1);
    if(await drawer.isVisible())await close();
    await page.waitForTimeout(650);
-   assert.equal(await page.locator('.watchguard-nav').count(),1);
-   assert.equal(await page.locator('.watchguard-nav').isVisible(),true);
+   assert.equal(await page.locator('.watchguard-nav').count(),layout.endsWith('-legacy')?2:1);
+   assert.equal(await page.locator('.watchguard-nav:visible').isVisible(),true);
    await page.screenshot({path:path.join(output,layout+'-desktop.png')});
-   if(!baseline){await page.locator('.watchguard-nav').click();await page.locator('.watchguard-page').waitFor();}
+   if(!baseline){await page.locator('.watchguard-nav:visible').click();await page.locator('.watchguard-page').waitFor();}
    await page.setViewportSize({width:390,height:900});
   }
   report.result=baseline?'REPRODUCED':'PASS';

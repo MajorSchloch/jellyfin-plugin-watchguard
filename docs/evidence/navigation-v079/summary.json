@@ -1,0 +1,65 @@
+{
+  "baselineCommit": "5051b00cce8b168f05e1cc1dc40163f4ca3c98ee",
+  "baselinePublishedPackageSha256": "fd4a0aba1232c4d5b57b80c336e50ed27cdd12502b31e5fd2ccc44e67aede7c3",
+  "candidatePackageSha256": "75caecd64bcd3b8137ba33e199ab04fc75c0becfd613cd8904cde95cd8239c6a",
+  "candidateRuntimeSha256": "a0a0518859cf5dfc62f83b363e124e554f68de85d8829b455076810105273eb1",
+  "localFinalShell": "PASS (8 cases)",
+  "device": "Local macOS arm64 and CI Linux amd64 Chromium 141.0.7390.37 with viewport/touch emulation; no physical-device testing",
+  "fullQualification": "PASS",
+  "testedCommit": "6ebe2517eadc9552ee3bbc3b6485629748ea2d97",
+  "runtimeCommit": "524cd3028a5857286dfacb67e112de46baa29a14",
+  "run": 40707196201,
+  "runUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40707196201",
+  "inputs": {
+    "publish": false,
+    "proxy_matrix": true
+  },
+  "successfulJobs": 20,
+  "publication": "skipped",
+  "suites": 39,
+  "primaryFixtureCommands": 54,
+  "checks": {
+    "backend": 376,
+    "javascript": 194,
+    "infrastructure": 37,
+    "catalog": 8
+  },
+  "native": {
+    "12.2": {
+      "navigation-shell": 8,
+      "drawer-browser": 12,
+      "navigation-browser": 72,
+      "startup-browser": 48,
+      "refresh": 8,
+      "startupRecovery": 14,
+      "activity": "PASS",
+      "enforcementCases": 231,
+      "nativeCatalogCases": 4
+    },
+    "12.3": {
+      "navigation-shell": 8,
+      "drawer-browser": 12,
+      "navigation-browser": 72,
+      "startup-browser": 48,
+      "refresh": 8,
+      "startupRecovery": 14,
+      "activity": "PASS",
+      "enforcementCases": 231,
+      "nativeCatalogCases": 4
+    },
+    "12.4": {
+      "navigation-shell": 8,
+      "drawer-browser": 12,
+      "navigation-browser": 72,
+      "startup-browser": 48,
+      "refresh": 8,
+      "startupRecovery": 14,
+      "activity": "PASS",
+      "enforcementCases": 231,
+      "nativeCatalogCases": 4
+    }
+  },
+  "elapsedSeconds": 1792,
+  "combinedJobExecutionSeconds": 21430,
+  "qualificationTiming": "Final successful run only; superseded run is recorded separately."
+}

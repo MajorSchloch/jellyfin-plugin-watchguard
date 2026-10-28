@@ -1,0 +1,93 @@
+{
+  "run": 40705610679,
+  "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40705610679",
+  "commit": "524cd3028a5857286dfacb67e112de46baa29a14",
+  "conclusion": "cancelled",
+  "reason": "Superseded to wait for the native drawer closing animation before keyboard-focus screenshots. Test/capture change only; candidate runtime and package are identical. No job failed before cancellation.",
+  "jobs": [
+    {
+      "name": "build",
+      "conclusion": "success"
+    },
+    {
+      "name": "Integration / 12.3 / activity-native",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.4 / activity-browser",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.2 / standalone-discovery",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.3 / verification-navigation",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.2 / activity-native",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.4 / standalone-discovery",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.3 / standalone-discovery",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.2 / verification-navigation",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.2 / migration-browser",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.4 / verification-navigation",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.3 / activity-browser",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.4 / enforcement-legacy",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.4 / activity-native",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.3 / migration-browser",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.4 / migration-browser",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.2 / activity-browser",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.2 / enforcement-legacy",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Integration / 12.3 / enforcement-legacy",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "Verify complete compatibility evidence",
+      "conclusion": "cancelled"
+    },
+    {
+      "name": "publish",
+      "conclusion": "cancelled"
+    }
+  ]
+}

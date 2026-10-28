@@ -2,6 +2,8 @@
 
 **Current release: [v0.7.8](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.8)** · Published target: **Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0 / .NET 10** · [Plugin catalog](manifest.json)
 
+**Next release preparation:** [v0.7.9 native navigation](docs/navigation-v079.md) (unpublished).
+
 Keep track of what you want to watch and see what others on your server are watching. WatchGuard adds personal watchlists, shared viewing progress and warnings before you delete something someone still wants to watch. Optional server-side protection can also block supported Jellyfin deletions until an administrator approves them.
 
 WatchGuard is a **single Jellyfin plugin** with an authenticated, standalone Web loader. No JavaScript Injector, Web-file edits, external database or companion service is required.
