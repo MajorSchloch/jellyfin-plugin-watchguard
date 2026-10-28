@@ -47,8 +47,9 @@
         const row = kind === 'modern' ? document.createElement('li') : link;
         if (row !== link) { row.className = 'watchguard-nav-row'; row.append(link); link.addEventListener('keydown', e => { if (e.key === 'Enter') e.stopPropagation(); }); }
         if (kind.startsWith('legacy')) {
-            link.className = 'watchguard-nav emby-button ' + (kind === 'legacy-tabs' ? 'button-flat watchguard-nav-tab' : 'navMenuOption watchguard-nav-legacy');
-            icon.className = 'material-icons navMenuOptionIcon bookmarks'; icon.setAttribute('aria-hidden','true');
+            link.className = kind === 'legacy-header' ? 'watchguard-nav headerButton headerButtonLeft paper-icon-button-light watchguard-nav-legacy-header' :
+                'watchguard-nav emby-button ' + (kind === 'legacy-tabs' ? 'button-flat watchguard-nav-tab' : 'navMenuOption watchguard-nav-legacy');
+            icon.className = 'material-icons bookmarks' + (kind === 'legacy-drawer' ? ' navMenuOptionIcon' : ''); icon.setAttribute('aria-hidden','true');
             text.className = kind === 'legacy-tabs' ? 'watchguard-nav-text' : 'navMenuOptionText';
             if (kind !== 'legacy-tabs') link.append(icon);
         } else {
@@ -58,7 +59,8 @@
             svg.append(path); icon.append(svg); link.append(icon);
             if (kind === 'modern') { const label = span(''); label.textContent = 'Watchlists'; text.textContent = ''; text.append(label); }
         }
-        link.append(text); const entry = {link,row,icon,text}; entries.set(kind,entry); return entry;
+        if (kind === 'legacy-header') { link.setAttribute('aria-label','Watchlists'); link.title = 'Watchlists'; } else link.append(text);
+        const entry = {link,row,icon,text}; entries.set(kind,entry); return entry;
     }
     function place(kind, native, container, anchor) {
         if (!native || !container) return;
@@ -99,11 +101,17 @@
         if (nativeRow?.parentElement?.tagName === 'UL') place('modern',drawerFavorite,nativeRow.parentElement,nativeRow);
         const legacyHeader = document.querySelector('.skinHeader'), legacy = legacyHeader?.getClientRects().length ? legacyHeader : null, tabs = /^#\/home(?:\?|$)/.test(root.location.hash) ? legacy?.querySelector('.headerTabs:not(.hide)') : null;
         place('legacy-tabs',tabs?.querySelector('.emby-tab-button[data-index="1"]'),tabs,null);
+        // Detail/library pages have no Home/Favorites tab row. Keep the existing
+        // shortcut there, using the native icon-button presentation beside Home
+        // or the drawer/back button, without relocating the Home tab anchor.
+        const detailHeader = legacy && !/^#\/home(?:\?|$)/.test(root.location.hash) ? legacy.querySelector('.headerLeft') : null;
+        const nativeHeaderButton = detailHeader && ['.headerHomeButton','.mainDrawerButton','.headerBackButton'].map(s => detailHeader.querySelector(s)).find(e => e?.getClientRects().length);
+        place('legacy-header',nativeHeaderButton,detailHeader,nativeHeaderButton);
         const home = legacy && document.querySelector('.mainDrawer .scrollContainer > a[href="#/home"]');
         place('legacy-drawer',home,home?.parentElement,home);
         // Native surfaces can disappear on responsive/layout changes. Retain the
         // owned node for the replacement surface instead of recreating it.
-        for (const [kind,{row}] of entries) if ((kind === 'header' && !favorite) || (kind === 'modern' && !nativeRow) || (kind === 'legacy-tabs' && !tabs) || (kind === 'legacy-drawer' && !home)) row.remove();
+        for (const [kind,{row}] of entries) if ((kind === 'header' && !favorite) || (kind === 'modern' && !nativeRow) || (kind === 'legacy-tabs' && !tabs) || (kind === 'legacy-drawer' && !home) || (kind === 'legacy-header' && !nativeHeaderButton)) row.remove();
     }
     const nativeSurface = 'header,.skinHeader,.mainDrawer,.MuiDrawer-root';
     const owned = e => e?.nodeType === 1 && (e.matches('.watchguard-nav,.watchguard-nav-row,#watchguard-navigation-style') || e.closest('.watchguard-nav,.watchguard-nav-row'));

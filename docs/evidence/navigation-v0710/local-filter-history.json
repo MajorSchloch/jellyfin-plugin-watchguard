@@ -1,0 +1,1899 @@
+{
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "result": "PASS",
+  "cases": [
+    {
+      "name": "auto-1280-owner",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-1280-sort",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-1280-range",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-1280-older",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-1280-status",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-1280-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 43,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-1280-rapid-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 69,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "miss",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-1280-rapid-controls",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 52,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-1280-reset",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-390-owner",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 30,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-390-sort",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-390-range",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-390-older",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-390-status",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-390-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 44,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-390-rapid-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 70,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "miss",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-390-rapid-controls",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 54,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "auto-390-reset",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-owner",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-sort",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-range",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-older",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-status",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 43,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-rapid-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 69,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "miss",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-rapid-controls",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 52,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-1280-reset",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 24,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-owner",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-sort",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-range",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-older",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 25,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-status",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 24,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 43,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-rapid-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 67,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "miss",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-rapid-controls",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 50,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-reset",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 25,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-1280-owner",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-1280-sort",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 25,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-1280-range",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-1280-older",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-1280-status",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-1280-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 43,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-1280-rapid-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 69,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "miss",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-1280-rapid-controls",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 52,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-1280-reset",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-390-owner",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 29,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-390-sort",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-390-range",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 25,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-390-older",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 25,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-390-status",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-390-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 42,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-390-rapid-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 69,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "miss",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-390-rapid-controls",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 52,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "mobile-legacy-390-reset",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-owner",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-sort",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-range",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-older",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-status",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 43,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-rapid-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 69,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "miss",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-rapid-controls",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 52,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-1280-reset",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-owner",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 29,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-sort",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-range",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-older",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-status",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 45,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-rapid-search",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 70,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "miss",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-rapid-controls",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 54,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        },
+        {
+          "search": "PoC Bulk One",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "modern-390-reset",
+      "unexpectedHits": [],
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    }
+  ],
+  "travel": [
+    "auto: Back/Forward latest filters and item details/Back",
+    "desktop-legacy: Back/Forward latest filters and item details/Back",
+    "mobile-legacy: Back/Forward latest filters and item details/Back",
+    "modern: Back/Forward latest filters and item details/Back",
+    "Back to Home / Forward to latest filters",
+    "reload",
+    "direct shared URL",
+    "item details / Back / Forward / Back",
+    "#/home?tab=1 / Back",
+    "#/ / Back"
+  ]
+}

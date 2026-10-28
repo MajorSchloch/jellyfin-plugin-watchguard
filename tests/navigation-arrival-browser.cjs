@@ -58,6 +58,19 @@ if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','
  row.selected=await link.getAttribute('aria-current');if(!baseline)assert.equal(row.selected,'page');await page.screenshot({path:path.join(out,`${layout}-${width}-selected.png`)});
  if(!mobile){for(const size of [width===390?1280:390,width]){await page.setViewportSize({width:size,height:900});await page.waitForTimeout(150);}await link.waitFor();row.sameNode=await handle.evaluate(e=>e.isConnected);if(!baseline)assert.ok(row.sameNode);}
  row.drawer=await page.evaluate(()=>({frames:wgArrival.drawerFrames,missingFrames:wgArrival.drawerMissingFrames}));if(!baseline)assert.equal(row.drawer.missingFrames,0);
+ if(!baseline&&legacy){
+  const id=fixture.items['PoC Layout Legacy'];assert.ok(id);
+  await page.goto(fixture.base+'/web/#/details?id='+id+'&serverId='+fixture.serverId);
+  await page.locator('.mainDetailButtons').filter({visible:true}).waitFor();
+  const shortcut=page.locator('.skinHeader').getByRole('link',{name:'Watchlists',exact:true});await shortcut.waitFor();
+  const detailHandle=await shortcut.elementHandle();assert.equal(await shortcut.locator('.material-icons.bookmarks').count(),1);
+  row.detailPresentation=await shortcut.evaluate(e=>{const root=e.closest('.skinHeader'),native=['.headerHomeButton','.mainDrawerButton','.headerBackButton'].map(s=>root.querySelector(s)).find(n=>n?.getClientRects().length);return {height:e.getBoundingClientRect().height,nativeHeight:native.getBoundingClientRect().height,font:getComputedStyle(e).fontSize,nativeFont:getComputedStyle(native).fontSize};});
+  assert.ok(Math.abs(row.detailPresentation.height-row.detailPresentation.nativeHeight)<1);assert.equal(row.detailPresentation.font,row.detailPresentation.nativeFont);
+  await page.keyboard.press('Tab');await shortcut.focus();assert.ok(await shortcut.evaluate(e=>e.matches(':focus-visible')&&getComputedStyle(e).outlineStyle!=='none'));
+  await page.keyboard.press('Enter');await page.locator('.watchguard-page').waitFor();await page.goBack();
+  await page.locator('.mainDetailButtons').filter({visible:true}).waitFor();await shortcut.waitFor();
+  assert.ok(await detailHandle.evaluate(e=>e.isConnected),'Legacy detail shortcut keeps identity through Watchlists and Back');row.detailWatchlistsReturn='PASS';
+ }
  if(!baseline&&layout==='modern'&&width===2048){
   // Simulate a native presentation-class revision, not another Jellyfin release.
   await native.evaluate(e=>{const style=document.createElement('style');style.id='wg-presentation-probe';style.textContent='.css-wg-presentation-probe{letter-spacing:.08em}';document.head.append(style);e.classList.add('css-wg-presentation-probe','Mui-disabled','Mui-focusVisible');e.id='native-only-probe';e.setAttribute('tabindex','-1');});
