@@ -12,7 +12,10 @@
         .watchguard-nav-row {display:flex;list-style:none;padding:0;margin:0;min-width:0}
         .watchguard-nav-modern {flex:1;min-width:0}
         .watchguard-nav-modern[aria-current="page"] {background:var(--jf-palette-action-selected,rgba(255,255,255,.16))}
+        .watchguard-nav-header-fallback {display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;border:0;background:transparent;color:inherit;cursor:pointer}
+        @media(hover:hover) {.watchguard-nav-header-fallback:hover {background:var(--jf-palette-action-hover,rgba(255,255,255,.08))}}
         .watchguard-nav-header[aria-current="page"] {color:var(--jf-palette-primary-main,#00a4dc)}
+        @media(hover:hover) {.watchguard-nav-header[aria-current="page"]:hover {background:rgba(var(--jf-palette-primary-mainChannel,0 164 220) / var(--jf-palette-action-hoverOpacity,.08))}}
         .watchguard-nav-legacy {display:flex;width:100%}
         .mainDrawer:not(.drawer-open) .watchguard-nav-legacy {visibility:hidden}
         body.watchguard-page-open .mainDrawer a[href="#/home"].navMenuOption-selected {background:transparent!important;color:inherit}
@@ -29,7 +32,7 @@
     const assign = (element, name, value) => { if (element.getAttribute(name) !== value) element.setAttribute(name, value); };
     // Only presentation classes from a verified semantic MUI slot; never clone
     // IDs, React handlers, data attributes, tabindex, transient states or ripples.
-    const presentation = source => [...source.classList].filter(c => /^(Mui|css-)/.test(c) && !/^Mui-(selected|focusVisible|disabled|active|expanded|checked|error)$/.test(c)).join(' ');
+    const presentation = source => [...source.classList].filter(c => /^(Mui|css-)/.test(c) && !/^Mui-/.test(c) && !/-loading(?:$|[A-Z])/.test(c)).join(' ');
     const classes = (element, source, own) => assign(element, 'class', own + ' ' + presentation(source));
     const span = name => { const e = document.createElement('span'); e.className = name; return e; };
     function make(kind) {
@@ -69,7 +72,25 @@
             const nativeIcon = native.querySelector(kind === 'header' ? '.MuiButton-startIcon' : '.MuiListItemIcon-root');
             const svg = nativeIcon?.querySelector('.MuiSvgIcon-root');
             if (!nativeIcon || !svg || !native.matches(kind === 'header' ? '.MuiButton-root' : '.MuiListItemButton-root')) { row.remove(); return; }
-            classes(link,native,'watchguard-nav ' + (kind === 'header' ? 'watchguard-nav-header' : 'watchguard-nav-modern'));
+            if (kind === 'header') {
+                // Native active navigation changes Button color variants AND its
+                // generated class. Never copy that route state to our inactive
+                // link. Prefer an actually rendered, neutral button of the same
+                // semantic variant; a library-free Favorites page uses a scoped
+                // theme fallback until a neutral native button is available.
+                const neutral = native.matches('.MuiButton-colorInherit') ? native :
+                    [...container.querySelectorAll('a[href^="#/"].MuiButton-text.MuiButton-sizeMedium.MuiButton-colorInherit:not(.watchguard-nav)')]
+                        .find(e => e.querySelector('.MuiButton-startIcon .MuiSvgIcon-root'));
+                if (neutral) {
+                    classes(link,neutral,'watchguard-nav watchguard-nav-header');
+                    if (link.hasAttribute('style')) link.removeAttribute('style');
+                } else {
+                    assign(link,'class','watchguard-nav watchguard-nav-header watchguard-nav-header-fallback');
+                    const style = root.getComputedStyle(native);
+                    for (const property of ['font','padding','lineHeight','letterSpacing','textTransform','borderRadius','minWidth'])
+                        if (link.style[property] !== style[property]) link.style[property] = style[property];
+                }
+            } else classes(link,native,'watchguard-nav watchguard-nav-modern');
             classes(icon,nativeIcon,'watchguard-nav-icon'); classes(icon.firstElementChild,svg,'');
             if (kind === 'modern') {
                 const nativeText = native.querySelector('.MuiListItemText-root'), primary = nativeText?.querySelector('.MuiListItemText-primary');

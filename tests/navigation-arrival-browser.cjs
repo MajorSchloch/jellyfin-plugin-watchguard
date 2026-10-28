@@ -22,7 +22,7 @@ function observe(){
 const report={version:fixture.serverVersion,image:fixture.image,baseline,device:'Chromium emulation, not physical devices',cases:[],result:'RUNNING'};
 try{await readiness.login(page,fixture);await context.addInitScript(observe);const cdp=await context.newCDPSession(page);
 if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','desktop-legacy','mobile-legacy'])for(const width of [390,1280,2048])for(const mode of ['warm','cold','slow-runtime','slow-bootstrap']){
- await page.setViewportSize({width,height:900});await page.evaluate(x=>localStorage.setItem('layout',x),layout);
+ await page.setViewportSize({width,height:900});await cdp.send('Emulation.setTouchEmulationEnabled',{enabled:width===390,maxTouchPoints:1});await page.evaluate(x=>localStorage.setItem('layout',x),layout);
  await cdp.send('Network.setCacheDisabled',{cacheDisabled:mode==='cold'});
  const delayed='**/WatchGuard/Standalone/'+(mode==='slow-bootstrap'?'bootstrap.js':'script.js');
  if(mode.startsWith('slow-'))await page.route(delayed,async r=>{await new Promise(resolve=>setTimeout(resolve,1400));await r.continue()});
@@ -38,14 +38,15 @@ if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','
 }
 report.interactions=[];
 if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','desktop-legacy','mobile-legacy'])for(const width of [390,1280,2048]){
- await page.setViewportSize({width,height:900});await page.evaluate(x=>localStorage.setItem('layout',x),layout);await page.goto('about:blank');await page.goto(fixture.base+'/web/#/home');
+ await page.setViewportSize({width,height:900});await cdp.send('Emulation.setTouchEmulationEnabled',{enabled:width===390,maxTouchPoints:1});await page.evaluate(x=>localStorage.setItem('layout',x),layout);await page.goto('about:blank');await page.goto(fixture.base+'/web/#/home');
  await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());await page.getByText('My Media',{exact:true}).filter({visible:true}).waitFor();
  const legacy=layout.endsWith('-legacy'),mobile=!legacy&&width===390;
  if(mobile)await page.getByRole('button',{name:'Open Menu',exact:true}).click();
  const surface=page.locator(mobile?'.MuiDrawer-paper':legacy?'.skinHeader':'header.MuiAppBar-root'),link=surface.locator('.watchguard-nav');await link.waitFor();
  const native=surface.locator(legacy?'.emby-tab-button[data-index="1"]':'a[href="#/home?tab=1"]');
  const styles=el=>el.evaluate(e=>Object.fromEntries(['color','backgroundColor','fontSize','fontWeight','lineHeight'].map(k=>[k,getComputedStyle(e)[k]])));
- const row={layout,width,normal:{native:await styles(native),watchguard:await styles(link)}};
+ const pointer=await page.evaluate(()=>({hover:matchMedia('(hover:hover)').matches,touch:navigator.maxTouchPoints}));assert.equal(pointer.hover,width!==390);
+ const row={layout,width,pointer,normal:{native:await styles(native),watchguard:await styles(link)}};
  await native.hover();await page.waitForTimeout(250);const nativeHover=await styles(native);
  await link.hover();await page.waitForTimeout(250);row.hover={native:nativeHover,watchguard:await styles(link)};
  if(!baseline){assert.equal(row.hover.watchguard.color,row.hover.native.color);assert.equal(row.hover.watchguard.backgroundColor,row.hover.native.backgroundColor);}
@@ -53,9 +54,35 @@ if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','
  await page.mouse.move(width-2,850);await page.keyboard.press('Tab');await link.focus();
  row.focus=await link.evaluate(e=>({visible:e.matches(':focus-visible')&&getComputedStyle(e).outlineStyle!=='none',identity:e})).then(x=>({visible:x.visible}));
  if(!baseline)assert.ok(row.focus.visible);await page.screenshot({path:path.join(out,`${layout}-${width}-focus.png`)});
+ if(!baseline&&!legacy&&!mobile){
+  const neutral=row.normal.native;
+  await native.click();await page.waitForURL(/tab=1/);await page.mouse.move(width-2,850);
+  await page.waitForFunction(()=>document.querySelector('header a[href="#/home?tab=1"]')?.classList.contains('MuiButton-colorPrimary'));
+  assert.equal(await link.getAttribute('aria-current'),'false');
+  assert.equal((await styles(link)).color,neutral.color,'Favorites selection must not color inactive Watchlists');
+  await native.evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));row.nativeSelected=await styles(native);
+  await native.hover();await native.evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));row.nativeSelectedHover=await styles(native);
+  await page.mouse.move(width-2,850);await page.keyboard.press('Tab');await native.focus();row.nativeFocused=await styles(native);
+  await page.reload();await link.waitFor();
+  assert.equal((await styles(link)).color,neutral.color,'Direct Favorites entry must not copy its active color variant');
+  if(layout==='modern'&&width===2048){
+   const before=await link.elementHandle();
+   await page.waitForFunction(()=>document.querySelector('header a.MuiButton-text.MuiButton-colorInherit:not(.watchguard-nav)'));
+   await native.evaluate(e=>{const parent=e.parentElement;window.wgNeutralPeers=[...parent.querySelectorAll('a.MuiButton-text.MuiButton-colorInherit:not(.watchguard-nav)')].map(node=>({node,next:node.nextSibling,parent}));for(const {node} of wgNeutralPeers)node.remove();});
+   await page.waitForFunction(()=>document.querySelector('header .watchguard-nav')?.classList.contains('watchguard-nav-header-fallback'));
+   assert.equal((await styles(link)).color,neutral.color);assert.ok(await before.evaluate(e=>e.isConnected));
+   await page.evaluate(()=>{for(const {node,next,parent} of wgNeutralPeers.reverse())parent.insertBefore(node,next?.isConnected?next:null);delete window.wgNeutralPeers;});
+   await page.waitForFunction(()=>!document.querySelector('header .watchguard-nav')?.classList.contains('watchguard-nav-header-fallback'));assert.ok(await before.evaluate(e=>e.isConnected));
+   row.neutralPeerAbsenceSimulation='PASS';
+  }
+  await page.keyboard.press('Tab');await link.focus();
+ }
  const handle=await link.elementHandle();await page.keyboard.press('Enter');await page.locator('.watchguard-page').waitFor();
  if(mobile){await page.locator('.MuiDrawer-paper').waitFor({state:'hidden'});await page.getByRole('button',{name:'Open Menu',exact:true}).click();await page.waitForTimeout(300);}
- row.selected=await link.getAttribute('aria-current');if(!baseline)assert.equal(row.selected,'page');await page.screenshot({path:path.join(out,`${layout}-${width}-selected.png`)});
+ row.selected=await link.getAttribute('aria-current');if(!baseline)assert.equal(row.selected,'page');if(row.nativeSelected){await link.evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));assert.equal((await styles(link)).color,row.nativeSelected.color,'Watchlists active color matches the native active button');
+  await link.hover();await link.evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));row.selectedHover=await styles(link);assert.equal(row.selectedHover.backgroundColor,row.nativeSelectedHover.backgroundColor,'Active hover uses the native primary-color opacity');
+  await page.mouse.move(width-2,850);await page.keyboard.press('Tab');await link.focus();}
+ await page.screenshot({path:path.join(out,`${layout}-${width}-selected.png`)});
  if(!mobile){for(const size of [width===390?1280:390,width]){await page.setViewportSize({width:size,height:900});await page.waitForTimeout(150);}await link.waitFor();row.sameNode=await handle.evaluate(e=>e.isConnected);if(!baseline)assert.ok(row.sameNode);}
  row.drawer=await page.evaluate(()=>({frames:wgArrival.drawerFrames,missingFrames:wgArrival.drawerMissingFrames}));if(!baseline)assert.equal(row.drawer.missingFrames,0);
  if(!baseline&&legacy){
@@ -73,11 +100,11 @@ if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','
  }
  if(!baseline&&layout==='modern'&&width===2048){
   // Simulate a native presentation-class revision, not another Jellyfin release.
-  await native.evaluate(e=>{const style=document.createElement('style');style.id='wg-presentation-probe';style.textContent='.css-wg-presentation-probe{letter-spacing:.08em}';document.head.append(style);e.classList.add('css-wg-presentation-probe','Mui-disabled','Mui-focusVisible');e.id='native-only-probe';e.setAttribute('tabindex','-1');});
+  await native.evaluate(e=>{const style=document.createElement('style');style.id='wg-presentation-probe';style.textContent='.css-wg-presentation-probe{letter-spacing:.08em}';document.head.append(style);e.classList.add('css-wg-presentation-probe','Mui-disabled','Mui-focusVisible','MuiButton-loading');e.id='native-only-probe';e.setAttribute('tabindex','-1');});
   await page.waitForFunction(()=>document.querySelector('header .watchguard-nav')?.classList.contains('css-wg-presentation-probe'));
-  assert.ok(await handle.evaluate(e=>e.isConnected&&!e.id&&!e.classList.contains('Mui-disabled')&&!e.classList.contains('Mui-focusVisible')&&e.tabIndex===0));
+  assert.ok(await handle.evaluate(e=>e.isConnected&&!e.id&&!e.classList.contains('Mui-disabled')&&!e.classList.contains('Mui-focusVisible')&&!e.classList.contains('MuiButton-loading')&&e.tabIndex===0));
   assert.equal(await link.evaluate(e=>getComputedStyle(e).letterSpacing),await native.evaluate(e=>getComputedStyle(e).letterSpacing));
-  await native.evaluate(e=>{e.classList.remove('css-wg-presentation-probe','Mui-disabled','Mui-focusVisible');e.removeAttribute('id');e.setAttribute('tabindex','0');document.getElementById('wg-presentation-probe').remove();});
+  await native.evaluate(e=>{e.classList.remove('css-wg-presentation-probe','Mui-disabled','Mui-focusVisible','MuiButton-loading');e.removeAttribute('id');e.setAttribute('tabindex','0');document.getElementById('wg-presentation-probe').remove();});
   await page.waitForFunction(()=>!document.querySelector('header .watchguard-nav')?.classList.contains('css-wg-presentation-probe'));row.presentationReconciledWithoutStateOrIdentityCopy=true;
  }
  report.interactions.push(row);
@@ -85,7 +112,7 @@ if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','
 if(!baseline){
  report.earlyEntry=[];
  for(const layout of ['auto','modern','desktop-legacy','mobile-legacy'])for(const width of [390,2048]){
-  await page.setViewportSize({width,height:900});await page.evaluate(x=>localStorage.setItem('layout',x),layout);
+  await page.setViewportSize({width,height:900});await cdp.send('Emulation.setTouchEmulationEnabled',{enabled:width===390,maxTouchPoints:1});await page.evaluate(x=>localStorage.setItem('layout',x),layout);
   let release;const gate=new Promise(resolve=>release=resolve);await page.route('**/WatchGuard/Standalone/script.js',async route=>{await gate;await route.continue()});
   try {
    await page.goto('about:blank');await page.goto(fixture.base+'/web/#/home',{waitUntil:'commit'});
@@ -98,5 +125,11 @@ if(!baseline){
   }finally{release();await page.unroute('**/WatchGuard/Standalone/script.js');}
  }
 }
-report.result=baseline?'BASELINE':'PASS';
+if(baseline){
+ assert.ok(report.cases.some(c=>c.nativeStyles&&c.styles&&c.styles.fontSize!==c.nativeStyles.fontSize),'Published Modern presentation must fail the native typography requirement');
+ assert.ok(report.cases.some(c=>c.missingFrames>0),'Published entry must miss native header frames');
+ assert.ok(report.cases.some(c=>c.movements.some(m=>Math.abs(m.dx)>1)),'Published Legacy insertion must move a neighbor');
+ report.reproduced={presentationMismatch:true,lateInsertion:true,legacyNeighborMovement:true};
+}
+report.result=baseline?'REPRODUCED':'PASS';
 }catch(e){report.result='FAIL';report.error=e.message;await page.screenshot({path:path.join(out,'failure.png')});throw e;}finally{fs.writeFileSync(path.join(out,'results.json'),JSON.stringify(report,null,2)+'\n');await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});

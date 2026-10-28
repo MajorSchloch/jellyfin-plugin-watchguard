@@ -6,6 +6,7 @@
     {
       "name": "auto-1280-owner",
       "unexpectedHits": [],
+      "frames": 99,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -13,7 +14,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 28,
+      "loadingFrames": 29,
       "historyBefore": 6,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 6,
@@ -31,6 +32,7 @@
     {
       "name": "auto-1280-sort",
       "unexpectedHits": [],
+      "frames": 97,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -56,6 +58,7 @@
     {
       "name": "auto-1280-range",
       "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -63,7 +66,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 26,
+      "loadingFrames": 27,
       "historyBefore": 6,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 6,
@@ -81,6 +84,7 @@
     {
       "name": "auto-1280-older",
       "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -88,7 +92,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 26,
+      "loadingFrames": 27,
       "historyBefore": 6,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 6,
@@ -106,6 +110,7 @@
     {
       "name": "auto-1280-status",
       "unexpectedHits": [],
+      "frames": 99,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -131,6 +136,7 @@
     {
       "name": "auto-1280-search",
       "unexpectedHits": [],
+      "frames": 113,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -156,6 +162,7 @@
     {
       "name": "auto-1280-rapid-search",
       "unexpectedHits": [],
+      "frames": 140,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -186,6 +193,7 @@
     {
       "name": "auto-1280-rapid-controls",
       "unexpectedHits": [],
+      "frames": 122,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -216,6 +224,7 @@
     {
       "name": "auto-1280-reset",
       "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -241,6 +250,7 @@
     {
       "name": "auto-390-owner",
       "unexpectedHits": [],
+      "frames": 101,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -248,7 +258,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 30,
+      "loadingFrames": 29,
       "historyBefore": 6,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 6,
@@ -266,6 +276,7 @@
     {
       "name": "auto-390-sort",
       "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -291,6 +302,7 @@
     {
       "name": "auto-390-range",
       "unexpectedHits": [],
+      "frames": 101,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -316,31 +328,7 @@
     {
       "name": "auto-390-older",
       "unexpectedHits": [],
-      "homeExposures": 0,
-      "overlays": 0,
-      "panelReplacements": 0,
-      "focusLosses": 0,
-      "closedDisclosures": 0,
-      "hashEvents": 0,
-      "popEvents": 0,
-      "loadingFrames": 28,
-      "historyBefore": 6,
-      "stateBefore": "{\"idx\":0}",
-      "historyAfter": 6,
-      "stateAfter": "{\"idx\":0}",
-      "nativeRoutes": 0,
-      "requests": [
-        {
-          "search": "",
-          "continuation": false,
-          "check": false
-        }
-      ],
-      "maxConcurrentQueries": 1
-    },
-    {
-      "name": "auto-390-status",
-      "unexpectedHits": [],
+      "frames": 104,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -364,8 +352,35 @@
       "maxConcurrentQueries": 1
     },
     {
+      "name": "auto-390-status",
+      "unexpectedHits": [],
+      "frames": 101,
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 27,
+      "historyBefore": 6,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 6,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
       "name": "auto-390-search",
       "unexpectedHits": [],
+      "frames": 116,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -391,6 +406,7 @@
     {
       "name": "auto-390-rapid-search",
       "unexpectedHits": [],
+      "frames": 145,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -398,7 +414,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 70,
+      "loadingFrames": 71,
       "historyBefore": 6,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 6,
@@ -421,6 +437,7 @@
     {
       "name": "auto-390-rapid-controls",
       "unexpectedHits": [],
+      "frames": 127,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -451,6 +468,7 @@
     {
       "name": "auto-390-reset",
       "unexpectedHits": [],
+      "frames": 103,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -458,7 +476,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 26,
+      "loadingFrames": 27,
       "historyBefore": 6,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 6,
@@ -476,6 +494,7 @@
     {
       "name": "desktop-legacy-1280-owner",
       "unexpectedHits": [],
+      "frames": 97,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -483,7 +502,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 28,
+      "loadingFrames": 27,
       "historyBefore": 8,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 8,
@@ -501,6 +520,7 @@
     {
       "name": "desktop-legacy-1280-sort",
       "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -526,6 +546,7 @@
     {
       "name": "desktop-legacy-1280-range",
       "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -533,7 +554,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 27,
+      "loadingFrames": 26,
       "historyBefore": 8,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 8,
@@ -551,6 +572,7 @@
     {
       "name": "desktop-legacy-1280-older",
       "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -576,6 +598,7 @@
     {
       "name": "desktop-legacy-1280-status",
       "unexpectedHits": [],
+      "frames": 99,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -601,6 +624,7 @@
     {
       "name": "desktop-legacy-1280-search",
       "unexpectedHits": [],
+      "frames": 113,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -626,6 +650,7 @@
     {
       "name": "desktop-legacy-1280-rapid-search",
       "unexpectedHits": [],
+      "frames": 139,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -656,6 +681,7 @@
     {
       "name": "desktop-legacy-1280-rapid-controls",
       "unexpectedHits": [],
+      "frames": 121,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -663,7 +689,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 52,
+      "loadingFrames": 51,
       "historyBefore": 8,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 8,
@@ -686,6 +712,7 @@
     {
       "name": "desktop-legacy-1280-reset",
       "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -693,7 +720,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 24,
+      "loadingFrames": 26,
       "historyBefore": 8,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 8,
@@ -711,6 +738,33 @@
     {
       "name": "desktop-legacy-390-owner",
       "unexpectedHits": [],
+      "frames": 99,
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 29,
+      "historyBefore": 8,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 8,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
+      "name": "desktop-legacy-390-sort",
+      "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -734,33 +788,9 @@
       "maxConcurrentQueries": 1
     },
     {
-      "name": "desktop-legacy-390-sort",
-      "unexpectedHits": [],
-      "homeExposures": 0,
-      "overlays": 0,
-      "panelReplacements": 0,
-      "focusLosses": 0,
-      "closedDisclosures": 0,
-      "hashEvents": 0,
-      "popEvents": 0,
-      "loadingFrames": 26,
-      "historyBefore": 8,
-      "stateBefore": "{\"idx\":0}",
-      "historyAfter": 8,
-      "stateAfter": "{\"idx\":0}",
-      "nativeRoutes": 0,
-      "requests": [
-        {
-          "search": "",
-          "continuation": false,
-          "check": false
-        }
-      ],
-      "maxConcurrentQueries": 1
-    },
-    {
       "name": "desktop-legacy-390-range",
       "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -768,7 +798,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 26,
+      "loadingFrames": 27,
       "historyBefore": 8,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 8,
@@ -786,6 +816,7 @@
     {
       "name": "desktop-legacy-390-older",
       "unexpectedHits": [],
+      "frames": 101,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -793,7 +824,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 25,
+      "loadingFrames": 27,
       "historyBefore": 8,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 8,
@@ -811,6 +842,7 @@
     {
       "name": "desktop-legacy-390-status",
       "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -818,7 +850,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 24,
+      "loadingFrames": 27,
       "historyBefore": 8,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 8,
@@ -836,6 +868,7 @@
     {
       "name": "desktop-legacy-390-search",
       "unexpectedHits": [],
+      "frames": 114,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -861,6 +894,7 @@
     {
       "name": "desktop-legacy-390-rapid-search",
       "unexpectedHits": [],
+      "frames": 139,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -868,7 +902,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 67,
+      "loadingFrames": 69,
       "historyBefore": 8,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 8,
@@ -891,6 +925,7 @@
     {
       "name": "desktop-legacy-390-rapid-controls",
       "unexpectedHits": [],
+      "frames": 123,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -898,7 +933,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 50,
+      "loadingFrames": 53,
       "historyBefore": 8,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 8,
@@ -921,6 +956,7 @@
     {
       "name": "desktop-legacy-390-reset",
       "unexpectedHits": [],
+      "frames": 99,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -946,6 +982,7 @@
     {
       "name": "mobile-legacy-1280-owner",
       "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -953,7 +990,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 27,
+      "loadingFrames": 28,
       "historyBefore": 10,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 10,
@@ -971,31 +1008,7 @@
     {
       "name": "mobile-legacy-1280-sort",
       "unexpectedHits": [],
-      "homeExposures": 0,
-      "overlays": 0,
-      "panelReplacements": 0,
-      "focusLosses": 0,
-      "closedDisclosures": 0,
-      "hashEvents": 0,
-      "popEvents": 0,
-      "loadingFrames": 25,
-      "historyBefore": 10,
-      "stateBefore": "{\"idx\":0}",
-      "historyAfter": 10,
-      "stateAfter": "{\"idx\":0}",
-      "nativeRoutes": 0,
-      "requests": [
-        {
-          "search": "",
-          "continuation": false,
-          "check": false
-        }
-      ],
-      "maxConcurrentQueries": 1
-    },
-    {
-      "name": "mobile-legacy-1280-range",
-      "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1019,8 +1032,35 @@
       "maxConcurrentQueries": 1
     },
     {
+      "name": "mobile-legacy-1280-range",
+      "unexpectedHits": [],
+      "frames": 96,
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 10,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 10,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
       "name": "mobile-legacy-1280-older",
       "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1046,6 +1086,7 @@
     {
       "name": "mobile-legacy-1280-status",
       "unexpectedHits": [],
+      "frames": 99,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1071,6 +1112,7 @@
     {
       "name": "mobile-legacy-1280-search",
       "unexpectedHits": [],
+      "frames": 114,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1096,6 +1138,7 @@
     {
       "name": "mobile-legacy-1280-rapid-search",
       "unexpectedHits": [],
+      "frames": 139,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1103,7 +1146,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 69,
+      "loadingFrames": 68,
       "historyBefore": 10,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 10,
@@ -1126,6 +1169,7 @@
     {
       "name": "mobile-legacy-1280-rapid-controls",
       "unexpectedHits": [],
+      "frames": 122,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1156,6 +1200,7 @@
     {
       "name": "mobile-legacy-1280-reset",
       "unexpectedHits": [],
+      "frames": 101,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1181,6 +1226,7 @@
     {
       "name": "mobile-legacy-390-owner",
       "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1206,6 +1252,7 @@
     {
       "name": "mobile-legacy-390-sort",
       "unexpectedHits": [],
+      "frames": 97,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1213,7 +1260,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 26,
+      "loadingFrames": 27,
       "historyBefore": 10,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 10,
@@ -1231,6 +1278,7 @@
     {
       "name": "mobile-legacy-390-range",
       "unexpectedHits": [],
+      "frames": 97,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1238,7 +1286,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 25,
+      "loadingFrames": 27,
       "historyBefore": 10,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 10,
@@ -1256,6 +1304,7 @@
     {
       "name": "mobile-legacy-390-older",
       "unexpectedHits": [],
+      "frames": 101,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1263,7 +1312,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 25,
+      "loadingFrames": 27,
       "historyBefore": 10,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 10,
@@ -1281,6 +1330,7 @@
     {
       "name": "mobile-legacy-390-status",
       "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1288,7 +1338,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 26,
+      "loadingFrames": 27,
       "historyBefore": 10,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 10,
@@ -1306,6 +1356,7 @@
     {
       "name": "mobile-legacy-390-search",
       "unexpectedHits": [],
+      "frames": 113,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1313,7 +1364,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 42,
+      "loadingFrames": 43,
       "historyBefore": 10,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 10,
@@ -1331,6 +1382,7 @@
     {
       "name": "mobile-legacy-390-rapid-search",
       "unexpectedHits": [],
+      "frames": 140,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1361,6 +1413,7 @@
     {
       "name": "mobile-legacy-390-rapid-controls",
       "unexpectedHits": [],
+      "frames": 123,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1368,7 +1421,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 52,
+      "loadingFrames": 53,
       "historyBefore": 10,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 10,
@@ -1391,6 +1444,7 @@
     {
       "name": "mobile-legacy-390-reset",
       "unexpectedHits": [],
+      "frames": 102,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1416,6 +1470,7 @@
     {
       "name": "modern-1280-owner",
       "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1441,31 +1496,7 @@
     {
       "name": "modern-1280-sort",
       "unexpectedHits": [],
-      "homeExposures": 0,
-      "overlays": 0,
-      "panelReplacements": 0,
-      "focusLosses": 0,
-      "closedDisclosures": 0,
-      "hashEvents": 0,
-      "popEvents": 0,
-      "loadingFrames": 26,
-      "historyBefore": 12,
-      "stateBefore": "{\"idx\":0}",
-      "historyAfter": 12,
-      "stateAfter": "{\"idx\":0}",
-      "nativeRoutes": 0,
-      "requests": [
-        {
-          "search": "",
-          "continuation": false,
-          "check": false
-        }
-      ],
-      "maxConcurrentQueries": 1
-    },
-    {
-      "name": "modern-1280-range",
-      "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1489,8 +1520,35 @@
       "maxConcurrentQueries": 1
     },
     {
+      "name": "modern-1280-range",
+      "unexpectedHits": [],
+      "frames": 98,
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 26,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
       "name": "modern-1280-older",
       "unexpectedHits": [],
+      "frames": 99,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1516,6 +1574,7 @@
     {
       "name": "modern-1280-status",
       "unexpectedHits": [],
+      "frames": 98,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1541,6 +1600,7 @@
     {
       "name": "modern-1280-search",
       "unexpectedHits": [],
+      "frames": 113,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1548,7 +1608,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 43,
+      "loadingFrames": 42,
       "historyBefore": 12,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 12,
@@ -1566,6 +1626,7 @@
     {
       "name": "modern-1280-rapid-search",
       "unexpectedHits": [],
+      "frames": 138,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1573,7 +1634,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 69,
+      "loadingFrames": 68,
       "historyBefore": 12,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 12,
@@ -1596,6 +1657,7 @@
     {
       "name": "modern-1280-rapid-controls",
       "unexpectedHits": [],
+      "frames": 122,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1626,6 +1688,7 @@
     {
       "name": "modern-1280-reset",
       "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1651,6 +1714,7 @@
     {
       "name": "modern-390-owner",
       "unexpectedHits": [],
+      "frames": 102,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1658,7 +1722,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 29,
+      "loadingFrames": 30,
       "historyBefore": 12,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 12,
@@ -1676,31 +1740,7 @@
     {
       "name": "modern-390-sort",
       "unexpectedHits": [],
-      "homeExposures": 0,
-      "overlays": 0,
-      "panelReplacements": 0,
-      "focusLosses": 0,
-      "closedDisclosures": 0,
-      "hashEvents": 0,
-      "popEvents": 0,
-      "loadingFrames": 28,
-      "historyBefore": 12,
-      "stateBefore": "{\"idx\":0}",
-      "historyAfter": 12,
-      "stateAfter": "{\"idx\":0}",
-      "nativeRoutes": 0,
-      "requests": [
-        {
-          "search": "",
-          "continuation": false,
-          "check": false
-        }
-      ],
-      "maxConcurrentQueries": 1
-    },
-    {
-      "name": "modern-390-range",
-      "unexpectedHits": [],
+      "frames": 100,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1724,8 +1764,35 @@
       "maxConcurrentQueries": 1
     },
     {
+      "name": "modern-390-range",
+      "unexpectedHits": [],
+      "frames": 101,
+      "homeExposures": 0,
+      "overlays": 0,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "closedDisclosures": 0,
+      "hashEvents": 0,
+      "popEvents": 0,
+      "loadingFrames": 28,
+      "historyBefore": 12,
+      "stateBefore": "{\"idx\":0}",
+      "historyAfter": 12,
+      "stateAfter": "{\"idx\":0}",
+      "nativeRoutes": 0,
+      "requests": [
+        {
+          "search": "",
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "maxConcurrentQueries": 1
+    },
+    {
       "name": "modern-390-older",
       "unexpectedHits": [],
+      "frames": 104,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1751,6 +1818,7 @@
     {
       "name": "modern-390-status",
       "unexpectedHits": [],
+      "frames": 104,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1758,7 +1826,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 28,
+      "loadingFrames": 27,
       "historyBefore": 12,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 12,
@@ -1776,6 +1844,7 @@
     {
       "name": "modern-390-search",
       "unexpectedHits": [],
+      "frames": 116,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1783,7 +1852,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 45,
+      "loadingFrames": 44,
       "historyBefore": 12,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 12,
@@ -1801,6 +1870,7 @@
     {
       "name": "modern-390-rapid-search",
       "unexpectedHits": [],
+      "frames": 145,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1808,7 +1878,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 70,
+      "loadingFrames": 71,
       "historyBefore": 12,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 12,
@@ -1831,6 +1901,7 @@
     {
       "name": "modern-390-rapid-controls",
       "unexpectedHits": [],
+      "frames": 125,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1838,7 +1909,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 54,
+      "loadingFrames": 53,
       "historyBefore": 12,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 12,
@@ -1861,6 +1932,7 @@
     {
       "name": "modern-390-reset",
       "unexpectedHits": [],
+      "frames": 103,
       "homeExposures": 0,
       "overlays": 0,
       "panelReplacements": 0,
@@ -1868,7 +1940,7 @@
       "closedDisclosures": 0,
       "hashEvents": 0,
       "popEvents": 0,
-      "loadingFrames": 28,
+      "loadingFrames": 26,
       "historyBefore": 12,
       "stateBefore": "{\"idx\":0}",
       "historyAfter": 12,
