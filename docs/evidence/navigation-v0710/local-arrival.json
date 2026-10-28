@@ -8,8 +8,8 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 215.19999998807907,
-      "firstRuntime": 265.2999999821186,
+      "firstAuth": 225.09999999403954,
+      "firstRuntime": 307.30000001192093,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -25,8 +25,8 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 217.69999998807907,
-      "firstRuntime": 273.90000000596046,
+      "firstAuth": 216.90000000596046,
+      "firstRuntime": 268.7000000178814,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -42,8 +42,8 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 232.69999998807907,
-      "firstRuntime": 1691.2999999821186,
+      "firstAuth": 279.2999999821186,
+      "firstRuntime": 1721.7999999821186,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -59,8 +59,8 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 271.7999999821186,
-      "firstRuntime": 1475.699999988079,
+      "firstAuth": 267.09999999403954,
+      "firstRuntime": 1455.9000000059605,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -74,10 +74,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 270.59999999403954,
-      "firstEntry": 270.59999999403954,
-      "firstAuth": 245.2999999821186,
-      "firstRuntime": 313.89999997615814,
+      "firstNative": 253.59999999403954,
+      "firstEntry": 253.59999999403954,
+      "firstAuth": 234.80000001192093,
+      "firstRuntime": 288.90000000596046,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -115,10 +115,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 275.2000000178814,
-      "firstEntry": 275.2000000178814,
-      "firstAuth": 246.90000000596046,
-      "firstRuntime": 303.5,
+      "firstNative": 234.80000001192093,
+      "firstEntry": 234.80000001192093,
+      "firstAuth": 209.30000001192093,
+      "firstRuntime": 261.5,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -156,10 +156,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 309.5,
-      "firstEntry": 309.5,
-      "firstAuth": 278.7999999821186,
-      "firstRuntime": 1744.7999999821186,
+      "firstNative": 266.7999999821186,
+      "firstEntry": 266.7999999821186,
+      "firstAuth": 242.59999999403954,
+      "firstRuntime": 1676.199999988079,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -197,10 +197,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 291.09999999403954,
-      "firstEntry": 291.09999999403954,
-      "firstAuth": 268.7999999821186,
-      "firstRuntime": 1485.4000000059605,
+      "firstNative": 262.5,
+      "firstEntry": 262.5,
+      "firstAuth": 244.2999999821186,
+      "firstRuntime": 1452.199999988079,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -238,10 +238,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 248.2000000178814,
-      "firstEntry": 248.2000000178814,
-      "firstAuth": 220.5,
-      "firstRuntime": 290.7000000178814,
+      "firstNative": 243.59999999403954,
+      "firstEntry": 243.59999999403954,
+      "firstAuth": 214.69999998807907,
+      "firstRuntime": 281.90000000596046,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -279,10 +279,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 233.09999999403954,
-      "firstEntry": 233.09999999403954,
-      "firstAuth": 233.09999999403954,
-      "firstRuntime": 257.80000001192093,
+      "firstNative": 235.40000000596046,
+      "firstEntry": 235.40000000596046,
+      "firstAuth": 213.09999999403954,
+      "firstRuntime": 268.7000000178814,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -320,10 +320,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 262,
-      "firstEntry": 262,
-      "firstAuth": 242.2000000178814,
-      "firstRuntime": 1693.2000000178814,
+      "firstNative": 311.19999998807907,
+      "firstEntry": 311.19999998807907,
+      "firstAuth": 287.5,
+      "firstRuntime": 1757.5,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -361,10 +361,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 294.5,
-      "firstEntry": 294.5,
-      "firstAuth": 273.80000001192093,
-      "firstRuntime": 1474.4000000059605,
+      "firstNative": 294.90000000596046,
+      "firstEntry": 294.90000000596046,
+      "firstAuth": 274.59999999403954,
+      "firstRuntime": 1461.800000011921,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -404,8 +404,8 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 230.80000001192093,
-      "firstRuntime": 299.40000000596046,
+      "firstAuth": 213.40000000596046,
+      "firstRuntime": 281.10000002384186,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -421,8 +421,8 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 234.2999999821186,
-      "firstRuntime": 309.59999999403954,
+      "firstAuth": 218.69999998807907,
+      "firstRuntime": 285.19999998807907,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -438,8 +438,8 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 269,
-      "firstRuntime": 1710.699999988079,
+      "firstAuth": 290.30000001192093,
+      "firstRuntime": 1725.9000000059605,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -455,8 +455,8 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 267.40000000596046,
-      "firstRuntime": 1487.2000000178814,
+      "firstAuth": 259.7000000178814,
+      "firstRuntime": 1476.800000011921,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -470,10 +470,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 261,
-      "firstEntry": 261,
-      "firstAuth": 237.69999998807907,
-      "firstRuntime": 294.39999997615814,
+      "firstNative": 255.2999999821186,
+      "firstEntry": 255.2999999821186,
+      "firstAuth": 207.69999998807907,
+      "firstRuntime": 276,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -511,10 +511,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 266.09999999403954,
-      "firstEntry": 266.09999999403954,
-      "firstAuth": 242.59999999403954,
-      "firstRuntime": 293.09999999403954,
+      "firstNative": 252.09999999403954,
+      "firstEntry": 252.09999999403954,
+      "firstAuth": 222.19999998807907,
+      "firstRuntime": 289.2999999821186,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -552,10 +552,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 257.2000000178814,
-      "firstEntry": 257.2000000178814,
-      "firstAuth": 257.2000000178814,
-      "firstRuntime": 1678.7000000178814,
+      "firstNative": 315.80000001192093,
+      "firstEntry": 315.80000001192093,
+      "firstAuth": 292.30000001192093,
+      "firstRuntime": 1742.300000011921,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -593,10 +593,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 262.69999998807907,
-      "firstEntry": 262.69999998807907,
-      "firstAuth": 241.59999999403954,
-      "firstRuntime": 1458.2999999821186,
+      "firstNative": 278.90000000596046,
+      "firstEntry": 278.90000000596046,
+      "firstAuth": 257.59999999403954,
+      "firstRuntime": 1464.300000011921,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -634,10 +634,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 229.7000000178814,
-      "firstEntry": 229.7000000178814,
-      "firstAuth": 207.7000000178814,
-      "firstRuntime": 258.5,
+      "firstNative": 266.90000000596046,
+      "firstEntry": 266.90000000596046,
+      "firstAuth": 235,
+      "firstRuntime": 306.09999999403954,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -675,10 +675,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 242.59999999403954,
-      "firstEntry": 242.59999999403954,
-      "firstAuth": 219.59999999403954,
-      "firstRuntime": 270.5,
+      "firstNative": 271.59999999403954,
+      "firstEntry": 271.59999999403954,
+      "firstAuth": 253,
+      "firstRuntime": 303.30000001192093,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -716,10 +716,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 270.30000001192093,
-      "firstEntry": 270.30000001192093,
-      "firstAuth": 270.30000001192093,
-      "firstRuntime": 1682.800000011921,
+      "firstNative": 273.2999999821186,
+      "firstEntry": 273.2999999821186,
+      "firstAuth": 251.69999998807907,
+      "firstRuntime": 1701.699999988079,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -757,10 +757,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 285.2999999821186,
-      "firstEntry": 285.2999999821186,
-      "firstAuth": 263.2999999821186,
-      "firstRuntime": 1479.9000000059605,
+      "firstNative": 271.19999998807907,
+      "firstEntry": 271.19999998807907,
+      "firstAuth": 248.19999998807907,
+      "firstRuntime": 1448.0999999940395,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -798,10 +798,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 234.40000000596046,
-      "firstEntry": 234.40000000596046,
-      "firstAuth": 206.80000001192093,
-      "firstRuntime": 256.80000001192093,
+      "firstNative": 270.09999999403954,
+      "firstEntry": 270.09999999403954,
+      "firstAuth": 220.5,
+      "firstRuntime": 290.5,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -839,10 +839,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 209.40000000596046,
-      "firstEntry": 209.40000000596046,
-      "firstAuth": 186.80000001192093,
-      "firstRuntime": 224.30000001192093,
+      "firstNative": 233.5,
+      "firstEntry": 233.5,
+      "firstAuth": 216.69999998807907,
+      "firstRuntime": 250.19999998807907,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -880,10 +880,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 249.09999999403954,
-      "firstEntry": 249.09999999403954,
-      "firstAuth": 215.40000000596046,
-      "firstRuntime": 1681.5,
+      "firstNative": 300.10000002384186,
+      "firstEntry": 300.10000002384186,
+      "firstAuth": 261.30000001192093,
+      "firstRuntime": 1711.2000000178814,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -921,10 +921,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 251.59999999403954,
-      "firstEntry": 251.59999999403954,
-      "firstAuth": 233.5,
-      "firstRuntime": 1467.5,
+      "firstNative": 290.2000000178814,
+      "firstEntry": 290.2000000178814,
+      "firstAuth": 257,
+      "firstRuntime": 1460,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -962,10 +962,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 224.5,
-      "firstEntry": 224.5,
-      "firstAuth": 202.5,
-      "firstRuntime": 256.40000000596046,
+      "firstNative": 243.5,
+      "firstEntry": 243.5,
+      "firstAuth": 201.5,
+      "firstRuntime": 258.90000000596046,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1003,10 +1003,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 233.59999999403954,
-      "firstEntry": 233.59999999403954,
-      "firstAuth": 233.59999999403954,
-      "firstRuntime": 256.40000000596046,
+      "firstNative": 227.10000002384186,
+      "firstEntry": 227.10000002384186,
+      "firstAuth": 201.5,
+      "firstRuntime": 252.30000001192093,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1044,10 +1044,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 259.40000000596046,
-      "firstEntry": 259.40000000596046,
-      "firstAuth": 240.09999999403954,
-      "firstRuntime": 1673.800000011921,
+      "firstNative": 247.40000000596046,
+      "firstEntry": 247.40000000596046,
+      "firstAuth": 222.90000000596046,
+      "firstRuntime": 1656.5999999940395,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1085,10 +1085,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 262.09999999403954,
-      "firstEntry": 262.09999999403954,
-      "firstAuth": 241.09999999403954,
-      "firstRuntime": 1457.800000011921,
+      "firstNative": 279.69999998807907,
+      "firstEntry": 279.69999998807907,
+      "firstAuth": 255.09999999403954,
+      "firstRuntime": 1471.800000011921,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1126,10 +1126,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 227.7999999821186,
-      "firstEntry": 227.7999999821186,
-      "firstAuth": 189.7999999821186,
-      "firstRuntime": 244.5,
+      "firstNative": 236.69999998807907,
+      "firstEntry": 236.69999998807907,
+      "firstAuth": 214.5,
+      "firstRuntime": 264.69999998807907,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1167,10 +1167,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 227.80000001192093,
-      "firstEntry": 227.80000001192093,
-      "firstAuth": 227.80000001192093,
-      "firstRuntime": 251.80000001192093,
+      "firstNative": 210.5,
+      "firstEntry": 210.5,
+      "firstAuth": 185,
+      "firstRuntime": 234.40000000596046,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1208,10 +1208,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 258.59999999403954,
-      "firstEntry": 258.59999999403954,
-      "firstAuth": 232.7000000178814,
-      "firstRuntime": 1666.0999999940395,
+      "firstNative": 251.09999999403954,
+      "firstEntry": 251.09999999403954,
+      "firstAuth": 231.7999999821186,
+      "firstRuntime": 1667,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1249,10 +1249,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 292.7999999821186,
-      "firstEntry": 292.7999999821186,
-      "firstAuth": 257,
-      "firstRuntime": 1455.5,
+      "firstNative": 272.7000000178814,
+      "firstEntry": 272.7000000178814,
+      "firstAuth": 239.09999999403954,
+      "firstRuntime": 1488.5,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1290,10 +1290,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 227.19999998807907,
-      "firstEntry": 227.19999998807907,
-      "firstAuth": 205.59999999403954,
-      "firstRuntime": 238.90000000596046,
+      "firstNative": 205.7000000178814,
+      "firstEntry": 205.7000000178814,
+      "firstAuth": 184,
+      "firstRuntime": 217.09999999403954,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1331,10 +1331,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 233.19999998807907,
-      "firstEntry": 233.19999998807907,
-      "firstAuth": 195.19999998807907,
-      "firstRuntime": 251.2999999821186,
+      "firstNative": 259.59999999403954,
+      "firstEntry": 259.59999999403954,
+      "firstAuth": 212.5,
+      "firstRuntime": 285.69999998807907,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1372,10 +1372,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 251,
-      "firstEntry": 251,
-      "firstAuth": 217,
-      "firstRuntime": 1668.199999988079,
+      "firstNative": 243,
+      "firstEntry": 243,
+      "firstAuth": 226.09999999403954,
+      "firstRuntime": 1665.9000000059605,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1413,10 +1413,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 267.40000000596046,
-      "firstEntry": 267.40000000596046,
-      "firstAuth": 245.90000000596046,
-      "firstRuntime": 1468.9000000059605,
+      "firstNative": 272.2000000178814,
+      "firstEntry": 272.2000000178814,
+      "firstAuth": 239,
+      "firstRuntime": 1482.800000011921,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1454,10 +1454,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 229.19999998807907,
-      "firstEntry": 229.19999998807907,
-      "firstAuth": 213.69999998807907,
-      "firstRuntime": 250.2999999821186,
+      "firstNative": 249.2000000178814,
+      "firstEntry": 249.2000000178814,
+      "firstAuth": 198.80000001192093,
+      "firstRuntime": 273.09999999403954,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1495,10 +1495,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 215.19999998807907,
-      "firstEntry": 215.19999998807907,
-      "firstAuth": 192.59999999403954,
-      "firstRuntime": 227.2999999821186,
+      "firstNative": 230.7999999821186,
+      "firstEntry": 230.7999999821186,
+      "firstAuth": 207.59999999403954,
+      "firstRuntime": 245.2999999821186,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1536,10 +1536,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 258,
-      "firstEntry": 258,
-      "firstAuth": 237.59999999403954,
-      "firstRuntime": 1676.9000000059605,
+      "firstNative": 253.69999998807907,
+      "firstEntry": 253.69999998807907,
+      "firstAuth": 233.69999998807907,
+      "firstRuntime": 1667.300000011921,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1577,10 +1577,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 244.19999998807907,
-      "firstEntry": 244.19999998807907,
-      "firstAuth": 223.80000001192093,
-      "firstRuntime": 1457.5,
+      "firstNative": 247.09999999403954,
+      "firstEntry": 247.09999999403954,
+      "firstAuth": 225.19999998807907,
+      "firstRuntime": 1467.800000011921,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1618,10 +1618,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 247.2999999821186,
-      "firstEntry": 247.2999999821186,
-      "firstAuth": 210,
-      "firstRuntime": 264.09999999403954,
+      "firstNative": 206.89999997615814,
+      "firstEntry": 206.89999997615814,
+      "firstAuth": 187.69999998807907,
+      "firstRuntime": 221.5,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1659,10 +1659,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 224.09999999403954,
-      "firstEntry": 224.09999999403954,
-      "firstAuth": 203.7999999821186,
-      "firstRuntime": 234.69999998807907,
+      "firstNative": 237.09999999403954,
+      "firstEntry": 237.09999999403954,
+      "firstAuth": 217.89999997615814,
+      "firstRuntime": 253.09999999403954,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1700,10 +1700,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 241.90000000596046,
-      "firstEntry": 241.90000000596046,
+      "firstNative": 258.19999998807907,
+      "firstEntry": 258.19999998807907,
       "firstAuth": 218.19999998807907,
-      "firstRuntime": 1652.0999999940395,
+      "firstRuntime": 1684.9000000059605,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1741,10 +1741,10 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 246.5,
-      "firstEntry": 246.5,
-      "firstAuth": 213.60000002384186,
-      "firstRuntime": 1462.7000000178814,
+      "firstNative": 277.2999999821186,
+      "firstEntry": 277.2999999821186,
+      "firstAuth": 254.59999999403954,
+      "firstRuntime": 1471.9000000059605,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
@@ -1786,6 +1786,10 @@
     {
       "layout": "auto",
       "width": 390,
+      "pointer": {
+        "hover": false,
+        "touch": 1
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -1823,13 +1827,17 @@
       },
       "selected": "page",
       "drawer": {
-        "frames": 94,
+        "frames": 89,
         "missingFrames": 0
       }
     },
     {
       "layout": "auto",
       "width": 1280,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -1849,14 +1857,14 @@
       "hover": {
         "native": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
         },
         "watchguard": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
@@ -1865,7 +1873,35 @@
       "focus": {
         "visible": true
       },
+      "nativeSelected": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
+      "nativeSelectedHover": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
+      "nativeFocused": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
       "selected": "page",
+      "selectedHover": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
       "sameNode": true,
       "drawer": {
         "frames": 0,
@@ -1875,6 +1911,10 @@
     {
       "layout": "auto",
       "width": 2048,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -1894,14 +1934,14 @@
       "hover": {
         "native": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
         },
         "watchguard": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
@@ -1910,7 +1950,35 @@
       "focus": {
         "visible": true
       },
+      "nativeSelected": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
+      "nativeSelectedHover": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
+      "nativeFocused": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
       "selected": "page",
+      "selectedHover": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
       "sameNode": true,
       "drawer": {
         "frames": 0,
@@ -1920,6 +1988,10 @@
     {
       "layout": "modern",
       "width": 390,
+      "pointer": {
+        "hover": false,
+        "touch": 1
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -1964,6 +2036,10 @@
     {
       "layout": "modern",
       "width": 1280,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -1983,14 +2059,14 @@
       "hover": {
         "native": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
         },
         "watchguard": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
@@ -1999,7 +2075,35 @@
       "focus": {
         "visible": true
       },
+      "nativeSelected": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
+      "nativeSelectedHover": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
+      "nativeFocused": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
       "selected": "page",
+      "selectedHover": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
       "sameNode": true,
       "drawer": {
         "frames": 0,
@@ -2009,6 +2113,10 @@
     {
       "layout": "modern",
       "width": 2048,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -2028,14 +2136,14 @@
       "hover": {
         "native": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
         },
         "watchguard": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
@@ -2044,7 +2152,36 @@
       "focus": {
         "visible": true
       },
+      "nativeSelected": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
+      "nativeSelectedHover": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
+      "nativeFocused": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
+      "neutralPeerAbsenceSimulation": "PASS",
       "selected": "page",
+      "selectedHover": {
+        "color": "rgb(0, 164, 220)",
+        "backgroundColor": "rgba(0, 164, 220, 0.08)",
+        "fontSize": "13.02px",
+        "fontWeight": "500",
+        "lineHeight": "22.785px"
+      },
       "sameNode": true,
       "drawer": {
         "frames": 0,
@@ -2055,6 +2192,10 @@
     {
       "layout": "desktop-legacy",
       "width": 390,
+      "pointer": {
+        "hover": false,
+        "touch": 1
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -2107,6 +2248,10 @@
     {
       "layout": "desktop-legacy",
       "width": 1280,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -2159,6 +2304,10 @@
     {
       "layout": "desktop-legacy",
       "width": 2048,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -2211,6 +2360,10 @@
     {
       "layout": "mobile-legacy",
       "width": 390,
+      "pointer": {
+        "hover": false,
+        "touch": 1
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -2263,6 +2416,10 @@
     {
       "layout": "mobile-legacy",
       "width": 1280,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -2315,6 +2472,10 @@
     {
       "layout": "mobile-legacy",
       "width": 2048,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -2406,5 +2567,7 @@
       "width": 2048,
       "homeExposure": 0
     }
-  ]
+  ],
+  "runtimeCommit": "1a9b4e746bc2871928c6cce91900c1a6b9e6b857",
+  "packageSha256": "fd4e0301c312406e4ada3301e64bcb504aa29fd16c80157beb735b5ddc2b0681"
 }

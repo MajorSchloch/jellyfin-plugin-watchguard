@@ -18,11 +18,18 @@ function observe(){
  requestAnimationFrame(frame);
  }requestAnimationFrame(frame);
 }
-(async()=>{const browser=await chromium.launch();const context=await browser.newContext({viewport:{width:1280,height:900},hasTouch:true,ignoreHTTPSErrors:fixture.tls===true,locale:'en-US'}),page=await context.newPage();page.setDefaultTimeout(20000);
+(async()=>{const browser=await chromium.launch();const context=await browser.newContext({viewport:{width:1280,height:900},hasTouch:false,ignoreHTTPSErrors:fixture.tls===true,locale:'en-US'});let page=await context.newPage();page.setDefaultTimeout(20000);
 const report={version:fixture.serverVersion,image:fixture.image,baseline,device:'Chromium emulation, not physical devices',cases:[],result:'RUNNING'};
-try{await readiness.login(page,fixture);await context.addInitScript(observe);const cdp=await context.newCDPSession(page);
+try{await readiness.login(page,fixture);await context.addInitScript(observe);let cdp=await context.newCDPSession(page);
+// Touch-to-mouse CDP toggling does not restore hover on Linux Chromium. Keep
+// distinct native input contexts so desktop assertions cannot silently run as
+// touch comparisons. Both use the same authenticated fixture and locked browser.
+const desktop={page,cdp},touchContext=await browser.newContext({viewport:{width:390,height:900},hasTouch:true,ignoreHTTPSErrors:fixture.tls===true,locale:'en-US',storageState:await context.storageState()});
+await touchContext.addInitScript(observe);const touchPage=await touchContext.newPage();touchPage.setDefaultTimeout(20000);await touchPage.goto(fixture.base+'/web/#/home');await touchPage.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
+const touch={page:touchPage,cdp:await touchContext.newCDPSession(touchPage)};
+const inputWidth=async width=>{const selected=width===390?touch:desktop;page=selected.page;cdp=selected.cdp;await page.bringToFront();await page.setViewportSize({width,height:900});};
 if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','desktop-legacy','mobile-legacy'])for(const width of [390,1280,2048])for(const mode of ['warm','cold','slow-runtime','slow-bootstrap']){
- await page.setViewportSize({width,height:900});await cdp.send('Emulation.setTouchEmulationEnabled',{enabled:width===390,maxTouchPoints:1});await page.evaluate(x=>localStorage.setItem('layout',x),layout);
+ await inputWidth(width);await page.evaluate(x=>localStorage.setItem('layout',x),layout);
  await cdp.send('Network.setCacheDisabled',{cacheDisabled:mode==='cold'});
  const delayed='**/WatchGuard/Standalone/'+(mode==='slow-bootstrap'?'bootstrap.js':'script.js');
  if(mode.startsWith('slow-'))await page.route(delayed,async r=>{await new Promise(resolve=>setTimeout(resolve,1400));await r.continue()});
@@ -38,7 +45,7 @@ if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','
 }
 report.interactions=[];
 if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','desktop-legacy','mobile-legacy'])for(const width of [390,1280,2048]){
- await page.setViewportSize({width,height:900});await cdp.send('Emulation.setTouchEmulationEnabled',{enabled:width===390,maxTouchPoints:1});await page.evaluate(x=>localStorage.setItem('layout',x),layout);await page.goto('about:blank');await page.goto(fixture.base+'/web/#/home');
+ await inputWidth(width);await page.evaluate(x=>localStorage.setItem('layout',x),layout);await page.goto('about:blank');await page.goto(fixture.base+'/web/#/home');
  await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());await page.getByText('My Media',{exact:true}).filter({visible:true}).waitFor();
  const legacy=layout.endsWith('-legacy'),mobile=!legacy&&width===390;
  if(mobile)await page.getByRole('button',{name:'Open Menu',exact:true}).click();
@@ -112,7 +119,7 @@ if(!process.argv.includes('--early-only'))for(const layout of ['auto','modern','
 if(!baseline){
  report.earlyEntry=[];
  for(const layout of ['auto','modern','desktop-legacy','mobile-legacy'])for(const width of [390,2048]){
-  await page.setViewportSize({width,height:900});await cdp.send('Emulation.setTouchEmulationEnabled',{enabled:width===390,maxTouchPoints:1});await page.evaluate(x=>localStorage.setItem('layout',x),layout);
+  await inputWidth(width);await page.evaluate(x=>localStorage.setItem('layout',x),layout);
   let release;const gate=new Promise(resolve=>release=resolve);await page.route('**/WatchGuard/Standalone/script.js',async route=>{await gate;await route.continue()});
   try {
    await page.goto('about:blank');await page.goto(fixture.base+'/web/#/home',{waitUntil:'commit'});

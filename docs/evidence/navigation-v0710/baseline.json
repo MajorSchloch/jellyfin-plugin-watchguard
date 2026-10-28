@@ -8,13 +8,15 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 220.80000001192093,
-      "firstRuntime": 276.30000001192093,
+      "firstAuth": 226.80000001192093,
+      "firstRuntime": 277.40000000596046,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": null,
       "styles": null,
       "name": "auto-390-warm"
@@ -23,13 +25,15 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 222.5,
-      "firstRuntime": 257.5,
+      "firstAuth": 218,
+      "firstRuntime": 269.39999997615814,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": null,
       "styles": null,
       "name": "auto-390-cold"
@@ -38,13 +42,15 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 232.7000000178814,
-      "firstRuntime": 1682.7000000178814,
+      "firstAuth": 266.19999998807907,
+      "firstRuntime": 1704.199999988079,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": null,
       "styles": null,
       "name": "auto-390-slow-runtime"
@@ -53,31 +59,33 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 265.40000000596046,
-      "firstRuntime": 1448.699999988079,
+      "firstAuth": 249.40000000596046,
+      "firstRuntime": 1474,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": null,
       "styles": null,
       "name": "auto-390-slow-bootstrap"
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 229.69999998807907,
-      "firstEntry": 263.40000000596046,
-      "firstAuth": 208.09999999403954,
-      "firstRuntime": 263.40000000596046,
+      "firstNative": 254.90000000596046,
+      "firstEntry": 291.09999999403954,
+      "firstAuth": 233.2999999821186,
+      "firstRuntime": 291.09999999403954,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 248.5,
+            "t": 275.40000000596046,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -85,15 +93,15 @@
             "link": null
           },
           "after": {
-            "t": 263.40000000596046,
+            "t": 291.09999999403954,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 502.546875,
+              "x": 498.578125,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -105,6 +113,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -135,18 +145,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 258.10000002384186,
-      "firstEntry": 287.40000000596046,
-      "firstAuth": 237.10000002384186,
-      "firstRuntime": 287.40000000596046,
+      "firstNative": 245,
+      "firstEntry": 274.7000000178814,
+      "firstAuth": 223.40000000596046,
+      "firstRuntime": 274.7000000178814,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 274.60000002384186,
+            "t": 260.90000000596046,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -154,15 +164,15 @@
             "link": null
           },
           "after": {
-            "t": 287.40000000596046,
+            "t": 274.7000000178814,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 502.546875,
+              "x": 498.578125,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -174,6 +184,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -204,18 +216,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 264.2000000178814,
-      "firstEntry": 1693.300000011921,
-      "firstAuth": 264.2000000178814,
-      "firstRuntime": 1693.300000011921,
-      "missingFrames": 86,
+      "firstNative": 277.39999997615814,
+      "firstEntry": 1724.8999999761581,
+      "firstAuth": 256.59999999403954,
+      "firstRuntime": 1724.8999999761581,
+      "missingFrames": 87,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1673.6000000238419,
+            "t": 1706.699999988079,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -223,15 +235,15 @@
             "link": null
           },
           "after": {
-            "t": 1693.300000011921,
+            "t": 1724.8999999761581,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 502.546875,
+              "x": 498.578125,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -243,6 +255,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -273,18 +287,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 251.80000001192093,
-      "firstEntry": 1469,
-      "firstAuth": 251.80000001192093,
-      "firstRuntime": 1469,
-      "missingFrames": 73,
+      "firstNative": 294.80000001192093,
+      "firstEntry": 1474.800000011921,
+      "firstAuth": 270.30000001192093,
+      "firstRuntime": 1474.800000011921,
+      "missingFrames": 71,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1444.9000000059605,
+            "t": 1454.300000011921,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -292,15 +306,15 @@
             "link": null
           },
           "after": {
-            "t": 1469,
+            "t": 1474.800000011921,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 502.546875,
+              "x": 498.578125,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -312,6 +326,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -342,18 +358,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 253.39999997615814,
-      "firstEntry": 273.39999997615814,
-      "firstAuth": 221.89999997615814,
-      "firstRuntime": 273.39999997615814,
+      "firstNative": 245.80000001192093,
+      "firstEntry": 267.19999998807907,
+      "firstAuth": 217.09999999403954,
+      "firstRuntime": 267.19999998807907,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 257.5,
+            "t": 250.69999998807907,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -361,15 +377,15 @@
             "link": null
           },
           "after": {
-            "t": 273.39999997615814,
+            "t": 267.19999998807907,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 527.890625,
+              "x": 523.921875,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -381,6 +397,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -411,18 +429,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 249.5,
-      "firstEntry": 292.09999999403954,
-      "firstAuth": 223.7000000178814,
-      "firstRuntime": 292.09999999403954,
-      "missingFrames": 3,
+      "firstNative": 268.59999999403954,
+      "firstEntry": 288.19999998807907,
+      "firstAuth": 245.59999999403954,
+      "firstRuntime": 288.19999998807907,
+      "missingFrames": 1,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 279.40000000596046,
+            "t": 268.59999999403954,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -430,15 +448,15 @@
             "link": null
           },
           "after": {
-            "t": 292.09999999403954,
+            "t": 288.19999998807907,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 527.890625,
+              "x": 523.921875,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -450,6 +468,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -480,18 +500,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 260.09999999403954,
-      "firstEntry": 1706,
-      "firstAuth": 237.09999999403954,
-      "firstRuntime": 1706,
+      "firstNative": 359.39999997615814,
+      "firstEntry": 1808.2999999821186,
+      "firstAuth": 341.69999998807907,
+      "firstRuntime": 1808.2999999821186,
       "missingFrames": 87,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1687.2000000178814,
+            "t": 1791.199999988079,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -499,15 +519,15 @@
             "link": null
           },
           "after": {
-            "t": 1706,
+            "t": 1808.2999999821186,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 527.890625,
+              "x": 523.921875,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -519,6 +539,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -549,18 +571,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 262,
-      "firstEntry": 1473.2999999821186,
-      "firstAuth": 239.89999997615814,
-      "firstRuntime": 1473.2999999821186,
-      "missingFrames": 73,
+      "firstNative": 328.89999997615814,
+      "firstEntry": 1474.199999988079,
+      "firstAuth": 307.09999999403954,
+      "firstRuntime": 1474.199999988079,
+      "missingFrames": 69,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1456.699999988079,
+            "t": 1457.699999988079,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -568,15 +590,15 @@
             "link": null
           },
           "after": {
-            "t": 1473.2999999821186,
+            "t": 1474.199999988079,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 527.890625,
+              "x": 523.921875,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -588,6 +610,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -620,13 +644,15 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 215.90000000596046,
-      "firstRuntime": 266.2000000178814,
+      "firstAuth": 198.09999999403954,
+      "firstRuntime": 265.69999998807907,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": null,
       "styles": null,
       "name": "modern-390-warm"
@@ -635,13 +661,15 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 221.40000000596046,
-      "firstRuntime": 276.30000001192093,
+      "firstAuth": 216.60000002384186,
+      "firstRuntime": 270.5,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": null,
       "styles": null,
       "name": "modern-390-cold"
@@ -650,13 +678,15 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 240.5,
-      "firstRuntime": 1711.0999999940395,
+      "firstAuth": 305.5,
+      "firstRuntime": 1758.9000000059605,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": null,
       "styles": null,
       "name": "modern-390-slow-runtime"
@@ -665,31 +695,33 @@
       "beforeBootstrap": true,
       "firstNative": null,
       "firstEntry": null,
-      "firstAuth": 238.19999998807907,
-      "firstRuntime": 1454.699999988079,
+      "firstAuth": 234.90000000596046,
+      "firstRuntime": 1472,
       "missingFrames": 0,
       "replacements": 0,
       "movements": [],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": null,
       "styles": null,
       "name": "modern-390-slow-bootstrap"
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 239.59999999403954,
-      "firstEntry": 270.90000000596046,
-      "firstAuth": 214.80000001192093,
-      "firstRuntime": 270.90000000596046,
+      "firstNative": 255.60000002384186,
+      "firstEntry": 288.30000001192093,
+      "firstAuth": 211.5,
+      "firstRuntime": 288.30000001192093,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 257.7000000178814,
+            "t": 264.5,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -697,15 +729,15 @@
             "link": null
           },
           "after": {
-            "t": 270.90000000596046,
+            "t": 288.30000001192093,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 502.546875,
+              "x": 498.578125,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -717,6 +749,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -747,18 +781,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 260.30000001192093,
-      "firstEntry": 293.5,
-      "firstAuth": 243.09999999403954,
-      "firstRuntime": 293.5,
+      "firstNative": 239.40000000596046,
+      "firstEntry": 273.09999999403954,
+      "firstAuth": 221.90000000596046,
+      "firstRuntime": 273.09999999403954,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 283.59999999403954,
+            "t": 260.30000001192093,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -766,15 +800,15 @@
             "link": null
           },
           "after": {
-            "t": 293.5,
+            "t": 273.09999999403954,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 502.546875,
+              "x": 498.578125,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -786,6 +820,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -816,18 +852,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 281.80000001192093,
-      "firstEntry": 1727.4000000059605,
-      "firstAuth": 260.7000000178814,
-      "firstRuntime": 1727.4000000059605,
-      "missingFrames": 87,
+      "firstNative": 322.5,
+      "firstEntry": 1750.7000000178814,
+      "firstAuth": 301.2000000178814,
+      "firstRuntime": 1750.7000000178814,
+      "missingFrames": 86,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1710.800000011921,
+            "t": 1734.7000000178814,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -835,15 +871,15 @@
             "link": null
           },
           "after": {
-            "t": 1727.4000000059605,
+            "t": 1750.7000000178814,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 502.546875,
+              "x": 498.578125,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -855,6 +891,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -885,18 +923,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 267.40000000596046,
-      "firstEntry": 1471.2999999821186,
-      "firstAuth": 229.09999999403954,
-      "firstRuntime": 1471.2999999821186,
-      "missingFrames": 72,
+      "firstNative": 319.69999998807907,
+      "firstEntry": 1466.800000011921,
+      "firstAuth": 301,
+      "firstRuntime": 1466.800000011921,
+      "missingFrames": 69,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1445.4000000059605,
+            "t": 1450.5999999940395,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -904,15 +942,15 @@
             "link": null
           },
           "after": {
-            "t": 1471.2999999821186,
+            "t": 1466.800000011921,
             "native": {
-              "x": 202.1875,
+              "x": 198.21875,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 502.546875,
+              "x": 498.578125,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -924,6 +962,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -954,18 +994,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 230.2000000178814,
-      "firstEntry": 260.40000000596046,
-      "firstAuth": 206.7000000178814,
-      "firstRuntime": 260.40000000596046,
+      "firstNative": 250.40000000596046,
+      "firstEntry": 287.2000000178814,
+      "firstAuth": 231.60000002384186,
+      "firstRuntime": 287.2000000178814,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 247.40000000596046,
+            "t": 271.7000000178814,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -973,15 +1013,15 @@
             "link": null
           },
           "after": {
-            "t": 260.40000000596046,
+            "t": 287.2000000178814,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 527.890625,
+              "x": 523.921875,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -993,6 +1033,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -1023,18 +1065,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 243.90000000596046,
-      "firstEntry": 275.10000002384186,
-      "firstAuth": 224.80000001192093,
-      "firstRuntime": 275.10000002384186,
+      "firstNative": 264.5,
+      "firstEntry": 295.5,
+      "firstAuth": 243.09999999403954,
+      "firstRuntime": 295.5,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 265.10000002384186,
+            "t": 281.19999998807907,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -1042,15 +1084,15 @@
             "link": null
           },
           "after": {
-            "t": 275.10000002384186,
+            "t": 295.5,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 527.890625,
+              "x": 523.921875,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -1062,6 +1104,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -1092,18 +1136,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 264.80000001192093,
-      "firstEntry": 1708.5,
-      "firstAuth": 247.40000000596046,
-      "firstRuntime": 1708.5,
-      "missingFrames": 86,
+      "firstNative": 312.30000001192093,
+      "firstEntry": 1760.800000011921,
+      "firstAuth": 293.69999998807907,
+      "firstRuntime": 1760.800000011921,
+      "missingFrames": 87,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1680.800000011921,
+            "t": 1745,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -1111,15 +1155,15 @@
             "link": null
           },
           "after": {
-            "t": 1708.5,
+            "t": 1760.800000011921,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 527.890625,
+              "x": 523.921875,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -1131,6 +1175,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -1161,18 +1207,18 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 265.5,
-      "firstEntry": 1468.5999999940395,
-      "firstAuth": 246.40000000596046,
-      "firstRuntime": 1468.5999999940395,
-      "missingFrames": 72,
+      "firstNative": 304.30000001192093,
+      "firstEntry": 1474.2000000178814,
+      "firstAuth": 287.30000001192093,
+      "firstRuntime": 1474.2000000178814,
+      "missingFrames": 70,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1446.4000000059605,
+            "t": 1453.800000011921,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
@@ -1180,15 +1226,15 @@
             "link": null
           },
           "after": {
-            "t": 1468.5999999940395,
+            "t": 1474.2000000178814,
             "native": {
-              "x": 227.53125,
+              "x": 223.5625,
               "y": 2.25,
               "w": 95.578125,
               "h": 43.5
             },
             "link": {
-              "x": 527.890625,
+              "x": 523.921875,
               "y": 2.25,
               "w": 121.71875,
               "h": 43.5
@@ -1200,6 +1246,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "13.02px",
         "fontFamily": "\"Noto Sans\", sans-serif",
@@ -1230,16 +1278,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 221.40000000596046,
-      "firstEntry": 239.90000000596046,
-      "firstAuth": 199.40000000596046,
-      "firstRuntime": 239.90000000596046,
+      "firstNative": 237.69999998807907,
+      "firstEntry": 255.2999999821186,
+      "firstAuth": 201.89999997615814,
+      "firstRuntime": 255.2999999821186,
       "missingFrames": 1,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 221.40000000596046,
+            "t": 237.69999998807907,
             "native": {
               "x": 184.6875,
               "y": 57.578125,
@@ -1249,7 +1297,7 @@
             "link": null
           },
           "after": {
-            "t": 239.90000000596046,
+            "t": 255.2999999821186,
             "native": {
               "x": 133.875,
               "y": 57.578125,
@@ -1269,6 +1317,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.4248px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1299,16 +1349,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 221.19999998807907,
-      "firstEntry": 235.5,
-      "firstAuth": 184.2999999821186,
-      "firstRuntime": 235.5,
+      "firstNative": 275.39999997615814,
+      "firstEntry": 287.19999998807907,
+      "firstAuth": 254.2999999821186,
+      "firstRuntime": 287.19999998807907,
       "missingFrames": 1,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 221.19999998807907,
+            "t": 275.39999997615814,
             "native": {
               "x": 184.6875,
               "y": 57.578125,
@@ -1318,7 +1368,7 @@
             "link": null
           },
           "after": {
-            "t": 235.5,
+            "t": 287.19999998807907,
             "native": {
               "x": 133.875,
               "y": 57.578125,
@@ -1338,6 +1388,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.4248px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1368,16 +1420,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 269.60000002384186,
-      "firstEntry": 1707.800000011921,
-      "firstAuth": 232.30000001192093,
-      "firstRuntime": 1707.800000011921,
-      "missingFrames": 86,
+      "firstNative": 333.59999999403954,
+      "firstEntry": 1747.699999988079,
+      "firstAuth": 309.40000000596046,
+      "firstRuntime": 1747.699999988079,
+      "missingFrames": 85,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1682.4000000059605,
+            "t": 1726,
             "native": {
               "x": 184.6875,
               "y": 57.578125,
@@ -1387,7 +1439,7 @@
             "link": null
           },
           "after": {
-            "t": 1707.800000011921,
+            "t": 1747.699999988079,
             "native": {
               "x": 133.875,
               "y": 57.578125,
@@ -1407,6 +1459,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.4248px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1437,16 +1491,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 247.5,
-      "firstEntry": 1447.0999999940395,
-      "firstAuth": 212.5,
-      "firstRuntime": 1447.0999999940395,
+      "firstNative": 263.80000001192093,
+      "firstEntry": 1468.5999999940395,
+      "firstAuth": 247.09999999403954,
+      "firstRuntime": 1468.5999999940395,
       "missingFrames": 72,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1429.300000011921,
+            "t": 1447.199999988079,
             "native": {
               "x": 184.6875,
               "y": 57.578125,
@@ -1456,7 +1510,7 @@
             "link": null
           },
           "after": {
-            "t": 1447.0999999940395,
+            "t": 1468.5999999940395,
             "native": {
               "x": 133.875,
               "y": 57.578125,
@@ -1476,6 +1530,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.4248px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1506,16 +1562,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 212.40000000596046,
-      "firstEntry": 241.40000000596046,
-      "firstAuth": 190.90000000596046,
-      "firstRuntime": 241.40000000596046,
+      "firstNative": 246.90000000596046,
+      "firstEntry": 272.80000001192093,
+      "firstAuth": 204.59999999403954,
+      "firstRuntime": 272.80000001192093,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 224.80000001192093,
+            "t": 253,
             "native": {
               "x": 629.6875,
               "y": 57.578125,
@@ -1525,7 +1581,7 @@
             "link": null
           },
           "after": {
-            "t": 241.40000000596046,
+            "t": 272.80000001192093,
             "native": {
               "x": 578.875,
               "y": 57.578125,
@@ -1545,6 +1601,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.4248px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1575,16 +1633,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 217,
-      "firstEntry": 228.5,
-      "firstAuth": 195.30000001192093,
-      "firstRuntime": 228.5,
-      "missingFrames": 1,
+      "firstNative": 270.40000000596046,
+      "firstEntry": 310.30000001192093,
+      "firstAuth": 237.10000002384186,
+      "firstRuntime": 310.30000001192093,
+      "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 217,
+            "t": 294.80000001192093,
             "native": {
               "x": 629.6875,
               "y": 57.578125,
@@ -1594,7 +1652,7 @@
             "link": null
           },
           "after": {
-            "t": 228.5,
+            "t": 310.30000001192093,
             "native": {
               "x": 578.875,
               "y": 57.578125,
@@ -1614,6 +1672,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.4248px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1644,16 +1704,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 256.80000001192093,
-      "firstEntry": 1690.1000000238419,
-      "firstAuth": 232.5,
-      "firstRuntime": 1690.1000000238419,
+      "firstNative": 273.2999999821186,
+      "firstEntry": 1709.199999988079,
+      "firstAuth": 256.59999999403954,
+      "firstRuntime": 1709.199999988079,
       "missingFrames": 86,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1666,
+            "t": 1690,
             "native": {
               "x": 629.6875,
               "y": 57.578125,
@@ -1663,7 +1723,7 @@
             "link": null
           },
           "after": {
-            "t": 1690.1000000238419,
+            "t": 1709.199999988079,
             "native": {
               "x": 578.875,
               "y": 57.578125,
@@ -1683,6 +1743,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.4248px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1713,16 +1775,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 248.09999999403954,
-      "firstEntry": 1482.4000000059605,
-      "firstAuth": 231.5,
-      "firstRuntime": 1482.4000000059605,
-      "missingFrames": 74,
+      "firstNative": 341.09999999403954,
+      "firstEntry": 1502.5,
+      "firstAuth": 301.19999998807907,
+      "firstRuntime": 1502.5,
+      "missingFrames": 70,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1464.9000000059605,
+            "t": 1484.5,
             "native": {
               "x": 629.6875,
               "y": 57.578125,
@@ -1732,7 +1794,7 @@
             "link": null
           },
           "after": {
-            "t": 1482.4000000059605,
+            "t": 1502.5,
             "native": {
               "x": 578.875,
               "y": 57.578125,
@@ -1752,6 +1814,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.4248px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1782,16 +1846,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 240.09999999403954,
-      "firstEntry": 258.40000000596046,
-      "firstAuth": 217.80000001192093,
-      "firstRuntime": 258.40000000596046,
-      "missingFrames": 1,
+      "firstNative": 249.90000000596046,
+      "firstEntry": 278.2999999821186,
+      "firstAuth": 207,
+      "firstRuntime": 278.2999999821186,
+      "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 240.09999999403954,
+            "t": 256.7999999821186,
             "native": {
               "x": 1011.640625,
               "y": 1.1875,
@@ -1801,7 +1865,7 @@
             "link": null
           },
           "after": {
-            "t": 258.40000000596046,
+            "t": 278.2999999821186,
             "native": {
               "x": 950.78125,
               "y": 1.1875,
@@ -1821,6 +1885,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "14.88px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1851,16 +1917,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 263.2000000178814,
-      "firstEntry": 286.40000000596046,
-      "firstAuth": 216.5,
-      "firstRuntime": 286.40000000596046,
+      "firstNative": 242.09999999403954,
+      "firstEntry": 278.90000000596046,
+      "firstAuth": 225,
+      "firstRuntime": 278.90000000596046,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 272.10000002384186,
+            "t": 262.5,
             "native": {
               "x": 1011.640625,
               "y": 1.1875,
@@ -1870,7 +1936,7 @@
             "link": null
           },
           "after": {
-            "t": 286.40000000596046,
+            "t": 278.90000000596046,
             "native": {
               "x": 950.78125,
               "y": 1.1875,
@@ -1890,6 +1956,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "14.88px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1920,16 +1988,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 272.7000000178814,
-      "firstEntry": 1690,
-      "firstAuth": 234,
-      "firstRuntime": 1690,
-      "missingFrames": 85,
+      "firstNative": 304.89999997615814,
+      "firstEntry": 1755.2999999821186,
+      "firstAuth": 288.19999998807907,
+      "firstRuntime": 1755.2999999821186,
+      "missingFrames": 87,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1668.2000000178814,
+            "t": 1738.2999999821186,
             "native": {
               "x": 1011.640625,
               "y": 1.1875,
@@ -1939,7 +2007,7 @@
             "link": null
           },
           "after": {
-            "t": 1690,
+            "t": 1755.2999999821186,
             "native": {
               "x": 950.78125,
               "y": 1.1875,
@@ -1959,6 +2027,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "14.88px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -1989,16 +2059,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 246.80000001192093,
-      "firstEntry": 1462.9000000059605,
-      "firstAuth": 228.40000000596046,
-      "firstRuntime": 1462.9000000059605,
-      "missingFrames": 73,
+      "firstNative": 288.7999999821186,
+      "firstEntry": 1467.9000000059605,
+      "firstAuth": 266.2999999821186,
+      "firstRuntime": 1467.9000000059605,
+      "missingFrames": 71,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1444.9000000059605,
+            "t": 1449.2999999821186,
             "native": {
               "x": 1011.640625,
               "y": 1.1875,
@@ -2008,7 +2078,7 @@
             "link": null
           },
           "after": {
-            "t": 1462.9000000059605,
+            "t": 1467.9000000059605,
             "native": {
               "x": 950.78125,
               "y": 1.1875,
@@ -2028,6 +2098,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "14.88px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2058,16 +2130,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 218.30000001192093,
-      "firstEntry": 250.30000001192093,
-      "firstAuth": 202.30000001192093,
-      "firstRuntime": 250.30000001192093,
+      "firstNative": 225,
+      "firstEntry": 252.09999999403954,
+      "firstAuth": 201.59999999403954,
+      "firstRuntime": 252.09999999403954,
       "missingFrames": 2,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 235.59999999403954,
+            "t": 235.5,
             "native": {
               "x": 185.015625,
               "y": 55.71875,
@@ -2077,7 +2149,7 @@
             "link": null
           },
           "after": {
-            "t": 250.30000001192093,
+            "t": 252.09999999403954,
             "native": {
               "x": 135.84375,
               "y": 55.71875,
@@ -2097,6 +2169,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.024px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2127,26 +2201,26 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 227.90000000596046,
-      "firstEntry": 265.40000000596046,
-      "firstAuth": 210.2000000178814,
-      "firstRuntime": 265.40000000596046,
-      "missingFrames": 2,
+      "firstNative": 228.5,
+      "firstEntry": 250.39999997615814,
+      "firstAuth": 211.5,
+      "firstRuntime": 250.39999997615814,
+      "missingFrames": 1,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 244,
+            "t": 228.5,
             "native": {
-              "x": 185.015625,
+              "x": 184.96875,
               "y": 55.71875,
-              "w": 91.640625,
+              "w": 89.515625,
               "h": 51.09375
             },
             "link": null
           },
           "after": {
-            "t": 265.40000000596046,
+            "t": 250.39999997615814,
             "native": {
               "x": 135.84375,
               "y": 55.71875,
@@ -2160,12 +2234,14 @@
               "h": 51.09375
             }
           },
-          "dx": -49.171875,
+          "dx": -49.125,
           "dy": 0
         }
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.024px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2196,16 +2272,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 262,
-      "firstEntry": 1701.5999999940395,
-      "firstAuth": 224.09999999403954,
-      "firstRuntime": 1701.5999999940395,
-      "missingFrames": 86,
+      "firstNative": 251.80000001192093,
+      "firstEntry": 1667.5,
+      "firstAuth": 233.10000002384186,
+      "firstRuntime": 1667.5,
+      "missingFrames": 85,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1674,
+            "t": 1649.800000011921,
             "native": {
               "x": 185.015625,
               "y": 55.71875,
@@ -2215,7 +2291,7 @@
             "link": null
           },
           "after": {
-            "t": 1701.5999999940395,
+            "t": 1667.5,
             "native": {
               "x": 135.84375,
               "y": 55.71875,
@@ -2235,6 +2311,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.024px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2265,16 +2343,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 258.39999997615814,
-      "firstEntry": 1482.7999999821186,
-      "firstAuth": 223.39999997615814,
-      "firstRuntime": 1482.7999999821186,
-      "missingFrames": 73,
+      "firstNative": 251.90000000596046,
+      "firstEntry": 1450.300000011921,
+      "firstAuth": 217.5,
+      "firstRuntime": 1450.300000011921,
+      "missingFrames": 72,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1457.2999999821186,
+            "t": 1433.0999999940395,
             "native": {
               "x": 185.015625,
               "y": 55.71875,
@@ -2284,7 +2362,7 @@
             "link": null
           },
           "after": {
-            "t": 1482.7999999821186,
+            "t": 1450.300000011921,
             "native": {
               "x": 135.84375,
               "y": 55.71875,
@@ -2304,6 +2382,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.024px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2334,16 +2414,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 206.90000000596046,
-      "firstEntry": 226.69999998807907,
-      "firstAuth": 189.69999998807907,
-      "firstRuntime": 226.69999998807907,
+      "firstNative": 210.59999999403954,
+      "firstEntry": 224.69999998807907,
+      "firstAuth": 189.90000000596046,
+      "firstRuntime": 224.69999998807907,
       "missingFrames": 1,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 206.90000000596046,
+            "t": 210.59999999403954,
             "native": {
               "x": 630.015625,
               "y": 55.71875,
@@ -2353,7 +2433,7 @@
             "link": null
           },
           "after": {
-            "t": 226.69999998807907,
+            "t": 224.69999998807907,
             "native": {
               "x": 580.84375,
               "y": 55.71875,
@@ -2373,6 +2453,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.024px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2403,16 +2485,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 240.69999998807907,
-      "firstEntry": 263.59999999403954,
-      "firstAuth": 213.40000000596046,
-      "firstRuntime": 263.59999999403954,
-      "missingFrames": 2,
+      "firstNative": 235.60000002384186,
+      "firstEntry": 249.30000001192093,
+      "firstAuth": 209.30000001192093,
+      "firstRuntime": 249.30000001192093,
+      "missingFrames": 1,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 248.19999998807907,
+            "t": 235.60000002384186,
             "native": {
               "x": 630.015625,
               "y": 55.71875,
@@ -2422,7 +2504,7 @@
             "link": null
           },
           "after": {
-            "t": 263.59999999403954,
+            "t": 249.30000001192093,
             "native": {
               "x": 580.84375,
               "y": 55.71875,
@@ -2442,6 +2524,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.024px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2472,16 +2556,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 248.59999999403954,
-      "firstEntry": 1692,
-      "firstAuth": 231.69999998807907,
-      "firstRuntime": 1692,
+      "firstNative": 248.09999999403954,
+      "firstEntry": 1681.7999999821186,
+      "firstAuth": 232.2999999821186,
+      "firstRuntime": 1681.7999999821186,
       "missingFrames": 86,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1665.9000000059605,
+            "t": 1665.8999999761581,
             "native": {
               "x": 630.015625,
               "y": 55.71875,
@@ -2491,7 +2575,7 @@
             "link": null
           },
           "after": {
-            "t": 1692,
+            "t": 1681.7999999821186,
             "native": {
               "x": 580.84375,
               "y": 55.71875,
@@ -2511,6 +2595,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.024px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2541,16 +2627,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 263.19999998807907,
-      "firstEntry": 1486.2999999821186,
-      "firstAuth": 242.7999999821186,
-      "firstRuntime": 1486.2999999821186,
-      "missingFrames": 73,
+      "firstNative": 254,
+      "firstEntry": 1453,
+      "firstAuth": 235.30000001192093,
+      "firstRuntime": 1453,
+      "missingFrames": 72,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1458.4000000059605,
+            "t": 1435.4000000059605,
             "native": {
               "x": 630.015625,
               "y": 55.71875,
@@ -2560,7 +2646,7 @@
             "link": null
           },
           "after": {
-            "t": 1486.2999999821186,
+            "t": 1453,
             "native": {
               "x": 580.84375,
               "y": 55.71875,
@@ -2580,6 +2666,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "12.024px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2610,16 +2698,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 210.5,
-      "firstEntry": 243.59999999403954,
-      "firstAuth": 192.59999999403954,
-      "firstRuntime": 243.59999999403954,
-      "missingFrames": 2,
+      "firstNative": 223.5,
+      "firstEntry": 239.5,
+      "firstAuth": 188.7000000178814,
+      "firstRuntime": 239.5,
+      "missingFrames": 1,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 228.09999999403954,
+            "t": 223.5,
             "native": {
               "x": 1012.03125,
               "y": 1.171875,
@@ -2629,7 +2717,7 @@
             "link": null
           },
           "after": {
-            "t": 243.59999999403954,
+            "t": 239.5,
             "native": {
               "x": 953.140625,
               "y": 1.171875,
@@ -2649,6 +2737,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "14.4px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2679,16 +2769,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 228.30000001192093,
-      "firstEntry": 239.5,
-      "firstAuth": 206.09999999403954,
-      "firstRuntime": 239.5,
+      "firstNative": 248.09999999403954,
+      "firstEntry": 260.30000001192093,
+      "firstAuth": 224.90000000596046,
+      "firstRuntime": 260.30000001192093,
       "missingFrames": 1,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 228.30000001192093,
+            "t": 248.09999999403954,
             "native": {
               "x": 1012.03125,
               "y": 1.171875,
@@ -2698,7 +2788,7 @@
             "link": null
           },
           "after": {
-            "t": 239.5,
+            "t": 260.30000001192093,
             "native": {
               "x": 953.140625,
               "y": 1.171875,
@@ -2718,6 +2808,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "14.4px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2748,16 +2840,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 258.5,
-      "firstEntry": 1705.5999999940395,
-      "firstAuth": 238.39999997615814,
-      "firstRuntime": 1705.5999999940395,
-      "missingFrames": 87,
+      "firstNative": 254.90000000596046,
+      "firstEntry": 1692.9000000059605,
+      "firstAuth": 219.09999999403954,
+      "firstRuntime": 1692.9000000059605,
+      "missingFrames": 86,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1687.199999988079,
+            "t": 1669,
             "native": {
               "x": 1012.03125,
               "y": 1.171875,
@@ -2767,7 +2859,7 @@
             "link": null
           },
           "after": {
-            "t": 1705.5999999940395,
+            "t": 1692.9000000059605,
             "native": {
               "x": 953.140625,
               "y": 1.171875,
@@ -2787,6 +2879,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "14.4px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2817,16 +2911,16 @@
     },
     {
       "beforeBootstrap": true,
-      "firstNative": 283.69999998807907,
-      "firstEntry": 1496.4000000059605,
-      "firstAuth": 261.90000000596046,
-      "firstRuntime": 1496.4000000059605,
-      "missingFrames": 73,
+      "firstNative": 261.59999999403954,
+      "firstEntry": 1459.5999999940395,
+      "firstAuth": 241.90000000596046,
+      "firstRuntime": 1459.5999999940395,
+      "missingFrames": 72,
       "replacements": 0,
       "movements": [
         {
           "before": {
-            "t": 1478.9000000059605,
+            "t": 1441.9000000059605,
             "native": {
               "x": 1012.03125,
               "y": 1.171875,
@@ -2836,7 +2930,7 @@
             "link": null
           },
           "after": {
-            "t": 1496.4000000059605,
+            "t": 1459.5999999940395,
             "native": {
               "x": 953.140625,
               "y": 1.171875,
@@ -2856,6 +2950,8 @@
       ],
       "drawerFrames": 0,
       "drawerMissingFrames": 0,
+      "homeExposure": 0,
+      "homeEvents": [],
       "nativeStyles": {
         "fontSize": "14.4px",
         "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
@@ -2885,11 +2981,15 @@
       "name": "mobile-legacy-2048-slow-bootstrap"
     }
   ],
-  "result": "BASELINE",
+  "result": "REPRODUCED",
   "interactions": [
     {
       "layout": "auto",
       "width": 390,
+      "pointer": {
+        "hover": false,
+        "touch": 1
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -2927,13 +3027,17 @@
       },
       "selected": "page",
       "drawer": {
-        "frames": 93,
+        "frames": 87,
         "missingFrames": 0
       }
     },
     {
       "layout": "auto",
       "width": 1280,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -2953,7 +3057,7 @@
       "hover": {
         "native": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
@@ -2979,6 +3083,10 @@
     {
       "layout": "auto",
       "width": 2048,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -2998,7 +3106,7 @@
       "hover": {
         "native": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
@@ -3024,6 +3132,10 @@
     {
       "layout": "modern",
       "width": 390,
+      "pointer": {
+        "hover": false,
+        "touch": 1
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -3068,6 +3180,10 @@
     {
       "layout": "modern",
       "width": 1280,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -3087,7 +3203,7 @@
       "hover": {
         "native": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
@@ -3113,6 +3229,10 @@
     {
       "layout": "modern",
       "width": 2048,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgb(255, 255, 255)",
@@ -3132,7 +3252,7 @@
       "hover": {
         "native": {
           "color": "rgb(255, 255, 255)",
-          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundColor": "rgba(255, 255, 255, 0.08)",
           "fontSize": "13.02px",
           "fontWeight": "500",
           "lineHeight": "22.785px"
@@ -3158,6 +3278,10 @@
     {
       "layout": "desktop-legacy",
       "width": 390,
+      "pointer": {
+        "hover": false,
+        "touch": 1
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -3203,6 +3327,10 @@
     {
       "layout": "desktop-legacy",
       "width": 1280,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -3248,6 +3376,10 @@
     {
       "layout": "desktop-legacy",
       "width": 2048,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -3293,6 +3425,10 @@
     {
       "layout": "mobile-legacy",
       "width": 390,
+      "pointer": {
+        "hover": false,
+        "touch": 1
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -3338,6 +3474,10 @@
     {
       "layout": "mobile-legacy",
       "width": 1280,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -3383,6 +3523,10 @@
     {
       "layout": "mobile-legacy",
       "width": 2048,
+      "pointer": {
+        "hover": true,
+        "touch": 0
+      },
       "normal": {
         "native": {
           "color": "rgba(255, 255, 255, 0.7)",
@@ -3425,5 +3569,12 @@
         "missingFrames": 0
       }
     }
-  ]
+  ],
+  "reproduced": {
+    "presentationMismatch": true,
+    "lateInsertion": true,
+    "legacyNeighborMovement": true
+  },
+  "runtimeCommit": "3ec1df3",
+  "packageSha256": "75caecd64bcd3b8137ba33e199ab04fc75c0becfd613cd8904cde95cd8239c6a"
 }
