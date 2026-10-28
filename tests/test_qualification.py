@@ -12,7 +12,7 @@ spec.loader.exec_module(qualification)
 
 class QualificationTests(unittest.TestCase):
     def reports(self):
-        return [dict(schemaVersion=2, jellyfinVersion=version, suite=suite, status='PASS', commit='commit',
+        return [dict(schemaVersion=2, jellyfinVersion=version, suite=suite, shard=qualification.SUITE_SHARD[suite], status='PASS', commit='commit',
                      packageSha256='zip', runtimeSha256='dll', attempts=[dict(scenario=s['id'],command=s['command'],environment=s['env'],exitCode=0,retry=False) for s in qualification.PLAN[suite]])
                 for version in qualification.VERSIONS for suite in qualification.SUITES]
 
@@ -46,7 +46,7 @@ class QualificationTests(unittest.TestCase):
                 self.verify(invalid)
 
     def test_failed_incomplete_retried_or_mixed_runtime_cannot_publish(self):
-        for change in ({'status': 'RUNNING'}, {'status': 'FAIL'}, {'attempts': []},
+        for change in ({'shard': 'wrong'}, {'status': 'RUNNING'}, {'status': 'FAIL'}, {'attempts': []},
                        {'attempts': [dict(exitCode=1, retry=False)]},
                        {'attempts': [dict(exitCode=0, retry=True)]},
                        {'commit': 'other'}, {'packageSha256': 'other'}, {'runtimeSha256': 'other'}):
@@ -86,7 +86,7 @@ class QualificationTests(unittest.TestCase):
         import re
         source = (ROOT / '.github/workflows/release.yaml').read_text()
         matrix = source.split('      matrix:', 1)[1].split('    steps:', 1)[0]
-        for field, expected in [('jellyfin_version', qualification.VERSIONS), ('suite', qualification.SUITES)]:
+        for field, expected in [('jellyfin_version', qualification.VERSIONS), ('shard', tuple(qualification.SHARDS))]:
             values = re.search(rf'{field}: \[(.+)\]', matrix).group(1)
             actual = [v.strip().strip("'\"") for v in values.split(',')]
             self.assertEqual(list(expected), actual)
@@ -99,4 +99,4 @@ class QualificationTests(unittest.TestCase):
         artifacts = re.findall(r'name: (WatchGuard-v[^\s]+-validated)', source)
         self.assertEqual(len(artifacts), 4)
         self.assertEqual(len(set(artifacts)), 1)
-        self.assertIn('WatchGuard-evidence-${{ matrix.jellyfin_version }}-${{ matrix.suite }}', source)
+        self.assertIn('WatchGuard-evidence-${{ matrix.jellyfin_version }}-${{ matrix.shard }}', source)

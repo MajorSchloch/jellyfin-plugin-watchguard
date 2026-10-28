@@ -1,0 +1,8 @@
+{
+  "activity-native": ["activity-index"],
+  "activity-browser": ["activity-browser", "websocket"],
+  "standalone-discovery": ["standalone-caddy", "discovery"],
+  "verification-navigation": ["verification", "basepath-navigation"],
+  "migration-browser": ["migration", "basepath"],
+  "enforcement-legacy": ["server-enforcement", "server-enforcement-basepath", "server-enforcement-linuxserver", "legacy"]
+}

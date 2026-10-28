@@ -8,6 +8,10 @@ import zipfile
 VERSIONS = ('12.2', '12.3', '12.4')
 PLAN = json.loads(Path(__file__).with_name('qualification-plan.json').read_text())
 SUITES = tuple(PLAN)
+SHARDS = json.loads(Path(__file__).with_name('qualification-shards.json').read_text())
+SUITE_SHARD = {suite: shard for shard, suites in SHARDS.items() for suite in suites}
+if set(SUITE_SHARD) != set(SUITES) or sum(map(len, SHARDS.values())) != len(SUITES):
+    raise ValueError('Shard plan must assign every suite exactly once')
 
 
 def verify(reports, commit, package_sha256, runtime_sha256, require_proxy=False):
@@ -17,6 +21,8 @@ def verify(reports, commit, package_sha256, runtime_sha256, require_proxy=False)
         key = (report['jellyfinVersion'], report['suite'])
         if key not in expected or key in seen:
             raise ValueError('Unexpected or duplicate suite: ' + str(key))
+        if report.get('shard') != SUITE_SHARD[key[1]]:
+            raise ValueError('Mismatched shard assignment: ' + str(key))
         if report.get('schemaVersion') != 2:
             raise ValueError('Unsupported evidence schema: ' + str(key))
         actual = [(a.get('scenario'), a.get('command'), a.get('environment')) for a in report['attempts']]
