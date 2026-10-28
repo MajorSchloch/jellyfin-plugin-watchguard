@@ -1,0 +1,9 @@
+{
+  "baselineCommit": "5051b00cce8b168f05e1cc1dc40163f4ca3c98ee",
+  "baselinePublishedPackageSha256": "fd4a0aba1232c4d5b57b80c336e50ed27cdd12502b31e5fd2ccc44e67aede7c3",
+  "candidatePackageSha256": "75caecd64bcd3b8137ba33e199ab04fc75c0becfd613cd8904cde95cd8239c6a",
+  "candidateRuntimeSha256": "a0a0518859cf5dfc62f83b363e124e554f68de85d8829b455076810105273eb1",
+  "localFinalShell": "PASS (8 cases)",
+  "device": "Chromium 141 viewport/touch emulation on macOS arm64; no physical-device testing",
+  "fullQualification": "pending"
+}

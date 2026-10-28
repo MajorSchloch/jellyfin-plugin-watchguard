@@ -79,17 +79,20 @@ const report = {serverVersion:fixture.serverVersion, image:fixture.image, result
    const observation=await page.evaluate(()=>window.wgNavigationObservation.stop());
    report.cases.push({name,...observation,nativeRoutes,requests:[...requests],maxConcurrentQueries:maxActive});phase=null;
   }
-  for(const layout of ['desktop-legacy','modern']) {
+  for(const layout of ['auto','desktop-legacy','mobile-legacy','modern']) {
    await page.setViewportSize({width:1280,height:900});
    await page.evaluate(layout=>localStorage.setItem('layout',layout),layout);
    await page.goto(fixture.base+'/web/#/home');await page.reload();
    await page.getByText('My Media',{exact:true}).waitFor();
-   assert.equal(await page.locator('.skinHeader').isVisible(),layout==='desktop-legacy');
-   await page.locator('.watchguard-nav').click();await settled();
+   assert.equal(await page.locator('.skinHeader').isVisible(),layout.endsWith('-legacy'));
+   await page.locator('.watchguard-nav:visible').click();await settled();
    await page.reload();await settled(); // Router initializes its own history state.
    assert.ok(await page.evaluate(()=>history.state && Number.isInteger(history.state.idx)));
    for(const width of [1280,390]) {
     await page.setViewportSize({width,height:900});
+    // Wait for native responsive navigation to commit before testing a control
+    // transition; otherwise a preceding resize is attributed to that control.
+    await page.waitForFunction(({layout,width})=>layout.endsWith('-legacy') || !!document.querySelector(width<600?'.MuiDrawer-paper .watchguard-nav':'header .watchguard-nav'),{layout,width});
     const prefix=layout+'-'+width+'-';
     await measure(prefix+'owner',owner,()=>owner.selectOption('all'),{owner:'all'});
     await measure(prefix+'sort',sort,()=>sort.selectOption('added'),{sort:'added'});
@@ -111,6 +114,14 @@ const report = {serverVersion:fixture.serverVersion, image:fixture.image, result
     const reset=region.getByRole('button',{name:'Reset to Defaults',exact:true});
     await measure(prefix+'reset',reset,()=>reset.click(),{owner:'mine',sort:'title',days:'30',older:'true',search:'',interest:'watchlisted,watching,playing'});
    }
+   await sort.selectOption('recent'); await settled(); await page.waitForURL(/sort=recent/);
+   const latest=page.url();
+   await page.goBack();await region.waitFor({state:'detached'});assert.ok(!page.url().includes('watchguard=watchlists'));
+   await page.goForward();await settled();assert.equal(page.url(),latest);assert.equal(await sort.inputValue(),'recent');
+   await search.fill(item.Name);await page.waitForURL(/search=.+/);await settled();const returnTo=page.url();
+   await region.locator('.watchguard-card a.button-link').first().click();await page.locator('#itemDetailPage:visible').waitFor();await region.waitFor({state:'detached'});
+   await page.goBack();await settled();assert.equal(page.url(),returnTo);
+   report.travel.push(layout+': Back/Forward latest filters and item details/Back');
   }
   fs.writeFileSync(path.join(output,'transitions.json'),JSON.stringify(report,null,2)+'\n');
   for(const result of report.cases) {

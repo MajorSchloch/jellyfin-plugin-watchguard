@@ -30,7 +30,7 @@ def fixture_catalog(published, candidate):
 
 def prepare(call,restart,root,plugins,token,artifact,browser_fixture):
     public=root/'listing-catalog';public.mkdir()
-    archive=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.8.zip'
+    archive=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.9.zip'
     shutil.copyfile(archive,public/archive.name)
     class Handler(http.server.SimpleHTTPRequestHandler):
         def log_message(self,*args):pass
@@ -60,17 +60,17 @@ def prepare(call,restart,root,plugins,token,artifact,browser_fixture):
             'imageSha256':hashlib.sha256((ROOT/'assets/watchguard-v1.webp').read_bytes()).hexdigest()}))
         fixture.chmod(0o600)
         subprocess.run(['node',str(ROOT/'tests/catalog-listing-browser.cjs'),str(fixture)],check=True,timeout=240)
-        query=urlencode({'assemblyGuid':catalog.GUID,'version':'0.7.8.0','repositoryUrl':base+'/manifest.json'})
+        query=urlencode({'assemblyGuid':catalog.GUID,'version':'0.7.9.0','repositoryUrl':base+'/manifest.json'})
         call('/Packages/Installed/WatchGuard?'+query,'POST',token=token,expected=204,raw=True)
         restart()
-        folder=plugins/'WatchGuard_0.7.8.0'
+        folder=plugins/'WatchGuard_0.7.9.0'
         assert (folder/catalog.DLL).read_bytes()==artifact.read_bytes()
         meta=json.loads((folder/'meta.json').read_text())
         assert meta['imagePath'], 'Native installer failed to cache public artwork'
         image=folder/Path(meta['imagePath']).name
         assert image.read_bytes()==(ROOT/'assets/watchguard-v1.webp').read_bytes()
         active=next(p for p in call('/Plugins',token=token) if p['Id'].replace('-','')==catalog.GUID.replace('-','') and p['Status']=='Active')
-        assert active['Version']=='0.7.8.0' and active['Description']==data[0]['description'] and active['HasImage']
+        assert active['Version']=='0.7.9.0' and active['Description']==data[0]['description'] and active['HasImage']
         return {'close':close,'folder':folder,'repositoryUrl':base+'/manifest.json','imageSha256':hashlib.sha256(image.read_bytes()).hexdigest()}
     except BaseException:
         close();raise

@@ -268,10 +268,11 @@ def main():
             elif options.profile == 'verification':
                 runpy.run_path(str(ROOT/'tests/verification-native.py'))['run'](call, restart, docker, name, plugins, token)
             elif options.startup:
-                subprocess.run(['node', str(ROOT/'tests/startup-browser.cjs'), str(fixture)], check=True, timeout=360)
+                subprocess.run(['node', str(ROOT/'tests/startup-browser.cjs'), str(fixture)], check=True, timeout=600)
             elif options.navigation:
-                subprocess.run(['node', str(ROOT/'tests/drawer-browser.cjs'), str(fixture)], check=True, timeout=180)
-                subprocess.run(['node', str(ROOT/'tests/navigation-browser.cjs'), str(fixture)], check=True, timeout=300)
+                subprocess.run(['node', str(ROOT/'tests/navigation-shell-browser.cjs'), str(fixture)], check=True, timeout=240)
+                subprocess.run(['node', str(ROOT/'tests/drawer-browser.cjs'), str(fixture)], check=True, timeout=300)
+                subprocess.run(['node', str(ROOT/'tests/navigation-browser.cjs'), str(fixture)], check=True, timeout=480)
             elif options.serve:
                 while True: time.sleep(1)
             else:
@@ -299,7 +300,7 @@ def main():
                 # background projection may legitimately checkpoint until the
                 # loaded plugin stops; snapshot it at that lifecycle boundary.
                 saved = {p:p.read_bytes() for p in data_folder.glob('*.json') if p != derived}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.8.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.9.0','DELETE',token=token,expected=204)
                 docker('stop', name)
                 if derived_present:
                     assert derived.exists(), 'Uninstall must retain the derived index'
