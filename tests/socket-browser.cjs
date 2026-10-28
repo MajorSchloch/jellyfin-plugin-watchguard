@@ -6,6 +6,14 @@ const fixture=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
 assert.equal(fixture.username,'WatchGuardPoCTest');
 assert.match(fixture.base,/^https?:\/\/(?:localhost|127\.0\.0\.1):\d+(?:\/jellyfin)?$/);
 (async()=>{
+ // Exercise Node's actual trust store as well as the existing browser fixture.
+ // No ignore-certificate-errors flag or custom verification bypass here.
+ if(fixture.tls) await new Promise((resolve,reject)=>{
+  require('node:https').get(fixture.base+'/System/Info/Public',response=>{
+   response.resume();
+   try {assert.equal(response.statusCode,200);assert.equal(response.socket.authorized,true);resolve();} catch(error){reject(error);}
+  }).on('error',reject);
+ });
  const browser=await chromium.launch({headless:true});let page;
  try {
   const context=await browser.newContext({ignoreHTTPSErrors:fixture.tls===true,locale:'en-US'});

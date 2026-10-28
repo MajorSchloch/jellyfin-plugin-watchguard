@@ -1,0 +1,207 @@
+{
+  "activity-index": [
+    {
+      "id": "activity-native-comparisons",
+      "command": [
+        "tests/docker-smoke.py",
+        "--profile",
+        "activity-index"
+      ],
+      "env": {}
+    }
+  ],
+  "activity-browser": [
+    {
+      "id": "activity-native-browser-polling",
+      "command": [
+        "tests/docker-smoke.py",
+        "--profile",
+        "activity-browser"
+      ],
+      "env": {}
+    }
+  ],
+  "standalone-caddy": [
+    {
+      "id": "standalone-catalog-upgrades-preferences-caddy",
+      "command": [
+        "tests/docker-smoke.py",
+        "--linuxserver",
+        "--catalog",
+        "--caddy",
+        "--preference-roundtrip"
+      ],
+      "env": {}
+    }
+  ],
+  "verification": [
+    {
+      "id": "verification-default",
+      "command": [
+        "tests/docker-smoke.py",
+        "--profile",
+        "verification"
+      ],
+      "env": {}
+    },
+    {
+      "id": "verification-policies",
+      "command": [
+        "tests/docker-smoke.py",
+        "--profile",
+        "verification"
+      ],
+      "env": {
+        "WATCHGUARD_VERIFICATION_POLICIES": "1",
+        "WATCHGUARD_VERIFICATION_OUTPUT": "artifacts/verification-native-v048-policies.json"
+      }
+    },
+    {
+      "id": "discovery-v047",
+      "command": [
+        "tests/docker-smoke.py",
+        "--profile",
+        "discovery"
+      ],
+      "env": {
+        "WATCHGUARD_DISCOVERY_BASELINE": "0.4.7"
+      }
+    }
+  ],
+  "migration": [
+    {
+      "id": "injector-migration",
+      "command": [
+        "tests/docker-smoke.py",
+        "--linuxserver",
+        "--migration",
+        "--injector-dll",
+        "{injector_dll}"
+      ],
+      "env": {}
+    }
+  ],
+  "basepath": [
+    {
+      "id": "basepath-full-browser",
+      "command": [
+        "tests/docker-smoke.py",
+        "--base-path",
+        "/jellyfin",
+        "--proxy"
+      ],
+      "env": {}
+    }
+  ],
+  "basepath-navigation": [
+    {
+      "id": "basepath-native-catalog",
+      "command": [
+        "tests/docker-smoke.py",
+        "--listing",
+        "--base-path",
+        "/jellyfin",
+        "--proxy"
+      ],
+      "env": {}
+    },
+    {
+      "id": "basepath-drawer-navigation",
+      "command": [
+        "tests/docker-smoke.py",
+        "--navigation",
+        "--base-path",
+        "/jellyfin",
+        "--proxy"
+      ],
+      "env": {}
+    },
+    {
+      "id": "basepath-startup",
+      "command": [
+        "tests/docker-smoke.py",
+        "--startup",
+        "--base-path",
+        "/jellyfin",
+        "--proxy"
+      ],
+      "env": {}
+    }
+  ],
+  "legacy": [
+    {
+      "id": "legacy-catalog",
+      "command": [
+        "tests/docker-smoke.py",
+        "--legacy-injector",
+        "--catalog",
+        "--injector-dll",
+        "{injector_dll}"
+      ],
+      "env": {}
+    },
+    {
+      "id": "legacy-browser",
+      "command": [
+        "tests/docker-smoke.py",
+        "--legacy-injector",
+        "--injector-dll",
+        "{injector_dll}"
+      ],
+      "env": {}
+    }
+  ],
+  "discovery": [
+    {
+      "id": "discovery-v045",
+      "command": [
+        "tests/docker-smoke.py",
+        "--profile",
+        "discovery"
+      ],
+      "env": {}
+    }
+  ],
+  "server-enforcement": [
+    {
+      "id": "enforcement-official-proxies",
+      "command": [
+        "tests/server-enforcement.py"
+      ],
+      "env": {}
+    }
+  ],
+  "server-enforcement-basepath": [
+    {
+      "id": "enforcement-basepath",
+      "command": [
+        "tests/server-enforcement.py",
+        "--base-path",
+        "/jellyfin"
+      ],
+      "env": {}
+    }
+  ],
+  "server-enforcement-linuxserver": [
+    {
+      "id": "enforcement-linuxserver",
+      "command": [
+        "tests/server-enforcement.py",
+        "--linuxserver"
+      ],
+      "env": {}
+    }
+  ],
+  "websocket": [
+    {
+      "id": "caddy-websocket-measure",
+      "command": [
+        "tests/docker-smoke.py",
+        "--linuxserver",
+        "--caddy",
+        "--measure"
+      ],
+      "env": {}
+    }
+  ]
+}

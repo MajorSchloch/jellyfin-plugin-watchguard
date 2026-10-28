@@ -1,0 +1,390 @@
+{
+  "runId": 40661175942,
+  "commit": "85524b4dad96ccafd19d44395daa3c2fb416c52c",
+  "status": "completed",
+  "conclusion": "success",
+  "elapsedSeconds": 350.0,
+  "combinedJobExecutionSeconds": 1328.0,
+  "combinedReadyToStartSeconds": 12.0,
+  "queueDefinition": "Dependency-ready to job start; includes scheduler/runner provisioning. GitHub does not expose an exact runner queue timestamp.",
+  "executionDefinition": "Sum of completed non-skipped job intervals, including setup and cleanup; overlapping jobs count separately.",
+  "incompleteJobs": [],
+  "jobs": [
+    {
+      "name": "benchmark (preinstalled, 2)",
+      "id": 122724288721,
+      "conclusion": "success",
+      "executionSeconds": 330.0,
+      "readyToStartSeconds": 3.0,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 4.0
+        },
+        {
+          "name": "Run python3 scripts/build-release.py",
+          "category": "other",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0
+        },
+        {
+          "name": "Proxy decoder",
+          "category": "setup",
+          "seconds": 8.0
+        },
+        {
+          "name": "Native startup and base-path checks",
+          "category": "other",
+          "seconds": 188.0
+        },
+        {
+          "name": "Native trusted Caddy and WebSocket checks",
+          "category": "other",
+          "seconds": 67.0
+        },
+        {
+          "name": "Diagnostics",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "benchmark (host, 1)",
+      "id": 122724289010,
+      "conclusion": "success",
+      "executionSeconds": 346.0,
+      "readyToStartSeconds": 3.0,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 11.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run python3 scripts/build-release.py",
+          "category": "other",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Host browser setup",
+          "category": "setup",
+          "seconds": 48.0
+        },
+        {
+          "name": "Proxy decoder",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Native startup and base-path checks",
+          "category": "other",
+          "seconds": 187.0
+        },
+        {
+          "name": "Native trusted Caddy and WebSocket checks",
+          "category": "other",
+          "seconds": 65.0
+        },
+        {
+          "name": "Diagnostics",
+          "category": "other",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "benchmark (preinstalled, 1)",
+      "id": 122724289115,
+      "conclusion": "success",
+      "executionSeconds": 314.0,
+      "readyToStartSeconds": 3.0,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 4.0
+        },
+        {
+          "name": "Run python3 scripts/build-release.py",
+          "category": "other",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0
+        },
+        {
+          "name": "Proxy decoder",
+          "category": "setup",
+          "seconds": 4.0
+        },
+        {
+          "name": "Native startup and base-path checks",
+          "category": "other",
+          "seconds": 182.0
+        },
+        {
+          "name": "Native trusted Caddy and WebSocket checks",
+          "category": "other",
+          "seconds": 63.0
+        },
+        {
+          "name": "Diagnostics",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "benchmark (host, 2)",
+      "id": 122724289200,
+      "conclusion": "success",
+      "executionSeconds": 338.0,
+      "readyToStartSeconds": 3.0,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run python3 scripts/build-release.py",
+          "category": "other",
+          "seconds": 13.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Host browser setup",
+          "category": "setup",
+          "seconds": 34.0
+        },
+        {
+          "name": "Proxy decoder",
+          "category": "setup",
+          "seconds": 3.0
+        },
+        {
+          "name": "Native startup and base-path checks",
+          "category": "other",
+          "seconds": 188.0
+        },
+        {
+          "name": "Native trusted Caddy and WebSocket checks",
+          "category": "other",
+          "seconds": 68.0
+        },
+        {
+          "name": "Diagnostics",
+          "category": "other",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    }
+  ]
+}

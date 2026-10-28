@@ -8,6 +8,11 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
  const browser=await chromium.launch({headless:true});
  let page;
  const report={serverVersion:fixture.serverVersion,image:fixture.image,result:'RUNNING',phase:'login',responses:[],views:[]};
+ let phaseStarted=performance.now(),phaseName=report.phase;report.phaseTimings=[];
+ Object.defineProperty(report,'phase',{enumerable:true,get:()=>phaseName,set:value=>{
+  report.phaseTimings.push({phase:phaseName,seconds:(performance.now()-phaseStarted)/1000});
+  phaseName=value;phaseStarted=performance.now();
+ }});
  try {
   const context=await browser.newContext({viewport:{width:1280,height:900},locale:'en-US'});
   page=await context.newPage();page.setDefaultTimeout(20000);
@@ -200,6 +205,7 @@ assert.match(fixture.base,/^http:\/\/127\.0\.0\.1:\d+$/);
   if(page){report.view=await page.locator('.watchguard-page').innerText().catch(()=>'(unavailable)');await readiness.failure(page,fixture,'activity-query',error);}
   throw error;
  } finally {
+  report.phaseTimings.push({phase:phaseName,seconds:(performance.now()-phaseStarted)/1000});
   fs.mkdirSync('artifacts/activity-browser/ui',{recursive:true});fs.writeFileSync('artifacts/activity-browser/ui/results.json',JSON.stringify(report,null,2)+'\n');await browser.close();
  }
 })().catch(error=>{console.error(error);process.exitCode=1;});

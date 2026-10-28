@@ -46,7 +46,7 @@ def main():
     mode.add_argument('--measure', action='store_true')
     mode.add_argument('--migration', action='store_true')
     mode.add_argument('--catalog', action='store_true', help='Exercise native catalog install, manual upgrade and missing Injector.')
-    mode.add_argument('--profile', choices=['before', 'after', 'activity', 'v030-before', 'v030-after', 'discovery', 'verification', 'activity-index'], help='Run isolated performance measurements instead of destructive browser tests.')
+    mode.add_argument('--profile', choices=['before', 'after', 'activity', 'v030-before', 'v030-after', 'discovery', 'verification', 'activity-index', 'activity-browser'], help='Run isolated performance measurements instead of destructive browser tests.')
     options = parser.parse_args()
     options.standalone = not options.legacy_injector
     if options.catalog and options.standalone: options.standalone_catalog = True
@@ -179,12 +179,14 @@ def main():
             phases.phase('installation-and-regressions')
             installed_folder = plugins/'WatchGuard'
             if options.listing:
+                phases.phase('native-catalog-install-and-browser')
                 listing = runpy.run_path(str(ROOT/'tests/catalog-listing-fixture.py'))['prepare'](call,restart,root,plugins,token,artifact,
                     lambda: {'base':base,'username':username,'password':password,'userId':admin['User']['Id'],
                              'serverVersion':version,'image':image,'reportDirectory':str(ROOT/'artifacts/testing'/name/'available-listing')})
                 installed_folder = listing['folder']
             if options.standalone_catalog:
                 assert options.standalone and not options.injector_dll
+                phases.phase('historical-standalone-catalog-upgrades')
                 installed_folder = runpy.run_path(str(ROOT/'tests/standalone-catalog.py'))['run'](call,restart,docker,name,root,plugins,token,artifact)
             if not options.standalone:
                 assert 'WatchGuard: This item may still be in use.' in call('/JavaScriptInjector/private.js', token=token, raw=True)
@@ -210,15 +212,19 @@ def main():
             else:
                 runpy.run_path(str(ROOT/'tests/standalone-http.py'))['run'](base,token)
             assert call('/WatchGuard/Watchlist', token=token) == []
+            phases.phase('current-backend-contracts')
             runpy.run_path(str(ROOT / 'tests/backend-smoke.py'))['run'](
                 call, token, {i['Name']: i['Id'] for i in items}, plugins, standalone=options.standalone)
             if options.qualification_upgrade or options.migration:
                 assert options.standalone
+                phases.phase('historical-standalone-rollback')
                 installed_folder = runpy.run_path(str(ROOT/'tests/standalone-upgrade.py'))['run'](call,restart,docker,name,root,plugins,token,next(i['Id'] for i in items if i['Type']=='Movie' and i['Name']=='PoC Movie Detail'),installed_folder)
             if options.preference_roundtrip:
                 assert options.standalone
+                phases.phase('historical-preference-roundtrip')
                 runpy.run_path(str(ROOT/'tests/preference-roundtrip.py'))['run'](call,restart,docker,name,root,plugins,token,installed_folder)
             browser_base = base
+            phases.phase('proxy-and-browser-setup')
             if options.proxy:
                 proxy = runpy.run_path(str(ROOT/'tests/standalone-proxy.py'))['start'](base)
                 browser_base = proxy[2] + options.base_path
@@ -248,7 +254,11 @@ def main():
             elif options.profile == 'discovery':
                 runpy.run_path(str(ROOT/'tests/discovery-native.py'))['run'](call, restart, docker, name, root, plugins, token)
             elif options.profile == 'activity-index':
-                runpy.run_path(str(ROOT/'tests/activity-index-native.py'))['run'](call, restart, docker, name, plugins, token)
+                runpy.run_path(str(ROOT/'tests/activity-index-native.py'))['run'](call, restart, docker, name, plugins, token, phases)
+            elif options.profile == 'activity-browser':
+                from activity_fixture import prepare_browser
+                prepare_browser(call, docker, name, token, phases)
+                phases.phase('browser-activity-polling')
                 # Package comparisons restart the container; Docker may assign a
                 # new ephemeral port. Hand the browser the current native URL.
                 browser_fixture = json.loads(fixture.read_text())
@@ -266,9 +276,12 @@ def main():
                 while True: time.sleep(1)
             else:
                 if options.standalone:
+                    phases.phase('browser-standalone')
                     subprocess.run(['node', str(ROOT / 'tests/standalone-browser.cjs'), str(fixture)], check=True,timeout=600)
                 if not options.profile:
+                    phases.phase('browser-settings')
                     subprocess.run(['node', str(ROOT / 'tests/settings-browser.cjs'), str(fixture)], check=True,timeout=600)
+                phases.phase('browser-actions-and-permissions')
                 subprocess.run(['node', str(ROOT / 'tests/profile-overview.cjs' if options.profile else 'tests/browser-poc.cjs'), str(fixture), *([options.profile] if options.profile else [])], check=True,timeout=600)
                 if not options.standalone:
                     # Same operation as removing the plugin-managed script in Injector's dashboard.
@@ -278,6 +291,7 @@ def main():
                     assert docker('exec', name, 'sha256sum', web_index).split()[0] == pristine_web_hash
                     print('Deployment checks passed: v0.3.1 registration, middleware injection, persisted script cleanup, unchanged Web index.', flush=True)
             if options.standalone:
+                phases.phase('native-uninstall-and-retained-data')
                 data_folder = plugins/'Jellyfin.Plugin.WatchGuard'
                 derived = data_folder/'activity-index.json'
                 derived_present = derived.exists()

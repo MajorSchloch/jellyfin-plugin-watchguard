@@ -6,9 +6,12 @@ from pathlib import Path
 import zipfile
 
 VERSIONS = ('12.2', '12.3', '12.4')
-SUITES = ('standalone-caddy', 'migration', 'basepath', 'legacy', 'websocket', 'discovery',
-          'verification', 'activity-index', 'server-enforcement', 'server-enforcement-basepath',
-          'server-enforcement-linuxserver')
+PLAN = json.loads(Path(__file__).with_name('qualification-plan.json').read_text())
+SUITES = tuple(PLAN)
+SHARDS = json.loads(Path(__file__).with_name('qualification-shards.json').read_text())
+SUITE_SHARD = {suite: shard for shard, suites in SHARDS.items() for suite in suites}
+if set(SUITE_SHARD) != set(SUITES) or sum(map(len, SHARDS.values())) != len(SUITES):
+    raise ValueError('Shard plan must assign every suite exactly once')
 
 
 def verify(reports, commit, package_sha256, runtime_sha256, require_proxy=False):
@@ -18,6 +21,14 @@ def verify(reports, commit, package_sha256, runtime_sha256, require_proxy=False)
         key = (report['jellyfinVersion'], report['suite'])
         if key not in expected or key in seen:
             raise ValueError('Unexpected or duplicate suite: ' + str(key))
+        if report.get('shard') != SUITE_SHARD[key[1]]:
+            raise ValueError('Mismatched shard assignment: ' + str(key))
+        if report.get('schemaVersion') != 2:
+            raise ValueError('Unsupported evidence schema: ' + str(key))
+        actual = [(a.get('scenario'), a.get('command'), a.get('environment')) for a in report['attempts']]
+        required = [(s['id'], s['command'], s['env']) for s in PLAN[key[1]]]
+        if actual != required:
+            raise ValueError('Missing, duplicated, reordered or mismatched scenarios: ' + str(key))
         if report['status'] != 'PASS' or not report['attempts'] or any(a['exitCode'] != 0 or a['retry'] for a in report['attempts']):
             raise ValueError('Incomplete or failed suite: ' + str(key))
         if report['commit'] != commit or report['packageSha256'] != package_sha256 or report['runtimeSha256'] != runtime_sha256:

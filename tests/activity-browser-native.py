@@ -11,11 +11,12 @@ import zipfile
 BASELINE_SHA = '3542b971231b51a78d9783b490f1438b231cd0fca48b61c6aad5098528d50bd7'
 
 
-def run(call, restart, docker, name, plugins, token, owners, movies, series):
+def run(call, restart, docker, name, plugins, token, owners, movies, series, phases):
     assert name.startswith('watchguard-poc-')
     repo = Path(__file__).resolve().parents[1]
     output = repo / 'artifacts/activity-browser' / name
     output.mkdir(parents=True)
+    phases.phase('historical-v060-download')
     baseline = output / 'published-v060.zip'
     subprocess.run(['curl', '--fail', '--location', '--retry', '3', '--max-time', '60',
                     'https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.6.0/Jellyfin.Plugin.WatchGuard-v0.6.0.zip', '-o', str(baseline)], check=True)
@@ -108,10 +109,12 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
     expected = {}
     try:
         for label, payload in [('v060', old), ('v078', candidate)]:
+            phases.phase(label + '-query-population')
             docker('stop', name); dll.write_bytes(payload); restart(); report[label + 'SettleMs'] = settle()
             live_user = call('/Users/AuthenticateByName', 'POST', {'Username': 'IndexUser0', 'Pw': 'DisposableIndex123!'})
             call('/Sessions/Playing', 'POST', {'ItemId': movies[1]['Id'], 'PlayMethod': 'DirectPlay', 'PositionTicks': 10000}, live_user['AccessToken'], expected=204)
             settle()
+            phases.phase(label + '-query-comparison')
             for scenario, owner, statuses, search, sort in scenarios:
                 samples = []
                 before_work = call('/WatchGuard/ActivityIndex/Status?owner=all', token=token)['Freshness']
@@ -150,6 +153,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series):
                     'firstPageMedianMs': statistics.median(s['firstOrderedPageMs'] for s in samples),
                     'completePaginationMedianMs': statistics.median(s['completePaginationMs'] for s in samples)}
             call('/Sessions/Playing/Stopped', 'POST', {'ItemId': movies[1]['Id'], 'PositionTicks': 10000}, live_user['AccessToken'], expected=204)
+        phases.phase('current-query-permission-revocation')
         # A native account revocation invalidates a saved query before another page is disclosed.
         policy = call('/Users/' + owners[1], token=token)['Policy']
         first = call('/WatchGuard/ActivityBrowser?owner=all&statuses=watched&sort=title', token=token)

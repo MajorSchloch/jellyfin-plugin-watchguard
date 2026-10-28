@@ -86,7 +86,7 @@ jobs:
             artifacts/Jellyfin.Plugin.WatchGuard-v0.7.8.zip.sha256
 
   integration:
-    name: Integration / ${{ matrix.jellyfin_version }} / ${{ matrix.suite }}
+    name: Integration / ${{ matrix.jellyfin_version }} / ${{ matrix.shard }}
     env:
       WATCHGUARD_JELLYFIN_VERSION: ${{ matrix.jellyfin_version }}
     needs: build
@@ -95,10 +95,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Six balanced shards per host fit the observed 20-runner concurrency.
+        shard: [activity-native, activity-browser, standalone-discovery, verification-navigation, migration-browser, enforcement-legacy]
         jellyfin_version: ['12.2', '12.3', '12.4']
-        suite: [standalone-caddy, migration, basepath, legacy, websocket, discovery, verification, activity-index, server-enforcement, server-enforcement-basepath, server-enforcement-linuxserver]
     steps:
       - uses: actions/checkout@v6
+      - name: Resolve balanced suite plan
+        id: plan
+        run: |
+          python3 - <<'PYCODE' >> "$GITHUB_OUTPUT"
+          import json
+          suites = json.load(open('scripts/qualification-shards.json'))['${{ matrix.shard }}']
+          print('suites=' + json.dumps(suites))
+          PYCODE
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12.0'
@@ -121,48 +130,51 @@ jobs:
           mkdir -p WatchGuard
           unzip -p Jellyfin.Plugin.WatchGuard-v0.7.8.zip Jellyfin.Plugin.WatchGuard.dll > WatchGuard/Jellyfin.Plugin.WatchGuard.dll
       - name: Build Injector fixture (rollback/legacy only)
-        if: matrix.suite == 'migration' || matrix.suite == 'legacy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'migration') || contains(fromJSON(steps.plan.outputs.suites), 'legacy')
         run: |
           git clone https://github.com/n00bcodr/Jellyfin-JavaScript-Injector.git /tmp/watchguard-injector
           git -C /tmp/watchguard-injector checkout --detach 2758804c987d490ef32fc2fbdb8a73a44facdf2c
           dotnet build /tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/Jellyfin.Plugin.JavaScriptInjector.csproj -c Release -p:JellyfinTarget=jf12 -p:JellyfinVersion=12.2.0
       - run: npm ci --prefix tests/browser
-      - run: cd tests/browser && npx playwright install --with-deps chromium
+      - name: Preinstalled browser setup
+        run: bash scripts/ci/setup-browser.sh
+      - name: Verify locked browser and diagnostic tools
+        run: node tests/browser-environment.cjs
       - name: Install zstd decoder where tested
-        if: matrix.suite == 'standalone-caddy' || matrix.suite == 'websocket' || startsWith(matrix.suite, 'server-enforcement')
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy') || contains(fromJSON(steps.plan.outputs.suites), 'websocket') || contains(fromJSON(steps.plan.outputs.suites), 'server-enforcement')
         run: sudo apt-get update && sudo apt-get install -y zstd
       - name: Download and verify standalone rollback fixture
-        if: matrix.suite == 'standalone-caddy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.0/Jellyfin.Plugin.WatchGuard-v0.4.0.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip
           echo '439fdc1accf4922e7f6eb8d01451e8d83f3343d656ef65d778f5dc99163bda4d  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.0.zip' | sha256sum -c -
       - name: Download and verify v0.4.1 production baseline
-        if: matrix.suite == 'standalone-caddy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.1/Jellyfin.Plugin.WatchGuard-v0.4.1.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip
           echo 'b679195d7bc914ff64c6b311fa2938de0084ef195f447b92338284e10dd8411e  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.1.zip' | sha256sum -c -
       - name: Download and verify v0.4.2 production baseline
-        if: matrix.suite == 'standalone-caddy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.2/Jellyfin.Plugin.WatchGuard-v0.4.2.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.2.zip
           echo 'c4902b23a1125fe3db26ffe77520a0a14eeca54bff946879cc4a3a73044858a5  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.2.zip' | sha256sum -c -
       - name: Download and verify v0.4.3 production baseline
-        if: matrix.suite == 'standalone-caddy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.3/Jellyfin.Plugin.WatchGuard-v0.4.3.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.3.zip
           echo 'fc8bcb6e312f37fe73749ee0450a57f5dfda8fc4470549c633c1e3920271be47  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.3.zip' | sha256sum -c -
       - name: Download and verify v0.4.4 production baseline
-        if: matrix.suite == 'standalone-caddy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.4/Jellyfin.Plugin.WatchGuard-v0.4.4.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.4.zip
           echo '516f29160d4e6efb7296867d7a00848124306af804586dedceea9e6828d2e679  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.4.zip' | sha256sum -c -
       - name: Download and verify v0.4.5 production baseline
-        if: matrix.suite == 'standalone-caddy' || matrix.suite == 'discovery' || matrix.suite == 'verification'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy') || contains(fromJSON(steps.plan.outputs.suites), 'discovery') || contains(fromJSON(steps.plan.outputs.suites), 'verification')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.5/Jellyfin.Plugin.WatchGuard-v0.4.5.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.5.zip
           echo 'ebe3827470e439bd0a15f7fb65edfa330c6ecf2d1f8ec4112402680f109f709f  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.5.zip' | sha256sum -c -
       - name: Download and verify published legacy fixtures where needed
-        if: matrix.suite == 'migration' || matrix.suite == 'legacy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'migration') || contains(fromJSON(steps.plan.outputs.suites), 'legacy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.3.1/Jellyfin.Plugin.WatchGuard-v0.3.1.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip
           echo 'c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2  artifacts/Jellyfin.Plugin.WatchGuard-v0.3.1.zip' | sha256sum -c -
@@ -175,26 +187,35 @@ jobs:
       - name: Pull pinned test image with registry backoff
         run: |
           set -euo pipefail
-          image="$(python3 tests/fixture_images.py '${{ matrix.suite }}')"
+          python3 - <<'PYCODE' > /tmp/watchguard-shard-images.txt
+          import json, sys
+          sys.path.insert(0, 'tests')
+          import fixture_images
+          suites = json.load(open('scripts/qualification-shards.json'))['${{ matrix.shard }}']
+          linuxserver = {'standalone-caddy','migration','websocket','server-enforcement-linuxserver'}
+          print('\n'.join(sorted({fixture_images.image(s in linuxserver) for s in suites})))
+          PYCODE
           mkdir -p artifacts/testing
+          while IFS= read -r image; do
           for attempt in 1 2 3 4 5; do
             echo "$attempt" > artifacts/testing/image-pull-attempts.txt
             if docker pull "$image"; then break; fi
             if [ "$attempt" -eq 5 ]; then exit 1; fi
             sleep "$((attempt * 20))"
           done
+          done < /tmp/watchguard-shard-images.txt
       - name: Download and verify published v0.4.6
-        if: matrix.suite == 'standalone-caddy' || matrix.suite == 'verification'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy') || contains(fromJSON(steps.plan.outputs.suites), 'verification')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.6/Jellyfin.Plugin.WatchGuard-v0.4.6.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.6.zip
           echo 'e083f873d76a2cd62005e1093f30ecfde3201409fa9caa45948433372bba87e1  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.6.zip' | sha256sum -c -
       - name: Download and verify published v0.4.7
-        if: matrix.suite == 'standalone-caddy' || matrix.suite == 'verification'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy') || contains(fromJSON(steps.plan.outputs.suites), 'verification')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.7/Jellyfin.Plugin.WatchGuard-v0.4.7.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip
           echo '8046bbd611ba3e17bf003160e32d8bffdf07a22038f06863bd8414e78c08b6e0  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip' | sha256sum -c -
       - name: Download and verify published v0.4.8
-        if: matrix.suite == 'standalone-caddy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.8/Jellyfin.Plugin.WatchGuard-v0.4.8.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip
           echo '06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.8.zip' | sha256sum -c -
@@ -203,33 +224,34 @@ jobs:
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.9/Jellyfin.Plugin.WatchGuard-v0.4.9.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip
           echo '5cc5cd51e1a9f666a4abdbda07b1ad08b8d8ab9480edbad0dbd23fc53440be6d  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.9.zip' | sha256sum -c -
       - name: Download and verify published v0.5.0 preference rollback baseline
-        if: matrix.suite == 'standalone-caddy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.5.0/Jellyfin.Plugin.WatchGuard-v0.5.0.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.5.0.zip
           echo 'a9ff9255785761aed574e0ac0d14535445461a3de6da5f4d3eb32f5dd300332b  artifacts/Jellyfin.Plugin.WatchGuard-v0.5.0.zip' | sha256sum -c -
       - name: Download and verify immutable published v0.4.10 rollback baseline
-        if: matrix.suite == 'standalone-caddy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.10/Jellyfin.Plugin.WatchGuard-v0.4.10.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip
           echo '471d99364db520a0990e4a624d73e26ae4c9f1c50404c2902c9691516667bf3e  artifacts/Jellyfin.Plugin.WatchGuard-v0.4.10.zip' | sha256sum -c -
       - name: Download and verify published v0.5.2 rollback baseline
-        if: matrix.suite == 'standalone-caddy'
+        if: contains(fromJSON(steps.plan.outputs.suites), 'standalone-caddy')
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.5.2/Jellyfin.Plugin.WatchGuard-v0.5.2.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.5.2.zip
           echo '62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec  artifacts/Jellyfin.Plugin.WatchGuard-v0.5.2.zip' | sha256sum -c -
       - name: Complete disposable regression suite
         env:
-          WATCHGUARD_PROXY_MATRIX: ${{ matrix.suite == 'server-enforcement' && (inputs.proxy_matrix || inputs.publish) && '1' || '0' }}
-        run: python3 tests/run_suite.py "${{ matrix.suite }}"
-      - name: Summarize first failed fixture phase
-        if: always()
+          WATCHGUARD_REQUIRE_PROXY_MATRIX: ${{ (inputs.proxy_matrix || inputs.publish) && '1' || '0' }}
+        run: python3 tests/run_shard.py "${{ matrix.shard }}"
+      - name: Summarize setup failure without suite evidence
+        if: failure() && hashFiles('artifacts/suites/**/suite.json') == ''
         run: python3 tests/summarize_qualification.py
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-browser-failure-${{ matrix.jellyfin_version }}-${{ matrix.suite }}
+          name: WatchGuard-browser-failure-${{ matrix.jellyfin_version }}-${{ matrix.shard }}
           path: |
+            artifacts/suites/
             artifacts/testing/
             artifacts/v049/
             artifacts/server-enforcement/
@@ -238,30 +260,17 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-evidence-${{ matrix.jellyfin_version }}-${{ matrix.suite }}
+          name: WatchGuard-evidence-${{ matrix.jellyfin_version }}-${{ matrix.shard }}
           path: |
-            artifacts/server-enforcement/
-            artifacts/navigation-browser/
-            artifacts/drawer-browser/
-            artifacts/startup-browser/
-            artifacts/settings-validation.json
-            artifacts/preference-roundtrip-v051.json
-            artifacts/catalog-validation.json
+            artifacts/suites/
             artifacts/testing/
-            artifacts/v049/
-            artifacts/standalone/caddy-http.json
-            artifacts/standalone/socket-standalone.json
-            artifacts/migration-v049.json
-            artifacts/catalog-upgrade-v049.json
-            artifacts/discovery-native-v048-*.json
-            artifacts/verification-native-v048*.json
-            artifacts/activity-index/**/results.json
-            artifacts/activity-browser/**/results.json
-            artifacts/activity-browser/*.png
           if-no-files-found: warn
 
   qualification:
     name: Verify complete compatibility evidence
+    permissions:
+      contents: read
+      actions: read
     needs: [build, integration]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -280,10 +289,16 @@ jobs:
           path: artifacts/qualification
       - name: Require every host and suite to have tested this exact package
         run: python3 scripts/qualification.py --package artifacts/Jellyfin.Plugin.WatchGuard-v0.7.8.zip --evidence artifacts/qualification --commit "$GITHUB_SHA" --proxy-matrix '${{ inputs.proxy_matrix || inputs.publish }}' --output artifacts/qualification.json
+      - name: Report execution and queue timing separately
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci/timings.py --output artifacts/qualification-timings.json
       - uses: actions/upload-artifact@v6
         with:
           name: WatchGuard-qualification
-          path: artifacts/qualification.json
+          path: |
+            artifacts/qualification.json
+            artifacts/qualification-timings.json
           if-no-files-found: error
 
   publish:

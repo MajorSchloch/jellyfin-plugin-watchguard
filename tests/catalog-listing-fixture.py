@@ -1,4 +1,5 @@
 """Real native catalog install using maintained editorial content and one local candidate ZIP."""
+import copy
 import functools
 import hashlib
 import http.server
@@ -14,6 +15,19 @@ ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('catalog',ROOT/'scripts/catalog.py')
 catalog=importlib.util.module_from_spec(spec);spec.loader.exec_module(catalog)
 
+def fixture_catalog(published, candidate):
+    """Private install source also works when qualifying an already released build.
+
+    Preserve the public document and every other revision. Replace only this
+    version's private fixture entry instead of appending a duplicate revision.
+    """
+    catalog.validate(published)
+    data=copy.deepcopy(published)
+    data[0]['versions']=[candidate]+[v for v in data[0]['versions'] if v['version'] != candidate['version']]
+    catalog.validate(data,True)
+    return data
+
+
 def prepare(call,restart,root,plugins,token,artifact,browser_fixture):
     public=root/'listing-catalog';public.mkdir()
     archive=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.8.zip'
@@ -28,9 +42,8 @@ def prepare(call,restart,root,plugins,token,artifact,browser_fixture):
         assert not thread.is_alive()
     try:
         base='http://host.docker.internal:'+str(server.server_port)
-        data=json.loads((ROOT/'manifest.json').read_text())
-        data[0]['versions'].insert(0,catalog.entry(archive,base+'/'+archive.name,'2026-10-25T00:00:00Z'))
-        catalog.validate(data,True)
+        data=fixture_catalog(json.loads((ROOT/'manifest.json').read_text()),
+                             catalog.entry(archive,base+'/'+archive.name,'2026-10-25T00:00:00Z'))
         (public/'manifest.json').write_text(json.dumps(data))
         shutil.move(str(plugins/'WatchGuard'),str(root/'retired-listing-preinstall'))
         restart()

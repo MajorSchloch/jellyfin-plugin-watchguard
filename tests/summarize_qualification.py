@@ -35,6 +35,11 @@ for root in [Path('artifacts/v049'),Path('artifacts/server-enforcement')]:
     for file in sorted(root.rglob('browser-timing-*.json')):
         data=json.loads(file.read_text());readiness.append(f"| {data['phase']} | {data['ms']} |")
 if readiness:lines+=['','### Browser initialization','','| Contract | Milliseconds |','|---|---|',*readiness]
+browser = Path('artifacts/activity-browser/ui/results.json')
+if browser.exists():
+    lines += ['', '### Native activity browser phases (within browser fixture time)', '', '| Scenario | Seconds |', '|---|---:|']
+    for row in json.loads(browser.read_text()).get('phaseTimings', []):
+        lines.append(f"| {row['phase']} | {row['seconds']:.3f} |")
 text='\n'.join(details+lines)+'\n'
 print(text)
 if os.environ.get('GITHUB_STEP_SUMMARY'):
