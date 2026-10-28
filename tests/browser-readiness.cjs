@@ -79,6 +79,10 @@ async function login(page, fixture) {
                 // route transitions finish before choosing Manual Login. Their
                 // late rendering can otherwise undo a successful chooser click.
                 await page.waitForLoadState('networkidle',{timeout:15000});
+                // A failed translation request can leave a usable-looking form
+                // with raw label keys. Do not submit it. The existing one-attempt
+                // pre-authentication network recovery retains the failed trace.
+                if (networkChanged) throw new Error('Native login resources interrupted by ERR_NETWORK_CHANGED');
                 // Once a disposable second user becomes visible on Jellyfin's
                 // native login page, the manual username form is collapsed
                 // behind its "Manual Login" control. Both layouts are valid.

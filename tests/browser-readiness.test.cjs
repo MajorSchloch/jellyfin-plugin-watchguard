@@ -128,7 +128,7 @@ test('Readiness report failure keeps sanitized trace and records the separate di
 
 function loginPage(f, {first=original(),second,authentication}={}) {
     let navigations=0,signIns=0;
-    f.page.goto=async()=>{navigations++;if(navigations===1)throw first;if(second)throw second;};
+    f.page.goto=async()=>{navigations++;if(navigations===1&&first)throw first;if(second)throw second;};
     f.page.waitForLoadState=async()=>{};
     f.page.waitForFunction=async()=>{};f.page.waitForURL=async()=>{};
     f.page.locator=()=>({isVisible:async()=>true,waitFor:async()=>{},fill:async()=>{}});
@@ -151,7 +151,7 @@ test('Native requestfailed errorText permits only the same pre-authentication ne
     const counts=loginPage(f,{first:new Error('login form was not ready')});
     const goto=f.page.goto;
     f.page.goto=async()=>{
-        f.page.emit('requestfailed',{failure:()=>({errorText:'net::ERR_NETWORK_CHANGED'})});
+        if(counts().navigations===0)f.page.emit('requestfailed',{failure:()=>({errorText:'net::ERR_NETWORK_CHANGED'})});
         return goto();
     };
     await readiness.login(f.page,f.options);
@@ -204,4 +204,14 @@ test('Late public-user chooser is revealed before one sign-in: '+timing,async t=
     await readiness.login(f.page,f.options);
     assert.equal(reveals,1);assert.equal(fills,3);
     assert.deepEqual(counts(),{navigations:2,signIns:1});
+});
+
+for(const persistent of [false,true])test('Interrupted native translation resources are detected before sign-in: '+persistent,async t=>{
+ const f=fixture(t);await readiness.capture(f.page);const counts=loginPage(f,{first:null});const goto=f.page.goto;
+ f.page.goto=async()=>{if(persistent||counts().navigations===0)f.page.emit('requestfailed',{failure:()=>({errorText:'net::ERR_NETWORK_CHANGED'})});return goto();};
+ if(persistent)await assert.rejects(readiness.login(f.page,f.options),/Native login resources interrupted/);
+ else await readiness.login(f.page,f.options);
+ assert.deepEqual(counts(),{navigations:2,signIns:persistent?0:1});
+ assert.match(f.read('login-network-changed-1-attempt.json').failure.message,/ERR_NETWORK_CHANGED/);
+ assert.equal(f.page.listenerCount('requestfailed'),0);
 });
