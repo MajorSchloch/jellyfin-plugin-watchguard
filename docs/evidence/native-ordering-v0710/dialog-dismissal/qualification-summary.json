@@ -1,0 +1,59 @@
+{
+  "result": "PASS",
+  "qualified": true,
+  "runId": 40968308368,
+  "commit": "720e62b228883910caba098a2e86d4b8902449fd",
+  "publish": false,
+  "proxyMatrix": true,
+  "packageSha256": "fd4e0301c312406e4ada3301e64bcb504aa29fd16c80157beb735b5ddc2b0681",
+  "runtimeSha256": "5ddb76713367f3bc8f1559285db26ec68a07f188d868d095f3a721c9c6e48a95",
+  "byteIdenticalToRun": 40847683501,
+  "suitesPassed": 39,
+  "primaryFixtureCommands": 54,
+  "retries": 0,
+  "orderingSamples": 144,
+  "legacyDismissal": [
+    {
+      "version": "12.2",
+      "result": "PASS",
+      "orderingViolations": 0,
+      "playbackCancellation": {
+        "clickReturnedAt": 5732.099999999977,
+        "closedWhenClickReturned": false,
+        "closedAt": 5879.800000000047,
+        "viewReadyAt": 5932.5,
+        "nextNavigationAt": 6019.900000000023,
+        "nextDetailReady": true
+      },
+      "artifact": "WatchGuard-evidence-12.2-enforcement-legacy"
+    },
+    {
+      "version": "12.3",
+      "result": "PASS",
+      "orderingViolations": 0,
+      "playbackCancellation": {
+        "clickReturnedAt": 6008.399999999907,
+        "closedWhenClickReturned": false,
+        "closedAt": 6154.5,
+        "viewReadyAt": 6198.399999999907,
+        "nextNavigationAt": 6272.09999999986,
+        "nextDetailReady": true
+      },
+      "artifact": "WatchGuard-evidence-12.3-enforcement-legacy"
+    },
+    {
+      "version": "12.4",
+      "result": "PASS",
+      "orderingViolations": 0,
+      "playbackCancellation": {
+        "clickReturnedAt": 5823.899999999907,
+        "closedWhenClickReturned": false,
+        "closedAt": 5974.199999999953,
+        "viewReadyAt": 6017,
+        "nextNavigationAt": 6094.599999999977,
+        "nextDetailReady": true
+      },
+      "artifact": "WatchGuard-evidence-12.4-enforcement-legacy"
+    }
+  ]
+}
