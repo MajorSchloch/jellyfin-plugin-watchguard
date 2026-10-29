@@ -440,7 +440,14 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         if (fixture.standalone) { await dialog().getByText('BrowserMember',{exact:true}).waitFor(); await dialog().getByText('Watching',{exact:true}).waitFor(); }
         else await dialog().getByText(/BrowserMember — Watching/).waitFor();
         await dialog().getByRole('button',{name:'Cancel',exact:true}).click();
-        await page.getByRole('button',{name:'Got It',exact:true}).click();
+        report.playbackCancellation = await require('./native-dialog-dismissal.cjs')(page, errorText);
+        // Cancellation returns to this native view; it is not a successful
+        // deletion redirect. Finish dialog/history teardown before another route.
+        await page.locator('#itemDetailPage:visible').getByText('PoC Parent Clear',{exact:true}).first().waitFor();
+        await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').waitFor();
+        pendingNativeReturn=null;
+        report.playbackCancellation.viewReadyAt=await page.evaluate(()=>performance.now());
+        assert.ok(report.playbackCancellation.closedAt<=report.playbackCancellation.viewReadyAt);
         assert.equal(report.deletes.length,beforeAuto); await exists(automaticId);
         // Reset only disposable native fixture state so the existing clear-parent deletion regression is unchanged.
         await api('/UserItems/' + episode.Id + '/UserData','POST',{Played:false,PlaybackPositionTicks:0},member.AccessToken);
@@ -451,7 +458,10 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         report.phase = 'Detail watchlist actions';
         if (fixture.standalone) await require('./watchlist-action-browser.cjs')({page,api,detail,fixture,member,output,report});
         report.phase = 'Watchlist UI';
+        report.playbackCancellation.nextNavigationAt=await page.evaluate(()=>performance.now());
+        assert.ok(report.playbackCancellation.viewReadyAt<=report.playbackCancellation.nextNavigationAt);
         await detail('PoC Movie Detail');
+        report.playbackCancellation.nextDetailReady=true;
         await page.getByRole('button', { name:'Add to Watchlist', exact:true }).click();
         await page.getByRole('button', { name:'Remove from Watchlist', exact:true }).waitFor();
         assert.equal(await page.locator('.mainDetailButtons .watchguard-toggle').count(),1);

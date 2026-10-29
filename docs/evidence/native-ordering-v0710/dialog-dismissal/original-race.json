@@ -1,0 +1,23 @@
+{
+  "runId": 40853608810,
+  "jobId": 123379469101,
+  "artifactId": 12889765679,
+  "traceSha256": "34c9263454c82a0fb7af9f37ae27a032e0c14c1b9287bc623108728cc0beb44b",
+  "traceMilliseconds": {
+    "gotItClickStarted": 12553.987,
+    "gotItClickCompleted": 12809.425,
+    "dialogStillVisibleFrame": 12861.784,
+    "nextDetailNavigationStarted": 12950.987,
+    "detailWaitTimedOut": 22957.699
+  },
+  "webImplementation": "Jellyfin 12.3 dialogHelper: click initiates exit animation; _close removes dialog and performs history.back; close is emitted after the history notification.",
+  "localBaseline": {
+    "result": "PASS",
+    "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+    "publishedVersion": "v0.3.1",
+    "zipSha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+    "dllSha256": "a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7",
+    "injectorCommit": "2758804c987d490ef32fc2fbdb8a73a44facdf2c",
+    "limitation": "The fresh unchanged run completed the sequence successfully; the original blank-page failure is intermittent, not reproduced on every run."
+  }
+}

@@ -215,3 +215,61 @@ for(const persistent of [false,true])test('Interrupted native translation resour
  assert.match(f.read('login-network-changed-1-attempt.json').failure.message,/ERR_NETWORK_CHANGED/);
  assert.equal(f.page.listenerCount('requestfailed'),0);
 });
+
+const dismissNativeError=require('./native-dialog-dismissal.cjs');
+function dismissalFixture({closeDuringClick=false, failure=false}={}) {
+    const dialog=new EventTarget();
+    let handle, hidden=false, clicks=0, disposed=false, release, entered;
+    const waiting=new Promise(resolve=>entered=resolve);
+    const completion=new Promise(resolve=>release=resolve);
+    const error={
+        async waitFor({state}) { assert.equal(hidden,state==='hidden'); },
+        async evaluateHandle(fn) {
+            const value=fn({closest:()=>dialog});
+            handle={value, async evaluate(fn) {return fn(value);}, async dispose() {disposed=true;}};
+            return handle;
+        }
+    };
+    const page={
+        getByText() {return error;},
+        getByRole() {return {async click() {
+            clicks++;
+            // Text can be hidden while native history teardown is still pending.
+            hidden=true;
+            if(closeDuringClick) dialog.dispatchEvent(new Event('close'));
+        }};},
+        async waitForFunction(predicate, state) {
+            entered();
+            if(failure) throw new Error('Native close did not complete');
+            if(!predicate(state.value)) await completion;
+            assert.equal(predicate(state.value),true);
+        }
+    };
+    return {page,waiting,finish() {dialog.dispatchEvent(new Event('close'));release();},
+        state() {return {clicks,disposed,hidden,closed:handle?.value.closed};}};
+}
+test('native dismissal waits for history completion even after click returns and text is hidden',async()=>{
+    const f=dismissalFixture();let finished=false;
+    const result=dismissNativeError(f.page,'error').then(value=>{finished=true;return value;});
+    await f.waiting;
+    assert.deepEqual(f.state(),{clicks:1,disposed:false,hidden:true,closed:false});
+    assert.equal(finished,false,'Navigation must remain blocked during native teardown');
+    f.finish();
+    const evidence=await result;
+    assert.equal(evidence.closedWhenClickReturned,false);
+    assert.ok(evidence.closedAt>=evidence.clickReturnedAt);
+    assert.equal(f.state().disposed,true);
+});
+test('native dismissal observes close during the click without losing the event',async()=>{
+    const f=dismissalFixture({closeDuringClick:true});
+    const evidence=await dismissNativeError(f.page,'error');
+    assert.equal(evidence.closedWhenClickReturned,true);
+    assert.ok(evidence.closedAt<=evidence.clickReturnedAt);
+    assert.equal(f.state().clicks,1);
+});
+test('native dismissal failure propagates without retry or recovery',async()=>{
+    const f=dismissalFixture({failure:true});
+    await assert.rejects(dismissNativeError(f.page,'error'),/Native close did not complete/);
+    assert.equal(f.state().clicks,1);
+    assert.equal(f.state().disposed,true);
+});

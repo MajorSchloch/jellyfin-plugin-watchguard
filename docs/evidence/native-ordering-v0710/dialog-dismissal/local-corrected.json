@@ -1,0 +1,120 @@
+{
+  "result": "PASS",
+  "target": "Jellyfin 12.3.0",
+  "playbackCancellation": {
+    "clickReturnedAt": 3583.0999999940395,
+    "closedWhenClickReturned": false,
+    "closedAt": 3732.5,
+    "viewReadyAt": 3755.699999988079,
+    "nextNavigationAt": 3799.5999999940395,
+    "nextDetailReady": true
+  },
+  "orderingViolations": 0,
+  "paths": [
+    {
+      "path": "Progressive overview",
+      "result": "explicit cards rendered with discovery held; no false empty state; query controls superseded earlier responses; card node preserved on completion"
+    },
+    {
+      "path": "My Watchlist",
+      "result": "empty/list, movie and series links, removal, failed removal/load and refresh recovery passed"
+    },
+    {
+      "path": "Playback-only series",
+      "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+    },
+    {
+      "path": "Modern compatibility",
+      "result": "Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+    },
+    {
+      "path": "Inline users",
+      "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+    },
+    {
+      "path": "Watchlist controls",
+      "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+    },
+    {
+      "path": "Recent viewing activity",
+      "result": "completed movie and whole series, exact native date, four available episodes (undated extras in current UI), explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+    },
+    {
+      "path": "PoC Zero",
+      "result": "native deletion without extra WatchGuard warning"
+    },
+    {
+      "path": "PoC Self",
+      "result": "native deletion without extra WatchGuard warning"
+    },
+    {
+      "path": "Explicit desktop-legacy",
+      "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+    },
+    {
+      "path": "Explicit modern",
+      "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+    },
+    {
+      "path": "Missing parent resolution",
+      "result": "404 blocks deletion with zero DELETE requests"
+    },
+    {
+      "path": "PoC Parent Interested Episode",
+      "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+    },
+    {
+      "path": "PoC Parent Interested Season",
+      "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+    },
+    {
+      "path": "PoC Parent Clear Episode",
+      "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+    },
+    {
+      "path": "PoC Parent Clear Season",
+      "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+    },
+    {
+      "path": "PoC Movie Detail",
+      "cancel": "zero DELETE",
+      "override": "one DELETE, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "PoC Series Detail",
+      "cancel": "zero DELETE",
+      "override": "one DELETE, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Escape on movie detail",
+      "cancel": "zero DELETE",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Native membership menus",
+      "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+    },
+    {
+      "path": "Card right-click menu",
+      "cancel": "zero DELETE",
+      "override": "one DELETE, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Native two-item bulk selection",
+      "cancel": "zero DELETE after cancelling both prompts",
+      "override": "one DELETE per approved item, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Account switch",
+      "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+    },
+    {
+      "path": "Account isolation and native permissions",
+      "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+    }
+  ]
+}
