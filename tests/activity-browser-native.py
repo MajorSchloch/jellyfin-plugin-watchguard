@@ -1,7 +1,9 @@
 """v0.7 native query comparison. Disposable fixture owner calls this; never production."""
+from datetime import datetime
 import hashlib
 import json
 from pathlib import Path
+import re
 import statistics
 import subprocess
 import time
@@ -9,6 +11,84 @@ from urllib.parse import urlencode
 import zipfile
 
 BASELINE_SHA = '3542b971231b51a78d9783b490f1438b231cd0fca48b61c6aad5098528d50bd7'
+
+
+
+# DateTime/DateTimeOffset JSON may omit trailing fractional zeroes. String order
+# is not chronological, and datetime alone truncates the seventh (100 ns) digit.
+_TIMESTAMP = re.compile(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,7}))?(Z|[+-]\d{2}:\d{2})")
+TICKS_PER_SECOND = 10_000_000
+
+
+def utc_ticks(value):
+    """Nullable .NET UTC ticks, exactly; reject ambiguous/malformed timestamps."""
+    if value is None:
+        return None
+    match = _TIMESTAMP.fullmatch(value)
+    if match is None:
+        raise ValueError('Expected an explicit UTC/offset timestamp with at most seven fractional digits')
+    whole, fraction, zone = match.groups()
+    instant = datetime.strptime(whole, '%Y-%m-%dT%H:%M:%S')
+    offset = 0
+    if zone != 'Z':
+        hours, minutes = map(int, zone[1:].split(':'))
+        if hours > 14 or minutes > 59 or (hours == 14 and minutes):
+            raise ValueError('Offset outside the DateTimeOffset range')
+        offset = (hours * 60 + minutes) * 60 * (1 if zone[0] == '+' else -1)
+    seconds = ((instant.toordinal() - 1) * 86400 + instant.hour * 3600 +
+               instant.minute * 60 + instant.second - offset)
+    ticks = seconds * TICKS_PER_SECOND + int((fraction or '').ljust(7, '0'))
+    if not 0 <= ticks <= 3155378975999999999:
+        raise ValueError('UTC instant outside the .NET date range')
+    return ticks
+
+
+def date_key(item, sort):
+    if sort == 'title':
+        return None
+    field = 'LastPlayedDate' if sort == 'recent' else 'AddedAtUtc'
+    dates = [utc_ticks(u.get(field)) for u in item['Users'].values()]
+    return max((date for date in dates if date is not None), default=None)
+
+
+def select(items, statuses, search, sort):
+    wanted = {'watchlisted': ['Watchlisted'], 'watching': ['InProgress', 'CaughtUp'], 'playing': ['CurrentlyPlaying'], 'watched': ['Watched']}
+    selected = []
+    for item in items:
+        if search.casefold() not in item['Name'].casefold(): continue
+        people = {k: u for k, u in item['Users'].items() if any(set(wanted[s]) & set(u['Reasons']) for s in statuses.split(','))}
+        if people: selected.append({**item, 'Users': people})
+    # Keep the existing deterministic fixture title/ID ties. Null dates are last;
+    # max and descending ordering both use instants, never serialized strings.
+    selected.sort(key=lambda i: (i['Name'].lower(), i['Name'], i['ItemId']))
+    selected.sort(key=lambda i: (date_key(i, sort) is not None, date_key(i, sort) or 0), reverse=True)
+    return selected
+
+
+def assert_global_order(items, statuses, search, sort, output, scenario, sample, label, owner):
+    expected = select(items, statuses, search, sort)
+    actual_ids = [i['ItemId'] for i in items]
+    expected_ids = [i['ItemId'] for i in expected]
+    # Allowlist only diagnostic fields from already-authorized synthetic rows.
+    # Never serialize API envelopes, headers, continuation tokens or credentials.
+    rows = []
+    for item in items:
+        rows.append({'itemId': item['ItemId'], 'name': item['Name'],
+                     'titleTieBreak': [item['Name'].lower(), item['Name'], item['ItemId']],
+                     'maxUtcTicks': date_key(item, sort),
+                     'owners': [{'userId': uid, 'reasons': person['Reasons'],
+                                 **{field: {'raw': person.get(field), 'utcTicks': utc_ticks(person.get(field))}
+                                    for field in ('LastPlayedDate', 'AddedAtUtc')}}
+                                for uid, person in item['Users'].items()]})
+    evidence = {'scenario': scenario, 'sample': sample, 'candidate': label,
+                'query': {'owner': owner, 'statuses': statuses, 'search': search, 'sort': sort},
+                'dateKey': 'UTC ticks since 0001-01-01 (100 ns); descending, null last',
+                'actualOrder': actual_ids, 'expectedOrder': expected_ids,
+                'expectedUtcTicks': {i['ItemId']: date_key(i, sort) for i in expected}, 'rows': rows,
+                'result': 'PASS' if actual_ids == expected_ids else 'FAIL'}
+    path = output / f'order-{label}-{scenario}-{sample}.json'
+    path.write_text(json.dumps(evidence, indent=2) + '\n')
+    assert actual_ids == expected_ids, (scenario, 'global ordering', str(path))
 
 
 def run(call, restart, docker, name, plugins, token, owners, movies, series, phases):
@@ -85,21 +165,6 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series, pha
                                'firstPageItems': len(first['Items']), 'firstOrderedRequests': first_requests,
                                'preparationResponses': preparations, 'emptyPreparedBoundaries': empty_boundaries, 'work': work}
 
-    def select(items, statuses, search, sort):
-        wanted = {'watchlisted': ['Watchlisted'], 'watching': ['InProgress', 'CaughtUp'], 'playing': ['CurrentlyPlaying'], 'watched': ['Watched']}
-        selected = []
-        for item in items:
-            if search.casefold() not in item['Name'].casefold(): continue
-            people = {k: u for k, u in item['Users'].items() if any(set(wanted[s]) & set(u['Reasons']) for s in statuses.split(','))}
-            if people: selected.append({**item, 'Users': people})
-        def key(item):
-            field = 'LastPlayedDate' if sort == 'recent' else 'AddedAtUtc'
-            date = max((u.get(field) or '' for u in item['Users'].values()), default='') if sort != 'title' else ''
-            return date
-        selected.sort(key=lambda i: (i['Name'].lower(), i['Name'], i['ItemId']))
-        selected.sort(key=key, reverse=True)
-        return selected
-
     scenarios = [('all-title', 'all', 'watchlisted,watching,playing,watched', '', 'title'),
                  ('single-recent', owners[0], 'watchlisted,watching,playing,watched', '', 'recent'),
                  ('few-watchlists', 'all', 'watchlisted', '', 'added'),
@@ -132,12 +197,12 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series, pha
                         timing['firstOrderedRequests'] = timing['requests']
                     else:
                         data, timing = collect('/WatchGuard/ActivityBrowser?' + urlencode({'owner': owner, 'statuses': statuses, 'sort': sort, 'search': search}))
+                    assert_global_order(data, statuses, search, sort, output, scenario, sample, label, owner)
                     ids = [i['ItemId'] for i in data]
                     # Native playback events can update dates between versions; compare membership and title order for deterministic text cases.
                     if label == 'v060': expected[scenario] = data
                     else:
                         assert set(ids) == {i['ItemId'] for i in expected[scenario]}, (scenario, ids, expected[scenario])
-                        assert ids == [i['ItemId'] for i in select(data, statuses, search, sort)], (scenario, 'global ordering')
                         if sort == 'title': assert ids == [i['ItemId'] for i in expected[scenario]]
                         for item in data:
                             before = next(i for i in expected[scenario] if i['ItemId'] == item['ItemId'])

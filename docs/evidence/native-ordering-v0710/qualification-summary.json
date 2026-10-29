@@ -1,0 +1,220 @@
+{
+  "result": "FAIL",
+  "qualified": false,
+  "runId": 40853608810,
+  "commit": "732d4844391d1467d0633d3fcd8597e34b1bd40b",
+  "publish": false,
+  "proxyMatrix": true,
+  "packageSha256": "fd4e0301c312406e4ada3301e64bcb504aa29fd16c80157beb735b5ddc2b0681",
+  "runtimeSha256": "5ddb76713367f3bc8f1559285db26ec68a07f188d868d095f3a721c9c6e48a95",
+  "byteIdenticalToRun": 40847683501,
+  "suitesPassed": 38,
+  "suitesFailed": 1,
+  "primaryFixtureCommands": 54,
+  "retries": 0,
+  "gateError": "Incomplete or failed suite: ('12.3', 'legacy')",
+  "nativeComparisons": [
+    {
+      "version": "12.2",
+      "orderSamples": 48,
+      "result": "PASS",
+      "nativePermissionRevocation": "PASS",
+      "pageReclassificationBatches": 0,
+      "singleRecent": {
+        "samples": [
+          {
+            "rawFirstPageMs": 19.071438999958445,
+            "firstOrderedPageMs": 19.071438999958445,
+            "completePaginationMs": 94.04052899992621,
+            "requests": 5,
+            "firstPageItems": 25,
+            "firstOrderedRequests": 1,
+            "preparationResponses": 0,
+            "emptyPreparedBoundaries": 0,
+            "work": {
+              "CandidatesExamined": 363,
+              "EpisodeVisibilityQueries": 2,
+              "EpisodeRows": 600
+            },
+            "titles": 121
+          },
+          {
+            "rawFirstPageMs": 24.136288000022432,
+            "firstOrderedPageMs": 24.136288000022432,
+            "completePaginationMs": 108.62186600002133,
+            "requests": 5,
+            "firstPageItems": 25,
+            "firstOrderedRequests": 1,
+            "preparationResponses": 0,
+            "emptyPreparedBoundaries": 0,
+            "work": {
+              "CandidatesExamined": 363,
+              "EpisodeVisibilityQueries": 2,
+              "EpisodeRows": 600
+            },
+            "titles": 121
+          },
+          {
+            "rawFirstPageMs": 18.48536799991507,
+            "firstOrderedPageMs": 18.48536799991507,
+            "completePaginationMs": 86.14135999994232,
+            "requests": 5,
+            "firstPageItems": 25,
+            "firstOrderedRequests": 1,
+            "preparationResponses": 0,
+            "emptyPreparedBoundaries": 0,
+            "work": {
+              "CandidatesExamined": 363,
+              "EpisodeVisibilityQueries": 2,
+              "EpisodeRows": 600
+            },
+            "titles": 121
+          }
+        ],
+        "workerPlaybackBatchesDelta": 0,
+        "firstPageMedianMs": 19.071438999958445,
+        "completePaginationMedianMs": 94.04052899992621
+      }
+    },
+    {
+      "version": "12.3",
+      "orderSamples": 48,
+      "result": "PASS",
+      "nativePermissionRevocation": "PASS",
+      "pageReclassificationBatches": 0,
+      "singleRecent": {
+        "samples": [
+          {
+            "rawFirstPageMs": 36.47146599996631,
+            "firstOrderedPageMs": 36.47146599996631,
+            "completePaginationMs": 125.82220699982827,
+            "requests": 5,
+            "firstPageItems": 25,
+            "firstOrderedRequests": 1,
+            "preparationResponses": 0,
+            "emptyPreparedBoundaries": 0,
+            "work": {
+              "CandidatesExamined": 363,
+              "EpisodeVisibilityQueries": 2,
+              "EpisodeRows": 600
+            },
+            "titles": 121
+          },
+          {
+            "rawFirstPageMs": 26.017890000048283,
+            "firstOrderedPageMs": 26.017890000048283,
+            "completePaginationMs": 120.2981159999581,
+            "requests": 5,
+            "firstPageItems": 25,
+            "firstOrderedRequests": 1,
+            "preparationResponses": 0,
+            "emptyPreparedBoundaries": 0,
+            "work": {
+              "CandidatesExamined": 363,
+              "EpisodeVisibilityQueries": 2,
+              "EpisodeRows": 600
+            },
+            "titles": 121
+          },
+          {
+            "rawFirstPageMs": 33.04590800007645,
+            "firstOrderedPageMs": 33.04590800007645,
+            "completePaginationMs": 124.1405630000827,
+            "requests": 5,
+            "firstPageItems": 25,
+            "firstOrderedRequests": 1,
+            "preparationResponses": 0,
+            "emptyPreparedBoundaries": 0,
+            "work": {
+              "CandidatesExamined": 363,
+              "EpisodeVisibilityQueries": 2,
+              "EpisodeRows": 600
+            },
+            "titles": 121
+          }
+        ],
+        "workerPlaybackBatchesDelta": 0,
+        "firstPageMedianMs": 33.04590800007645,
+        "completePaginationMedianMs": 124.1405630000827
+      }
+    },
+    {
+      "version": "12.4",
+      "orderSamples": 48,
+      "result": "PASS",
+      "nativePermissionRevocation": "PASS",
+      "pageReclassificationBatches": 0,
+      "singleRecent": {
+        "samples": [
+          {
+            "rawFirstPageMs": 17.191186999980346,
+            "firstOrderedPageMs": 17.191186999980346,
+            "completePaginationMs": 81.93310600017867,
+            "requests": 5,
+            "firstPageItems": 25,
+            "firstOrderedRequests": 1,
+            "preparationResponses": 0,
+            "emptyPreparedBoundaries": 0,
+            "work": {
+              "CandidatesExamined": 363,
+              "EpisodeVisibilityQueries": 2,
+              "EpisodeRows": 600
+            },
+            "titles": 121
+          },
+          {
+            "rawFirstPageMs": 17.821786000013162,
+            "firstOrderedPageMs": 17.821786000013162,
+            "completePaginationMs": 82.89451500013456,
+            "requests": 5,
+            "firstPageItems": 25,
+            "firstOrderedRequests": 1,
+            "preparationResponses": 0,
+            "emptyPreparedBoundaries": 0,
+            "work": {
+              "CandidatesExamined": 363,
+              "EpisodeVisibilityQueries": 2,
+              "EpisodeRows": 600
+            },
+            "titles": 121
+          },
+          {
+            "rawFirstPageMs": 17.685482000160846,
+            "firstOrderedPageMs": 17.685482000160846,
+            "completePaginationMs": 86.54266000007738,
+            "requests": 5,
+            "firstPageItems": 25,
+            "firstOrderedRequests": 1,
+            "preparationResponses": 0,
+            "emptyPreparedBoundaries": 0,
+            "work": {
+              "CandidatesExamined": 363,
+              "EpisodeVisibilityQueries": 2,
+              "EpisodeRows": 600
+            },
+            "titles": 121
+          }
+        ],
+        "workerPlaybackBatchesDelta": 0,
+        "firstPageMedianMs": 17.685482000160846,
+        "completePaginationMedianMs": 82.89451500013456
+      }
+    }
+  ],
+  "localNative12.4": "PASS",
+  "failedSuite": {
+    "version": "12.3",
+    "suite": "legacy",
+    "scenario": "legacy-browser",
+    "jobId": 123379469101,
+    "plugin": "Published v0.3.1 with JavaScript Injector",
+    "phase": "Watchlist UI",
+    "failure": "Timed out waiting for visible PoC Movie Detail on authenticated #/details route; native detail controls were hidden.",
+    "rootCause": "Not established; no retry, timeout extension or assertion change was made."
+  },
+  "limitations": [
+    "Original failure artifact omitted rows; its exact timestamp pair cannot be recovered.",
+    "Current native samples pass the corrected oracle and also happen to pass the former string oracle. Fractional-precision failure is reproduced deterministically by the focused regression tests.",
+    "Full release qualification remains blocked by the legacy browser failure."
+  ]
+}
