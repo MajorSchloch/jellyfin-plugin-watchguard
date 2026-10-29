@@ -1,0 +1,17 @@
+{
+  "run": 40756383234,
+  "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40756383234",
+  "commit": "5eaab47e6cc6cc16ba866e10dbdbde23b20f8615",
+  "packageSha256": "2821b94f1f3b56b72f21b74132f14ec70507dd681dfd5bcd93958262b4918c3b",
+  "qualification": false,
+  "failedJobs": [
+    "Integration / 12.2 / migration-browser",
+    "Integration / 12.3 / migration-browser",
+    "Integration / 12.4 / migration-browser"
+  ],
+  "failedAssertion": "browser-poc.cjs: visible Watchlists shortcut from Desktop Legacy item details",
+  "cause": "The navigation refactor retained Legacy Home tabs and the drawer but omitted the pre-existing visible detail-page shortcut.",
+  "correction": "Restore a persistent native icon-button shortcut beside native Home on Legacy detail/library pages. Add six explicit detail-to-Watchlists-and-Back, keyboard and native-geometry cases per host. Preserve the original full browser regression unchanged.",
+  "runtimeChanged": true,
+  "nextAction": "Rebuild and rerun the entire three-version workflow with publish=false and proxy_matrix=true; no evidence promotion."
+}

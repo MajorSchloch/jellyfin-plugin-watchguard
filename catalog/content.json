@@ -191,6 +191,13 @@
         "Open the drawer without shifting the Legacy header navigation; keep native Home and Favorites working."
       ],
       "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/navigation-v079.md"
+    },
+    "0.7.10.0": {
+      "summary": [
+        "Watchlists matches native Modern navigation typography, icons and hover states.",
+        "Find Watchlists as native navigation appears, without waiting for activity loading or shifting neighboring controls."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/navigation-v0710.md"
     }
   }
 }

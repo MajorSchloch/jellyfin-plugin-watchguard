@@ -1,0 +1,13 @@
+{
+  "run": 40754606666,
+  "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40754606666",
+  "commit": "9e2e30e60105d1e41cd62fb4ce8ec48b3fb3ccc5",
+  "packageSha256": "2821b94f1f3b56b72f21b74132f14ec70507dd681dfd5bcd93958262b4918c3b",
+  "qualification": false,
+  "failedJob": "Integration / 12.3 / enforcement-legacy",
+  "failedPhase": "pre-authentication native login through Caddy",
+  "cause": "ERR_NETWORK_CHANGED interrupted native localization resources; the rendered form retained untranslated ButtonSignIn and no authentication was attempted.",
+  "correction": "The existing single bounded pre-authentication network recovery now detects failed resources even when the form is visible. Initial diagnostics are retained; persistent failures still stop after two setup attempts; authentication/deletion and suite retries remain prohibited.",
+  "runtimeChanged": false,
+  "nextAction": "Rerun the entire three-version workflow with publish=false and proxy_matrix=true."
+}

@@ -43,11 +43,9 @@
     document.addEventListener('viewshow', check, true);
     document.addEventListener('viewbeforeshow', check, true);
     window.addEventListener('pageshow', check);
-    // While handing off, native DOM commits provide readiness signals on both
+    // Native DOM commits provide readiness signals on Home and Watchlists in both
     // Web layouts. No ApiClient setters, history methods or auth hooks are replaced.
-    if (window.WatchGuardStartup?.active()) {
-        observer = new MutationObserver(() => { if (window.WatchGuardStartup.active()) check(); else observer.disconnect(); });
-        observer.observe(document.documentElement, {childList:true,subtree:true});
-    }
+    observer = new MutationObserver(check);
+    observer.observe(document.documentElement, {childList:true,subtree:true});
     check();
 })();

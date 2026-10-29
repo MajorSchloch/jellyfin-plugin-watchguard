@@ -1,0 +1,407 @@
+{
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "baseline": false,
+  "device": "Chromium viewport/touch emulation; no physical device",
+  "cases": [
+    {
+      "layout": "auto",
+      "width": 1280,
+      "link": {
+        "x": 502.625,
+        "y": 2.25,
+        "width": 102.046875,
+        "height": 43.5,
+        "top": 2.25,
+        "right": 604.671875,
+        "bottom": 45.75,
+        "left": 502.625
+      },
+      "native": {
+        "x": 202.265625,
+        "y": 2.25,
+        "width": 95.578125,
+        "height": 43.5,
+        "top": 2.25,
+        "right": 297.84375,
+        "bottom": 45.75,
+        "left": 202.265625
+      },
+      "styles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "paddingRight": "8px",
+        "color": "rgb(255, 255, 255)"
+      },
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "paddingRight": "8px",
+        "color": "rgb(255, 255, 255)"
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 48,
+        "top": 0,
+        "right": 1280,
+        "bottom": 48,
+        "left": 0
+      },
+      "indices": [],
+      "inNativeTabs": false,
+      "overflow": false,
+      "aligned": true,
+      "interactions": "PASS"
+    },
+    {
+      "layout": "auto",
+      "width": 390,
+      "surface": "native mobile drawer",
+      "interactions": "PASS"
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "link": {
+        "x": 502.625,
+        "y": 2.25,
+        "width": 102.046875,
+        "height": 43.5,
+        "top": 2.25,
+        "right": 604.671875,
+        "bottom": 45.75,
+        "left": 502.625
+      },
+      "native": {
+        "x": 202.265625,
+        "y": 2.25,
+        "width": 95.578125,
+        "height": 43.5,
+        "top": 2.25,
+        "right": 297.84375,
+        "bottom": 45.75,
+        "left": 202.265625
+      },
+      "styles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "paddingRight": "8px",
+        "color": "rgb(255, 255, 255)"
+      },
+      "nativeStyles": {
+        "fontSize": "13.02px",
+        "fontFamily": "\"Noto Sans\", sans-serif",
+        "fontWeight": "500",
+        "lineHeight": "22.785px",
+        "paddingTop": "6px",
+        "paddingBottom": "6px",
+        "paddingLeft": "8px",
+        "paddingRight": "8px",
+        "color": "rgb(255, 255, 255)"
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 48,
+        "top": 0,
+        "right": 1280,
+        "bottom": 48,
+        "left": 0
+      },
+      "indices": [],
+      "inNativeTabs": false,
+      "overflow": false,
+      "aligned": true,
+      "interactions": "PASS"
+    },
+    {
+      "layout": "modern",
+      "width": 390,
+      "surface": "native mobile drawer",
+      "interactions": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "link": {
+        "x": 673.546875,
+        "y": 57.578125,
+        "width": 101.609375,
+        "height": 52.78125,
+        "top": 57.578125,
+        "right": 775.15625,
+        "bottom": 110.359375,
+        "left": 673.546875
+      },
+      "native": {
+        "x": 578.875,
+        "y": 57.578125,
+        "width": 94.671875,
+        "height": 52.765625,
+        "top": 57.578125,
+        "right": 673.546875,
+        "bottom": 110.34375,
+        "left": 578.875
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "paddingRight": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)"
+      },
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "paddingRight": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)"
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 110.359375,
+        "top": 0,
+        "right": 1280,
+        "bottom": 110.359375,
+        "left": 0
+      },
+      "indices": [
+        "0",
+        "1"
+      ],
+      "inNativeTabs": false,
+      "overflow": false,
+      "aligned": true,
+      "hoverMatches": true,
+      "resizeRetainsFocusAndIdentity": true,
+      "interactions": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 390,
+      "link": {
+        "x": 228.546875,
+        "y": 57.578125,
+        "width": 101.609375,
+        "height": 52.78125,
+        "top": 57.578125,
+        "right": 330.15625,
+        "bottom": 110.359375,
+        "left": 228.546875
+      },
+      "native": {
+        "x": 133.875,
+        "y": 57.578125,
+        "width": 94.671875,
+        "height": 52.765625,
+        "top": 57.578125,
+        "right": 228.546875,
+        "bottom": 110.34375,
+        "left": 133.875
+      },
+      "styles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "paddingRight": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)"
+      },
+      "nativeStyles": {
+        "fontSize": "12.4248px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.531px",
+        "paddingTop": "18.6372px",
+        "paddingBottom": "18.6372px",
+        "paddingLeft": "18.6372px",
+        "paddingRight": "18.6372px",
+        "color": "rgba(255, 255, 255, 0.7)"
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 110.359375,
+        "top": 0,
+        "right": 390,
+        "bottom": 110.359375,
+        "left": 0
+      },
+      "indices": [
+        "0",
+        "1"
+      ],
+      "inNativeTabs": false,
+      "overflow": false,
+      "aligned": true,
+      "hoverMatches": true,
+      "resizeRetainsFocusAndIdentity": true,
+      "interactions": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 1280,
+      "link": {
+        "x": 672.484375,
+        "y": 55.71875,
+        "width": 98.34375,
+        "height": 51.09375,
+        "top": 55.71875,
+        "right": 770.828125,
+        "bottom": 106.8125,
+        "left": 672.484375
+      },
+      "native": {
+        "x": 580.84375,
+        "y": 55.71875,
+        "width": 91.640625,
+        "height": 51.09375,
+        "top": 55.71875,
+        "right": 672.484375,
+        "bottom": 106.8125,
+        "left": 580.84375
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "paddingRight": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)"
+      },
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "paddingRight": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)"
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 106.8125,
+        "top": 0,
+        "right": 1280,
+        "bottom": 106.8125,
+        "left": 0
+      },
+      "indices": [
+        "0",
+        "1"
+      ],
+      "inNativeTabs": false,
+      "overflow": false,
+      "aligned": true,
+      "hoverMatches": true,
+      "resizeRetainsFocusAndIdentity": true,
+      "interactions": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "link": {
+        "x": 227.484375,
+        "y": 55.71875,
+        "width": 98.34375,
+        "height": 51.09375,
+        "top": 55.71875,
+        "right": 325.828125,
+        "bottom": 106.8125,
+        "left": 227.484375
+      },
+      "native": {
+        "x": 135.84375,
+        "y": 55.71875,
+        "width": 91.640625,
+        "height": 51.09375,
+        "top": 55.71875,
+        "right": 227.484375,
+        "bottom": 106.8125,
+        "left": 135.84375
+      },
+      "styles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "paddingRight": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)"
+      },
+      "nativeStyles": {
+        "fontSize": "12.024px",
+        "fontFamily": "\"Noto Sans\", \"Noto Sans HK\", \"Noto Sans JP\", \"Noto Sans KR\", \"Noto Sans SC\", \"Noto Sans TC\", sans-serif",
+        "fontWeight": "600",
+        "lineHeight": "15.03px",
+        "paddingTop": "18.036px",
+        "paddingBottom": "18.036px",
+        "paddingLeft": "18.036px",
+        "paddingRight": "18.036px",
+        "color": "rgba(255, 255, 255, 0.7)"
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 106.8125,
+        "top": 0,
+        "right": 390,
+        "bottom": 106.8125,
+        "left": 0
+      },
+      "indices": [
+        "0",
+        "1"
+      ],
+      "inNativeTabs": false,
+      "overflow": false,
+      "aligned": true,
+      "hoverMatches": true,
+      "resizeRetainsFocusAndIdentity": true,
+      "interactions": "PASS"
+    }
+  ],
+  "result": "PASS"
+}

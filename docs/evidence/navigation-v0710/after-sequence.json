@@ -1,0 +1,163 @@
+{
+  "baseline": false,
+  "method": "Real authenticated runtime request held until native Favorites is visible and first screenshot is captured, then released. This supplementary frame sequence does not change qualification assertions.",
+  "rows": [
+    {
+      "layout": "auto",
+      "width": 390,
+      "first": {
+        "x": -126.9719009399414,
+        "y": 122.671875,
+        "runtime": false
+      },
+      "last": {
+        "x": -58.71241760253906,
+        "y": 122.671875
+      }
+    },
+    {
+      "layout": "auto",
+      "width": 1280,
+      "first": {
+        "x": 202.34375,
+        "y": 2.25,
+        "runtime": false
+      },
+      "last": {
+        "x": 202.34375,
+        "y": 2.25
+      }
+    },
+    {
+      "layout": "auto",
+      "width": 2048,
+      "first": {
+        "x": 227.6875,
+        "y": 2.25,
+        "runtime": false
+      },
+      "last": {
+        "x": 227.6875,
+        "y": 2.25
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 390,
+      "first": {
+        "x": -127.07430267333984,
+        "y": 122.671875,
+        "runtime": false
+      },
+      "last": {
+        "x": -58.73518753051758,
+        "y": 122.671875
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "first": {
+        "x": 202.34375,
+        "y": 2.25,
+        "runtime": false
+      },
+      "last": {
+        "x": 202.34375,
+        "y": 2.25
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 2048,
+      "first": {
+        "x": 227.6875,
+        "y": 2.25,
+        "runtime": false
+      },
+      "last": {
+        "x": 227.6875,
+        "y": 2.25
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 390,
+      "first": {
+        "x": 133.875,
+        "y": 57.578125,
+        "runtime": false
+      },
+      "last": {
+        "x": 133.875,
+        "y": 57.578125
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "first": {
+        "x": 578.875,
+        "y": 57.578125,
+        "runtime": false
+      },
+      "last": {
+        "x": 578.875,
+        "y": 57.578125
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 2048,
+      "first": {
+        "x": 950.78125,
+        "y": 1.1875,
+        "runtime": false
+      },
+      "last": {
+        "x": 950.78125,
+        "y": 1.1875
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "first": {
+        "x": 135.84375,
+        "y": 55.71875,
+        "runtime": false
+      },
+      "last": {
+        "x": 135.84375,
+        "y": 55.71875
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 1280,
+      "first": {
+        "x": 580.84375,
+        "y": 55.71875,
+        "runtime": false
+      },
+      "last": {
+        "x": 580.84375,
+        "y": 55.71875
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 2048,
+      "first": {
+        "x": 953.140625,
+        "y": 1.171875,
+        "runtime": false
+      },
+      "last": {
+        "x": 953.140625,
+        "y": 1.171875
+      }
+    }
+  ],
+  "limitation": "Mobile coordinate deltas include the native drawer slide animation and are not WatchGuard insertion measurements. Use the per-frame arrival reports for insertion movement."
+}

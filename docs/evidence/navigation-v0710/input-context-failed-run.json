@@ -1,0 +1,17 @@
+{
+  "run": 40765543301,
+  "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40765543301",
+  "commit": "1a9b4e746bc2871928c6cce91900c1a6b9e6b857",
+  "packageSha256": "fd4e0301c312406e4ada3301e64bcb504aa29fd16c80157beb735b5ddc2b0681",
+  "qualification": false,
+  "conclusion": "cancelled",
+  "failedJobs": [
+    "Integration / 12.2 / verification-navigation",
+    "Integration / 12.4 / verification-navigation"
+  ],
+  "failedAssertion": "navigation-arrival-browser.cjs: desktop context must report hover:hover",
+  "cause": "On pinned Linux Chromium, disabling touch through CDP leaves hover:none. The new desktop assertion correctly rejected a touch-mode comparison. All 48 arrival cases had passed before the interaction setup failed.",
+  "correction": "Use separate Playwright contexts with explicit hasTouch:false and hasTouch:true. Preserve the native hover, selected-state and keyboard assertions. Verify the profile behavior in the exact pinned Linux browser image.",
+  "runtimeChanged": false,
+  "nextAction": "Rerun all 39 suites using the unchanged candidate package; no cross-run evidence promotion."
+}

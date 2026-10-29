@@ -108,7 +108,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series, pha
                  ('live', 'all', 'playing', '', 'title')]
     expected = {}
     try:
-        for label, payload in [('v060', old), ('v079', candidate)]:
+        for label, payload in [('v060', old), ('v0710', candidate)]:
             phases.phase(label + '-query-population')
             docker('stop', name); dll.write_bytes(payload); restart(); report[label + 'SettleMs'] = settle()
             live_user = call('/Users/AuthenticateByName', 'POST', {'Username': 'IndexUser0', 'Pw': 'DisposableIndex123!'})

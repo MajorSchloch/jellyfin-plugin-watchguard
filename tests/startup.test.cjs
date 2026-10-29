@@ -22,9 +22,23 @@ for(const reason of ['handoff','timeout','navigation','script-error','pagehide']
  if(reason==='timeout'){assert.equal(f.timers.get(1).ms,20000);f.timers.get(1).f();}
  if(reason==='navigation'){f.sandbox.location.hash='#/login';f.events.get('hashchange')();}
  if(reason==='script-error')f.events.get('error')({target:{id:'watchguard-standalone-loader'}});
- if(reason==='pagehide')f.events.get('pagehide')();
+ if(reason==='pagehide')f.events.get('pagehide')({target:f.sandbox.document});
  assert.equal(f.sandbox.WatchGuardStartup.active(),false);assert.equal(f.events.size,0);assert.equal(f.timers.size,0);assert.ok(f.disconnected());
  assert.equal(f.nodes.filter(n=>n.id==='watchguard-startup'&&n.isConnected).length,0);
  f.sandbox.WatchGuardStartup.finish();
 });
 test('Unrelated resource errors do not dismiss Watchlists loading',()=>{const f=fixture();f.events.get('error')({target:{id:'native-image'}});assert.equal(f.sandbox.WatchGuardStartup.active(),true);});
+
+test('Early navigation link starts the same bounded handoff; loaded runtime does not restart it',()=>{
+ const f=fixture('#/home');f.sandbox.location.hash='#/home?watchguard=watchlists';
+ f.sandbox.WatchGuardStartWatchlists();assert.ok(f.sandbox.WatchGuardStartup.active());
+ f.sandbox.WatchGuardStartWatchlists();assert.equal(f.timers.size,1);
+ f.sandbox.WatchGuardStartup.finish();f.sandbox.WatchGuardPoc={};f.sandbox.WatchGuardStartWatchlists();
+ assert.equal(f.timers.size,0);assert.equal(f.events.size,0);
+});
+
+test('Legacy view pagehide is not a document unload and cannot expose Home',()=>{
+ const f=fixture();f.events.get('pagehide')({target:f.node()});
+ assert.equal(f.sandbox.WatchGuardStartup.active(),true);assert.equal(f.timers.size,1);
+ f.events.get('pagehide')({target:f.sandbox.document});assert.equal(f.sandbox.WatchGuardStartup.active(),false);
+});

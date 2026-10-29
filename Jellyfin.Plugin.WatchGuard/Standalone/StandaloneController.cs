@@ -32,7 +32,7 @@ public sealed class StandaloneController(StandaloneMode mode, ServerEnforcement.
         if (user is null || user.HasPermission(PermissionKind.IsDisabled)) return Unauthorized();
         if (!mode.CanLoad()) return Conflict("Conflicting or unverifiable Injector registration.");
         Response.OnCompleted(() => { if (Response.StatusCode == 200) mode.ScriptDelivered(); return Task.CompletedTask; });
-        return Content(Read("Jellyfin.Plugin.WatchGuard.Web.watchguard.js").Replace("/*WATCHGUARD_DIAGNOSTICS*/false",
+        return Content(Read("Jellyfin.Plugin.WatchGuard.Web.navigation.js") + "\n" + Read("Jellyfin.Plugin.WatchGuard.Web.watchguard.js").Replace("/*WATCHGUARD_DIAGNOSTICS*/false",
             Plugin.Instance!.Configuration.DiagnosticMode ? "true" : "false", StringComparison.Ordinal)
             .Replace("/*WATCHGUARD_SERVER_EXPECTED*/false", guard.EnabledAtStartup ? "true" : "false", StringComparison.Ordinal), "application/javascript; charset=utf-8");
     }

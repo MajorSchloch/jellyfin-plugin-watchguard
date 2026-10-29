@@ -14,10 +14,10 @@ public sealed class StandaloneStartupFilter(StandaloneMode mode, IServerConfigur
 {
     // Static code only: no route, user data or credentials are interpolated into script.
     // Existing CSP remains authoritative (including policies that forbid inline scripts).
-    private static readonly string Startup = ReadStartup();
-    private static string ReadStartup()
+    private static readonly string Startup = ReadResource("Web.navigation.js") + "\n" + ReadResource("Standalone.startup.js");
+    private static string ReadResource(string resource)
     {
-        using var stream = typeof(StandaloneStartupFilter).Assembly.GetManifestResourceStream("Jellyfin.Plugin.WatchGuard.Standalone.startup.js")!;
+        using var stream = typeof(StandaloneStartupFilter).Assembly.GetManifestResourceStream("Jellyfin.Plugin.WatchGuard." + resource)!;
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }

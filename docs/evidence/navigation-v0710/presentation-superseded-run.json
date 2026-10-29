@@ -1,0 +1,12 @@
+{
+  "run": 40759877064,
+  "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40759877064",
+  "commit": "149b83f4ebc881238e15a7310239cd9c1ea4cea2",
+  "packageSha256": "fc3dede294e26fd250df9e341cce5c8e3f96c0fcd1b9448fbabb900bdcdf7c49",
+  "qualification": false,
+  "status": "cancelled",
+  "cause": "Supplemental local native comparisons found the active Favorites color variant copied to inactive Watchlists. Desktop hover also needed primary-color opacity with touch suppression. No qualifying result is claimed for this run.",
+  "correction": "Copy a verified neutral native variant, use a scoped theme fallback when no neutral peer exists, and test native selected/hover states with actual desktop mouse and mobile touch emulation. Exclude MUI transient and loading classes.",
+  "runtimeChanged": true,
+  "nextAction": "Rerun the entire three-version workflow with publish=false and proxy_matrix=true; no evidence promotion."
+}
