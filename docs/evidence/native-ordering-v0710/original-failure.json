@@ -1,0 +1,21 @@
+{
+  "runId": 40847683501,
+  "jobId": 123359607051,
+  "artifactId": 12885824760,
+  "commit": "c8f030e6b880bd8f96ce8ed4861f357e552cd1a3",
+  "scenario": "single-recent",
+  "assertion": "global ordering",
+  "candidateDllSha256": "5ddb76713367f3bc8f1559285db26ec68a07f188d868d095f3a721c9c6e48a95",
+  "candidateZipSha256": "fd4e0301c312406e4ada3301e64bcb504aa29fd16c80157beb735b5ddc2b0681",
+  "savedMeasurements": [
+    "v060-all-title",
+    "v060-single-recent",
+    "v060-few-watchlists",
+    "v060-few-search",
+    "v060-few-watching",
+    "v060-live",
+    "v0710-all-title"
+  ],
+  "rawRowsAvailable": false,
+  "limitation": "The failure artifact did not retain the actual or expected rows; the exact offending pair cannot be reconstructed."
+}
