@@ -1,5 +1,5 @@
 {
-  "comparison": "Prior v0.7.11 candidate versus final candidate; same pinned native 12.4 fixture. Not a published-release comparison.",
+  "comparison": "Before/after the menu-identity correction on v0.7.11 candidates, using the same pinned native 12.4 fixture. The final candidate additionally corrects feedback contrast; its qualification repeats the identity assertion. Not a published-release comparison.",
   "before": {
     "serverWeb": "12.4.0",
     "result": "PASS",

@@ -1,0 +1,12 @@
+{
+  "runId": 41048106974,
+  "jobId": 124037598201,
+  "artifactId": 12974775838,
+  "commit": "a0fe7938154ac7915e8f9ee4cbffa27071682f08",
+  "version": "12.3.0",
+  "deployment": "LinuxServer + Caddy; disposable synthetic fixture",
+  "phase": "Native membership actions",
+  "observation": "Native poster context menu opened without WatchGuard membership action; the strict Remove from Watchlist assertion timed out.",
+  "cause": "Unconfirmed. Focused and full local replays passed. No fence or assertion was weakened.",
+  "screenshot": "docs/screenshots/native-controls-v0711/earlier-poster-menu-failure.png"
+}
