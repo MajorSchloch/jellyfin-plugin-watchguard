@@ -1,8 +1,8 @@
 # Jellyfin WatchGuard
 
-**Current release: [v0.7.10](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.10)** · Published target: **Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0 / .NET 10** · [Plugin catalog](manifest.json)
+**Current release: [v0.7.11](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.11)** · Published target: **Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0 / .NET 10** · [Plugin catalog](manifest.json)
 
-**Next release preparation:** [v0.7.11 native controls](docs/native-controls-v0711.md) (unpublished).
+**Release validation:** [v0.7.11 native controls](docs/native-controls-v0711.md) and [catalog recovery](docs/catalog-recovery.md).
 
 Keep track of what you want to watch and see what others on your server are watching. WatchGuard adds personal watchlists, shared viewing progress and warnings before you delete something someone still wants to watch. Optional server-side protection can also block supported Jellyfin deletions until an administrator approves them.
 
@@ -23,7 +23,7 @@ WatchGuard is a **single Jellyfin plugin** with an authenticated, standalone Web
 
    `https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json`
 
-2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.7.9.0`).
+2. Open **Dashboard → Plugins → Catalog**, install or upgrade **WatchGuard** (`0.7.11.0`).
 3. **Restart Jellyfin**, then **fully reload Jellyfin Web** in each browser.
 4. Open **Dashboard → Plugins → WatchGuard**. Confirm the installed plugin version, standalone loader, the current browser's installed adapter and the active server-guard state. The approval **POST readiness** check is non-mutating.
 
@@ -87,6 +87,8 @@ python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zi
 ```
 
 The release packager produces a deterministic ZIP containing only the WatchGuard DLL and LICENSE; Web resources are embedded. Building and testing do **not** publish releases or modify the public catalog. The optional full GitHub Actions release workflow defaults to `publish=false`; it tests disposable Jellyfin instances and generated media. **Do not point fixture scripts at production media.**
+
+If publication succeeds but the catalog update fails, follow [catalog recovery](docs/catalog-recovery.md) using the already validated package; do not republish the release.
 
 See the [documentation index](docs/README.md) for the current security, deployment and test references, plus historical version-specific research retained for audit and rollback.
 

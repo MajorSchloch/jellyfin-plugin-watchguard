@@ -54,7 +54,7 @@ class CatalogTests(unittest.TestCase):
         release={'draft':False,'prerelease':False,'published_at':'2026-10-12T00:00:00Z','assets':[
             {'name':asset_name,'browser_download_url':base+asset_name},
             {'name':asset_name+'.sha256','browser_download_url':base+asset_name+'.sha256'}]}
-        def download(url,destination):
+        def download(url,destination,**kwargs):
             if '/releases/tags/' in url: content=json.dumps(release).encode()
             elif url.endswith('.sha256'): content=f'{catalog.inspect_zip(archive)[1]}  {asset_name}\n'.encode()
             else: content=archive.read_bytes()
