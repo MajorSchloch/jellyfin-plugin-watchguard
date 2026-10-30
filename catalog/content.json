@@ -198,6 +198,13 @@
         "Find Watchlists as native navigation appears, without waiting for activity loading or shifting neighboring controls."
       ],
       "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/navigation-v0710.md"
+    },
+    "0.7.11.0": {
+      "summary": [
+        "Watchlist actions keep native detail-button sizing, visible keyboard focus and clear add/remove states.",
+        "Watchlists filters use native field and checkbox presentation, with clearer pending actions and stable controls."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/native-controls-v0711.md"
     }
   }
 }

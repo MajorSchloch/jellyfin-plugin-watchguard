@@ -582,6 +582,17 @@
         };
     }
 
+    // Shared native emby-checkbox structure. The real input owns keyboard,
+    // checked and focus behavior; the decorative outline never handles events.
+    function checkboxLabel(document, input, text) {
+        const label = document.createElement('label'); label.className = 'emby-checkbox-label';
+        input.className = 'emby-checkbox';
+        const caption = document.createElement('span'); caption.className = 'checkboxLabel'; caption.textContent = text;
+        const outline = document.createElement('span'); outline.className = 'checkboxOutline'; outline.setAttribute('aria-hidden', 'true');
+        const icon = document.createElement('span'); icon.className = 'material-icons checkboxIcon checkboxIcon-checked'; icon.textContent = 'check';
+        outline.append(icon); label.append(input, caption, outline); return label;
+    }
+
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
         let raw = {owner: filter, interest: options.interest, sort: options.sort};
         let range = [7,30,90].includes(Number(options.days)) ? Number(options.days) : 30, includeOlder = options.older !== 'false';
@@ -594,7 +605,7 @@
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
         let kind = selectedStatuses(options.interest);
         let sort = ['title', 'recent', 'added'].includes(options.sort) ? options.sort : 'title';
-        const page = document.createElement('section'); page.className = 'watchguard-page padded-left padded-right';
+        const page = document.createElement('section'); page.className = 'watchguard-page backgroundContainer padded-left padded-right';
         page.setAttribute('role', 'region'); page.setAttribute('aria-label', 'Watchlists');
         const heading = document.createElement('h1'); heading.className = 'sectionTitle'; heading.textContent = 'Watchlists';
         const toolbar = document.createElement('div'); toolbar.className = 'watchguard-toolbar';
@@ -605,25 +616,30 @@
             }
             return select;
         }
+        function selectArrow() {
+            const arrow = document.createElement('span'); arrow.className = 'selectArrowContainer'; arrow.setAttribute('aria-hidden', 'true');
+            const icon = document.createElement('span'); icon.className = 'material-icons selectArrow'; icon.textContent = 'keyboard_arrow_down'; arrow.append(icon); return arrow;
+        }
         const select = dropdown('Watchlist owner', []); select.hidden = true;
         const interestFilter = document.createElement('details'); interestFilter.className = 'watchguard-filter';
         const summary = document.createElement('summary'); summary.className = 'emby-button button-flat'; summary.setAttribute('aria-label', 'Status filters');
-        const choicesPanel = document.createElement('div'); choicesPanel.className = 'watchguard-filter-options';
+        const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
+        const filterCount = document.createElement('span'); summary.append(filterIcon, filterCount);
+        const choicesPanel = document.createElement('div'); choicesPanel.className = 'watchguard-filter-options paperList';
         const checkboxes = new Map();
         for (const [value, reason] of Object.entries(activityFilters)) {
-            const label = document.createElement('label');
             const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.value = value;
-            const text = document.createElement('span'); text.textContent = reason === 'Watchlisted' ? 'Watchlisted' : activityReasons[reason];
+            const label = checkboxLabel(document, checkbox, reason === 'Watchlisted' ? 'Watchlisted' : activityReasons[reason]);
             checkbox.onchange = () => { kind = [...checkboxes].filter(([, box]) => box.checked).map(([id]) => id); change(); };
-            label.append(checkbox, text); choicesPanel.append(label); checkboxes.set(value, checkbox);
+            choicesPanel.append(label); checkboxes.set(value, checkbox);
         }
         const reset = document.createElement('button'); reset.type = 'button'; reset.className = 'emby-button button-flat'; reset.textContent = 'Reset to Defaults';
-        let resetting = false;
+        let resetting = false, saving = false;
         reset.onclick = async () => {
             if (!options.preferences) { kind = [...defaultFilters]; change(); return; }
-            if (!active() || resetting) return;
+            if (!active() || resetting || saving) return;
             // Keep keyboard focus while the preference request is pending.
-            resetting = true; reset.setAttribute('aria-disabled', 'true');
+            resetting = true; reset.setAttribute('aria-disabled', 'true'); save.setAttribute('aria-disabled', 'true'); reset.setAttribute('aria-busy', 'true');
             try {
                 await preferenceRequest(api, 'DELETE');
                 if (!active()) return;
@@ -631,17 +647,17 @@
                 preferenceMessage.textContent = 'Defaults restored.';
                 navigate('mine', defaultFilters.join(','), 'title');
             } catch { if (active()) preferenceMessage.textContent = 'Could not reset saved defaults. Please retry.'; }
-            finally { resetting = false; reset.setAttribute('aria-disabled', 'false'); }
+            finally { resetting = false; reset.setAttribute('aria-disabled', 'false'); save.setAttribute('aria-disabled', 'false'); reset.setAttribute('aria-busy', 'false'); }
         };
         const save = document.createElement('button'); save.type = 'button'; save.className = 'emby-button button-flat'; save.textContent = 'Save view as defaults';
         save.onclick = async () => {
-            if (!active()) return;
-            save.disabled = true;
+            if (!active() || saving || resetting) return;
+            saving = true; save.setAttribute('aria-disabled', 'true'); reset.setAttribute('aria-disabled', 'true'); save.setAttribute('aria-busy', 'true');
             try {
                 const result = await preferenceRequest(api, 'PUT', {Owner: admin ? filter || 'mine' : 'mine', Statuses: [...kind], Sort: sort});
                 if (active()) { saved = result; preferenceMessage.textContent = 'View saved as your defaults.'; }
             } catch { if (active()) preferenceMessage.textContent = 'Could not save defaults. Please retry.'; }
-            finally { save.disabled = false; }
+            finally { saving = false; save.setAttribute('aria-disabled', 'false'); reset.setAttribute('aria-disabled', 'false'); save.setAttribute('aria-busy', 'false'); }
         };
         if (options.preferences) choicesPanel.append(save);
         choicesPanel.append(reset); interestFilter.append(summary, choicesPanel);
@@ -652,15 +668,15 @@
         const refresh = document.createElement('button'); refresh.className = 'emby-button button-flat watchguard-refresh'; refresh.type = 'button'; refresh.title = 'Refresh'; refresh.setAttribute('aria-label', 'Refresh');
         const refreshIcon = document.createElement('span'); refreshIcon.className = 'material-icons'; refreshIcon.textContent = 'refresh'; refreshIcon.setAttribute('aria-hidden', 'true'); refresh.append(refreshIcon);
         const ownerGroup = document.createElement('label'); ownerGroup.className = 'watchguard-toolbar-field watchguard-owner';
-        const ownerLabel = document.createElement('span'); ownerLabel.textContent = 'Owner'; ownerGroup.append(ownerLabel, select);
+        const ownerLabel = document.createElement('span'); ownerLabel.className = 'selectLabel'; ownerLabel.textContent = 'Owner'; ownerGroup.append(ownerLabel, select, selectArrow());
         const sortGroup = document.createElement('label'); sortGroup.className = 'watchguard-toolbar-field watchguard-sort';
-        const sortLabel = document.createElement('span'); sortLabel.textContent = 'Sort by'; sortGroup.append(sortLabel, order);
+        const sortLabel = document.createElement('span'); sortLabel.className = 'selectLabel'; sortLabel.textContent = 'Sort by'; sortGroup.append(sortLabel, order, selectArrow());
         toolbar.append(ownerGroup, interestFilter, sortGroup, refresh);
         const search = document.createElement('input'); search.type = 'search'; search.maxLength = 120;
         search.className = 'emby-input'; search.setAttribute('aria-label', 'Search titles'); search.placeholder = 'Search known titles'; search.setAttribute('aria-describedby', 'watchguard-search-scope'); search.value = searchText;
         if (options.indexedActivity) {
             const field = document.createElement('label'); field.className = 'watchguard-toolbar-field watchguard-search';
-            const label = document.createElement('span'); label.textContent = 'Search titles'; field.append(label, search); toolbar.append(field);
+            const label = document.createElement('span'); label.className = 'inputLabel'; label.textContent = 'Search titles'; field.append(label, search); toolbar.append(field);
         }
         const rangeSelect = dropdown('Activity range', [['7', 'Last 7 days'], ['30', 'Last 30 days'], ['90', 'Last 90 days']]);
         const olderToggle = document.createElement('input'); olderToggle.type = 'checkbox';
@@ -668,9 +684,8 @@
         const secondarySummary = document.createElement('summary'); secondary.append(secondarySummary);
         if (options.indexedActivity) {
             const field = document.createElement('label'); field.className = 'watchguard-toolbar-field';
-            const label = document.createElement('span'); label.textContent = 'Activity range'; field.append(label, rangeSelect);
-            const olderLabel = document.createElement('label'); olderLabel.className = 'watchguard-older-interest';
-            const olderText = document.createElement('span'); olderText.textContent = 'Include older current interest'; olderLabel.append(olderToggle, olderText);
+            const label = document.createElement('span'); label.className = 'selectLabel'; label.textContent = 'Activity range'; field.append(label, rangeSelect, selectArrow());
+            const olderLabel = checkboxLabel(document, olderToggle, 'Include older current interest'); olderLabel.classList.add('watchguard-older-interest');
             secondary.append(field, olderLabel); toolbar.append(secondary);
         }
         const more = document.createElement('button'); more.type = 'button'; more.className = 'emby-button button-flat'; more.textContent = 'Load more activity'; more.hidden = true;
@@ -735,9 +750,7 @@
             }
             select.value = admin ? filter : 'mine'; select.hidden = !admin; ownerGroup.hidden = !admin;
             for (const [id, checkbox] of checkboxes) checkbox.checked = kind.includes(id);
-            summary.replaceChildren();
-            const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
-            const count = document.createElement('span'); count.textContent = 'Status · ' + kind.length; summary.append(filterIcon, count);
+            setText(filterCount, 'Status · ' + kind.length);
             summary.title = 'Status filters (' + kind.length + ' selected)'; summary.setAttribute('aria-label', summary.title); order.value = sort;
             const amount = selected.length + (selected.length === 1 ? ' title loaded' : ' titles loaded');
             let state = 'ready', message = selected.length ? amount + (continuation ? ' · More available' : '') : 'No matches for these filters';
@@ -1223,11 +1236,10 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-deletion-dialog button:focus-visible {outline:2px solid #fff;outline-offset:2px}
 
         body.watchguard-page-open .skinBody {display:none!important}
-        .watchguard-page {position:fixed;inset:var(--watchguard-top,64px) 0 0;overflow:auto;background:var(--jf-palette-background-default,#101010);z-index:10;padding-bottom:5em;box-sizing:border-box}
+        .watchguard-page {position:fixed;inset:var(--watchguard-top,64px) 0 0;overflow:auto;z-index:10;padding-bottom:5em;box-sizing:border-box}
         .watchguard-page [hidden] {display:none!important}
-        .watchguard-page select {width:auto;min-width:9em;max-width:100%;appearance:auto}
-        .watchguard-toolbar {display:flex;align-items:center;gap:.8em;flex-wrap:wrap;margin:1.2em 0}
-        .watchguard-refresh {margin-inline-start:auto;padding:.6em}
+        .watchguard-page select {min-width:0;max-width:100%}
+
         .watchguard-loading-status {display:flex;align-items:center;gap:.5em}
         .watchguard-spinner {font-size:1.2em;animation:watchguard-spin 1s linear infinite;color:var(--jf-palette-primary-main,#00a4dc)}
         @keyframes watchguard-spin {to {transform:rotate(360deg)}}
@@ -1238,9 +1250,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-filter {position:relative}
         .watchguard-filter summary {cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:.35em;min-height:2.5em;box-sizing:border-box}
         .watchguard-filter summary .material-icons {font-size:1.4em}
-        .watchguard-filter-options {position:absolute;inset-block-start:100%;inset-inline-start:0;z-index:2;min-width:13em;padding:.5em;background:var(--jf-palette-background-paper,#202020);border:1px solid #666;border-radius:.3em;box-shadow:0 .3em 1em #0008}
-        .watchguard-filter-options label {display:flex;align-items:center;gap:.65em;padding:.65em;cursor:pointer}
-        .watchguard-filter-options input {width:1.2em;height:1.2em;accent-color:var(--jf-palette-primary-main,#00a4dc)}
+        .watchguard-filter-options {position:absolute;inset-block-start:100%;inset-inline-start:0;z-index:2;min-width:13em;padding:.5em;border:1px solid var(--jf-palette-divider,#8885);border-radius:.2em;box-shadow:0 .3em 1em #0008}
+
         .watchguard-card {position:relative;min-width:0}
         .watchguard-remove {position:absolute;top:.3em;right:.3em;background:rgba(0,0,0,.75);border-radius:50%;padding:.5em;color:white}
         @media(max-width:480px) {.watchguard-grid {grid-template-columns:repeat(2,minmax(0,1fr))}.watchguard-toolbar {gap:.5em;position:relative}.watchguard-filter {position:static}.watchguard-page select {min-width:0;max-width:100%}}
@@ -1270,20 +1281,25 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-extras-dialog button {min-height:2.75rem}
         .watchguard-user-line time {grid-column:1/-1;font-size:.9em;opacity:.85}
         .watchguard-status {font-size:.8em;line-height:1.5}
-        .watchguard-page {color:var(--jf-palette-text-primary,#eee)}
-        .watchguard-page .watchguard-toolbar-field, .watchguard-page .watchguard-status, .watchguard-toolbar .emby-button {color:inherit}
+        .watchguard-page {color:inherit}
+        .watchguard-page .watchguard-toolbar-field, .watchguard-page .watchguard-status {color:inherit}
         .watchguard-toolbar {gap:.75rem;align-items:flex-end;margin:1rem 0}
-        .watchguard-older-interest {display:flex;align-items:center;gap:.5rem;min-height:44px;max-width:100%;font-size:.85rem;cursor:pointer}
-        .watchguard-older-interest input {flex:none;min-width:20px;min-height:20px}
-        .watchguard-toolbar-field {display:flex;flex-direction:column;gap:.3rem;min-width:0;flex:0 1 15rem}
-        .watchguard-toolbar-field>span {font-size:.75rem;opacity:.8;padding-inline:.2rem}
+        .watchguard-older-interest {max-width:100%;margin-top:.5rem}
+        .watchguard-toolbar-field {position:relative;display:flex;flex-direction:column;gap:.3rem;min-width:0;flex:0 1 15rem}
+        .watchguard-toolbar-field>.selectArrowContainer {position:absolute;pointer-events:none;top:auto;bottom:.45em;inset-inline-end:.35em}
+        .watchguard-toolbar .selectArrow {font-size:1.5em;vertical-align:middle}
+        .watchguard-toolbar .emby-select {appearance:none;padding-inline-end:1.9em}
+        .watchguard-toolbar-field>.selectLabel,.watchguard-toolbar-field>.inputLabel {font-size:inherit;margin:0}
         .watchguard-toolbar-field :is(select,input[type="search"]) {width:100%;min-height:44px;margin:0;box-sizing:border-box}
         .watchguard-sort {margin-inline-start:auto;flex-basis:13rem}
         .watchguard-refresh {margin:0;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
         .watchguard-filter summary {min-height:44px;margin:0}
-        .watchguard-filter-options {max-width:calc(100vw - 3rem);box-sizing:border-box;color:var(--jf-palette-text-primary,#eee)}
+        .watchguard-filter-options {max-width:calc(100vw - 3rem);box-sizing:border-box;color:inherit}
         .watchguard-filter-options :is(label,button) {min-height:44px;box-sizing:border-box}
-        .watchguard-page :is(button,summary,select,input,a,[tabindex]):focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc);outline-offset:3px}
+        .watchguard-filter-options .emby-button {display:flex;width:100%;margin:.25em 0;text-align:start}
+        .watchguard-toolbar .emby-checkbox-label {height:auto;min-height:44px;padding-block:.4em}
+        .watchguard-toolbar .checkboxOutline {top:50%;transform:translateY(-50%)}
+        .watchguard-page :is(button,summary,select,input,a,[tabindex]):focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:3px}
         .watchguard-notice {font-size:.85em;line-height:1.5;margin:.6rem 0;overflow-wrap:anywhere}
         .watchguard-coverage-details summary {cursor:pointer;padding:.5rem 0;min-height:44px;box-sizing:border-box;opacity:.85}
         .watchguard-coverage-details p {margin:.25rem 0 .75rem;padding-inline-start:1rem;border-inline-start:2px solid #8888}
@@ -1351,7 +1367,18 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             .watchguard-filter-options {inset-inline-start:0;max-width:calc(100vw - 2rem)}
             .watchguard-page .watchguard-grid {gap:1rem .75rem}
         }
-        .watchguard-controls {display:inline-flex;align-items:center}
+        /* emby-select CSS is lazily loaded by native pages. Supply the same base
+           contract for direct Watchlists entry; native theme rules own colors. */
+        @layer watchguard-controls {
+        .watchguard-page {background:var(--jf-palette-background-default,#101010)}
+        .watchguard-filter-options {background:var(--jf-palette-background-paper,#202020)}
+        .watchguard-toolbar .emby-select {display:block;font-family:inherit;font-size:110%;font-weight:inherit;border-radius:.2em;border-style:solid;border-width:.16em;border-color:var(--jf-palette-FilledInput-borderColor,#8882);background:var(--jf-palette-background-paper,#202020);color:inherit;padding:.5em;appearance:auto}
+        }
+        .watchguard-toolbar .emby-select:focus {border-color:var(--jf-palette-secondary-main,#00a4dc)}
+        .watchguard-toolbar :is(button,summary)[aria-disabled="true"],.watchguard-toolbar button:disabled,.watchguard-toggle:disabled {opacity:.5;cursor:default}
+        .watchguard-toggle:focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:2px}
+        .watchguard-toggle[aria-pressed="true"] .detailButton-icon {color:var(--jf-palette-primary-main,#00a4dc)}
+        @media(prefers-reduced-motion:reduce) {.watchguard-toolbar .emby-button,.watchguard-toggle {transition:none}}
         .watchguard-state-Watchlisted {--wg-accent:#f3c66c}
         .watchguard-state-InProgress {--wg-accent:#82c4ff}
         .watchguard-state-CaughtUp {--wg-accent:#6edbd0}
@@ -1456,10 +1483,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             if (!current()) return;
             const seriesLabel = scope === item ? '' : 'Series: ' + (scope.Name || scope.Id) + '. ';
             const scopeId = scope.Id;
-            const container = document.createElement('section');
-            container.className = 'watchguard-controls';
             const toggle = document.createElement('button');
-            toggle.type = 'button'; toggle.className = 'emby-button button-flat detailButton watchguard-toggle'; toggle.disabled = true;
+            toggle.type = 'button'; toggle.className = 'emby-button button-flat detailButton watchguard-toggle watchguard-controls'; toggle.disabled = true;
             const icon = document.createElement('span'); icon.className = 'material-icons detailButton-icon'; icon.textContent = 'bookmark_add'; icon.setAttribute('aria-hidden', 'true');
             const label = document.createElement('span'); label.className = 'watchguard-sr-only'; label.textContent = 'Loading Watchlist…';
             const content = document.createElement('div'); content.className = 'detailButton-content'; content.append(icon, label); toggle.append(content);
@@ -1476,13 +1501,13 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                 header.className += ' watchguard-series-section';
                 primaryContent.insertBefore(header, primaryContent.firstChild);
             } else info.append(header);
-            container.append(toggle); anchor.insertBefore(container, anchor.querySelector('.btnMoreCommands')); panel = header; detailButton = container;
+            anchor.insertBefore(toggle, anchor.querySelector('.btnMoreCommands')); panel = header; detailButton = toggle;
             let member;
             const render = () => {
                 label.textContent = member ? 'Remove from Watchlist' : 'Add to Watchlist';
                 toggle.title = seriesLabel + label.textContent;
                 icon.textContent = member ? 'bookmark_remove' : 'bookmark_add';
-                toggle.setAttribute('aria-pressed', String(member)); toggle.disabled = false;
+                toggle.setAttribute('aria-pressed', String(member)); toggle.setAttribute('aria-busy', 'false'); toggle.disabled = false;
             };
             async function refreshInterest() {
                 const account = await api.getCurrentUser();
@@ -1506,7 +1531,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             toggle.onclick = async () => {
                 if (!current() || toggle.disabled) return;
                 const focused = document.activeElement === toggle;
-                toggle.disabled = true; error.textContent = '';
+                toggle.disabled = true; toggle.setAttribute('aria-busy', 'true'); error.textContent = '';
                 try {
                     // This action renders its own result; other entry points still notify.
                     await membership.set(scopeId, !member, false);
@@ -1514,7 +1539,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                     member = !member; render();
                     try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
                 } catch {
-                    if (current()) { error.textContent = 'WatchGuard: Could not update your watchlist. Please retry.'; toggle.disabled = false; }
+                    if (current()) { error.textContent = 'WatchGuard: Could not update your watchlist. Please retry.'; toggle.setAttribute('aria-busy', 'false'); toggle.disabled = false; }
                 } finally {
                     // Do not steal focus after the user navigates or focuses another control.
                     if (focused && current() && document.activeElement === document.body) toggle.focus({preventScroll:true});
