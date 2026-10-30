@@ -21,12 +21,15 @@ def duration(start, end):
 
 def summarize(run, jobs):
     completed = [j for j in jobs if j.get('completed_at') and j.get('conclusion') != 'skipped']
+    plan = next((j for j in jobs if j['name'] == 'plan'), None)
     build = next((j for j in jobs if j['name'] == 'build'), None)
     integrations = [j for j in jobs if j['name'].startswith('Integration /')]
     rows = []
     for job in completed:
         ready = run['created_at']
-        if job in integrations and build and build.get('completed_at'):
+        if job['name'] == 'build' and plan and plan.get('completed_at'):
+            ready = plan['completed_at']
+        elif job in integrations and build and build.get('completed_at'):
             ready = build['completed_at']
         elif job['name'] == 'Verify complete compatibility evidence' and integrations:
             ready = max(j['completed_at'] for j in integrations)
@@ -45,7 +48,7 @@ def summarize(run, jobs):
                          executionSeconds=duration(job['started_at'],job['completed_at']),
                          readyToStartSeconds=duration(ready,job['started_at']), steps=steps))
     end = run['updated_at'] if run['status'] == 'completed' else max((j['completed_at'] for j in completed), default=run['created_at'])
-    return dict(runId=run['id'],commit=run['head_sha'],status=run['status'],conclusion=run['conclusion'],
+    return dict(runId=run['id'],runAttempt=run.get('run_attempt', 1),commit=run['head_sha'],status=run['status'],conclusion=run['conclusion'],
                 elapsedSeconds=duration(run['created_at'],end),
                 combinedJobExecutionSeconds=sum(j['executionSeconds'] for j in rows),
                 combinedReadyToStartSeconds=sum(j['readyToStartSeconds'] for j in rows),
@@ -57,14 +60,15 @@ def summarize(run, jobs):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run',default=os.environ.get('GITHUB_RUN_ID'))
+    parser.add_argument('--attempt', type=int, default=int(os.environ.get('GITHUB_RUN_ATTEMPT', '1')))
     parser.add_argument('--repo',default=os.environ.get('GITHUB_REPOSITORY','MajorSchloch/jellyfin-plugin-watchguard'))
     parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
     def api(path): return json.loads(subprocess.check_output(['gh','api',path],text=True))
     base=f'repos/{args.repo}/actions/runs/{args.run}'
-    run=api(base);jobs=[];page=1
+    run=api(base+f'/attempts/{args.attempt}');jobs=[];page=1
     while True:
-        batch=api(base+f'/jobs?filter=latest&per_page=100&page={page}')['jobs'];jobs+=batch
+        batch=api(base+f'/attempts/{args.attempt}/jobs?per_page=100&page={page}')['jobs'];jobs+=batch
         if len(batch)<100: break
         page+=1
     report=summarize(run,jobs)

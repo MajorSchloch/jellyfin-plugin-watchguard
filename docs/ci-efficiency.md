@@ -1,5 +1,7 @@
 # Qualification execution and coverage
 
+Current release orchestration is described in [release operation](release-automation.md). The measurements below remain the original CI-efficiency evidence.
+
 This change preserves the v0.7.8 runtime, package, server limits and every scenario in [baseline run 40557055801](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/40557055801). It changes scheduling, disposable fixture ownership and measurement. Test-tier reductions and reuse of packages from other runs are deferred.
 
 ## Coverage mapping

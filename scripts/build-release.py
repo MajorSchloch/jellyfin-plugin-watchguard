@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Build a deterministic, allowlisted deployment ZIP. Does not publish or deploy."""
 import hashlib
+import catalog
+from release_state import candidate
 from pathlib import Path
 import shutil
 import subprocess
@@ -23,8 +25,11 @@ def main():
     sdk = subprocess.check_output(['dotnet', '--version'], cwd=ROOT, text=True).strip()
     if sdk != '10.0.302':
         raise SystemExit('Release packaging requires .NET SDK 10.0.302 for reproducibility.')
-    if VERSION != '0.7.11':
-        raise SystemExit('Review release metadata before packaging a different version.')
+    if VERSION != candidate():
+        raise SystemExit('Version metadata differs.')
+    catalog.changelog(VERSION + '.0')
+    if not (ROOT / 'docs/releases' / f'v{VERSION}.md').is_file():
+        raise SystemExit('Prepare publication notes before packaging.')
     flags = ['-c', 'Release', '--no-restore', '-p:ContinuousIntegrationBuild=true',
              '-p:DebugType=None', '-p:DebugSymbols=false', f'-p:PathMap={ROOT}=/_/src']
     run('dotnet', 'restore', 'Jellyfin.Plugin.WatchGuard.slnx', '--locked-mode')

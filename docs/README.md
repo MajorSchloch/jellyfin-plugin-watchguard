@@ -37,6 +37,8 @@ Start with the repository [README](../README.md) for features, installation, lim
 
 ## Maintainer and developer notes
 
+- [Release operation](release-automation.md): automatic qualification, approval, exact-artifact publication and recovery.
+
 - [Build/package/catalog history](plugin-repository.md): includes historical candidate-specific procedures; use current `.github/workflows/build.yaml`, `.github/workflows/release.yaml` and `scripts/build-release.py` as the executable source of truth.
 - [Disposable fixture lifecycle](testing/fixture-lifecycle.md), [browser contracts](testing/browser-contracts.md), [CI reliability findings](testing/reliability-analysis.md).
 - [Standalone Web loader](standalone-injection.md) and [native Web confirmation limitations](native-confirmation-options.md).

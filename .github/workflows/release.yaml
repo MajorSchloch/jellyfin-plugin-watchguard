@@ -1,9 +1,16 @@
-name: Prepare or publish WatchGuard
+name: Qualify WatchGuard
 on:
+  push:
+    branches: [master]
+    paths: [Directory.Build.props]
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish v0.7.11 and update the public catalog (requires release environment approval)
+        description: Request publication after qualification (release environment approval remains required)
+        type: boolean
+        default: false
+      inspect_only:
+        description: Check release state without builds, fixtures or writes
         type: boolean
         default: false
       proxy_matrix:
@@ -13,11 +20,35 @@ on:
 permissions:
   contents: read
 concurrency:
-  # One qualification covers all three supported hosts. Publication has a global lock.
-  group: ${{ inputs.publish && 'watchguard-release' || format('watchguard-qualification-{0}', github.ref) }}
+  # Qualification never cancels another attempt. Publication has a separate global lock.
+  group: watchguard-qualification-${{ github.ref }}
   cancel-in-progress: false
 jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      package: ${{ steps.plan.outputs.package }}
+      qualify: ${{ steps.plan.outputs.qualify }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/release_plan.py --publish '${{ github.event_name == 'push' || inputs.publish }}' --inspect-only '${{ inputs.inspect_only || false }}'
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: WatchGuard-release-plan-attempt-${{ github.run_attempt }}
+          path: artifacts/release-plan.json
+          if-no-files-found: error
+
   build:
+    needs: plan
+    if: needs.plan.outputs.qualify == 'true'
+    outputs:
+      package_id: ${{ steps.package.outputs.artifact-id }}
     timeout-minutes: 20
     runs-on: ubuntu-24.04
     steps:
@@ -43,7 +74,7 @@ jobs:
       - run: node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/startup.test.cjs tests/server-enforcement.test.cjs tests/browser-readiness.test.cjs
       - uses: actions/upload-artifact@v6
         with:
-          name: discovery-model-v048
+          name: discovery-model-v048-attempt-${{ github.run_attempt }}
           path: |
             /tmp/discovery-model-v048.json
             /tmp/verification-model-v048.json
@@ -54,42 +85,43 @@ jobs:
         run: |
           curl --fail --silent --show-error --location https://raw.githubusercontent.com/MajorSchloch/jellyfin-plugin-watchguard/master/manifest.json -o /tmp/watchguard-published-catalog.json
           python3 scripts/catalog.py --check-history /tmp/watchguard-published-catalog.json
-      - run: python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip
+      - run: python3 scripts/catalog.py --zip artifacts/${{ needs.plan.outputs.package }}
       - name: Compare identical models with published v0.4.7
         run: |
           curl --fail --location --retry 3 https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.7/Jellyfin.Plugin.WatchGuard-v0.4.7.zip -o artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip
           python3 tests/verification-model.py
       - uses: actions/upload-artifact@v6
         with:
-          name: published-baseline-model-v048
+          name: published-baseline-model-v048-attempt-${{ github.run_attempt }}
           path: |
             artifacts/verification-model-v048-before.json
             artifacts/discovery-model-v048-before.json
       - name: Rebuild and verify determinism
         run: |
-          cp artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip.sha256 /tmp/first.sha256
+          cp artifacts/${{ needs.plan.outputs.package }}.sha256 /tmp/first.sha256
           python3 scripts/build-release.py
-          cmp /tmp/first.sha256 artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip.sha256
+          cmp /tmp/first.sha256 artifacts/${{ needs.plan.outputs.package }}.sha256
       - name: Retain build and backend test diagnostics
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-build-diagnostics
+          name: WatchGuard-build-diagnostics-attempt-${{ github.run_attempt }}
           path: artifacts/testing/
           if-no-files-found: warn
       - uses: actions/upload-artifact@v6
+        id: package
         with:
-          name: WatchGuard-v0.7.11-validated
+          name: WatchGuard-package-attempt-${{ github.run_attempt }}
           if-no-files-found: error
           path: |
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip
-            artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip.sha256
+            artifacts/${{ needs.plan.outputs.package }}
+            artifacts/${{ needs.plan.outputs.package }}.sha256
 
   integration:
     name: Integration / ${{ matrix.jellyfin_version }} / ${{ matrix.shard }}
     env:
       WATCHGUARD_JELLYFIN_VERSION: ${{ matrix.jellyfin_version }}
-    needs: build
+    needs: [plan, build]
     timeout-minutes: 45
     runs-on: ubuntu-24.04
     strategy:
@@ -121,14 +153,14 @@ jobs:
           cache-dependency-path: tests/browser/package-lock.json
       - uses: actions/download-artifact@v6
         with:
-          name: WatchGuard-v0.7.11-validated
+          name: WatchGuard-package-attempt-${{ github.run_attempt }}
           path: artifacts
       - name: Extract verified release candidate for Docker fixture
         run: |
           cd artifacts
-          sha256sum -c Jellyfin.Plugin.WatchGuard-v0.7.11.zip.sha256
+          sha256sum -c ${{ needs.plan.outputs.package }}.sha256
           mkdir -p WatchGuard
-          unzip -p Jellyfin.Plugin.WatchGuard-v0.7.11.zip Jellyfin.Plugin.WatchGuard.dll > WatchGuard/Jellyfin.Plugin.WatchGuard.dll
+          unzip -p ${{ needs.plan.outputs.package }} Jellyfin.Plugin.WatchGuard.dll > WatchGuard/Jellyfin.Plugin.WatchGuard.dll
       - name: Build Injector fixture (rollback/legacy only)
         if: contains(fromJSON(steps.plan.outputs.suites), 'migration') || contains(fromJSON(steps.plan.outputs.suites), 'legacy')
         run: |
@@ -240,7 +272,7 @@ jobs:
           echo '62af61f98b9d914f7890967048986f8c4641b8f3417edc2f08756bd15df7b3ec  artifacts/Jellyfin.Plugin.WatchGuard-v0.5.2.zip' | sha256sum -c -
       - name: Complete disposable regression suite
         env:
-          WATCHGUARD_REQUIRE_PROXY_MATRIX: ${{ (inputs.proxy_matrix || inputs.publish) && '1' || '0' }}
+          WATCHGUARD_REQUIRE_PROXY_MATRIX: ${{ (github.event_name == 'push' || inputs.proxy_matrix || inputs.publish) && '1' || '0' }}
         run: python3 tests/run_shard.py "${{ matrix.shard }}"
       - name: Summarize setup failure without suite evidence
         if: failure() && hashFiles('artifacts/suites/**/suite.json') == ''
@@ -249,7 +281,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-browser-failure-${{ matrix.jellyfin_version }}-${{ matrix.shard }}
+          name: WatchGuard-browser-failure-${{ matrix.jellyfin_version }}-${{ matrix.shard }}-attempt-${{ github.run_attempt }}
           path: |
             artifacts/suites/
             artifacts/testing/
@@ -260,7 +292,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-evidence-${{ matrix.jellyfin_version }}-${{ matrix.shard }}
+          name: WatchGuard-evidence-${{ matrix.jellyfin_version }}-${{ matrix.shard }}-attempt-${{ github.run_attempt }}
           path: |
             artifacts/suites/
             artifacts/testing/
@@ -271,7 +303,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    needs: [build, integration]
+    needs: [plan, build, integration]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -281,68 +313,65 @@ jobs:
           python-version: '3.12.0'
       - uses: actions/download-artifact@v6
         with:
-          name: WatchGuard-v0.7.11-validated
+          name: WatchGuard-package-attempt-${{ github.run_attempt }}
           path: artifacts
       - uses: actions/download-artifact@v6
         with:
-          pattern: WatchGuard-evidence-*
+          pattern: WatchGuard-evidence-*-attempt-${{ github.run_attempt }}
           path: artifacts/qualification
       - name: Require every host and suite to have tested this exact package
-        run: python3 scripts/qualification.py --package artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip --evidence artifacts/qualification --commit "$GITHUB_SHA" --proxy-matrix '${{ inputs.proxy_matrix || inputs.publish }}' --output artifacts/qualification.json
+        run: python3 scripts/qualification.py --package artifacts/${{ needs.plan.outputs.package }} --evidence artifacts/qualification --commit "$GITHUB_SHA" --proxy-matrix '${{ github.event_name == 'push' || inputs.proxy_matrix || inputs.publish }}' --output artifacts/qualification.json
+      - name: Seal the exact run and artifact provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE_ID: ${{ needs.build.outputs.package_id }}
+          PUBLISH_REQUESTED: ${{ github.event_name == 'push' || inputs.publish }}
+        run: |
+          python3 - <<'PYCODE'
+          import json, os, sys
+          sys.path.insert(0, 'scripts')
+          from release_provenance import seal
+          from release_state import GitHub
+          result = json.load(open('artifacts/qualification.json'))
+          record = seal(GitHub(os.environ['GITHUB_REPOSITORY']), result, int(os.environ['PACKAGE_ID']), int(os.environ['GITHUB_RUN_ATTEMPT']), os.environ['PUBLISH_REQUESTED'] == 'true')
+          open('artifacts/qualification-record.json', 'w').write(json.dumps(record, indent=2) + '\n')
+          PYCODE
+      - uses: actions/upload-artifact@v6
+        with:
+          name: WatchGuard-qualification-attempt-${{ github.run_attempt }}
+          path: artifacts/qualification-record.json
+          if-no-files-found: error
+      - name: Qualified; publication requires separate environment approval
+        run: echo 'Qualified this exact commit and package. Requested publication continues in Publish WatchGuard. For recovery, use this run ID and attempt.' >> "$GITHUB_STEP_SUMMARY"
       - name: Report execution and queue timing separately
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 scripts/ci/timings.py --output artifacts/qualification-timings.json
       - uses: actions/upload-artifact@v6
         with:
-          name: WatchGuard-qualification
+          name: WatchGuard-qualification-diagnostics-attempt-${{ github.run_attempt }}
           path: |
             artifacts/qualification.json
             artifacts/qualification-timings.json
           if-no-files-found: error
 
-  publish:
-    if: inputs.publish && github.ref_name == github.event.repository.default_branch
-    needs: [build, integration, qualification]
-    environment: release
-    runs-on: ubuntu-24.04
+  publication-rehearsal:
+    needs: [qualification]
+    if: github.event_name == 'workflow_dispatch' && !inputs.publish && inputs.proxy_matrix
     permissions:
-      contents: write
+      contents: read
+      actions: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v6
-        with:
-          name: WatchGuard-v0.7.11-validated
-          path: artifacts
-      - name: Refuse publication from stale catalog history
-        run: |
-          python3 - <<'PYCODE'
-          import json, os, urllib.request
-          url = 'https://raw.githubusercontent.com/' + os.environ['GITHUB_REPOSITORY'] + '/master/manifest.json'
-          with urllib.request.urlopen(url, timeout=30) as response:
-              published = json.load(response)
-          from scripts.catalog import preserve_history
-          preserve_history(published, json.load(open('manifest.json')))
-          PYCODE
-      - name: Publish only after explicit workflow request and environment approval
+      - name: Verify publisher provenance without approval or writes
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          test "$(gh repo view "$GITHUB_REPOSITORY" --json isPrivate --jq .isPrivate)" = false
-          (cd artifacts && sha256sum -c Jellyfin.Plugin.WatchGuard-v0.7.11.zip.sha256)
-          python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip
-          python3 scripts/check-release-notes.py
-          # Publication copy is separate from release-preparation.md.
-          # No replacement of existing immutable release assets.
-          gh release create v0.7.11 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title 'WatchGuard v0.7.11' --notes-file docs/releases/v0.7.11.md
-          gh release upload v0.7.11 artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip.sha256 --repo "$GITHUB_REPOSITORY"
-          gh release edit v0.7.11 --draft=false --repo "$GITHUB_REPOSITORY"
-      - name: Verify public assets and update version history
-        run: python3 scripts/catalog.py --from-release "$GITHUB_REPOSITORY" v0.7.11 --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip
-      - name: Commit verified manifest to the source branch
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add manifest.json
-          git commit -m 'Update WatchGuard catalog for v0.7.11'
-          git push origin "HEAD:$GITHUB_REF_NAME"
+        run: python3 scripts/publish_release.py --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" --validate-branch --verify-record
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: WatchGuard-publication-rehearsal-attempt-${{ github.run_attempt }}
+          path: artifacts/publication-result.json
+          if-no-files-found: warn
