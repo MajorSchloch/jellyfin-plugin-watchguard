@@ -44,6 +44,7 @@ class GitHub:
         require(bool(re.fullmatch(r'[\w.-]+/[\w.-]+', repo)), 'Invalid repository.')
         self.repo, self.writable = repo, writable
         self.base = 'repos/' + repo
+        self._draft_visibility = None
 
     def request(self, path, method='GET', data=None, binary=False, missing=False):
         require(method == 'GET' or self.writable, 'Read-only execution cannot write to GitHub.')
@@ -69,6 +70,13 @@ class GitHub:
         url = f'https://uploads.github.com/repos/{self.repo}/releases/{release_id}/assets?name={path.name}'
         subprocess.run(['gh', 'api', url, '--method', 'POST', '-H', 'Content-Type: application/octet-stream',
                         '--input', str(path)], check=True, stdout=subprocess.PIPE, timeout=60)
+
+    def can_see_drafts(self):
+        if self._draft_visibility is None:
+            # GitHub's release list omits drafts without push permission. Never
+            # treat an incomplete list as proof that no draft exists.
+            self._draft_visibility = self.request('').get('permissions', {}).get('push') is True
+        return self._draft_visibility
 
     def pages(self, path, key=None):
         rows = []
@@ -149,7 +157,7 @@ def inspect(api, version, manifest):
     require(len(entries) <= 1, 'Duplicate catalog version.')
     if release is None:
         require(not entries, 'Catalog advertises a missing release.')
-        return 'unpublished'
+        return 'unpublished' if api.can_see_drafts() else 'unpublished-or-draft'
     if release['draft']:
         require(not entries, 'Catalog advertises a draft release.')
         assets(release, version)

@@ -43,6 +43,9 @@ class FakeGitHub:
     def release(self, version, public_only=False):
         return copy.deepcopy(self.current)
 
+    def can_see_drafts(self):
+        return True
+
     def tag(self, tag):
         return self.tag_commit
 
@@ -128,6 +131,16 @@ class ReleaseStateTests(unittest.TestCase):
         self.assertEqual(len(actions), 5)
         self.assertEqual(self.api.writes, [])
         self.assertIsNone(self.api.current)
+
+    def test_hidden_drafts_are_unknown_and_inspection_cannot_plan_draft_writes(self):
+        with patch.object(self.api, 'can_see_drafts', return_value=False):
+            self.assertEqual(state.inspect(self.api, VERSION, []), 'unpublished-or-draft')
+            status, actions = publisher.resume(self.api, self.record, self.archive)
+            self.assertEqual(status, 'awaiting approval')
+            self.assertIn('incomplete release list', actions[0])
+            with self.assertRaisesRegex(state.Blocked, 'Cannot inspect all drafts'):
+                publisher.resume(self.api, self.record, self.archive, True)
+            self.assertEqual(self.api.writes, [])
 
     def test_partial_upload_resumes_only_missing_asset_then_repeat_is_noop(self):
         for suffix in ('', '.sha256'):

@@ -24,15 +24,27 @@ def summarize(run, jobs):
     plan = next((j for j in jobs if j['name'] == 'plan'), None)
     build = next((j for j in jobs if j['name'] == 'build'), None)
     integrations = [j for j in jobs if j['name'].startswith('Integration /')]
+    gate = next((j for j in jobs if j['name'] == 'Verify complete compatibility evidence'), None)
+    inspection = next((j for j in jobs if j['name'] == 'inspect'), None)
+    origin = run.get('run_started_at', run['created_at']) if run.get('run_attempt', 1) > 1 else run['created_at']
     rows = []
     for job in completed:
-        ready = run['created_at']
+        ready = origin
         if job['name'] == 'build' and plan and plan.get('completed_at'):
             ready = plan['completed_at']
         elif job in integrations and build and build.get('completed_at'):
             ready = build['completed_at']
         elif job['name'] == 'Verify complete compatibility evidence' and integrations:
-            ready = max(j['completed_at'] for j in integrations)
+            ready = max((j['completed_at'] for j in integrations if j.get('completed_at')), default=origin)
+        elif job['name'] == 'publication-rehearsal' and gate and gate.get('completed_at'):
+            ready = gate['completed_at']
+        elif job['name'] == 'status':
+            dependencies = [j for j in jobs if j['name'] in ('plan', 'build', 'Verify complete compatibility evidence') or j in integrations]
+            ready = max((j['completed_at'] for j in dependencies if j.get('completed_at')), default=origin)
+        elif job['name'] == 'publish':
+            prerequisite = inspection or gate
+            if prerequisite and prerequisite.get('completed_at'):
+                ready = prerequisite['completed_at']
         steps = []
         for step in job.get('steps', []):
             if step.get('conclusion') == 'skipped' or not step.get('completed_at'): continue
@@ -46,13 +58,14 @@ def summarize(run, jobs):
             steps.append(dict(name=name, category=category, seconds=duration(step['started_at'],step['completed_at'])))
         rows.append(dict(name=job['name'], id=job['id'], conclusion=job['conclusion'],
                          executionSeconds=duration(job['started_at'],job['completed_at']),
-                         readyToStartSeconds=duration(ready,job['started_at']), steps=steps))
+                         readyToStartSeconds=duration(ready,job['started_at']), readyDelayIncludesApproval=job['name'] == 'publish', steps=steps))
     end = run['updated_at'] if run['status'] == 'completed' else max((j['completed_at'] for j in completed), default=run['created_at'])
     return dict(runId=run['id'],runAttempt=run.get('run_attempt', 1),commit=run['head_sha'],status=run['status'],conclusion=run['conclusion'],
-                elapsedSeconds=duration(run['created_at'],end),
+                elapsedSeconds=duration(origin,end),
                 combinedJobExecutionSeconds=sum(j['executionSeconds'] for j in rows),
                 combinedReadyToStartSeconds=sum(j['readyToStartSeconds'] for j in rows),
-                queueDefinition='Dependency-ready to job start; includes scheduler/runner provisioning. GitHub does not expose an exact runner queue timestamp.',
+                queueDefinition='Dependency-ready to job start; includes scheduler/runner provisioning and, for publication, environment approval. GitHub does not expose an exact runner queue timestamp.',
+                elapsedDefinition='First attempt: workflow creation to completion. Later attempts: attempt start to completion.',
                 executionDefinition='Sum of completed non-skipped job intervals, including setup and cleanup; overlapping jobs count separately.',
                 incompleteJobs=[j['name'] for j in jobs if not j.get('completed_at')],jobs=rows)
 

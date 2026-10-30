@@ -26,10 +26,11 @@ def main():
         raw, _ = api.file('manifest.json', repo['default_branch'])
         state = inspect(api, version, json.loads(raw))
         # Validation always remains available, even for published versions.
-        qualify = args.inspect_only == 'false' and (args.publish == 'false' or state == 'unpublished')
-        result.update(state=state, qualify=qualify, preservedDrafts=getattr(api, 'preserved_drafts', []))
+        qualify = args.inspect_only == 'false' and (args.publish == 'false' or state in ('unpublished', 'unpublished-or-draft'))
+        result.update(state=state, qualify=qualify, preservedDrafts=getattr(api, 'preserved_drafts', []), draftVisibility=api.can_see_drafts())
         outputs(qualify=qualify, state=state)
-        action = {'unpublished': 'Full qualification will test this exact source commit.',
+        action = {'unpublished-or-draft': 'No public release is visible. This token cannot list drafts. If this version already qualified, resume Publish WatchGuard with its original run and attempt. Otherwise, qualification can proceed.',
+                  'unpublished': 'Full qualification will test this exact source commit.',
                   'draft': 'Resume Publish WatchGuard with the draft qualification run and attempt.',
                   'catalog-missing': 'Resume Publish WatchGuard with the original qualification run and attempt. Only the catalog needs an update.',
                   'complete': 'Already published and verified. No publication or catalog writes are needed.'}[state]

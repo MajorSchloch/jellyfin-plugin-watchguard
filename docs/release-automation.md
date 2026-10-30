@@ -45,6 +45,7 @@ The existing qualification `publish=true` input requests publication after a new
 | State | Operation and next action |
 |---|---|
 | Unpublished candidate | Qualify the exact merged source commit. No tag alone establishes success. |
+| Unpublished or hidden draft | The read-only token cannot list drafts. Resume an existing qualification explicitly, or qualify the new candidate. The approved publisher checks all drafts before writes. |
 | Existing draft | Use its qualification run and attempt. The publisher verifies the marker, target commit and each existing asset. |
 | Qualified | The complete record is available. A validation-only run stops here; a publication request awaits environment approval. |
 | Awaiting approval | Review the stated missing operations, then approve the existing `release` environment. |
@@ -54,6 +55,14 @@ The existing qualification `publish=true` input requests publication after a new
 | Blocked | Inspect the stated conflict or missing evidence. Correct the cause, then resume explicitly. No automatic destructive repair occurs. |
 
 A unique published release can be checked without touching an unrelated draft with the same tag. The summary lists those preserved draft IDs. Any write plan rejects multiple matching releases. During development, the live v0.7.11 check found empty draft `429209739` beside published release `429096534`. Both remain unchanged.
+
+## Draft visibility limit
+
+GitHub hides drafts from read-only Actions tokens. The hosted check confirmed this behavior: it verified v0.7.11 but could not see the existing empty draft. Inspection jobs retain `contents: read`. The publisher receives `contents: write` only after release-environment approval.
+
+When no public release exists, the preflight reports `unpublished-or-draft` instead of claiming that no draft exists. A read-only publisher cannot plan draft writes from that incomplete list. After approval, it requires draft visibility and checks the full state before any mutation.
+
+This leaves a limitation: an invisible draft can cause an explicit qualification request to repeat work. Use the original qualification run with **Publish WatchGuard** for recovery. Automatic catalog/documentation commits still do not start a matrix. Complete draft detection before qualification would require broader inspection credentials; this PR does not grant them.
 
 ## Qualification record and trust
 

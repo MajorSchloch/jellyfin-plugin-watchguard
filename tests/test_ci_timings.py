@@ -17,6 +17,22 @@ class TimingTests(unittest.TestCase):
         self.assertEqual(result['combinedJobExecutionSeconds'],1320)
         self.assertEqual([j['readyToStartSeconds'] for j in result['jobs']],[60,0,120,0])
 
+    def test_preflight_gate_and_approval_waits_have_separate_dependencies(self):
+        def job(name,start,end):
+            return dict(name=name,id=name,started_at=f'2026-10-28T00:{start}:00Z',completed_at=f'2026-10-28T00:{end}:00Z',conclusion='success',steps=[])
+        run=dict(id=1,head_sha='abc',status='completed',conclusion='success',created_at='2026-10-28T00:00:00Z',updated_at='2026-10-28T00:15:00Z')
+        jobs=[job('plan','00','01'),job('build','01','02'),job('Integration / 12.2 / a','02','12'),
+              job('Verify complete compatibility evidence','12','13'),job('status','13','14'),job('publication-rehearsal','13','15')]
+        result=timings.summarize(run,jobs)
+        self.assertEqual([r['readyToStartSeconds'] for r in result['jobs']],[0]*6)
+        result=timings.summarize(run,[job('inspect','00','01'),job('publish','10','15')])
+        self.assertEqual(result['jobs'][1]['readyToStartSeconds'],540)
+        self.assertTrue(result['jobs'][1]['readyDelayIncludesApproval'])
+        result=timings.summarize(run,[job('Verify complete compatibility evidence','00','01'),job('publish','10','15')])
+        self.assertEqual(result['jobs'][1]['readyToStartSeconds'],540)
+        run.update(run_attempt=2,run_started_at='2026-10-28T00:10:00Z')
+        self.assertEqual(timings.summarize(run,[job('plan','10','15')])['elapsedSeconds'],300)
+
     def test_running_job_excluded_and_identified(self):
         run=dict(id=1,head_sha='abc',status='in_progress',conclusion=None,created_at='2026-10-28T00:00:00Z',updated_at='2026-10-28T00:01:00Z')
         result=timings.summarize(run,[dict(name='build',completed_at=None)])

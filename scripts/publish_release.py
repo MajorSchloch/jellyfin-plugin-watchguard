@@ -47,6 +47,7 @@ def unchanged(api, version, previous):
 
 def resume(api, record, archive, write=False):
     require(not write or api.writable, 'Publication requires explicit write authority.')
+    require(not write or api.can_see_drafts(), 'Cannot inspect all drafts with this token. Use the approved publisher with contents:write.')
     version = record['version']
     repo = api.request('')
     branch = repo['default_branch']
@@ -56,6 +57,8 @@ def resume(api, record, archive, write=False):
     manifest = json.loads(raw)
     release = api.release(version)
     verify_existing(api, record, archive, release)
+    if release is None and not write and not api.can_see_drafts():
+        return 'awaiting approval', ['After approval, inspect draft state against this qualified record. Create or upload only verified missing objects. No draft writes can be planned from this token’s incomplete release list.']
     actions = []
     if release is None:
         actions.append('Create the intended draft')
@@ -171,6 +174,7 @@ def main():
                                   packageSha256=record['qualification']['packageSha256'], recordArtifactId=record['recordArtifactId'])
                     outputs(publish=state != 'already published and verified' and not args.validate_branch)
         result['preservedDrafts'] = getattr(api, 'preserved_drafts', [])
+        result['draftVisibility'] = api.can_see_drafts()
         details = {key: result[key] for key in ('run', 'attempt', 'version', 'commit', 'packageSha256', 'recordArtifactId') if key in result}
         summary(result['state'], '\n'.join(result['actions']) or 'No writes are needed.', **details)
     except Exception as error:
