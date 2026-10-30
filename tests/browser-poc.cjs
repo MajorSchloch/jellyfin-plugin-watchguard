@@ -18,6 +18,42 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
     const context = await browser.newContext({ ignoreHTTPSErrors: fixture.tls === true, viewport: { width: 1280, height: 900 }, locale: 'en-US' });
     const page = await context.newPage();
     await readiness.capture(page);
+    // Keep the trigger/attachment boundary when a native menu assertion fails.
+    // Record only structural state: no URLs, item/user IDs, tokens or responses.
+    const menuEvents=[];
+    await page.exposeFunction('watchguardFixtureMenuEvent', event => {
+        if (report.phase !== 'Native membership actions') return;
+        menuEvents.push(event);
+        if (menuEvents.length > 64) menuEvents.shift();
+    });
+    await page.addInitScript(() => {
+        let source, route, api, user, token;
+        const record=(type,element) => window.watchguardFixtureMenuEvent({
+            type, at:performance.timeOrigin+performance.now(),
+            sourceConnected:source?.isConnected ?? null,
+            sameRoute:route === location.hash,
+            sameCaller:!!api && window.ApiClient === api && api.getCurrentUserId() === user && api.accessToken() === token,
+            sourceType:source?.dataset.type || null,
+            sourceHasServer:!!source?.dataset.serverid,
+            sheets:document.querySelectorAll('.actionSheet.opened').length,
+            commands:document.querySelectorAll('.actionSheet.opened .watchguard-native-action').length,
+            dialogConnected:element?.isConnected ?? null
+        });
+        document.addEventListener('contextmenu',event => {
+            source=event.target.closest?.('.card[data-id]');route=location.hash;
+            api=window.ApiClient;user=api?.getCurrentUserId?.();token=api?.accessToken?.();
+            if(source)record('contextmenu',source);
+        },true);
+        document.addEventListener('open',event => {
+            if(!event.target.matches?.('.actionSheet'))return;
+            const sheet=event.target;record('open',sheet);
+            sheet.addEventListener('close',()=>record('close',sheet),{once:true});
+            const observer=new MutationObserver(()=>record('menu-mutation',sheet));
+            observer.observe(sheet,{childList:true,subtree:true});
+            sheet.addEventListener('close',()=>observer.disconnect(),{once:true});
+        },true);
+        window.addEventListener('hashchange',()=>record('hashchange'));
+    });
     // Capture native Jellyfin exceptions that can prevent getCommands() from revealing More.
     const nativeErrors = [];
     page.on('pageerror', err => {
@@ -980,6 +1016,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         await detail('PoC Escape'); await nativeDelete(); await nativeConfirm(); await cancel('PoC Escape', true);
         report.paths.push({ path: 'Escape on movie detail', cancel: 'zero DELETE', genericErrorOnCancel: true });
         report.phase = 'Native membership actions';
+        report.nativeMenuEvents=menuEvents;
         await detail('PoC Context Movie');
         await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').click();
         const ownCommand=()=>page.locator('.actionSheet.opened .watchguard-native-action');
