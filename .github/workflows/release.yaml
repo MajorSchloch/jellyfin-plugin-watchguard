@@ -21,7 +21,7 @@ permissions:
   contents: read
 concurrency:
   # Qualification never cancels another attempt. Publication has a separate global lock.
-  group: watchguard-qualification-${{ github.ref }}
+  group: ${{ inputs.inspect_only && format('watchguard-inspect-{0}', github.ref) || format('watchguard-qualification-{0}', github.ref) }}
   cancel-in-progress: false
 jobs:
   plan:
@@ -375,3 +375,26 @@ jobs:
           name: WatchGuard-publication-rehearsal-attempt-${{ github.run_attempt }}
           path: artifacts/publication-result.json
           if-no-files-found: warn
+
+  status:
+    if: always()
+    needs: [plan, build, integration, qualification]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: State the result and next action
+        env:
+          PLAN_RESULT: ${{ needs.plan.result }}
+          QUALIFY: ${{ needs.plan.outputs.qualify }}
+          QUALIFICATION_RESULT: ${{ needs.qualification.result }}
+        run: |
+          if [ "$QUALIFICATION_RESULT" = success ]; then
+            echo '## Qualified' >> "$GITHUB_STEP_SUMMARY"
+            echo "Exact source: $GITHUB_SHA; run $GITHUB_RUN_ID; attempt $GITHUB_RUN_ATTEMPT. Review the record. Requested publication continues through the release environment approval." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$PLAN_RESULT" = success ] && [ "$QUALIFY" != true ]; then
+            echo '## State checked' >> "$GITHUB_STEP_SUMMARY"
+            echo 'No build or matrix ran. Follow the state check summary for any explicit recovery action.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '## Blocked' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Inspect the failed job and this attempt’s diagnostics. No new record authorizes publication. Correct the cause before a new complete qualification attempt.' >> "$GITHUB_STEP_SUMMARY"
+          fi

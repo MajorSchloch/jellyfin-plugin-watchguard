@@ -48,7 +48,7 @@ class GitHub:
     def request(self, path, method='GET', data=None, binary=False, missing=False):
         require(method == 'GET' or self.writable, 'Read-only execution cannot write to GitHub.')
         args = ['gh', 'api', self.base + ('/' + path if path else ''), '--method', method]
-        if binary:
+        if binary and path.startswith('releases/assets/'):
             args += ['-H', 'Accept: application/octet-stream']
         if data is not None:
             args += ['--input', '-']
@@ -59,6 +59,16 @@ class GitHub:
                 return None
             raise Blocked('GitHub request failed: ' + path + ': ' + result.stderr.decode().strip())
         return result.stdout if binary else json.loads(result.stdout or b'null')
+
+    def upload(self, release_id, path):
+        require(self.writable, 'Read-only execution cannot upload assets.')
+        require(isinstance(release_id, int), 'Invalid release ID.')
+        require(bool(re.fullmatch(r'Jellyfin\.Plugin\.WatchGuard-v\d+\.\d+\.\d+\.zip(?:\.sha256)?', path.name)), 'Invalid asset name.')
+        # Address the verified release ID. A tag lookup could select a different
+        # draft if an external writer creates one after the state check.
+        url = f'https://uploads.github.com/repos/{self.repo}/releases/{release_id}/assets?name={path.name}'
+        subprocess.run(['gh', 'api', url, '--method', 'POST', '-H', 'Content-Type: application/octet-stream',
+                        '--input', str(path)], check=True, stdout=subprocess.PIPE, timeout=60)
 
     def pages(self, path, key=None):
         rows = []

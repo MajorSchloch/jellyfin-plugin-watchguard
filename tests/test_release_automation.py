@@ -78,16 +78,15 @@ class FakeGitHub:
             return {}
         raise AssertionError((path, method))
 
-    def upload(self, args, **kwargs):
-        assert '--clobber' not in args
-        self.writes.append(('UPLOAD', args[4]))
-        path = Path(args[4])
+    def upload(self, release_id, path):
+        assert release_id == self.current['id']
+        self.writes.append(('UPLOAD', str(path)))
         ident = len(self.asset_content) + 1
         content = path.read_bytes()
         self.asset_content[ident] = content
         self.current['assets'].append(dict(id=ident, name=path.name, size=len(content), state='uploaded',
             digest='sha256:' + state.digest(content), browser_download_url=f'https://github.com/{REPO}/releases/download/v{VERSION}/{path.name}'))
-        return subprocess.CompletedProcess(args, 0)
+        return None
 
     def download(self, url, path, **kwargs):
         if '/releases/tags/' in url:
@@ -113,7 +112,6 @@ class ReleaseStateTests(unittest.TestCase):
                            qualification={'packageSha256': sha})
         self.api = FakeGitHub(self.archive, self.record)
         self.addCleanup(patch.stopall)
-        patch.object(publisher.subprocess, 'run', side_effect=self.api.upload).start()
         patch.object(catalog, 'download', side_effect=self.api.download).start()
 
     def draft(self):
@@ -121,7 +119,7 @@ class ReleaseStateTests(unittest.TestCase):
                                 body=publisher.marker(self.record), published_at=None, assets=[])
 
     def upload(self, suffix=''):
-        self.api.upload(['gh', 'release', 'upload', 'v'+VERSION, str(self.archive)+suffix])
+        self.api.upload(self.api.current['id'], Path(str(self.archive)+suffix))
 
     def test_unpublished_inspection_and_read_only_plan_make_no_writes(self):
         self.assertEqual('unpublished', state.inspect(self.api, VERSION, []))
@@ -135,7 +133,7 @@ class ReleaseStateTests(unittest.TestCase):
         for suffix in ('', '.sha256'):
             with self.subTest(existing=suffix):
                 self.api = FakeGitHub(self.archive, self.record)
-                with patch.object(publisher.subprocess, 'run', side_effect=self.api.upload), patch.object(catalog, 'download', side_effect=self.api.download):
+                with patch.object(catalog, 'download', side_effect=self.api.download):
                     self.draft(); self.upload(suffix); self.api.writes.clear()
                     status, _ = publisher.resume(self.api, self.record, self.archive, True)
                     self.assertEqual(status, 'catalog updated')
@@ -196,6 +194,43 @@ class ReleaseStateTests(unittest.TestCase):
         self.api.asset_content[1] = b'corrupt'
         with self.assertRaises(state.Blocked):
             state.inspect(self.api, VERSION, json.loads(self.api.manifest))
+
+    def test_interrupted_draft_creation_can_resume_without_recreation(self):
+        with patch.object(self.api, 'upload', side_effect=state.Blocked('upload interrupted')):
+            with self.assertRaisesRegex(state.Blocked, 'upload interrupted'):
+                publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(self.api.current['id'], 9)
+        self.assertTrue(self.api.current['draft'])
+        self.api.writes.clear()
+        publisher.resume(self.api, self.record, self.archive, True)
+        self.assertNotIn(('POST', 'releases'), self.api.writes)
+
+    def test_binary_download_headers_match_the_native_github_endpoints(self):
+        api = state.GitHub(REPO)
+        with patch.object(state.subprocess, 'run', return_value=subprocess.CompletedProcess([],0,stdout=b'bytes',stderr=b'')) as request:
+            self.assertEqual(api.request('actions/artifacts/1/zip', binary=True), b'bytes')
+            self.assertNotIn('Accept: application/octet-stream', request.call_args.args[0])
+            self.assertEqual(api.request('releases/assets/1', binary=True), b'bytes')
+            self.assertIn('Accept: application/octet-stream', request.call_args.args[0])
+
+    def test_upload_targets_verified_release_id_and_requires_write_authority(self):
+        api = state.GitHub(REPO)
+        with self.assertRaises(state.Blocked): api.upload(9, self.archive)
+        api.writable = True
+        with patch.object(state.subprocess, 'run') as request:
+            api.upload(9, self.archive)
+            command = request.call_args.args[0]
+            self.assertIn(f'https://uploads.github.com/repos/{REPO}/releases/9/assets?name={self.archive.name}', command)
+            self.assertNotIn('--clobber', command)
+
+    def test_unique_public_release_can_be_checked_without_changing_other_draft(self):
+        api = state.GitHub(REPO)
+        public = dict(id=9, tag_name='v'+VERSION, draft=False, prerelease=False)
+        draft = dict(id=10, tag_name='v'+VERSION, draft=True, prerelease=False)
+        with patch.object(api, 'pages', return_value=[draft,public]):
+            self.assertEqual(api.release(VERSION, public_only=True), public)
+            self.assertEqual(api.preserved_drafts,[10])
+            with self.assertRaises(state.Blocked): api.release(VERSION)
 
     def test_tag_alone_and_duplicate_releases_do_not_establish_success(self):
         api = state.GitHub(REPO)
@@ -292,7 +327,7 @@ class QualificationRecordTests(unittest.TestCase):
         return dict(id=ident,name=name,expired=False,digest='sha256:'+state.digest(content),size_in_bytes=len(content),
                     workflow_run=dict(id=123,head_sha=COMMIT,repository_id=7,head_repository_id=7))
 
-    def load(self):
+    def load(self, allow_validation=False):
         self.blobs[99]=self.zip({'qualification-record.json':json.dumps(self.record).encode()})
         inventory=self.inventory+[self.asset(99,provenance.artifact_name('qualification',2),self.blobs[99])]
         def request(path, **kwargs):
@@ -304,7 +339,7 @@ class QualificationRecordTests(unittest.TestCase):
         def pages(path,key): return self.jobs if '/jobs' in path else inventory
         with patch.object(self.api,'request',side_effect=request), patch.object(self.api,'pages',side_effect=pages), \
              patch.object(self.api,'file',return_value=(Path('Directory.Build.props').read_bytes(),'metadata')):
-            return provenance.load(self.api,123,2,self.folder)
+            return provenance.load(self.api,123,2,self.folder,allow_validation=allow_validation)
 
     def test_full_record_consumes_exact_zip_and_rechecks_all_39_suites(self):
         record, archive=self.load()
@@ -331,6 +366,15 @@ class QualificationRecordTests(unittest.TestCase):
             if scenario=='runtime-hash': self.record['qualification']['runtimeSha256']='b'*64
             with self.subTest(scenario=scenario), self.assertRaises(state.Blocked if scenario not in ('suite','suite-proxy') else ValueError):
                 self.load()
+
+    def test_validation_without_proxies_never_becomes_publication_authority(self):
+        self.record['publishRequested']=False
+        self.record['proxyMatrix']=False
+        for report in self.record['qualification']['suites']: report['proxyMatrix']=False
+        self.load(allow_validation=True)
+        with self.assertRaises(state.Blocked): self.load()
+        self.record['publishRequested']=True
+        with self.assertRaises(state.Blocked): self.load(allow_validation=True)
 
     def test_package_or_evidence_missing_expired_or_replaced_blocks_load(self):
         original=copy.deepcopy(self.inventory)

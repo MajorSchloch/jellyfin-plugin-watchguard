@@ -4,7 +4,6 @@ import base64
 import json
 import os
 from pathlib import Path
-import subprocess
 import tempfile
 import time
 
@@ -75,8 +74,8 @@ def resume(api, record, archive, write=False):
         actions.append('Upload missing ' + name)
         if write:
             unchanged(api, version, release)
-            # No --clobber: GitHub rejects a duplicate name if another writer wins.
-            subprocess.run(['gh', 'release', 'upload', 'v' + version, str(archive.parent / name), '--repo', api.repo], check=True, timeout=60)
+            # GitHub rejects duplicate names; this targets the verified ID.
+            api.upload(release['id'], archive.parent / name)
             current = api.release(version)
             require(current['id'] == release['id'] and current['draft'], 'Release identity changed during upload.')
             release = current
@@ -134,6 +133,14 @@ def main():
         repo = release_provenance.check_run(api, run, args.attempt, args.validate_branch)
         source, _ = api.file('Directory.Build.props', run['head_sha'])
         version = candidate(source)
+        if args.automatic:
+            jobs = api.pages(f'actions/runs/{args.run}/attempts/{args.attempt}/jobs', 'jobs')
+            gates = [j for j in jobs if j['name'] == 'Verify complete compatibility evidence']
+            if not gates or all(j['conclusion'] == 'skipped' for j in gates):
+                result.update(state='checked', actions=['No qualification ran. No publication was requested.'])
+                outputs(publish=False)
+                summary('Checked', result['actions'][0], run=args.run, attempt=args.attempt)
+                return
         raw, _ = api.file('manifest.json', repo['default_branch'])
         state = inspect(api, version, json.loads(raw))
         recorded = []
@@ -147,16 +154,16 @@ def main():
             outputs(publish=False)
         else:
             with tempfile.TemporaryDirectory() as temp:
-                record, archive = release_provenance.load(api, args.run, args.attempt, Path(temp), args.validate_branch)
-                if state == 'complete':
+                record, archive = release_provenance.load(api, args.run, args.attempt, Path(temp), args.validate_branch, allow_validation=args.automatic)
+                if args.automatic and not record['publishRequested']:
+                    result.update(state='qualified', actions=['Validation-only run. No publication was requested.'])
+                    outputs(publish=False)
+                elif state == 'complete':
                     release = api.release(version, public_only=True)
                     public = public_package(api, release, version, Path(temp) / 'public')
                     require(public.read_bytes() == archive.read_bytes(), 'Qualified ZIP conflicts with the completed public release.')
                     result.update(state='already published and verified', version=version, actions=[],
                                   packageSha256=record['qualification']['packageSha256'], recordArtifactId=record['recordArtifactId'])
-                    outputs(publish=False)
-                elif args.automatic and not record['publishRequested']:
-                    result.update(state='qualified', actions=['Validation-only run. No publication was requested.'])
                     outputs(publish=False)
                 else:
                     state, actions = resume(api, record, archive, args.write)
@@ -164,7 +171,8 @@ def main():
                                   packageSha256=record['qualification']['packageSha256'], recordArtifactId=record['recordArtifactId'])
                     outputs(publish=state != 'already published and verified' and not args.validate_branch)
         result['preservedDrafts'] = getattr(api, 'preserved_drafts', [])
-        summary(result['state'], '\n'.join(result['actions']) or 'No writes are needed.', run=args.run, attempt=args.attempt)
+        details = {key: result[key] for key in ('run', 'attempt', 'version', 'commit', 'packageSha256', 'recordArtifactId') if key in result}
+        summary(result['state'], '\n'.join(result['actions']) or 'No writes are needed.', **details)
     except Exception as error:
         result.update(state='blocked', error=str(error))
         summary('Blocked', str(error) + '\nInspect the retained evidence. Resume with the explicit run and attempt after correction.')

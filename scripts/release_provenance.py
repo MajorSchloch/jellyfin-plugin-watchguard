@@ -89,7 +89,7 @@ def seal(api, result, package_id, attempt, publish_requested):
                 packageArtifact=package, evidenceArtifacts=evidence, qualification=result)
 
 
-def load(api, run_id, attempt, folder, allow_branch=False):
+def load(api, run_id, attempt, folder, allow_branch=False, allow_validation=False):
     run = api.request(f'actions/runs/{run_id}/attempts/{attempt}')
     repo = check_run(api, run, attempt, allow_branch)
     verify_jobs(api, run, attempt, include_gate=True)
@@ -101,7 +101,8 @@ def load(api, run_id, attempt, folder, allow_branch=False):
             'Qualification record provenance mismatch.')
     require(record['supportedHosts'] == list(qualification.VERSIONS) and record['suiteInventory'] == qualification.PLAN,
             'Qualification inventory differs from the required matrix.')
-    require(record['proxyMatrix'] is True, 'Publication requires the full proxy matrix. Run validation with proxy_matrix=true.')
+    require_proxy = not (allow_validation and record.get('publishRequested') is False)
+    require(not require_proxy or record['proxyMatrix'] is True, 'Publication requires the full proxy matrix. Run validation with proxy_matrix=true.')
     metadata, _ = api.file('Directory.Build.props', run['head_sha'])
     require(candidate(metadata) == record['version'], 'Qualified source version differs from record.')
     expected = [artifact_name('package', attempt)] + expected_evidence(attempt)
@@ -123,7 +124,7 @@ def load(api, run_id, attempt, folder, allow_branch=False):
     result = record['qualification']
     require(result['result'] == 'PASS' and result['commit'] == run['head_sha'] and
             result['packageSha256'] == sha and result['runtimeSha256'] == dll, 'Qualified package hash mismatch.')
-    qualification.verify(result['suites'], run['head_sha'], sha, dll, True)
+    qualification.verify(result['suites'], run['head_sha'], sha, dll, require_proxy)
     for report in result['suites']:
         require(report.get('origin') == {'repository': api.repo, 'run': run_id, 'attempt': attempt}, 'Mixed suite provenance.')
     record['recordArtifactId'] = record_asset['id']
