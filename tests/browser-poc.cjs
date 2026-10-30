@@ -1018,6 +1018,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         report.phase = 'Native membership actions';
         report.nativeMenuEvents=menuEvents;
         await detail('PoC Context Movie');
+        const detailMembershipNode=fixture.standalone ? await page.locator('#itemDetailPage:visible .watchguard-toggle').elementHandle() : null;
         await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').click();
         const ownCommand=()=>page.locator('.actionSheet.opened .watchguard-native-action');
         await ownCommand().getByText('Add to Watchlist',{exact:true}).waitFor();
@@ -1025,6 +1026,8 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         await ownCommand().press('Enter');await ownCommand().getByText('Remove from Watchlist',{exact:true}).waitFor();
         await page.locator('.dialogContainer').filter({has:page.locator('.watchguard-native-action')}).click({position:{x:5,y:5}});await ownCommand().waitFor({state:'detached'});
         await page.getByRole('button',{name:'Remove from Watchlist',exact:true}).waitFor();
+        if (fixture.standalone) assert.ok(await detailMembershipNode.evaluate(e=>e.isConnected && e===document.querySelector('#itemDetailPage:not(.hide) .watchguard-toggle')),
+            'A native menu membership update retains the existing detail action');
         await movies();await card('PoC Context Movie').click({button:'right'});
         await ownCommand().getByText('Remove from Watchlist',{exact:true}).waitFor();assert.equal(await ownCommand().count(),1);
         await ownCommand().click();await ownCommand().getByText('Add to Watchlist',{exact:true}).waitFor();

@@ -1,4 +1,5 @@
 const setNativeCheckbox=require('./native-checkbox.cjs');
+const {dismissDialog}=require('./native-dialog-dismissal.cjs');
 /* Native rendered peers, real routes and owned-control interactions. No React runtime. */
 const {chromium}=require('./browser/node_modules/playwright');
 const readiness=require('./browser-readiness.cjs'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
@@ -13,6 +14,7 @@ try{
  if(!process.argv.includes('--themes-only'))for(const layout of ['auto','modern','desktop-legacy','mobile-legacy'])for(const width of [390,1280,2048]){
   page=width===390?touch:mouse;page.setDefaultTimeout(15000);await page.bringToFront();await page.setViewportSize({width,height:900});await page.evaluate(layout=>localStorage.setItem('layout',layout),layout);
   const row={layout,width};report.cases.push(row);const name=layout+'-'+width;
+  const activate=(control,options)=>width===390?control.tap(options):control.click(options);
   // Layout preference takes effect only on a new native document.
   await page.goto('about:blank');
   await page.goto(fixture.base+'/web/#/details?id='+fixture.items['PoC Movie Detail']+'&serverId='+fixture.serverId);
@@ -38,10 +40,19 @@ try{
    assert.equal(await button.getAttribute('aria-pressed'),pressed);assert.equal(await button.locator('.material-icons').textContent(),icon);assert.equal(await button.getAttribute('aria-busy'),'false');
    assert.ok(await original.evaluate(e=>e===document.querySelector('.watchguard-toggle')));await page.unroute(pattern,fail);
    await page.screenshot({path:path.join(out,name+'-detail-failure.png')});
-   await button.click();await page.waitForFunction(previous=>document.querySelector('.watchguard-toggle')?.getAttribute('aria-pressed')!==previous,pressed);
+   await activate(button);await page.waitForFunction(previous=>document.querySelector('.watchguard-toggle')?.getAttribute('aria-pressed')!==previous,pressed);
    await page.mouse.move(0,0);assert.equal(await button.locator('.material-icons').textContent(),pressed==='false'?'bookmark_remove':'bookmark_add');
    await page.screenshot({path:path.join(out,name+'-detail-selected.png')});
-   await button.click();await page.waitForFunction(previous=>document.querySelector('.watchguard-toggle')?.getAttribute('aria-pressed')===previous,pressed);
+   await activate(button);await page.waitForFunction(previous=>document.querySelector('.watchguard-toggle')?.getAttribute('aria-pressed')===previous,pressed);
+   await activate(peer);const sheet=page.locator('.actionSheet.opened'),command=sheet.locator('.watchguard-native-action');
+   await command.getByText(pressed==='false'?'Add to Watchlist':'Remove from Watchlist',{exact:true}).waitFor();
+   await sheet.evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));
+   await activate(command);await command.getByText(pressed==='false'?'Remove from Watchlist':'Add to Watchlist',{exact:true}).waitFor();
+   await dismissDialog(page,sheet,()=>activate(page.locator('.dialogContainer').filter({has:command}),{position:{x:5,y:5}}));
+   assert.ok(await original.evaluate(e=>e===document.querySelector('.watchguard-toggle')&&e.isConnected),'Native menu write retains detail action identity');
+   assert.notEqual(await button.getAttribute('aria-pressed'),pressed);
+   await activate(button);await page.waitForFunction(previous=>document.querySelector('.watchguard-toggle')?.getAttribute('aria-pressed')===previous,pressed);
+   row.menuWrite='Native menu updates the same detail button; actual native close event precedes the next action';
    row.writes='One pending write; failure retains membership, node and focus; successful retry and inverse write';
   }
   // Native select is part of this same shared detail surface, including Modern.

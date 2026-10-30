@@ -1195,7 +1195,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     }
     if (root.WatchGuardPoc) return;
     let diagnostic = /*WATCHGUARD_DIAGNOSTICS*/false;
-    let identity, panel, detailButton, signature, membership, epoch = 0;
+    let identity, panel, detailButton, refreshDetailMembership, signature, membership, epoch = 0;
     let pagePanel, pageSignature, pageLifetime;
     // The shell owns its identity fence; connecting the runtime must retain its nodes.
     const syncNavigation = () => root.WatchGuardNavigation?.update();
@@ -1205,10 +1205,15 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         const next = [api, api?.getCurrentUserId?.(), api?.accessToken?.()];
         if (!identity || next.some((v, i) => v !== identity[i])) {
             lifetime.abort(); lifetime = new AbortController();
-            panel?.remove(); detailButton?.remove(); panel = null; signature = null; epoch++;
+            panel?.remove(); detailButton?.remove(); panel = null; refreshDetailMembership = null; signature = null; epoch++;
             syncNavigation(); closePage();
             identity = next;
-            membership = next[1] && next[2] ? createMembership(api, lifetime.signal, () => { signature = null; updateDetail(); }) : null;
+            membership = next[1] && next[2] ? createMembership(api, lifetime.signal, (id, present) => {
+                // A native menu can change the same title. Refresh its state without
+                // replacing the detail action or disrupting its native focus anchor.
+                if (refreshDetailMembership) refreshDetailMembership(id, present);
+                else { signature = null; updateDetail(); }
+            }) : null;
             document.querySelectorAll('.watchguard-native-action').forEach(e => e.remove());
         }
         return next[1] && next[2] ? api : null;
@@ -1474,7 +1479,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         const next = route ? hash : null;
         if (signature === next) return;
         signature = next; const revision = ++epoch;
-        panel?.remove(); detailButton?.remove(); panel = null;
+        panel?.remove(); detailButton?.remove(); panel = null; refreshDetailMembership = null;
         if (!route) return;
         const user = api.getCurrentUserId();
         const current = () => valid(api, user) && revision === epoch && root.location.hash === hash;
@@ -1502,14 +1507,14 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                 primaryContent.insertBefore(header, primaryContent.firstChild);
             } else info.append(header);
             anchor.insertBefore(toggle, anchor.querySelector('.btnMoreCommands')); panel = header; detailButton = toggle;
-            let member;
+            let member, writing = false;
             const render = () => {
                 label.textContent = member ? 'Remove from Watchlist' : 'Add to Watchlist';
                 toggle.title = seriesLabel + label.textContent;
                 icon.textContent = member ? 'bookmark_remove' : 'bookmark_add';
                 // Native theme accent, including Legacy themes without palette variables.
                 icon.classList.toggle('button-link', member);
-                toggle.setAttribute('aria-pressed', String(member)); toggle.setAttribute('aria-busy', 'false'); toggle.disabled = false;
+                toggle.setAttribute('aria-pressed', String(member)); toggle.setAttribute('aria-busy', String(writing)); toggle.disabled = writing;
             };
             async function refreshInterest() {
                 const account = await api.getCurrentUser();
@@ -1533,19 +1538,25 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             toggle.onclick = async () => {
                 if (!current() || toggle.disabled) return;
                 const focused = document.activeElement === toggle;
+                const desired = !member; writing = true;
                 toggle.disabled = true; toggle.setAttribute('aria-busy', 'true'); error.textContent = '';
                 try {
                     // This action renders its own result; other entry points still notify.
-                    await membership.set(scopeId, !member, false);
+                    await membership.set(scopeId, desired, false);
                     if (!current()) return;
-                    member = !member; render();
+                    writing = false; member = desired; render();
                     try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
                 } catch {
-                    if (current()) { error.textContent = 'WatchGuard: Could not update your watchlist. Please retry.'; toggle.setAttribute('aria-busy', 'false'); toggle.disabled = false; }
+                    if (current()) { writing = false; error.textContent = 'WatchGuard: Could not update your watchlist. Please retry.'; toggle.setAttribute('aria-busy', 'false'); toggle.disabled = false; }
                 } finally {
                     // Do not steal focus after the user navigates or focuses another control.
                     if (focused && current() && document.activeElement === document.body) toggle.focus({preventScroll:true});
                 }
+            };
+            refreshDetailMembership = async (changedId, present) => {
+                if (!current() || key(changedId) !== key(scopeId)) return;
+                member = present; error.textContent = ''; render();
+                try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
             };
             try {
                 const entries = await membership.read(true);
