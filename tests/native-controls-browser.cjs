@@ -108,6 +108,17 @@ try{
    await more.hover();await more.evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));const primary=(await styles(more)).color;await page.mouse.move(0,0);
    assert.equal(await toggle.locator('.detailButton-icon').evaluate(e=>getComputedStyle(e).color),primary,'Saved icon uses the real native theme accent without hover');
    await page.screenshot({path:path.join(out,'detail-selected-'+theme+'.png')});if(original==='false'){await toggle.click();await page.waitForFunction(()=>document.querySelector('.watchguard-toggle')?.getAttribute('aria-pressed')==='false')}
+   const failedWrite='**/WatchGuard/Watchlist/'+fixture.items['PoC Movie Detail'];
+   await page.route(failedWrite,route=>route.fulfill({status:503,body:'unavailable'}));await toggle.click();
+   const feedback=page.locator('#itemDetailPage:visible .watchguard-error');await feedback.getByText('WatchGuard: Could not update your watchlist. Please retry.',{exact:true}).waitFor();
+   const contrast=await feedback.evaluate(e=>{
+    const rgb=value=>value.match(/[\d.]+/g).map(Number),ancestors=[];for(let n=e;n;n=n.parentElement)ancestors.unshift(n);
+    let background=[255,255,255];for(const n of ancestors){const c=rgb(getComputedStyle(n).backgroundColor),a=c[3]??1;background=background.map((v,i)=>c[i]*a+v*(1-a));}
+    const raw=rgb(getComputedStyle(e).color),foreground=background.map((v,i)=>raw[i]*(raw[3]??1)+v*(1-(raw[3]??1))),luminance=c=>c.slice(0,3).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
+    const a=luminance(foreground),b=luminance(background);return {foreground,background,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
+   });report.themes.at(-1).errorContrast=contrast;
+   await page.screenshot({path:path.join(out,'detail-failure-'+theme+'.png')});
+   assert.ok(contrast.ratio>=4.5,'Readable failure feedback in '+theme);assert.equal(await toggle.getAttribute('aria-pressed'),original);await page.unroute(failedWrite);
   }
  }
  report.result='PASS';

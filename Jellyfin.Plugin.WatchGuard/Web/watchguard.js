@@ -1426,7 +1426,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         @media(max-width:50em) {
             .detailRibbon:has(.watchguard-header), .detailPagePrimaryContainer:has(.watchguard-series-section)>.detailRibbon {display:block;width:100%;box-sizing:border-box;height:auto;min-height:7.2em}
         }
-        .watchguard-error {color:#ffb4ab}
+        .watchguard-error {color:inherit}
         .watchguard-error:empty,.watchguard-interest:empty {display:none}
         .watchguard-sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
     `;

@@ -7,14 +7,14 @@
       "layout": "modern",
       "width": 1280,
       "before": {
-        "at": 426.2999999523163,
+        "at": 321.5,
         "active": true,
         "focusVisible": true,
         "outline": "rgba(255, 255, 255, 0.7) solid 0px",
         "offset": "0px"
       },
       "after": {
-        "at": 638.1999999880791,
+        "at": 544.6000000238419,
         "active": true,
         "focusVisible": true,
         "outline": "rgb(0, 164, 220) solid 2px",
@@ -25,14 +25,14 @@
       "layout": "desktop-legacy",
       "width": 2048,
       "before": {
-        "at": 392.9000000357628,
+        "at": 400.80000001192093,
         "active": true,
         "focusVisible": true,
         "outline": "rgba(255, 255, 255, 0.7) solid 0px",
         "offset": "0px"
       },
       "after": {
-        "at": 607.3000000119209,
+        "at": 609.2000000476837,
         "active": true,
         "focusVisible": true,
         "outline": "rgb(0, 164, 220) solid 2px",
