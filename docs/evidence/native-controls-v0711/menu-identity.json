@@ -1,0 +1,27 @@
+{
+  "comparison": "Before/after the menu-identity correction on v0.7.11 candidates, using the same pinned native 12.4 fixture. The final candidate additionally corrects feedback contrast; its qualification repeats the identity assertion. Not a published-release comparison.",
+  "before": {
+    "serverWeb": "12.4.0",
+    "result": "PASS",
+    "sameNode": false,
+    "membershipChanged": true,
+    "dismissal": {
+      "clickReturnedAt": 1640.6000000238419,
+      "closedWhenClickReturned": false,
+      "closedAt": 1775
+    },
+    "packageSha256": "651ffdfbaa292661fd27f0f3c3a404433442f7b7a8e17b1616c28543f6f28b84"
+  },
+  "after": {
+    "serverWeb": "12.4.0",
+    "result": "PASS",
+    "sameNode": true,
+    "membershipChanged": true,
+    "dismissal": {
+      "clickReturnedAt": 1585.699999988079,
+      "closedWhenClickReturned": false,
+      "closedAt": 1700.300000011921
+    },
+    "packageSha256": "813218bb6e665af90f6b119b2e60823baa57e1a079a9d0b5dc73578f4b18ff89"
+  }
+}

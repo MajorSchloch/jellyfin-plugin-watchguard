@@ -1,0 +1,145 @@
+{
+  "result": "PASS",
+  "qualified": true,
+  "runId": 41055032547,
+  "commit": "39d79756a2729765a68ec9e47397004cda1ff684",
+  "publish": false,
+  "proxyMatrix": true,
+  "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+  "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+  "qualificationReportSha256": "c1bd9bb45c78414ba9d63b60f1647fedf70b9cfdb5aa5e12b5a28bd82af16689",
+  "suitesPassed": 39,
+  "primaryFixtureCommands": 54,
+  "primaryFixtureRetries": 0,
+  "versions": [
+    {
+      "serverWeb": "12.2.0",
+      "result": "PASS",
+      "controlCases": 12,
+      "themeCases": 6,
+      "observedFilterFrames": 446,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "homeExposures": 0,
+      "nativeRegressions": {
+        "navigation-shell": {
+          "result": "PASS",
+          "cases": 8
+        },
+        "drawer-browser": {
+          "result": "PASS",
+          "cases": 12
+        },
+        "startup-browser": {
+          "result": "PASS",
+          "cases": 48
+        },
+        "navigation-browser": {
+          "result": "PASS",
+          "cases": 72,
+          "historyCases": 10
+        },
+        "navigation-arrival": {
+          "result": "PASS",
+          "cases": 48
+        }
+      }
+    },
+    {
+      "serverWeb": "12.3.0",
+      "result": "PASS",
+      "controlCases": 12,
+      "themeCases": 6,
+      "observedFilterFrames": 463,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "homeExposures": 0,
+      "nativeRegressions": {
+        "navigation-shell": {
+          "result": "PASS",
+          "cases": 8
+        },
+        "drawer-browser": {
+          "result": "PASS",
+          "cases": 12
+        },
+        "startup-browser": {
+          "result": "PASS",
+          "cases": 48
+        },
+        "navigation-browser": {
+          "result": "PASS",
+          "cases": 72,
+          "historyCases": 10
+        },
+        "navigation-arrival": {
+          "result": "PASS",
+          "cases": 48
+        }
+      }
+    },
+    {
+      "serverWeb": "12.4.0",
+      "result": "PASS",
+      "controlCases": 12,
+      "themeCases": 6,
+      "observedFilterFrames": 455,
+      "panelReplacements": 0,
+      "focusLosses": 0,
+      "homeExposures": 0,
+      "nativeRegressions": {
+        "navigation-shell": {
+          "result": "PASS",
+          "cases": 8
+        },
+        "drawer-browser": {
+          "result": "PASS",
+          "cases": 12
+        },
+        "startup-browser": {
+          "result": "PASS",
+          "cases": 48
+        },
+        "navigation-browser": {
+          "result": "PASS",
+          "cases": 72,
+          "historyCases": 10
+        },
+        "navigation-arrival": {
+          "result": "PASS",
+          "cases": 48
+        }
+      }
+    }
+  ],
+  "pinnedImages": {
+    "12.2": {
+      "official": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+      "linuxserver": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b"
+    },
+    "12.3": {
+      "official": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+      "linuxserver": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308"
+    },
+    "12.4": {
+      "official": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+      "linuxserver": "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044"
+    }
+  },
+  "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+  "fastChecks": {
+    "backend": 376,
+    "javascript": 203,
+    "python": 47,
+    "catalog": 8
+  },
+  "elapsedSeconds": 2015.0,
+  "combinedJobExecutionSeconds": 21708.0,
+  "combinedReadyToStartSeconds": 44.0,
+  "earlierMenuFailure": {
+    "runId": 41048106974,
+    "cause": "Unconfirmed",
+    "final123StandaloneDiscovery": "PASS",
+    "orderingViolations": 0
+  }
+}

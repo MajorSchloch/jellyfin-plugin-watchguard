@@ -1,0 +1,43 @@
+{
+  "serverWeb": "12.4.0",
+  "device": "Pinned Playwright Chromium; mouse emulation",
+  "result": "PASS",
+  "rows": [
+    {
+      "layout": "modern",
+      "width": 1280,
+      "before": {
+        "at": 321.5,
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgba(255, 255, 255, 0.7) solid 0px",
+        "offset": "0px"
+      },
+      "after": {
+        "at": 544.6000000238419,
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(0, 164, 220) solid 2px",
+        "offset": "2px"
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 2048,
+      "before": {
+        "at": 400.80000001192093,
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgba(255, 255, 255, 0.7) solid 0px",
+        "offset": "0px"
+      },
+      "after": {
+        "at": 609.2000000476837,
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(0, 164, 220) solid 2px",
+        "offset": "2px"
+      }
+    }
+  ]
+}

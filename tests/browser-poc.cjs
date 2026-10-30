@@ -1,3 +1,4 @@
+const setNativeCheckbox=require('./native-checkbox.cjs');
 const readiness = require('./browser-readiness.cjs');
 /* Run only through docker-smoke.py, which owns a fresh server and synthetic media. */
 const { chromium } = require('./browser/node_modules/playwright');
@@ -17,6 +18,42 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
     const context = await browser.newContext({ ignoreHTTPSErrors: fixture.tls === true, viewport: { width: 1280, height: 900 }, locale: 'en-US' });
     const page = await context.newPage();
     await readiness.capture(page);
+    // Keep the trigger/attachment boundary when a native menu assertion fails.
+    // Record only structural state: no URLs, item/user IDs, tokens or responses.
+    const menuEvents=[];
+    await page.exposeFunction('watchguardFixtureMenuEvent', event => {
+        if (report.phase !== 'Native membership actions') return;
+        menuEvents.push(event);
+        if (menuEvents.length > 64) menuEvents.shift();
+    });
+    await page.addInitScript(() => {
+        let source, route, api, user, token;
+        const record=(type,element) => window.watchguardFixtureMenuEvent({
+            type, at:performance.timeOrigin+performance.now(),
+            sourceConnected:source?.isConnected ?? null,
+            sameRoute:route === location.hash,
+            sameCaller:!!api && window.ApiClient === api && api.getCurrentUserId() === user && api.accessToken() === token,
+            sourceType:source?.dataset.type || null,
+            sourceHasServer:!!source?.dataset.serverid,
+            sheets:document.querySelectorAll('.actionSheet.opened').length,
+            commands:document.querySelectorAll('.actionSheet.opened .watchguard-native-action').length,
+            dialogConnected:element?.isConnected ?? null
+        });
+        document.addEventListener('contextmenu',event => {
+            source=event.target.closest?.('.card[data-id]');route=location.hash;
+            api=window.ApiClient;user=api?.getCurrentUserId?.();token=api?.accessToken?.();
+            if(source)record('contextmenu',source);
+        },true);
+        document.addEventListener('open',event => {
+            if(!event.target.matches?.('.actionSheet'))return;
+            const sheet=event.target;record('open',sheet);
+            sheet.addEventListener('close',()=>record('close',sheet),{once:true});
+            const observer=new MutationObserver(()=>record('menu-mutation',sheet));
+            observer.observe(sheet,{childList:true,subtree:true});
+            sheet.addEventListener('close',()=>observer.disconnect(),{once:true});
+        },true);
+        window.addEventListener('hashchange',()=>record('hashchange'));
+    });
     // Capture native Jellyfin exceptions that can prevent getCommands() from revealing More.
     const nativeErrors = [];
     page.on('pageerror', err => {
@@ -93,7 +130,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         for(const [id,label] of [['watchlisted','Watchlisted'],['watching','Watching'],['playing','Currently Playing'],['watched','Watched']]) {
             const checkbox=filter.getByRole('checkbox',{name:label,exact:true});
             if(await checkbox.isChecked()===selected.includes(id)) continue;
-            await checkbox.setChecked(selected.includes(id));
+            await setNativeCheckbox(checkbox,selected.includes(id));
             await page.waitForFunction(({id,checked})=>new URLSearchParams(location.hash.split('?')[1]).get('interest')?.split(',').includes(id)===checked,{id,checked:selected.includes(id)});
             await page.waitForFunction(()=>document.querySelector('.watchguard-filter summary').title==='Status filters ('+new URLSearchParams(location.hash.split('?')[1]).get('interest').split(',').filter(s=>s!=='none').length+' selected)');
         }
@@ -245,9 +282,9 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
                 assert.match(page.url(),new RegExp('days='+days));
             }
             const older=myList().getByRole('checkbox',{name:'Include older current interest',exact:true});
-            await older.uncheck(); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+            await setNativeCheckbox(older,false); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
             assert.match(page.url(),/older=false/);
-            await older.check(); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+            await setNativeCheckbox(older,true); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
             await page.reload(); await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
             await myList().locator('.watchguard-secondary > summary').click();
             assert.equal(await range.inputValue(),'30'); assert.equal(await older.isChecked(),true);
@@ -393,14 +430,14 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
                 await page.keyboard.press('Enter');
                 assert.equal(await disclosure.evaluate(e=>e.open),false);
                 if (width===1280) {
-                    await myList().evaluate(e=>{e.style.setProperty('--jf-palette-background-default','#f5f5f5');e.style.setProperty('--jf-palette-text-primary','#202020');e.style.setProperty('--jf-palette-background-paper','#fff');});
+                    await myList().evaluate(e=>{e.style.setProperty('--jf-palette-background-default','#f5f5f5');e.style.setProperty('--jf-palette-text-primary','#202020');e.style.setProperty('--jf-palette-text-secondary','#202020');e.style.setProperty('--jf-palette-background-paper','#fff');});
                     assert.equal(await myList().evaluate(e=>getComputedStyle(e).color),'rgb(32, 32, 32)');
                     await page.waitForFunction(()=>['.watchguard-toolbar-field','.watchguard-filter summary','.watchguard-refresh','.watchguard-status'].every(selector=>getComputedStyle(document.querySelector(selector)).color==='rgb(32, 32, 32)'));
                     for(const selector of ['.watchguard-toolbar-field','.watchguard-filter summary','.watchguard-refresh','.watchguard-status'])
                         assert.equal(await myList().locator(selector).first().evaluate(e=>getComputedStyle(e).color),'rgb(32, 32, 32)',selector+' light-palette contrast');
                     assert.equal(await myList().locator('.watchguard-status-icons').first().evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(37, 42, 48)');
                     await page.screenshot({path:path.join(output,'overview-light-1280.png')});
-                    await myList().evaluate(e=>{for(const name of ['--jf-palette-background-default','--jf-palette-text-primary','--jf-palette-background-paper'])e.style.removeProperty(name);});
+                    await myList().evaluate(e=>{for(const name of ['--jf-palette-background-default','--jf-palette-text-primary','--jf-palette-text-secondary','--jf-palette-background-paper'])e.style.removeProperty(name);});
                 }
 
             }
@@ -979,7 +1016,9 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         await detail('PoC Escape'); await nativeDelete(); await nativeConfirm(); await cancel('PoC Escape', true);
         report.paths.push({ path: 'Escape on movie detail', cancel: 'zero DELETE', genericErrorOnCancel: true });
         report.phase = 'Native membership actions';
+        report.nativeMenuEvents=menuEvents;
         await detail('PoC Context Movie');
+        const detailMembershipNode=fixture.standalone ? await page.locator('#itemDetailPage:visible .watchguard-toggle').elementHandle() : null;
         await page.locator('#itemDetailPage:visible .btnMoreCommands:visible').click();
         const ownCommand=()=>page.locator('.actionSheet.opened .watchguard-native-action');
         await ownCommand().getByText('Add to Watchlist',{exact:true}).waitFor();
@@ -987,6 +1026,8 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         await ownCommand().press('Enter');await ownCommand().getByText('Remove from Watchlist',{exact:true}).waitFor();
         await page.locator('.dialogContainer').filter({has:page.locator('.watchguard-native-action')}).click({position:{x:5,y:5}});await ownCommand().waitFor({state:'detached'});
         await page.getByRole('button',{name:'Remove from Watchlist',exact:true}).waitFor();
+        if (fixture.standalone) assert.ok(await detailMembershipNode.evaluate(e=>e.isConnected && e===document.querySelector('#itemDetailPage:not(.hide) .watchguard-toggle')),
+            'A native menu membership update retains the existing detail action');
         await movies();await card('PoC Context Movie').click({button:'right'});
         await ownCommand().getByText('Remove from Watchlist',{exact:true}).waitFor();assert.equal(await ownCommand().count(),1);
         await ownCommand().click();await ownCommand().getByText('Add to Watchlist',{exact:true}).waitFor();

@@ -662,6 +662,21 @@ test('Recently added saves explicitly, reloads, and URL fields override independ
     assert.deepEqual(f.navigation.at(-1),['mine','watchlisted,watching,playing','title']);
 });
 
+test('Preference writes serialize while keeping the action focusable and busy state recoverable',async()=>{
+    const f=progressiveFixture(false,true,null);await turn();
+    f.calls[0].resolve({Owner:'mine',Statuses:[],Sort:'title'});await turn();
+    f.calls[1].resolve([]);await turn();f.calls[2].resolve({Items:[],IsComplete:false,LimitReached:false,Notice:'Bounded'});await turn();
+    const actions=f.page.children[1].children[1].children[1].children,save=actions[4],reset=actions[5];
+    const pending=save.onclick(),before=f.calls.length;
+    assert.equal(save.attributes['aria-busy'],'true');assert.notEqual(save.disabled,true);
+    await save.onclick();await reset.onclick();assert.equal(f.calls.length,before);
+    f.calls.at(-1).reject(new Error('disk unavailable'));await pending;
+    assert.equal(save.attributes['aria-busy'],'false');assert.equal(save.attributes['aria-disabled'],'false');
+    const retry=reset.onclick();assert.equal(reset.attributes['aria-busy'],'true');
+    await save.onclick();assert.equal(f.calls.length,before+1);
+    f.calls.at(-1).resolve({});await retry;assert.equal(reset.attributes['aria-busy'],'false');
+});
+
 test('Preference save/reset errors stay visible and late writes cannot affect another account',async()=>{
     for(const operation of ['save','reset']) {
         const f=progressiveFixture(false,true,null);await turn();

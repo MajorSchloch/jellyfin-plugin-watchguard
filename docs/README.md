@@ -1,10 +1,10 @@
 # WatchGuard documentation index
 
-**Current published version: [v0.7.9](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.9)** · Qualified target: Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0, .NET 10.
+**Current published version: [v0.7.10](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.10)** · Qualified target: Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0, .NET 10.
 
 **Published activity browser:** [v0.7.0 notes](release-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Published navigation:** [v0.7.2 notes](release-v072.md), [qualification](navigation-validation-v072.md). **Published compatibility:** [v0.7.3 notes](release-v073.md), [qualification](compatibility-v073.md). **Published startup:** [v0.7.4 notes](release-v074.md), [qualification](startup-validation-v074.md). **Published drawer/qualification:** [v0.7.5 notes](release-v075.md), [qualification](drawer-qualification-v075.md). **Published capabilities:** [v0.7.6 notes](release-v076.md), [qualification](qualification-v076.md), [compatibility policy](compatibility-capabilities.md). **Published listing:** [v0.7.7 notes](release-v077.md), [native catalog qualification](catalog-listing-v077.md). **Published v0.7.8:** [release notes](release-v078.md), [12.4 and action verification](compatibility-v078.md).
 
-**Next release preparation:** [v0.7.10 seamless navigation](navigation-v0710.md) (unpublished).
+**Next release preparation:** [v0.7.11 native controls](native-controls-v0711.md) (unpublished).
 
 Start with the repository [README](../README.md) for features, installation, limitations, and the non-mutating status/approval checks. The repository includes historical design experiments and release-candidate reports. Their *as-of-version* statements (for example, “not published” or “requires Injector”) describe historical candidates, **not the current public release**.
 
