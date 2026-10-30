@@ -7,7 +7,9 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
+import time
 from urllib.parse import urlparse
 import zipfile
 import xml.etree.ElementTree as ET
@@ -17,6 +19,12 @@ ABI = '12.2.0.0'
 DLL = 'Jellyfin.Plugin.WatchGuard.dll'
 CONTENT = Path(__file__).resolve().parents[1] / 'catalog/content.json'
 CANDIDATE_VERSION = ET.parse(CONTENT.parent.parent / 'Directory.Build.props').findtext('./PropertyGroup/AssemblyVersion')
+DOWNLOAD_BUDGET = 120
+DOWNLOAD_ATTEMPTS = 6
+CONNECT_TIMEOUT = 10
+ATTEMPT_TIMEOUT = 30
+RETRY_HTTP = {404, 408, 429, 500, 502, 503, 504}
+RETRY_CURL = {5, 6, 7, 18, 28, 52, 55, 56}
 
 
 def editorial():
@@ -117,29 +125,69 @@ def validate(data, allow_local=False):
         if not (public or local) or not url.path.endswith('.zip'): raise ValueError('Expected a release ZIP URL')
 
 
-def download(url, path):
-    subprocess.run(['curl', '--fail', '--silent', '--show-error', '--location', '--retry', '2', '--output', str(path), url], check=True)
+def download(url, path, *, deadline=None):
+    """Anonymous public download, including bounded release-propagation 404 retries.
+
+    One shared monotonic deadline bounds all release metadata/asset downloads.
+    curl bounds connect/transfer time; the subprocess deadline also bounds a
+    stalled curl process. No retry applies to the subsequent content checks.
+    """
+    if deadline is None:
+        deadline = time.monotonic() + DOWNLOAD_BUDGET
+    for attempt in range(DOWNLOAD_ATTEMPTS):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError('Public download budget exhausted: ' + url)
+        limit = min(ATTEMPT_TIMEOUT, remaining)
+        try:
+            result = subprocess.run([
+                # Disable user curl configuration (including credentials), even
+                # when the calling workflow has a GitHub token in its environment.
+                'curl', '--disable', '--fail', '--silent', '--show-error', '--location',
+                '--connect-timeout', str(min(CONNECT_TIMEOUT, limit)), '--max-time', str(limit),
+                '--write-out', '%{http_code}', '--output', str(path), url,
+            ], stdout=subprocess.PIPE, text=True, timeout=limit, check=False)
+            if result.returncode == 0:
+                return
+            status = int(result.stdout.strip() or '0')
+            retryable = (result.returncode in RETRY_CURL or
+                         (result.returncode == 22 and status in RETRY_HTTP))
+            failure = subprocess.CalledProcessError(result.returncode, result.args, output=result.stdout)
+        except subprocess.TimeoutExpired as error:
+            retryable, failure = True, error
+        if not retryable or attempt + 1 == DOWNLOAD_ATTEMPTS:
+            raise failure
+        delay = 2 ** (attempt + 1)
+        if deadline - time.monotonic() <= delay:
+            raise TimeoutError('Public download budget exhausted: ' + url) from failure
+        print(f'Public download unavailable; retry {attempt + 2}/{DOWNLOAD_ATTEMPTS} in {delay}s: {url}', file=sys.stderr)
+        time.sleep(delay)
 
 
 def add_release(manifest, repo, tag, archive):
     if not re.fullmatch(r'[\w.-]+/[\w.-]+', repo) or not re.fullmatch(r'v\d+\.\d+\.\d+', tag): raise ValueError('Invalid repository/tag')
+    archive = Path(archive)
+    sha = inspect_zip(archive)[1]
+    if archive.with_suffix('.zip.sha256').read_text().split() != [sha, archive.name]:
+        raise ValueError('SHA-256 sidecar mismatch')
+    deadline = time.monotonic() + DOWNLOAD_BUDGET
     with tempfile.TemporaryDirectory(prefix='watchguard-catalog-') as temp:
         folder = Path(temp)
         # Anonymous requests deliberately reject private repositories and draft releases.
-        download(f'https://api.github.com/repos/{repo}/releases/tags/{tag}', folder/'release.json')
+        download(f'https://api.github.com/repos/{repo}/releases/tags/{tag}', folder/'release.json', deadline=deadline)
         release = json.loads((folder/'release.json').read_text())
         if release['draft'] or release['prerelease'] or not release['published_at']: raise ValueError('Release must already be public and stable')
         expected = f'Jellyfin.Plugin.WatchGuard-{tag}.zip'
         asset = next(a for a in release['assets'] if a['name'] == expected)
         url = asset['browser_download_url']
         if not url.startswith(f'https://github.com/{repo}/releases/download/{tag}/'): raise ValueError('Asset repository mismatch')
-        download(url, folder/expected)
+        download(url, folder/expected, deadline=deadline)
         if (folder/expected).read_bytes() != Path(archive).read_bytes(): raise ValueError('Public ZIP differs from validated local ZIP')
         checksum_asset = next(a for a in release['assets'] if a['name'] == expected+'.sha256')
         checksum_url = checksum_asset['browser_download_url']
         if not checksum_url.startswith(f'https://github.com/{repo}/releases/download/{tag}/'): raise ValueError('Checksum repository mismatch')
-        download(checksum_url, folder/'checksum')
-        if (folder/'checksum').read_text().split() != [inspect_zip(archive)[1], expected]: raise ValueError('Public SHA-256 mismatch')
+        download(checksum_url, folder/'checksum', deadline=deadline)
+        if (folder/'checksum').read_text().split() != [sha, expected]: raise ValueError('Public SHA-256 mismatch')
         data = refresh_editorial(json.loads(Path(manifest).read_text())); validate(data)
         versions = data[0]['versions'] if data else []
         new = entry(archive, url, release['published_at'], tag[1:]+'.0')
