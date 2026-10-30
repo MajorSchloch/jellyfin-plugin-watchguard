@@ -1,3 +1,4 @@
+const setNativeCheckbox=require('./native-checkbox.cjs');
 /* Native rendered peers, real routes and owned-control interactions. No React runtime. */
 const {chromium}=require('./browser/node_modules/playwright');
 const readiness=require('./browser-readiness.cjs'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
@@ -50,7 +51,7 @@ try{
   if(!baseline)assert.ok(Math.abs(parseFloat(row.select.borderRadius)/parseFloat(row.select.fontSize)-parseFloat(row.nativeSelect.borderRadius)/parseFloat(row.nativeSelect.fontSize))<.01,'Native em-relative field radius');
   await summary.click();await page.screenshot({path:path.join(out,name+'-filters.png')});
   const check=panel.getByRole('checkbox',{name:'Watched',exact:true});await check.focus();await page.keyboard.press('Escape');assert.equal(await summary.evaluate(e=>e.parentElement.open),false);assert.ok(await summary.evaluate(e=>document.activeElement===e));
-  await page.keyboard.press('Enter');await check.waitFor();await search.click();assert.equal(await summary.evaluate(e=>e.parentElement.open),false);
+  await page.keyboard.press('Enter');await check.waitFor();await setNativeCheckbox(check,false);await setNativeCheckbox(check,true);await search.click();assert.equal(await summary.evaluate(e=>e.parentElement.open),false);
   const oldPanel=await panel.elementHandle(),oldSearch=await search.elementHandle();
   await page.evaluate(()=>{const panel=document.querySelector('.watchguard-page'),search=panel.querySelector('input[type=search]');window.wgControlsTransition={frames:0,replaced:0,focusLost:0,home:0,done:false};function sample(){const d=wgControlsTransition;if(d.done)return;d.frames++;if(document.querySelector('.watchguard-page')!==panel)d.replaced++;if(document.activeElement!==search)d.focusLost++;if(!document.body.classList.contains('watchguard-page-open'))d.home++;requestAnimationFrame(sample)}requestAnimationFrame(sample)});
   const pattern='**/WatchGuard/ActivityBrowser?*';let release,started;const held=new Promise(r=>release=r),entered=new Promise(r=>started=r);let count=0;
@@ -86,6 +87,13 @@ try{
   const colors=await page.evaluate(()=>{const panel=document.querySelector('.watchguard-page'),popup=panel.querySelector('.watchguard-filter-options');return {page:getComputedStyle(panel).backgroundColor,native:getComputedStyle(document.documentElement).backgroundColor,text:getComputedStyle(panel).color,nativeText:getComputedStyle(document.documentElement).color,popup:getComputedStyle(popup).backgroundColor,checkbox:getComputedStyle(panel.querySelector('.checkboxOutline')||panel.querySelector('input')).backgroundColor}});
   if(!baseline){assert.equal(colors.page,colors.native);assert.equal(colors.text,colors.nativeText);assert.notEqual(colors.popup,'rgba(0, 0, 0, 0)');}
   report.themes.push({theme,...colors});await page.screenshot({path:path.join(out,'toolbar-'+theme+'.png')});
+  if(!baseline){
+   await page.goto(fixture.base+'/web/#/details?id='+fixture.items['PoC Movie Detail']);const toggle=page.locator('#itemDetailPage:visible .watchguard-toggle'),more=page.locator('#itemDetailPage:visible .btnMoreCommands');await toggle.waitFor();await page.waitForFunction(()=>!document.querySelector('.watchguard-toggle')?.disabled);
+   const original=await toggle.getAttribute('aria-pressed');if(original==='false'){await toggle.click();await page.waitForFunction(()=>document.querySelector('.watchguard-toggle')?.getAttribute('aria-pressed')==='true')}
+   await more.hover();await more.evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));const primary=(await styles(more)).color;await page.mouse.move(0,0);
+   assert.equal(await toggle.locator('.detailButton-icon').evaluate(e=>getComputedStyle(e).color),primary,'Saved icon uses the real native theme accent without hover');
+   await page.screenshot({path:path.join(out,'detail-selected-'+theme+'.png')});if(original==='false'){await toggle.click();await page.waitForFunction(()=>document.querySelector('.watchguard-toggle')?.getAttribute('aria-pressed')==='false')}
+  }
  }
  report.result='PASS';
 }catch(error){report.result='FAIL';report.error=String(error);if(page)await page.screenshot({path:path.join(out,'failure.png')}).catch(()=>{});throw error;}

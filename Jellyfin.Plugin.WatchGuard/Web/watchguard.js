@@ -1281,7 +1281,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-extras-dialog button {min-height:2.75rem}
         .watchguard-user-line time {grid-column:1/-1;font-size:.9em;opacity:.85}
         .watchguard-status {font-size:.8em;line-height:1.5}
-        .watchguard-page {color:inherit}
+        .watchguard-page {color:var(--jf-palette-text-secondary,var(--jf-palette-text-primary,inherit))}
         .watchguard-page .watchguard-toolbar-field, .watchguard-page .watchguard-status {color:inherit}
         .watchguard-toolbar {gap:.75rem;align-items:flex-end;margin:1rem 0}
         .watchguard-older-interest {max-width:100%;margin-top:.5rem}
@@ -1377,7 +1377,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-toolbar .emby-select:focus {border-color:var(--jf-palette-secondary-main,#00a4dc)}
         .watchguard-toolbar :is(button,summary)[aria-disabled="true"],.watchguard-toolbar button:disabled,.watchguard-toggle:disabled {opacity:.5;cursor:default}
         .watchguard-toggle:focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:2px}
-        .watchguard-toggle[aria-pressed="true"] .detailButton-icon {color:var(--jf-palette-primary-main,#00a4dc)}
+        .watchguard-toggle .detailButton-icon {text-decoration:none;cursor:inherit}
         @media(prefers-reduced-motion:reduce) {.watchguard-toolbar .emby-button,.watchguard-toggle {transition:none}}
         .watchguard-state-Watchlisted {--wg-accent:#f3c66c}
         .watchguard-state-InProgress {--wg-accent:#82c4ff}
@@ -1507,6 +1507,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                 label.textContent = member ? 'Remove from Watchlist' : 'Add to Watchlist';
                 toggle.title = seriesLabel + label.textContent;
                 icon.textContent = member ? 'bookmark_remove' : 'bookmark_add';
+                // Native theme accent, including Legacy themes without palette variables.
+                icon.classList.toggle('button-link', member);
                 toggle.setAttribute('aria-pressed', String(member)); toggle.setAttribute('aria-busy', 'false'); toggle.disabled = false;
             };
             async function refreshInterest() {

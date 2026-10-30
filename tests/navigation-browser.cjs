@@ -1,3 +1,4 @@
+const setNativeCheckbox=require('./native-checkbox.cjs');
 /* Real Jellyfin routing boundary; no replacement router or WatchGuard API responses. */
 const {chromium} = require('./browser/node_modules/playwright');
 const readiness = require('./browser-readiness.cjs');
@@ -100,10 +101,10 @@ const report = {serverVersion:fixture.serverVersion, image:fixture.image, result
     const range=region.getByRole('combobox',{name:'Activity range'});
     await measure(prefix+'range',range,()=>range.selectOption('7'),{days:'7'});
     const older=region.getByRole('checkbox',{name:'Include older current interest'});
-    await measure(prefix+'older',older,()=>older.uncheck(),{older:'false'});
+    await measure(prefix+'older',older,()=>setNativeCheckbox(older,false),{older:'false'});
     if(!await region.locator('.watchguard-filter').evaluate(e=>e.open)) await region.locator('.watchguard-filter > summary').click();
     const watched=region.getByRole('checkbox',{name:'Watched',exact:true});
-    await measure(prefix+'status',watched,()=>watched.check(),{interest:'watchlisted,watching,playing,watched'});
+    await measure(prefix+'status',watched,()=>setNativeCheckbox(watched,true),{interest:'watchlisted,watching,playing,watched'});
     // Search input does not close disclosures via pointerdown; retain their nodes/state.
     await measure(prefix+'search',search,()=>search.fill(item.Name),{search:item.Name});
     await measure(prefix+'rapid-search',search,async()=>{await search.fill('miss');await page.waitForTimeout(300);await search.fill('missing title');await page.waitForTimeout(40);await search.fill(item.Name);},{search:item.Name});
