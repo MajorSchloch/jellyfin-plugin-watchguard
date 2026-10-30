@@ -13,8 +13,12 @@ try{
  if(!process.argv.includes('--themes-only'))for(const layout of ['auto','modern','desktop-legacy','mobile-legacy'])for(const width of [390,1280,2048]){
   page=width===390?touch:mouse;page.setDefaultTimeout(15000);await page.bringToFront();await page.setViewportSize({width,height:900});await page.evaluate(layout=>localStorage.setItem('layout',layout),layout);
   const row={layout,width};report.cases.push(row);const name=layout+'-'+width;
+  // Layout preference takes effect only on a new native document.
+  await page.goto('about:blank');
   await page.goto(fixture.base+'/web/#/details?id='+fixture.items['PoC Movie Detail']+'&serverId='+fixture.serverId);
   const button=page.locator('#itemDetailPage:visible .watchguard-toggle'),peer=page.locator('#itemDetailPage:visible .btnMoreCommands');await button.waitFor();await peer.waitFor();await page.waitForFunction(()=>!document.querySelector('.watchguard-toggle')?.disabled);
+  row.actualLayout=await page.locator('html').evaluate(e=>({mobile:e.classList.contains('layout-mobile'),legacy:!!document.querySelector('.skinHeader')?.getClientRects().length}));
+  assert.equal(row.actualLayout.legacy,layout.endsWith('-legacy'));assert.equal(row.actualLayout.mobile,layout==='mobile-legacy');
   row.detail={own:await styles(button),native:await styles(peer)};
   if(!baseline)for(const k of ['width','height','y'])assert.ok(Math.abs(row.detail.own[k]-row.detail.native[k])<1,'Detail geometry '+k);
   for(const k of ['fontFamily','fontSize','padding','borderRadius'])assert.equal(row.detail.own[k],row.detail.native[k]);
@@ -78,7 +82,7 @@ try{
  report.themes=[];page=mouse;await page.setViewportSize({width:1280,height:900});
  for(const [theme,title] of [['light','Light'],['purplehaze','Purple Haze'],['blueradiance','Blue Radiance'],['appletv','Apple TV'],['wmc','WMC'],['dark','Dark']]){
   await page.evaluate(()=>localStorage.setItem('layout','modern'));
-  await page.goto(fixture.base+'/web/#/mypreferencesdisplay?userId='+fixture.userId);
+  await page.goto('about:blank');await page.goto(fixture.base+'/web/#/mypreferencesdisplay?userId='+fixture.userId);
   const themeSelect=page.getByRole('combobox',{name:/^Theme/});await themeSelect.waitFor();await themeSelect.click();await page.getByRole('option',{name:title,exact:true}).click();
   const saved=page.waitForResponse(r=>r.request().method()==='POST'&&r.url().includes('/DisplayPreferences/')&&r.ok());await page.getByRole('button',{name:'Save',exact:true}).click();await saved;
   await page.waitForFunction(theme=>[...document.querySelectorAll('link[rel=stylesheet]')].some(e=>e.href.includes('/themes/'+theme+'/theme.css')),theme);
