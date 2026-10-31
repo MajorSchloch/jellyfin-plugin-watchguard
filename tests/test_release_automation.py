@@ -25,12 +25,15 @@ COMMIT = 'a' * 40
 VERSION = state.candidate()
 
 
-class FakeGitHub:
-    repo = REPO
-    writable = True
-
+class FakeGitHub(state.GitHub):
     def __init__(self, archive, record):
+        super().__init__(REPO, writable=True)
         self.archive, self.record = archive, record
+        self.repository = {"id": 7, "default_branch": "master"}
+        self.notes_permission = True
+        self.probes = []
+        self.extra_releases = []
+        self.list_error = None
         self.current = None
         self.tag_commit = None
         self.manifest = b'[]\n'
@@ -40,12 +43,6 @@ class FakeGitHub:
         self.fail_catalog = False
         self.change_before_write = False
         self.downloads = {'api': 0, 'public': 0}
-
-    def release(self, version, public_only=False):
-        return copy.deepcopy(self.current)
-
-    def can_see_drafts(self):
-        return True
 
     def tag(self, tag):
         return self.tag_commit
@@ -58,10 +55,20 @@ class FakeGitHub:
         return b'# Release notes\n', 'notes'
 
     def request(self, path, method='GET', data=None, binary=False):
+        state.require(method == 'GET' or self.writable, 'Read-only execution cannot write to GitHub.')
+        if path == 'releases/generate-notes' and method == 'POST':
+            self.probes.append(copy.deepcopy(data))
+            if not self.notes_permission:
+                raise state.Blocked('GitHub request failed: releases/generate-notes: HTTP 403')
+            return {'name': 'Generated title', 'body': 'Generated notes (never saved)'}
         if method != 'GET':
             self.writes.append((method, path))
         if path == '':
-            return {'id': 7, 'default_branch': 'master'}
+            return copy.deepcopy(self.repository)
+        if path.startswith('releases?') and method == 'GET':
+            if self.list_error:
+                raise state.Blocked(self.list_error)
+            return copy.deepcopy(([self.current] if self.current else []) + self.extra_releases)
         if path == 'releases' and method == 'POST':
             self.current = dict(data, id=9, published_at=None, prerelease=False, assets=[])
             return copy.deepcopy(self.current)
@@ -133,22 +140,62 @@ class ReleaseStateTests(unittest.TestCase):
         self.api.upload(self.api.current['id'], Path(str(self.archive)+suffix))
 
     def test_unpublished_inspection_and_read_only_plan_make_no_writes(self):
+        self.api.writable = False
+        self.api.repository['permissions'] = {'push': True}
         self.assertEqual('unpublished', state.inspect(self.api, VERSION, []))
         status, actions = publisher.resume(self.api, self.record, self.archive)
         self.assertEqual(status, 'awaiting approval')
         self.assertEqual(len(actions), 5)
         self.assertEqual(self.api.writes, [])
+        self.assertEqual(self.api.probes, [])
         self.assertIsNone(self.api.current)
 
     def test_hidden_drafts_are_unknown_and_inspection_cannot_plan_draft_writes(self):
-        with patch.object(self.api, 'can_see_drafts', return_value=False):
-            self.assertEqual(state.inspect(self.api, VERSION, []), 'unpublished-or-draft')
-            status, actions = publisher.resume(self.api, self.record, self.archive)
-            self.assertEqual(status, 'awaiting approval')
-            self.assertIn('incomplete release list', actions[0])
-            with self.assertRaisesRegex(state.Blocked, 'Cannot inspect all drafts'):
-                publisher.resume(self.api, self.record, self.archive, True)
-            self.assertEqual(self.api.writes, [])
+        self.api.writable = False
+        self.assertEqual(state.inspect(self.api, VERSION, []), 'unpublished-or-draft')
+        status, actions = publisher.resume(self.api, self.record, self.archive)
+        self.assertEqual(status, 'awaiting approval')
+        self.assertIn('incomplete release list', actions[0])
+        with self.assertRaisesRegex(state.Blocked, 'explicit write authority'):
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(self.api.writes, [])
+        self.assertEqual(self.api.probes, [])
+
+    def test_approved_installation_without_push_metadata_can_publish_and_recover(self):
+        # All publication/recovery tests inherit the real detector and release
+        # enumeration. Exercise explicit false/null metadata as well as absence.
+        for permissions in (None, {}, {'push': False}, {'push': True}):
+            with self.subTest(permissions=permissions):
+                self.api = FakeGitHub(self.archive, self.record)
+                self.api.repository['permissions'] = permissions
+                with patch.object(catalog, 'download', side_effect=self.api.download):
+                    self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+                self.assertEqual(len(self.api.probes), 1)
+                self.assertNotIn('Generated notes', self.api.current['body'])
+                self.assertEqual(self.api.current['target_commitish'], COMMIT)
+
+    def test_insufficient_authority_blocks_before_release_mutations(self):
+        for permissions in (None, {'push': True}):
+            with self.subTest(permissions=permissions):
+                self.api.repository['permissions'] = permissions
+                self.api.notes_permission = False
+                with self.assertRaisesRegex(state.Blocked, 'Cannot establish Contents: write.*HTTP 403'):
+                    publisher.resume(self.api, self.record, self.archive, True)
+                self.assertIsNone(self.api._draft_visibility)
+                self.assertEqual(self.api.writes, [])
+                self.assertIsNone(self.api.current)
+
+    def test_permission_probe_does_not_replace_complete_draft_enumeration(self):
+        self.draft()
+        self.api.extra_releases = [{**self.api.current, 'id': 10}]
+        with self.assertRaisesRegex(state.Blocked, 'Multiple releases'):
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(self.api.writes, [])
+        self.api.extra_releases.clear()
+        self.api.list_error = 'GitHub release enumeration failed: HTTP 403'
+        with self.assertRaisesRegex(state.Blocked, 'enumeration failed'):
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(self.api.writes, [])
 
     def test_partial_upload_resumes_only_missing_asset_then_repeat_is_noop(self):
         for suffix in ('', '.sha256'):
@@ -238,7 +285,9 @@ class ReleaseStateTests(unittest.TestCase):
                         obj = self.api.current['assets'][0] if target == 'asset' else self.api.current
                         obj[key] = value
                     return original(version)
-                with patch.object(self.api, 'release', side_effect=changed), self.assertRaisesRegex(state.Blocked, 'concurrently'):
+                # Real enumeration rejects a prerelease before fingerprinting.
+                message = 'Candidate tag belongs to a prerelease' if key == 'prerelease' else 'concurrently'
+                with patch.object(self.api, 'release', side_effect=changed), self.assertRaisesRegex(state.Blocked, message):
                     publisher.resume(self.api, self.record, self.archive, True)
                 self.assertEqual(self.api.writes, [])
 
@@ -359,6 +408,82 @@ class ReleaseStateTests(unittest.TestCase):
         with patch.object(api, 'pages', return_value=[{'tag_name':'v'+VERSION, 'draft': True}]*2):
             with self.assertRaisesRegex(state.Blocked, 'Multiple releases'):
                 api.release(VERSION)
+
+
+class PermissionDetectionTests(unittest.TestCase):
+    def transport(self, result, metadata=None):
+        repo = metadata if metadata is not None else {'default_branch': 'master'}
+        return patch.object(state.subprocess, 'run', side_effect=[
+            subprocess.CompletedProcess([], 0, stdout=json.dumps(repo).encode(), stderr=b''), result])
+
+    def test_installation_probe_uses_real_transport_without_persisting_objects(self):
+        api = state.GitHub(REPO, writable=True)
+        response = subprocess.CompletedProcess([], 0, stdout=b'{"name":"notes","body":""}', stderr=b'')
+        with self.transport(response) as request:
+            self.assertTrue(api.can_see_drafts())
+            self.assertTrue(api.can_see_drafts())
+        self.assertEqual(request.call_count, 2)  # Metadata and one cached probe.
+        command = request.call_args.args[0]
+        self.assertEqual(command, ['gh', 'api', f'repos/{REPO}/releases/generate-notes',
+                                   '--method', 'POST', '--input', '-'])
+        self.assertEqual(json.loads(request.call_args.kwargs['input']), {
+            'tag_name': 'watchguard-permission-check', 'target_commitish': 'master'})
+        self.assertEqual(request.call_args.kwargs['timeout'], 60)
+
+    def test_read_only_missing_or_negative_metadata_never_probes(self):
+        for permissions in ({}, {'permissions': None}, {'permissions': {}}, {'permissions': {'push': False}}):
+            api = state.GitHub(REPO)
+            response = subprocess.CompletedProcess([], 0, stdout=json.dumps(permissions).encode(), stderr=b'')
+            with self.subTest(metadata=permissions), patch.object(state.subprocess, 'run', return_value=response) as request:
+                self.assertFalse(api.can_see_drafts())
+                self.assertFalse(api.can_see_drafts())
+                with self.assertRaisesRegex(state.Blocked, 'Read-only execution'):
+                    api.request('releases/generate-notes', 'POST', {})
+                self.assertEqual(request.call_count, 1)
+                self.assertEqual(request.call_args.args[0][-1], 'GET')
+
+    def test_api_denials_errors_and_invalid_responses_never_prove_authority(self):
+        responses = [subprocess.CompletedProcess([], 1, stdout=b'', stderr=f'HTTP {code}'.encode())
+                     for code in (401, 403, 404, 429, 500)]
+        responses += [subprocess.CompletedProcess([], 0, stdout=body, stderr=b'')
+                      for body in (b'null', b'{}', b'[]', b'{"name":"title","body":null}', b'not JSON')]
+        responses.append(subprocess.TimeoutExpired(['gh', 'api'], 60))
+        for response in responses:
+            api = state.GitHub(REPO, writable=True)
+            # Even push:true cannot override a failed installation-token probe.
+            with self.subTest(response=response), self.transport(response, {'default_branch': 'master', 'permissions': {'push': True}}), \
+                 self.assertRaisesRegex(state.Blocked, 'Cannot establish Contents: write'):
+                api.can_see_drafts()
+            self.assertIsNone(api._draft_visibility)
+
+    def test_repository_failure_never_falls_back_to_assumed_authority(self):
+        api = state.GitHub(REPO, writable=True)
+        response = subprocess.CompletedProcess([], 1, stdout=b'', stderr=b'HTTP 403')
+        with patch.object(state.subprocess, 'run', return_value=response) as request, \
+             self.assertRaisesRegex(state.Blocked, 'GitHub request failed'):
+            api.can_see_drafts()
+        self.assertEqual(request.call_count, 1)
+        self.assertIsNone(api._draft_visibility)
+
+    def test_missing_default_branch_stops_before_probe(self):
+        api = state.GitHub(REPO, writable=True)
+        with patch.object(api, 'request', return_value={}) as request, \
+             self.assertRaisesRegex(state.Blocked, 'default branch is unavailable'):
+            api.can_see_drafts()
+        request.assert_called_once_with('')
+        self.assertIsNone(api._draft_visibility)
+
+    def test_later_inventory_page_failure_or_ambiguity_blocks_enumeration(self):
+        # A successful probe is not an inventory, including when page one fills.
+        for last in (state.Blocked('HTTP 403 on page two'),
+                     [dict(tag_name='v'+VERSION, draft=True, prerelease=False)]):
+            api = state.GitHub(REPO, writable=True)
+            first = [dict(tag_name='v'+VERSION, draft=True, prerelease=False)]
+            first += [dict(tag_name=f'other-{n}') for n in range(99)]
+            with self.subTest(last=last), patch.object(api, 'request', side_effect=[first, last]) as request, \
+                 self.assertRaises(state.Blocked):
+                api.release(VERSION)
+            self.assertEqual(request.call_args.args[0], 'releases?per_page=100&page=2')
 
 
 class ProvenanceTests(unittest.TestCase):

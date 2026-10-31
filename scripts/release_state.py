@@ -73,9 +73,30 @@ class GitHub:
 
     def can_see_drafts(self):
         if self._draft_visibility is None:
-            # GitHub's release list omits drafts without push permission. Never
-            # treat an incomplete list as proof that no draft exists.
-            self._draft_visibility = self.request('').get('permissions', {}).get('push') is True
+            repo = self.request('')
+            if not self.writable:
+                # Inspection stays read-only. Missing metadata cannot establish
+                # draft visibility; an empty release list proves nothing.
+                self._draft_visibility = (repo.get('permissions') or {}).get('push') is True
+            else:
+                # Installation tokens need not expose user permissions.push.
+                # generate-notes requires Contents: write and saves nothing:
+                # https://docs.github.com/en/rest/releases/releases#generate-release-notes-content-for-a-release
+                # The probe name never creates a release/tag. Discard its output;
+                # actual release copy still comes from the qualified commit.
+                try:
+                    require(isinstance(repo.get('default_branch'), str) and repo['default_branch'],
+                            'Repository default branch is unavailable.')
+                    notes = self.request('releases/generate-notes', 'POST', {
+                        'tag_name': 'watchguard-permission-check',
+                        'target_commitish': repo['default_branch'],
+                    })
+                    require(isinstance(notes, dict) and all(isinstance(notes.get(k), str) for k in ('name', 'body')),
+                            'Unexpected permission-check response.')
+                except (Blocked, subprocess.TimeoutExpired, ValueError) as error:
+                    raise Blocked('Cannot establish Contents: write for draft inspection. '
+                                  'Resume through the approved publisher after resolving the API failure. ' + str(error)) from error
+                self._draft_visibility = True
         return self._draft_visibility
 
     def pages(self, path, key=None):
