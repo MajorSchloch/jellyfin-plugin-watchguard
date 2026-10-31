@@ -17,7 +17,7 @@ Node.js and npm are now required for a source build. The build uses `scripts/bro
 - Replace `replaceAll`, `replaceChildren` and `Object.hasOwn` with supported equivalents. Own-property checks still exclude inherited properties.
 - Remove the outside-dismiss listener explicitly on abort. Chromium 79 ignores the newer event-listener `signal` option.
 - Replace relational `:has()` styling with reconciled WatchGuard-owned classes. Do not continuously mutate native headers during reconciliation.
-- Expand `:is()` selectors. Provide scoped focus outlines, flex-gap margins, positional offsets and viewport-height fallbacks.
+- Expand `:is()` selectors. Provide scoped focus outlines, flex-gap margins, positional offsets, checkbox padding and viewport-height fallbacks. Preserve poster proportions without `aspect-ratio`, and provide chip colors without `color-mix`.
 - Flatten only WatchGuard's fallback cascade layer when the engine lacks layer support. Keep native layers and style rules intact.
 - Retain native `dialog`, URL, Blob, AbortController, History and MutationObserver APIs. These are separate from syntax transformation. A denied CSP still stops execution; this change does not weaken it.
 

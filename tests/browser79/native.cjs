@@ -56,7 +56,8 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
             await page.goto(fixture.base+'/web/#/home?watchguard=watchlists'); await page.reload();
             await page.waitForSelector('.watchguard-page');
             assert.equal(await page.evaluate(()=>wgOutsideListenerCount()),1);
-            await page.waitForFunction(()=>document.querySelector('.watchguard-page').getAttribute('data-view-state') !== 'loading');
+            // The page node exists before its first render. A missing state is not readiness.
+            await page.waitForFunction(()=>['ready','empty','populating'].includes(document.querySelector('.watchguard-page').getAttribute('data-view-state')));
             if(layout==='tv') assert(await page.evaluate(()=>document.documentElement.classList.contains('layout-tv')));
             const row={layout};report.cases.push(row);
             await page.focus('.watchguard-filter summary'); await page.keyboard.press('Enter');
@@ -75,6 +76,11 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
             await page.waitForFunction(()=>location.hash.includes('search=PoC'));
             assert(await page.evaluate(()=>document.activeElement.matches('.watchguard-search input')));
             row.filtersAndFocus='PASS';
+            if(layout!=='tv') {
+                await page.waitForSelector('.watchguard-poster');
+                const ratio=await page.$eval('.watchguard-poster',e=>{const r=e.getBoundingClientRect();return r.height/r.width;});
+                assert(Math.abs(ratio-1.5)<0.02, 'Poster keeps its native 2:3 shape');row.posterRatio=ratio;
+            }
             await page.screenshot({path:path.join(output,layout+'-watchlists.png')});
             const id=fixture.items['PoC Movie Detail'];
             await page.goto(fixture.base+'/web/#/details?id='+id+'&serverId='+fixture.serverId);

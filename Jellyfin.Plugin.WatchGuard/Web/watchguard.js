@@ -1302,6 +1302,10 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-card a {display:block;color:inherit;text-decoration:none}
         .watchguard-poster {position:relative;aspect-ratio:2/3;background:#292929;display:flex;align-items:center;justify-content:center;border-radius:.25em;overflow:hidden}
         .watchguard-poster>.material-icons {font-size:3em;color:#999}
+        @supports not (aspect-ratio:2/3) {
+            .watchguard-poster {height:0;padding-bottom:150%}
+            .watchguard-poster>.material-icons {position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+        }
         .watchguard-poster img {position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover}
         .watchguard-card a:hover .watchguard-poster {box-shadow:0 0 0 2px #00a4dc}
         .watchguard-card .cardText {padding-top:.5em;font-size:.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1330,9 +1334,9 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-toolbar {gap:.75rem;align-items:flex-end;margin:1rem 0}
         .watchguard-older-interest {max-width:100%;margin-top:.5rem}
         .watchguard-toolbar-field {position:relative;display:flex;flex-direction:column;gap:.3rem;min-width:0;flex:0 1 15rem}
-        .watchguard-toolbar-field>.selectArrowContainer {position:absolute;pointer-events:none;top:auto;bottom:.45em;inset-inline-end:.35em}
+        .watchguard-toolbar-field>.selectArrowContainer {position:absolute;pointer-events:none;top:auto;bottom:.45em;right:.35em;inset-inline-end:.35em}
         .watchguard-toolbar .selectArrow {font-size:1.5em;vertical-align:middle}
-        .watchguard-toolbar .emby-select {appearance:none;padding-inline-end:1.9em}
+        .watchguard-toolbar .emby-select {-webkit-appearance:none;appearance:none;padding-inline-end:1.9em}
         .watchguard-toolbar-field>.selectLabel,.watchguard-toolbar-field>.inputLabel {font-size:inherit;margin:0}
         .watchguard-toolbar-field select, .watchguard-toolbar-field input[type="search"] {width:100%;min-height:44px;margin:0;box-sizing:border-box}
         .watchguard-sort {margin-inline-start:auto;flex-basis:13rem}
@@ -1341,7 +1345,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-filter-options {max-width:calc(100vw - 3rem);box-sizing:border-box;color:inherit}
         .watchguard-filter-options label, .watchguard-filter-options button {min-height:44px;box-sizing:border-box}
         .watchguard-filter-options .emby-button {display:flex;width:100%;margin:.25em 0;text-align:start}
-        .watchguard-toolbar .emby-checkbox-label {height:auto;min-height:44px;padding-block:.4em}
+        .watchguard-toolbar .emby-checkbox-label {height:auto;min-height:44px;padding-top:.4em;padding-bottom:.4em;padding-block:.4em}
         .watchguard-toolbar .emby-checkbox:focus~.checkboxOutline {outline:2px solid var(--jf-palette-primary-main,#00a4dc);outline-offset:3px}
         .watchguard-toolbar .checkboxOutline {top:50%;transform:translateY(-50%)}
         .watchguard-page button:focus-visible, .watchguard-page summary:focus-visible, .watchguard-page select:focus-visible, .watchguard-page input:focus-visible, .watchguard-page a:focus-visible, .watchguard-page [tabindex]:focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:3px}
@@ -1430,7 +1434,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-state-Watched {--wg-accent:#93d6a2}
         .watchguard-state-CurrentlyPlaying {--wg-accent:#c9a3f7}
         .watchguard-state-Unknown {--wg-accent:#bac0ca}
-        .watchguard-chip {display:inline-flex;align-items:center;color:var(--wg-accent,#ccc);background:color-mix(in srgb,var(--wg-accent,#ccc) 10%,transparent);border:1px solid color-mix(in srgb,var(--wg-accent,#ccc) 30%,transparent);border-radius:1em;padding:.15em .65em;font-size:.85em;line-height:1.5;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
+        .watchguard-chip {display:inline-flex;align-items:center;color:var(--wg-accent,#ccc);background:rgba(255,255,255,.08);background:color-mix(in srgb,var(--wg-accent,#ccc) 10%,transparent);border:1px solid var(--wg-accent,#ccc);border:1px solid color-mix(in srgb,var(--wg-accent,#ccc) 30%,transparent);border-radius:1em;padding:.15em .65em;font-size:.85em;line-height:1.5;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
         .watchguard-status-icons [class*="watchguard-state-"] {color:var(--wg-accent)}
         .watchguard-series-activity {width:100%;box-sizing:border-box;border:1px solid #ffffff24;border-radius:.7rem;background:#ffffff03;overflow:hidden}
         .watchguard-series-activity summary {cursor:pointer;padding:.8rem 1rem;min-height:2.75rem;box-sizing:border-box;line-height:1.7;overflow-wrap:anywhere}
