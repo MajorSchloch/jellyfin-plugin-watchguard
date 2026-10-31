@@ -10,10 +10,14 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Jellyfin.Controller" Version="12.2.0" ExcludeAssets="runtime" />
     <PackageReference Include="Jellyfin.Model" Version="12.2.0" ExcludeAssets="runtime" />
-    <EmbeddedResource Include="Web/watchguard.js" />
-    <EmbeddedResource Include="Web/navigation.js" />
-    <EmbeddedResource Include="Web/settings.html" />
-    <EmbeddedResource Include="Standalone/bootstrap.js" />
-    <EmbeddedResource Include="Standalone/startup.js" />
+    <BrowserSource Include="Web/watchguard.js;Web/navigation.js;Web/settings.html;Standalone/bootstrap.js;Standalone/startup.js" />
+    <EmbeddedResource Include="@(BrowserSource->'obj/browser/%(Identity)')">
+      <LogicalName>Jellyfin.Plugin.WatchGuard.$([System.String]::Copy('%(Identity)').Replace('obj/browser/', '').Replace('/', '.'))</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
+  <Target Name="GenerateBrowserAssets" BeforeTargets="PrepareResources"
+          Inputs="@(BrowserSource);../scripts/browser/build.cjs;../scripts/browser/package.json;../scripts/browser/package-lock.json"
+          Outputs="@(BrowserSource->'obj/browser/%(Identity)')">
+    <Exec Command="node &quot;$(MSBuildProjectDirectory)/../scripts/browser/build.cjs&quot;" />
+  </Target>
 </Project>

@@ -1,4 +1,8 @@
-# WatchGuard v0.7.11 preparation
+# WatchGuard v0.7.12 preparation
+
+Unpublished older-browser and TV compatibility patch. Review [implementation and hardware limits](docs/browser-compatibility.md) and [publication copy](docs/releases/v0.7.12.md). Full qualification uses `publish=false` and `proxy_matrix=true`; do not publish this candidate as part of the compatibility work.
+
+## Published v0.7.11 record
 
 Published on 2026-10-30. The publication run passed qualification, then failed to download the newly public checksum while updating the catalog. The [catalog recovery record](docs/catalog-recovery.md) verifies the existing assets and records the manifest correction; no release assets are replaced.
 

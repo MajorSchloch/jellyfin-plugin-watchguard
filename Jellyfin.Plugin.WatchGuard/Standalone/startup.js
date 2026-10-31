@@ -7,7 +7,7 @@
         if (!onRoute() || window.WatchGuardPoc || window.WatchGuardStartup?.active()) return;
         let finished = false;
         const style = document.createElement('style');
-        style.textContent = '#watchguard-startup{position:fixed;inset:0;z-index:2147483647;background:#101010;color:#eee;font:1rem/1.5 system-ui,sans-serif;padding:clamp(1.25rem,5vw,3rem);box-sizing:border-box}#watchguard-startup a{color:#82c4ff;display:inline-block;padding:.75rem 0}#watchguard-startup a:focus-visible{outline:2px solid currentColor;outline-offset:4px}';
+        style.textContent = '#watchguard-startup{position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483647;background:#101010;color:#eee;font:1rem/1.5 system-ui,sans-serif;padding:1.25rem;padding:clamp(1.25rem,5vw,3rem);box-sizing:border-box}#watchguard-startup a{color:#82c4ff;display:inline-block;padding:.75rem 0}#watchguard-startup a:focus{outline:2px solid currentColor;outline-offset:4px}';
         document.head.append(style);
         const panel = document.createElement('section'); panel.id = 'watchguard-startup'; panel.setAttribute('aria-label', 'Watchlists loading');
         const status = document.createElement('p'); status.setAttribute('role', 'status'); status.textContent = 'Loading Watchlists…';

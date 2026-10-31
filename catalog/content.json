@@ -205,6 +205,13 @@
         "Watchlists filters use native field and checkbox presentation, with clearer pending actions and stable controls."
       ],
       "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/native-controls-v0711.md"
+    },
+    "0.7.12.0": {
+      "summary": [
+        "Load WatchGuard scripts on Chromium 79 with older-browser API and styling fallbacks.",
+        "Use TV arrows, OK and Back for Watchlists filters and dialogs, with visible focus."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/browser-compatibility.md"
     }
   }
 }
