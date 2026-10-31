@@ -56,13 +56,15 @@ The existing qualification `publish=true` input requests publication after a new
 
 A unique published release can be checked without touching an unrelated draft with the same tag. The summary lists those preserved draft IDs. Any write plan rejects multiple matching releases. During development, the live v0.7.11 check found empty draft `429209739` beside published release `429096534`. Both remain unchanged.
 
-## Draft visibility limit
+## Accepted design: read-only inspection
+
+Read-only inspection is the accepted design. Before release approval, draft state can remain unknown. Inspection jobs must not receive broader tokens. Only the publisher receives write permissions, behind the existing `release` environment approval.
 
 GitHub restricts draft visibility to push access, as described in its [release API documentation](https://docs.github.com/en/rest/releases/releases#list-releases). The hosted check confirmed this behavior: it verified v0.7.11 but could not see the existing empty draft. Inspection jobs retain `contents: read`. The publisher receives `contents: write` only after release-environment approval.
 
-When no public release exists, the preflight reports `unpublished-or-draft` instead of claiming that no draft exists. A read-only publisher cannot plan draft writes from that incomplete list. After approval, it requires draft visibility and checks the full state before any mutation.
+When no public release exists, the preflight reports `unpublished-or-draft`: draft state is unknown, not proof that no draft exists. A read-only publisher cannot plan draft writes from that incomplete list. After approval, the publisher requires draft visibility and inspects the complete state. It rejects conflicts before any write.
 
-This leaves a limitation: an invisible draft can cause an explicit qualification request to repeat work. Use the original qualification run with **Publish WatchGuard** for recovery. Automatic catalog/documentation commits still do not start a matrix. Complete draft detection before qualification would require broader inspection credentials; this PR does not grant them.
+This accepted limitation means an invisible draft can cause an explicit qualification request to repeat work. For recovery, use **Publish WatchGuard** with the original qualification run ID and attempt, as shown above. This path verifies the retained record and exact package without a rebuild or another compatibility matrix. Missing or expired evidence still blocks publication. Automatic catalog/documentation commits do not start a matrix. Complete draft detection before qualification is not required; inspection credentials remain read-only.
 
 ## Qualification record and trust
 
