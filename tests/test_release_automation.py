@@ -39,6 +39,7 @@ class FakeGitHub:
         self.asset_content = {}
         self.fail_catalog = False
         self.change_before_write = False
+        self.downloads = {'api': 0, 'public': 0}
 
     def release(self, version, public_only=False):
         return copy.deepcopy(self.current)
@@ -65,7 +66,11 @@ class FakeGitHub:
             self.current = dict(data, id=9, published_at=None, prerelease=False, assets=[])
             return copy.deepcopy(self.current)
         if path.startswith('releases/assets/'):
-            return self.asset_content[int(path.rsplit('/', 1)[1])]
+            ident = int(path.rsplit('/', 1)[1])
+            asset = next(a for a in self.current['assets'] if a['id'] == ident)
+            asset['download_count'] += 1
+            self.downloads['api'] += 1
+            return self.asset_content[ident]
         if method == 'PATCH':
             self.current.update(draft=False, published_at='2026-10-30T13:57:38Z')
             self.tag_commit = COMMIT
@@ -88,7 +93,8 @@ class FakeGitHub:
         content = path.read_bytes()
         self.asset_content[ident] = content
         self.current['assets'].append(dict(id=ident, name=path.name, size=len(content), state='uploaded',
-            digest='sha256:' + state.digest(content), browser_download_url=f'https://github.com/{REPO}/releases/download/v{VERSION}/{path.name}'))
+            digest='sha256:' + state.digest(content), download_count=0,
+            browser_download_url=f'https://github.com/{REPO}/releases/download/v{VERSION}/{path.name}'))
         return None
 
     def download(self, url, path, **kwargs):
@@ -96,6 +102,8 @@ class FakeGitHub:
             content = json.dumps(self.current).encode()
         else:
             asset = next(a for a in self.current['assets'] if a['browser_download_url'] == url)
+            asset['download_count'] += 1
+            self.downloads['public'] += 1
             content = self.asset_content[asset['id']]
         Path(path).write_bytes(content)
 
@@ -152,10 +160,17 @@ class ReleaseStateTests(unittest.TestCase):
                     self.assertEqual(status, 'catalog updated')
                     self.assertEqual(sum(op == 'UPLOAD' for op, _ in self.api.writes), 1)
                     before = copy.deepcopy((self.api.current, self.api.manifest))
+                    downloads = self.api.downloads.copy()
                     self.api.writes.clear()
                     self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'already published and verified')
                     self.assertEqual(self.api.writes, [])
-                    self.assertEqual(before, (self.api.current, self.api.manifest))
+                    after = copy.deepcopy(self.api.current)
+                    for old, new in zip(before[0]['assets'], after['assets']):
+                        self.assertGreater(new['download_count'], old['download_count'])
+                        new['download_count'] = old['download_count']
+                    self.assertEqual(before, (after, self.api.manifest))
+                    for source in ('api', 'public'):
+                        self.assertGreater(self.api.downloads[source], downloads[source])
                     self.assertEqual(state.inspect(self.api, VERSION, json.loads(self.api.manifest)), 'complete')
 
     def test_publication_before_catalog_failure_resumes_without_upload_or_publish(self):
@@ -167,14 +182,105 @@ class ReleaseStateTests(unittest.TestCase):
         self.assertEqual(state.inspect(self.api, VERSION, []), 'catalog-missing')
         self.api.fail_catalog = False
         self.api.writes.clear()
+        downloads = self.api.downloads.copy()
         publisher.resume(self.api, self.record, self.archive, True)
         self.assertEqual(self.api.writes, [('PUT', 'contents/manifest.json')])
+        for source in ('api', 'public'):
+            self.assertGreater(self.api.downloads[source], downloads[source])
+
+    def test_new_publication_tolerates_api_and_public_download_counters(self):
+        self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+        self.assertEqual([op for op, _ in self.api.writes], ['POST', 'UPLOAD', 'UPLOAD', 'PATCH', 'PUT'])
+        self.assertGreater(self.api.downloads['api'], 0)
+        self.assertGreater(self.api.downloads['public'], 0)
+        self.assertTrue(all(a['download_count'] > 0 for a in self.api.current['assets']))
+
+    def test_asset_order_and_presentation_changes_do_not_block_recovery(self):
+        self.draft(); self.upload(); self.upload('.sha256'); self.api.writes.clear()
+        original = self.api.release
+        calls = 0
+        def reordered(version):
+            nonlocal calls
+            calls += 1
+            self.api.current.update(name=f'Editorial title {calls}',
+                                    body=f'Updated release notes {calls}\n' + publisher.marker(self.record))
+            for asset in self.api.current['assets']:
+                asset.update(label=f'Download {calls}', updated_at=str(calls), uploader={'login': f'editor{calls}'})
+            result = original(version)
+            if calls % 2:
+                result['assets'].reverse()
+            return result
+        with patch.object(self.api, 'release', side_effect=reordered):
+            self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+        self.assertEqual(self.api.writes, [('PATCH', 'releases/9'), ('PUT', 'contents/manifest.json')])
+
+    def test_integrity_and_provenance_changes_still_block_before_write(self):
+        changes = [('asset', key, value) for key, value in (
+            ('id', 999), ('name', 'other.zip'), ('digest', 'sha256:' + 'b'*64), ('size', 999),
+            ('state', 'starter'), ('browser_download_url', 'https://example.invalid/other.zip'))]
+        changes += [('release', key, value) for key, value in (
+            ('id', 10), ('tag_name', 'v0.0.0'), ('target_commitish', 'b'*40), ('draft', False),
+            ('prerelease', True), ('published_at', '2026-10-31T00:00:00Z'), ('body', 'marker removed'))]
+        for key, value in (('run', 456), ('attempt', 3), ('sourceCommit', 'b'*40),
+                           ('qualification', {'packageSha256': 'b'*64})):
+            changes.append(('release', 'body', publisher.marker({**self.record, key: value})))
+        changes.append(('release', 'body', publisher.marker(self.record) + '\n' +
+                        publisher.marker({**self.record, 'run': 456})))
+        for target, key, value in changes:
+            with self.subTest(target=target, key=key, value=value):
+                self.draft(); self.api.asset_content.clear(); self.upload(); self.upload('.sha256'); self.api.writes.clear()
+                original = self.api.release
+                calls = 0
+                def changed(version):
+                    nonlocal calls
+                    calls += 1
+                    if calls == 2:
+                        obj = self.api.current['assets'][0] if target == 'asset' else self.api.current
+                        obj[key] = value
+                    return original(version)
+                with patch.object(self.api, 'release', side_effect=changed), self.assertRaisesRegex(state.Blocked, 'concurrently'):
+                    publisher.resume(self.api, self.record, self.archive, True)
+                self.assertEqual(self.api.writes, [])
+
+    def test_public_download_changes_still_block_catalog_write(self):
+        self.draft(); self.upload(); self.upload('.sha256')
+        self.api.request('releases/9', 'PATCH', {'draft': False})
+        self.api.writes.clear()
+        original = self.api.download
+        def changed(url, path, **kwargs):
+            original(url, path, **kwargs)
+            if url.endswith('.sha256'):
+                self.api.current['assets'][0]['id'] = 999
+        with patch.object(catalog, 'download', side_effect=changed), self.assertRaisesRegex(state.Blocked, 'concurrently'):
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(self.api.writes, [])
+        self.assertEqual(self.api.manifest, b'[]\n')
+
+    def test_changed_public_bytes_block_catalog_recovery_even_with_unchanged_metadata(self):
+        self.draft(); self.upload(); self.upload('.sha256')
+        self.api.request('releases/9', 'PATCH', {'draft': False})
+        self.api.writes.clear()
+        original = self.api.download
+        before = publisher.fingerprint(self.api.current)
+        for suffix, message in (('.zip', 'Public ZIP differs'), ('.sha256', 'Public SHA-256 mismatch')):
+            with self.subTest(asset=suffix):
+                def corrupted(url, path, **kwargs):
+                    original(url, path, **kwargs)
+                    if url.endswith(suffix):
+                        Path(path).write_bytes(b'corrupt')
+                with patch.object(catalog, 'download', side_effect=corrupted), self.assertRaisesRegex(ValueError, message):
+                    publisher.resume(self.api, self.record, self.archive, True)
+                self.assertEqual(publisher.fingerprint(self.api.current), before)
+                self.assertEqual(self.api.writes, [])
+                self.assertEqual(self.api.manifest, b'[]\n')
 
     def test_draft_conflicts_and_ambiguous_provenance_stop_before_writes(self):
-        for failure in ('bytes', 'marker', 'target', 'tag', 'extra', 'partial'):
+        for failure in ('bytes', 'digest', 'size', 'marker', 'target', 'tag', 'extra', 'partial'):
             with self.subTest(failure=failure):
                 self.draft(); self.api.asset_content.clear(); self.upload(); self.api.writes.clear(); self.api.tag_commit = None
                 if failure == 'bytes': self.api.asset_content[1] = b'conflict'
+                if failure == 'digest': self.api.current['assets'][0]['digest'] = 'sha256:' + 'b'*64
+                if failure == 'size': self.api.current['assets'][0]['size'] += 1
                 if failure == 'marker': self.api.current['body'] = 'unrelated draft'
                 if failure == 'target': self.api.current['target_commitish'] = 'master'
                 if failure == 'tag': self.api.tag_commit = 'b'*40

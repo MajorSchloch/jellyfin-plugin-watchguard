@@ -4,6 +4,7 @@ import base64
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 import time
 
@@ -20,8 +21,15 @@ def marker(record):
 def fingerprint(release):
     if release is None:
         return None
-    return json.dumps({key: release[key] for key in ('id', 'tag_name', 'target_commitish', 'draft', 'prerelease',
-                                                     'published_at', 'body', 'assets')}, sort_keys=True)
+    # Downloads change counters, and GitHub does not promise asset list order.
+    # Compare identity/integrity and provenance, not presentation or activity.
+    snapshot = {key: release[key] for key in ('id', 'tag_name', 'target_commitish', 'draft', 'prerelease', 'published_at')}
+    snapshot['qualificationMarkers'] = sorted(re.findall(
+        r'<!--\s*watchguard-qualified\b.*?(?:-->|$)', release.get('body') or '', flags=re.DOTALL))
+    snapshot['assets'] = sorted(
+        ({key: asset.get(key) for key in ('id', 'name', 'size', 'state', 'digest', 'browser_download_url')}
+         for asset in release['assets']), key=lambda asset: json.dumps(asset, sort_keys=True))
+    return json.dumps(snapshot, sort_keys=True)
 
 
 def verify_existing(api, record, archive, release):

@@ -86,6 +86,8 @@ A draft contains a marker that binds it to the qualification run, attempt, sourc
 
 The publisher checks state before each write and after each release operation. Unknown assets, partial asset states, conflicting bytes, different tags and unrelated draft markers stop the operation. GitHub also rejects duplicate asset names. Nothing deletes a release, tag or asset.
 
+The concurrency comparison uses release identity, tag, target commit, publication state, publication date and qualification markers. For assets, it compares IDs, names, sizes, states, digests and public download URLs, independent of list order. Download counters and unrelated presentation metadata do not affect this comparison. Asset bytes and hashes still require exact verification.
+
 GitHub does not provide a transaction across release, asset and catalog operations. The global workflow lock serializes these publishers. A concurrent external change can still cause a safe failure. Inspect that change before an explicit resume.
 
 Catalog recovery uses the existing anonymous verifier and bounded public-download retries. It preserves installation history. The final Contents API request includes the previous manifest blob SHA, so a concurrent manifest change is rejected. If the manifest already agrees, the publisher makes no commit.
@@ -116,7 +118,7 @@ The [qualification record](evidence/release-automation/qualification-record.json
 - DLL SHA-256: `febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa`.
 - Fast checks: 376 backend, 203 JavaScript, 77 Python and eight catalog tests passed. Packaging, release-note checks and actionlint 1.7.12 also passed.
 
-The package is byte-identical to published v0.7.11. Public catalog, release, draft and asset metadata remain unchanged. The [summary](evidence/release-automation/summary.json) records these checks and their limits. Later evidence-only changes do not change the tested package or publication logic.
+The package is byte-identical to published v0.7.11. Public catalog, release, draft and asset metadata remain unchanged. The [summary](evidence/release-automation/summary.json) records these checks and their limits. The later publisher correction below retains this package evidence; it has separate tooling regression coverage.
 
 | Measurement | Observed result |
 |---|---:|
@@ -144,3 +146,11 @@ See [full timings](evidence/release-automation/qualification-timings.json), [hos
 - [Run 41092304009](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41092304009) passed all 39 suites but failed record sealing. GitHub associated its manual branch run with PR #57. The check incorrectly treated that association as a PR trigger. The corrected verifier checks the actual event, repository, branch and source commit. PR-triggered and fork runs remain ineligible for publication.
 
 Neither run counts as successful workflow qualification. Their original logs and artifacts remain intact. The corrected final run used fresh evidence from one commit and attempt. It did not combine earlier reports or retry native assertions.
+
+### Publisher counter correction
+
+The original concurrency comparison serialized complete asset objects. Authenticated verification and public downloads increased `download_count`, so unchanged assets appeared to change concurrently. The fake API now increments counters for both download paths. Before the correction, the existing 23-test suite reported two failures and four errors. New publication stopped after its first upload; recovery also stopped.
+
+The canonical comparison excludes counters and presentation fields, and normalizes asset order. All 28 publication/provenance tests pass, including new publication, partial uploads, catalog-only recovery and repeated execution. Negative tests retain rejection of changed identities, asset metadata, qualification markers and bytes. Public ZIP and sidecar corruption still prevent catalog writes, even when metadata stays unchanged.
+
+All 82 Python tests, eight catalog tests, release-note validation and whitespace checks pass. No live publication was used. The existing 39-suite compatibility evidence remains unchanged because this correction does not change the plugin package. Read-only inspection and the release-environment permission policy remain unchanged.
