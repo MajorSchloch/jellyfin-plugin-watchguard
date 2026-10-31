@@ -89,8 +89,9 @@ function documentFixture() {
     const focus = { isConnected: true, focus() { this.restored = true; } };
     const doc = { activeElement: focus, body: { append(node) { nodes.push(node); } }, createElement(tag) {
         return { tag, style: {}, children: [], events: {}, attributes: {}, setAttribute(k,v) { this.attributes[k]=v; }, getAttribute(k) { return this.attributes[k] ?? null; },
+            set textContent(value) { for (const child of [...this.children]) child.remove(); this.text = value; }, get textContent() { return this.text || ''; },
             insertBefore(child, before) { child.remove(); child.parent = this; child.removed = false; const at = this.children.indexOf(before); this.children.splice(at < 0 ? this.children.length : at, 0, child); },
-            append(...children) { for(const child of children) { child.remove(); child.parent = this; child.removed = false; this.children.push(child); } }, addEventListener(event, fn) { this.events[event] = fn; },
+            append(...children) { for(const child of children) { child.remove(); child.parent = this; child.removed = false; this.children.push(child); } }, addEventListener(event, fn) { const prior = this.events[event]; this.events[event] = e => { prior?.(e); fn(e); }; }, querySelector(tag) { return this.children.find(c => c.tag === tag) || null; },
             showModal() { this.opened = true; }, focus() { this.focused = true; }, remove() { if(this.parent) this.parent.children = this.parent.children.filter(c=>c!==this); this.parent = null; this.removed = true; } };
     } };
     return { doc, nodes, focus };
@@ -98,6 +99,28 @@ function documentFixture() {
 function descendants(node) { return [node, ...node.children.flatMap(descendants)]; }
 function button(dialog, label) { return descendants(dialog).find(n=>n.tag==='button' && n.textContent===label); }
 function textOf(node) { return descendants(node).map(n=>n.textContent || '').join(' '); }
+test('owned disclosures consume remote Back and restore their summary focus', async () => {
+    const f=progressiveFixture(); await turn();
+    const filter=descendants(f.page).find(n=>n.tag==='details' && n.className==='watchguard-filter');
+    filter.open=true;
+    let cancelled=false;
+    filter.events.command({detail:{command:'back'},preventDefault(){cancelled=true;},stopPropagation(){}});
+    assert.equal(cancelled,true);assert.equal(filter.open,false);assert.equal(filter.children[0].focused,true);
+    cancelled=false;filter.events.command({detail:{command:'back'},preventDefault(){cancelled=true;},stopPropagation(){}});
+    assert.equal(cancelled,false,'Closed disclosure must not consume ordinary navigation');
+    f.abort.abort();
+});
+test('outside-dismiss listener is removed on abort without listener AbortSignal support', () => {
+    for(const preAborted of [false,true]) {
+        const f=documentFixture(), listeners=new Map();
+        f.doc.addEventListener=(name,handler,options)=>{assert.equal(options,undefined);listeners.set(name,handler);};
+        f.doc.removeEventListener=(name,handler)=>{assert.equal(listeners.get(name),handler);listeners.delete(name);};
+        const controller=new AbortController();if(preAborted)controller.abort();
+        const api={getCurrentUserId:()=>me,accessToken:()=> 'token',getCurrentUser:()=>new Promise(()=>{})};
+        watchlistsPage(f.doc,api,controller.signal,'mine',()=>{});
+        assert.equal(listeners.size,preAborted?0:1);controller.abort();assert.equal(listeners.size,0);
+    }
+});
 function warningText(warning) {
     const f=documentFixture();const pending=confirmDeletion(f.doc,warning);const text=textOf(f.nodes[0]);button(f.nodes[0],'Cancel').onclick();return text;
 }
@@ -391,7 +414,7 @@ test('Checkboxes serialize all selections, reset defaults and reflect history wi
     assert.deepEqual(f.navigation.at(-1),['all','playing','title']);
     panel.children[4].onclick();assert.deepEqual(f.navigation.at(-1),['all','watchlisted,watching,playing','title']);
     assert.deepEqual(panel.children.slice(0,4).map(l=>l.children[0].checked),[true,true,true,false]);
-    filter.open=true;filter.events.keydown({key:'Escape',preventDefault(){}});assert.equal(filter.open,false);assert.equal(filter.children[0].focused,true);
+    filter.open=true;filter.events.keydown({key:'Escape',preventDefault(){},stopPropagation(){}});assert.equal(filter.open,false);assert.equal(filter.children[0].focused,true);
     assert.equal(f.calls.length,2);
 });
 

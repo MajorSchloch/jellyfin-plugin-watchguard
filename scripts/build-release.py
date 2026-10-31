@@ -62,6 +62,7 @@ def main():
         archive.with_suffix('.zip.sha256').write_text(f'{digest}  {archive.name}\n', encoding='utf-8')
         print(f'{digest}  {archive.name}')
         print('Runtime payload: one DLL; Web script embedded. LICENSE is non-runtime documentation.')
+        run('python3', 'scripts/check-browser-assets.py', str(archive))
 
 
 if __name__ == '__main__':
