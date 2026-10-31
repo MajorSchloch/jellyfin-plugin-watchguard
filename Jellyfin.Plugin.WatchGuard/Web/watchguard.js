@@ -45,6 +45,7 @@
             if (!current() || signal.aborted || select.disabled) return;
             event.preventDefault(); event.stopPropagation();
             if (popup) return;
+            select.setAttribute('aria-haspopup', 'dialog');
             const options = values(), snapshot = JSON.stringify(options);
             const dialog = document.createElement('dialog'); dialog.className = 'watchguard-choice-dialog';
             dialog.setAttribute('aria-label', select.getAttribute('aria-label'));
@@ -65,8 +66,9 @@
                 button.onclick = () => {
                     if (popup !== dialog || disabled) return;
                     const valid = current() && !signal.aborted && snapshot === JSON.stringify(values());
-                    finish(valid);
-                    if (!valid) return;
+                    const changed = select.value !== value;
+                    finish();
+                    if (!valid || !changed) return;
                     select.value = value;
                     select.dispatchEvent(new Event('change', {bubbles:true}));
                 };

@@ -73,6 +73,15 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
                 // Native arrows reach secondary controls; the summary is focusable.
                 await page.keyboard.press('Enter');
                 await page.waitForFunction(()=>document.querySelector('.watchguard-secondary').open);
+                await page.keyboard.press('ArrowDown');
+                assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('aria-label')),'Activity range');
+                await page.keyboard.press('ArrowDown');
+                assert(await page.evaluate(()=>document.activeElement.matches('.watchguard-secondary input[type="checkbox"]')));
+                await page.keyboard.press('Escape');
+                assert(await page.evaluate(()=>!document.querySelector('.watchguard-secondary').open && document.activeElement.matches('.watchguard-secondary>summary')));
+                await page.keyboard.press('Enter');
+                await page.waitForFunction(()=>document.querySelector('.watchguard-secondary').open);
+                row.secondaryArrowsAndBack='PASS';
                 for(const [label,key,param] of [['Watchlist owner','ArrowDown','owner=all'],['Sort by','ArrowDown','sort=recent'],['Activity range','ArrowUp','days=7']]) {
                     const selector='select[aria-label="'+label+'"]';
                     await page.focus(selector);await page.keyboard.press('Enter');
@@ -82,6 +91,11 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
                     await page.keyboard.press(key);await page.keyboard.press('Enter');
                     await page.waitForFunction(value=>location.hash.includes(value),{},param);
                     assert(await page.evaluate(s=>document.activeElement===document.querySelector(s),selector));
+                    await page.$eval(selector,e=>{e.wgChanges=0;e.addEventListener('change',()=>e.wgChanges++);});
+                    await page.keyboard.press('Enter');await page.waitForSelector('.watchguard-choice-dialog',{visible:true});
+                    await page.keyboard.press('Enter');
+                    assert.equal(await page.$eval(selector,e=>e.wgChanges),0,'Choosing the current option does not invalidate the query');
+                    assert(await page.evaluate(s=>!document.querySelector('.watchguard-choice-dialog')&&document.activeElement===document.querySelector(s),selector));
                     await page.keyboard.press('Enter');await page.waitForSelector('.watchguard-choice-dialog',{visible:true});
                     await page.keyboard.press('Escape');
                     assert(await page.evaluate(s=>!document.querySelector('.watchguard-choice-dialog')&&document.activeElement===document.querySelector(s),selector));

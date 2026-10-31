@@ -116,6 +116,10 @@ test('TV choices preserve select change semantics, reject repeated actions and r
     const choice=button(f.parent.children[0],'B');choice.onclick();choice.onclick();
     assert.equal(f.select.value,'b');assert.equal(f.changes(),1);assert.equal(f.select.focused,true);assert.equal(f.parent.children.length,0);
 });
+test('choosing the current TV value closes without a filter-change event', () => {
+    const f=tvChoiceFixture();f.open();button(f.parent.children[0],'A').onclick();
+    assert.equal(f.select.value,'a');assert.equal(f.changes(),0);assert.equal(f.parent.children.length,0);assert.equal(f.select.focused,true);
+});
 test('TV choice OK settles before native key dispatch can reopen the select', () => {
     const f=tvChoiceFixture();f.open();const dialog=f.parent.children[0],choice=button(dialog,'B');let prevented=false,stopped=false;
     dialog.events.keydown({key:'Enter',target:{tagName:'BUTTON',click:()=>choice.onclick()},preventDefault(){prevented=true;},stopPropagation(){stopped=true;}});
