@@ -9,6 +9,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "0.7.12.0",
+        "changelog": "- Load WatchGuard scripts on Chromium 79 with older-browser API and styling fallbacks.\n- Use TV arrows, OK and Back for Watchlists filters and dialogs, with visible focus.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/browser-compatibility.md)",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.12/Jellyfin.Plugin.WatchGuard-v0.7.12.zip",
+        "checksum": "9bf8358a63bb9f93a120848529e351cc",
+        "timestamp": "2026-10-31T19:50:43Z"
+      },
+      {
         "version": "0.7.11.0",
         "changelog": "- Watchlist actions keep native detail-button sizing, visible keyboard focus and clear add/remove states.\n- Watchlists filters use native field and checkbox presentation, with clearer pending actions and stable controls.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/native-controls-v0711.md)",
         "targetAbi": "12.2.0.0",
