@@ -1295,8 +1295,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     function detailHandoffReady(view, params, hash, server) {
         const route = new URLSearchParams(hash.split('?')[1] || '');
         const id = key(route.get('id'));
-        if (!/^#\/details(?:\?|$)/.test(hash) || !id || !view?.isConnected || view.id !== 'itemDetailPage' ||
-            key(params?.id) !== id || key(params?.serverId) !== key(server) ||
+        if (!/^#\/details(?:\?|$)/.test(hash) || !id || !key(server) || !view?.isConnected || view.id !== 'itemDetailPage' ||
+            key(params?.id) !== id || (params?.serverId && key(params.serverId) !== key(server)) ||
             (route.get('serverId') && key(route.get('serverId')) !== key(server)) || view.classList.contains('hide')) return false;
         const control = view.querySelector('.mainDetailButtons .btnPlaystate[data-id][data-serverid]');
         return key(control?.getAttribute('data-id')) === id && key(control?.getAttribute('data-serverid')) === key(server) &&
@@ -1333,7 +1333,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             const previous = pending;
             const identity = currentIdentity().slice();
             const params = new URLSearchParams(hash.split('?')[1] || '');
-            const eligible = /^#\/details(?:\?|$)/.test(hash) && params.get('id') && identity[1] && identity[2] &&
+            const eligible = /^#\/details(?:\?|$)/.test(hash) && params.get('id') && identity[1] && identity[2] && identity[3] &&
                 (!params.get('serverId') || key(params.get('serverId')) === key(identity[3]));
             if (!eligible || (previous && !same(previous.identity))) { clear(); return; }
             if (!from && !previous) return;
@@ -1374,7 +1374,9 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             if (!pending || event.target?.id !== 'itemDetailPage') return;
             const params = event.detail?.params;
             const route = new URLSearchParams(pending.hash.split('?')[1] || '');
-            if (key(params?.id) !== key(route.get('id')) || key(params?.serverId) !== key(pending.identity[3])) return;
+            // Native links may omit serverId to use the current ApiClient. The
+            // rendered control must still identify the captured server in check().
+            if (key(params?.id) !== key(route.get('id')) || (params?.serverId && key(params.serverId) !== key(pending.identity[3]))) return;
             pending.view = event.target; pending.params = params; check();
         }
         return {route, shown, clear};

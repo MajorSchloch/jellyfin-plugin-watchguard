@@ -1,6 +1,6 @@
 {
-  "serverVersion": "12.3.0",
-  "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
   "cases": [
     {
       "layout": "tv",
@@ -10,13 +10,13 @@
       "blocked": 2,
       "language": "en-US",
       "transition": {
-        "frames": 52,
+        "frames": 50,
         "homeExposures": 0,
         "events": [
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 1515,
+            "at": 1286,
             "panel": false,
             "cover": true
           },
@@ -24,7 +24,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2192.2000000000116,
+            "at": 1959.3999999999942,
             "panel": false,
             "cover": true
           },
@@ -33,7 +33,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2192.8000000000466,
+            "at": 1960,
             "panel": false,
             "cover": true
           },
@@ -41,7 +41,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2195.2000000000116,
+            "at": 1962.5,
             "panel": false,
             "cover": true
           },
@@ -50,44 +50,44 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2195.3000000000466,
+            "at": 1962.6000000000058,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 1451.2000000000116,
+            "at": 1233.5,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1453.3000000000466,
+            "at": 1240.1000000000058,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1471.600000000035,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1501.600000000035,
+            "at": 1276.8000000000175,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 1507.9000000000233,
+            "at": 1281.8999999999942,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 1520.7000000000116,
+            "at": 1292.7000000000116,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1306.8000000000175,
             "home": false,
             "cover": true,
             "panel": false
@@ -106,7 +106,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 2362.3000000000466,
+            "at": 2153.399999999994,
             "panel": true,
             "cover": false
           },
@@ -114,7 +114,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2362.600000000035,
+            "at": 2153.8000000000175,
             "panel": true,
             "cover": false
           },
@@ -122,7 +122,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 2365.2000000000116,
+            "at": 2156.3000000000175,
             "panel": true,
             "cover": false
           },
@@ -130,45 +130,45 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2368,
+            "at": 2159.100000000006,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 2369.9000000000233,
+            "at": 2160.899999999994,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2346.3000000000466,
+            "at": 2138.899999999994,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2371,
+            "at": 2140.5,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2162.399999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2372.5,
+            "at": 2175.899999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2386.600000000035,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2403.7000000000116,
+            "at": 2189.8000000000175,
             "home": false,
             "cover": false,
             "panel": true
@@ -176,14 +176,14 @@
         ]
       },
       "forward": {
-        "frames": 5,
+        "frames": 4,
         "homeExposures": 0,
         "events": [
           {
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2424.4000000000233,
+            "at": 2209.899999999994,
             "panel": false,
             "cover": true
           },
@@ -192,7 +192,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2424.600000000035,
+            "at": 2210.2000000000116,
             "panel": false,
             "cover": true
           },
@@ -200,7 +200,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2427.600000000035,
+            "at": 2212.899999999994,
             "panel": false,
             "cover": true
           },
@@ -209,45 +209,39 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2428.3000000000466,
+            "at": 2213.7000000000116,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2433,
+            "at": 2217.7000000000116,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2412.2000000000116,
+            "at": 2198.3000000000175,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2434.4000000000233,
+            "at": 2219.100000000006,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2437,
+            "at": 2222.600000000006,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2454.600000000035,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2471,
+            "at": 2241.8000000000175,
             "home": false,
             "cover": false,
             "panel": false
@@ -263,13 +257,13 @@
       "blocked": 4,
       "language": "en-US",
       "transition": {
-        "frames": 47,
+        "frames": 44,
         "homeExposures": 0,
         "events": [
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2621.4000000000233,
+            "at": 2375.8000000000175,
             "panel": false,
             "cover": true
           },
@@ -277,7 +271,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2623.9000000000233,
+            "at": 2377.899999999994,
             "panel": false,
             "cover": true
           },
@@ -286,7 +280,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2624.3000000000466,
+            "at": 2378.100000000006,
             "panel": false,
             "cover": true
           },
@@ -294,7 +288,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2626.3000000000466,
+            "at": 2379.399999999994,
             "panel": false,
             "cover": true
           },
@@ -303,44 +297,44 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2626.3000000000466,
+            "at": 2379.5,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2591,
+            "at": 2342.3000000000175,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2615.3000000000466,
+            "at": 2363.8000000000175,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2619.8000000000466,
+            "at": 2374.399999999994,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2636.8000000000466,
+            "at": 2390.100000000006,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2653.3000000000466,
+            "at": 2406.2000000000116,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2670,
+            "at": 2429.8000000000175,
             "home": false,
             "cover": true,
             "panel": false
@@ -352,14 +346,14 @@
         "tag": "BUTTON"
       },
       "back": {
-        "frames": 5,
+        "frames": 4,
         "homeExposures": 0,
         "events": [
           {
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3464.100000000035,
+            "at": 3141.3000000000175,
             "panel": true,
             "cover": false
           },
@@ -367,7 +361,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3464.5,
+            "at": 3141.600000000006,
             "panel": true,
             "cover": false
           },
@@ -375,7 +369,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3467.600000000035,
+            "at": 3144.8000000000175,
             "panel": true,
             "cover": false
           },
@@ -383,45 +377,39 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3469.100000000035,
+            "at": 3146.3000000000175,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 3470.8000000000466,
+            "at": 3147.8000000000175,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3452,
+            "at": 3131.5,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3453.8000000000466,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3472.2000000000116,
+            "at": 3148.899999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3487.8000000000466,
+            "at": 3156.899999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3503.7000000000116,
+            "at": 3174.8000000000175,
             "home": false,
             "cover": false,
             "panel": true
@@ -429,14 +417,14 @@
         ]
       },
       "forward": {
-        "frames": 4,
+        "frames": 5,
         "homeExposures": 0,
         "events": [
           {
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 3520,
+            "at": 3194.100000000006,
             "panel": false,
             "cover": true
           },
@@ -445,7 +433,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3520.3000000000466,
+            "at": 3194.399999999994,
             "panel": false,
             "cover": true
           },
@@ -453,7 +441,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 3523,
+            "at": 3197.3000000000175,
             "panel": false,
             "cover": true
           },
@@ -462,39 +450,45 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3524,
+            "at": 3198.2000000000116,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 3530,
+            "at": 3203.3000000000175,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3506.8000000000466,
+            "at": 3178.399999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3531.2000000000116,
+            "at": 3204.399999999994,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3536.4000000000233,
+            "at": 3206.7000000000116,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3558.4000000000233,
+            "at": 3223.600000000006,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 3241.399999999994,
             "home": false,
             "cover": false,
             "panel": false
@@ -516,7 +510,7 @@
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 1291.8000000000466,
+            "at": 1277.8999999999942,
             "panel": false,
             "cover": true
           },
@@ -524,7 +518,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 1963.2000000000116,
+            "at": 1945.8000000000175,
             "panel": false,
             "cover": true
           },
@@ -533,7 +527,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1964,
+            "at": 1946.6000000000058,
             "panel": false,
             "cover": true
           },
@@ -541,7 +535,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 1966.600000000035,
+            "at": 1949.1000000000058,
             "panel": false,
             "cover": true
           },
@@ -550,44 +544,44 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1966.8000000000466,
+            "at": 1949.2000000000116,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 1202.600000000035,
+            "at": 1202.6000000000058,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1215.9000000000233,
+            "at": 1215.5,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1233.8000000000466,
+            "at": 1237.7000000000116,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1254.3000000000466,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1285.7000000000116,
+            "at": 1271.8999999999942,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 1293.4000000000233,
+            "at": 1280.3999999999942,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1289,
             "home": false,
             "cover": true,
             "panel": false
@@ -606,7 +600,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 2135.7000000000116,
+            "at": 2123.7000000000116,
             "panel": true,
             "cover": false
           },
@@ -614,7 +608,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2136.2000000000116,
+            "at": 2124.2000000000116,
             "panel": true,
             "cover": false
           },
@@ -622,7 +616,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 2142.600000000035,
+            "at": 2130.600000000006,
             "panel": true,
             "cover": false
           },
@@ -630,45 +624,45 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2146.5,
+            "at": 2134.899999999994,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 2148.5,
+            "at": 2137.2000000000116,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2122.8000000000466,
+            "at": 2111.100000000006,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2149.9000000000233,
+            "at": 2138.399999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2151.5,
+            "at": 2140.100000000006,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2167.7000000000116,
+            "at": 2150.899999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2182.9000000000233,
+            "at": 2165.7000000000116,
             "home": false,
             "cover": false,
             "panel": true
@@ -683,7 +677,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2204.2000000000116,
+            "at": 2188,
             "panel": false,
             "cover": true
           },
@@ -692,7 +686,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2204.4000000000233,
+            "at": 2188.100000000006,
             "panel": false,
             "cover": true
           },
@@ -700,7 +694,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2207.9000000000233,
+            "at": 2191.8000000000175,
             "panel": false,
             "cover": true
           },
@@ -709,45 +703,45 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2209,
+            "at": 2192.899999999994,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2213.7000000000116,
+            "at": 2196.8000000000175,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2187,
+            "at": 2169.399999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2215.3000000000466,
+            "at": 2198.3000000000175,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2217.600000000035,
+            "at": 2200.399999999994,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2232.9000000000233,
+            "at": 2217.399999999994,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2251.9000000000233,
+            "at": 2233.899999999994,
             "home": false,
             "cover": false,
             "panel": false
@@ -763,13 +757,13 @@
       "blocked": 4,
       "language": "en-US",
       "transition": {
-        "frames": 47,
+        "frames": 49,
         "homeExposures": 0,
         "events": [
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2430.5,
+            "at": 2398,
             "panel": false,
             "cover": true
           },
@@ -777,7 +771,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2432,
+            "at": 2399.600000000006,
             "panel": false,
             "cover": true
           },
@@ -786,7 +780,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2432.3000000000466,
+            "at": 2399.899999999994,
             "panel": false,
             "cover": true
           },
@@ -794,7 +788,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2434.100000000035,
+            "at": 2401.8000000000175,
             "panel": false,
             "cover": true
           },
@@ -803,44 +797,44 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2434.100000000035,
+            "at": 2401.8000000000175,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2369.8000000000466,
+            "at": 2338.8000000000175,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2385.3000000000466,
+            "at": 2352.8000000000175,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2403.5,
+            "at": 2370.2000000000116,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2427.4000000000233,
+            "at": 2394.5,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2441.600000000035,
+            "at": 2409.399999999994,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2449.100000000035,
+            "at": 2416,
             "home": false,
             "cover": true,
             "panel": false
@@ -859,7 +853,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3216.8000000000466,
+            "at": 3184.600000000006,
             "panel": true,
             "cover": false
           },
@@ -867,7 +861,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3217,
+            "at": 3185,
             "panel": true,
             "cover": false
           },
@@ -875,7 +869,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3221.8000000000466,
+            "at": 3189.3000000000175,
             "panel": true,
             "cover": false
           },
@@ -883,39 +877,39 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3223.600000000035,
+            "at": 3191,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 3225.100000000035,
+            "at": 3192.600000000006,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3208.2000000000116,
+            "at": 3177,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3226.600000000035,
+            "at": 3193.899999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3231.9000000000233,
+            "at": 3199,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3248.5,
+            "at": 3215.5,
             "home": false,
             "cover": false,
             "panel": true
@@ -930,7 +924,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 3265.9000000000233,
+            "at": 3230.600000000006,
             "panel": false,
             "cover": true
           },
@@ -939,7 +933,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3266.100000000035,
+            "at": 3230.8000000000175,
             "panel": false,
             "cover": true
           },
@@ -947,7 +941,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 3269.2000000000116,
+            "at": 3233.399999999994,
             "panel": false,
             "cover": true
           },
@@ -956,39 +950,39 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3270,
+            "at": 3234.2000000000116,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 3275.9000000000233,
+            "at": 3239.5,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3252.3000000000466,
+            "at": 3218.2000000000116,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3277.100000000035,
+            "at": 3241.3000000000175,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3282.2000000000116,
+            "at": 3249.399999999994,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3302.9000000000233,
+            "at": 3266.2000000000116,
             "home": false,
             "cover": false,
             "panel": false
@@ -1004,13 +998,13 @@
       "blocked": 2,
       "language": "en-US",
       "transition": {
-        "frames": 53,
+        "frames": 52,
         "homeExposures": 0,
         "events": [
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 1545.600000000035,
+            "at": 1496.9000000000233,
             "panel": false,
             "cover": true
           },
@@ -1018,7 +1012,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2204.7000000000116,
+            "at": 2140,
             "panel": false,
             "cover": true
           },
@@ -1027,7 +1021,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2205.5,
+            "at": 2140.7000000000116,
             "panel": false,
             "cover": true
           },
@@ -1035,7 +1029,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2208.7000000000116,
+            "at": 2143,
             "panel": false,
             "cover": true
           },
@@ -1044,44 +1038,44 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2208.7999999999884,
+            "at": 2143.100000000006,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 1406.600000000035,
+            "at": 1369.4000000000233,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1420,
+            "at": 1374.2000000000116,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1443.7999999999884,
+            "at": 1390.2000000000116,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1456.7999999999884,
+            "at": 1411.1000000000058,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1475,
+            "at": 1426.9000000000233,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1499.600000000035,
+            "at": 1449.9000000000233,
             "home": false,
             "cover": false,
             "panel": true
@@ -1100,7 +1094,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 2367.9000000000233,
+            "at": 2296.8000000000175,
             "panel": true,
             "cover": false
           },
@@ -1108,7 +1102,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2368.2999999999884,
+            "at": 2297.100000000006,
             "panel": true,
             "cover": false
           },
@@ -1116,7 +1110,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 2374.4000000000233,
+            "at": 2302.7000000000116,
             "panel": true,
             "cover": false
           },
@@ -1124,45 +1118,45 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2374.5,
+            "at": 2302.7000000000116,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 2379.7000000000116,
+            "at": 2307.4000000000233,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2354.2000000000116,
+            "at": 2284.8000000000175,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2354.7000000000116,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2381.100000000035,
+            "at": 2308.4000000000233,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2386.600000000035,
+            "at": 2309.9000000000233,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2403.7999999999884,
+            "at": 2324.100000000006,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2342.100000000006,
             "home": false,
             "cover": false,
             "panel": true
@@ -1177,7 +1171,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2423.7000000000116,
+            "at": 2359.7000000000116,
             "panel": false,
             "cover": true
           },
@@ -1186,7 +1180,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2423.9000000000233,
+            "at": 2359.9000000000233,
             "panel": false,
             "cover": true
           },
@@ -1194,7 +1188,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2427.100000000035,
+            "at": 2363,
             "panel": false,
             "cover": true
           },
@@ -1203,39 +1197,39 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2427.100000000035,
+            "at": 2363.100000000006,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2431.7000000000116,
+            "at": 2367.4000000000233,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2410.7000000000116,
+            "at": 2346.5,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2432.9000000000233,
+            "at": 2368.7000000000116,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2436.4000000000233,
+            "at": 2374.3000000000175,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2453.7999999999884,
+            "at": 2391.2000000000116,
             "home": false,
             "cover": false,
             "panel": false
@@ -1257,7 +1251,7 @@
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2647.2999999999884,
+            "at": 2565.4000000000233,
             "panel": false,
             "cover": true
           },
@@ -1265,7 +1259,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2648.7999999999884,
+            "at": 2566.9000000000233,
             "panel": false,
             "cover": true
           },
@@ -1274,7 +1268,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2649.2000000000116,
+            "at": 2567.3000000000175,
             "panel": false,
             "cover": true
           },
@@ -1282,7 +1276,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2650.600000000035,
+            "at": 2568.7000000000116,
             "panel": false,
             "cover": true
           },
@@ -1291,44 +1285,44 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2650.7000000000116,
+            "at": 2568.7000000000116,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2572.600000000035,
+            "at": 2493,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2591.4000000000233,
+            "at": 2510.3000000000175,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2606.9000000000233,
+            "at": 2528.9000000000233,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2624.7999999999884,
+            "at": 2544.600000000006,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2644.4000000000233,
+            "at": 2562.5,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2656.7999999999884,
+            "at": 2574.600000000006,
             "home": false,
             "cover": true,
             "panel": false
@@ -1347,7 +1341,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3423.7000000000116,
+            "at": 3350.3000000000175,
             "panel": true,
             "cover": false
           },
@@ -1355,7 +1349,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3423.9000000000233,
+            "at": 3350.5,
             "panel": true,
             "cover": false
           },
@@ -1363,7 +1357,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3428.5,
+            "at": 3355.100000000006,
             "panel": true,
             "cover": false
           },
@@ -1371,39 +1365,39 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3428.5,
+            "at": 3355.2000000000116,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 3431.7000000000116,
+            "at": 3358.4000000000233,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3415.7999999999884,
+            "at": 3342.5,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3433.4000000000233,
+            "at": 3359.5,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3436.2000000000116,
+            "at": 3374.8000000000175,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3453.4000000000233,
+            "at": 3395.2000000000116,
             "home": false,
             "cover": false,
             "panel": true
@@ -1411,14 +1405,14 @@
         ]
       },
       "forward": {
-        "frames": 4,
+        "frames": 5,
         "homeExposures": 0,
         "events": [
           {
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 3469.100000000035,
+            "at": 3412,
             "panel": false,
             "cover": true
           },
@@ -1427,7 +1421,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3469.2999999999884,
+            "at": 3412.3000000000175,
             "panel": false,
             "cover": true
           },
@@ -1435,7 +1429,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 3472.5,
+            "at": 3414.9000000000233,
             "panel": false,
             "cover": true
           },
@@ -1444,39 +1438,45 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3472.600000000035,
+            "at": 3414.9000000000233,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 3477.9000000000233,
+            "at": 3420.5,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3457,
+            "at": 3399.9000000000233,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3479.2000000000116,
+            "at": 3421.8000000000175,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3487.7000000000116,
+            "at": 3424,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3505.2999999999884,
+            "at": 3441.5,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 3459.600000000006,
             "home": false,
             "cover": false,
             "panel": false
@@ -1498,7 +1498,7 @@
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 1104.7999999999884,
+            "at": 1106.9000000000233,
             "panel": false,
             "cover": true
           },
@@ -1507,7 +1507,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1776.399999999965,
+            "at": 1771.8000000000175,
             "panel": false,
             "cover": true
           },
@@ -1516,44 +1516,44 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1777.7000000000116,
+            "at": 1773.1000000000058,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 1028.2999999999884,
+            "at": 1009.6000000000058,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1046.399999999965,
+            "at": 1022.3000000000175,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1061.7000000000116,
+            "at": 1040,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1103.7000000000116,
+            "at": 1062.2000000000116,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1105.8000000000175,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 1105.7999999999884,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 1107.2999999999884,
+            "at": 1107.8000000000175,
             "home": false,
             "cover": true,
             "panel": false
@@ -1572,7 +1572,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 1940.899999999965,
+            "at": 1937.4000000000233,
             "panel": true,
             "cover": false
           },
@@ -1580,7 +1580,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 1941,
+            "at": 1937.6000000000058,
             "panel": true,
             "cover": false
           },
@@ -1588,7 +1588,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 1941.0999999999767,
+            "at": 1937.7000000000116,
             "panel": true,
             "cover": false
           },
@@ -1596,45 +1596,45 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 1944.2999999999884,
+            "at": 1941.2000000000116,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 1951.7999999999884,
+            "at": 1947.1000000000058,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 1916.0999999999767,
+            "at": 1916,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 1952.899999999965,
+            "at": 1948.2000000000116,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1961.0999999999767,
+            "at": 1954.5,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1962.7999999999884,
+            "at": 1956.5,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1977,
+            "at": 1972.7000000000116,
             "home": false,
             "cover": false,
             "panel": true
@@ -1648,7 +1648,7 @@
         ]
       },
       "forward": {
-        "frames": 5,
+        "frames": 6,
         "homeExposures": 0,
         "events": [
           {
@@ -1656,7 +1656,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2021.5999999999767,
+            "at": 2023.2000000000116,
             "panel": false,
             "cover": true
           },
@@ -1665,45 +1665,51 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2026.0999999999767,
+            "at": 2027.8000000000175,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2031.7000000000116,
+            "at": 2034.4000000000233,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 1994.0999999999767,
+            "at": 1996,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2033.399999999965,
+            "at": 2036,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2035.7999999999884,
+            "at": 2038.3000000000175,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2041,
+            "at": 2039.2000000000116,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2059.7999999999884,
+            "at": 2056.4000000000233,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2073.5,
             "home": false,
             "cover": false,
             "panel": false
@@ -1719,13 +1725,13 @@
       "blocked": 4,
       "language": "en-US",
       "transition": {
-        "frames": 47,
+        "frames": 48,
         "homeExposures": 0,
         "events": [
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2266.0999999999767,
+            "at": 2263,
             "panel": false,
             "cover": true
           },
@@ -1734,7 +1740,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2266.7999999999884,
+            "at": 2263.5,
             "panel": false,
             "cover": true
           },
@@ -1743,44 +1749,44 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2267.2000000000116,
+            "at": 2263.9000000000233,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2198.5999999999767,
+            "at": 2192.600000000006,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2209.7000000000116,
+            "at": 2205.8000000000175,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2230.2000000000116,
+            "at": 2228.600000000006,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2262.899999999965,
+            "at": 2260.5,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2272.5999999999767,
+            "at": 2268.2000000000116,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2276.7999999999884,
+            "at": 2272.4000000000233,
             "home": false,
             "cover": true,
             "panel": false
@@ -1792,14 +1798,14 @@
         "tag": "BODY"
       },
       "back": {
-        "frames": 6,
+        "frames": 5,
         "homeExposures": 0,
         "events": [
           {
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3062.5999999999767,
+            "at": 3039.9000000000233,
             "panel": true,
             "cover": false
           },
@@ -1807,7 +1813,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3062.7999999999884,
+            "at": 3040,
             "panel": true,
             "cover": false
           },
@@ -1815,7 +1821,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3062.899999999965,
+            "at": 3040,
             "panel": true,
             "cover": false
           },
@@ -1823,51 +1829,45 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3065.2000000000116,
+            "at": 3042,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 3070.5,
+            "at": 3046.5,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3041,
+            "at": 3021.3000000000175,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3041.399999999965,
+            "at": 3022.2000000000116,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3071.7000000000116,
+            "at": 3047.7000000000116,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3078.5999999999767,
+            "at": 3056.4000000000233,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3094.5999999999767,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3108.5,
+            "at": 3072.4000000000233,
             "home": false,
             "cover": false,
             "panel": true
@@ -1883,7 +1883,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3134.0999999999767,
+            "at": 3096.2000000000116,
             "panel": false,
             "cover": true
           },
@@ -1892,45 +1892,45 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3136.5,
+            "at": 3098.4000000000233,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 3142.2000000000116,
+            "at": 3103.4000000000233,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3111.5,
+            "at": 3075.3000000000175,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3143.5,
+            "at": 3104.600000000006,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3145.2000000000116,
+            "at": 3106.4000000000233,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3158,
+            "at": 3124.4000000000233,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3175.2000000000116,
+            "at": 3139.7000000000116,
             "home": false,
             "cover": false,
             "panel": false
@@ -1952,7 +1952,7 @@
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 1187.7000000000116,
+            "at": 1137.5,
             "panel": false,
             "cover": true
           },
@@ -1961,7 +1961,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1830.7000000000116,
+            "at": 1793.2999999999884,
             "panel": false,
             "cover": true
           },
@@ -1970,44 +1970,44 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1832.2000000000116,
+            "at": 1794.5,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 1067.5,
+            "at": 1013.6000000000058,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1078.8000000000466,
+            "at": 1025.7999999999884,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1093.600000000035,
+            "at": 1046.6999999999825,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1117.5,
+            "at": 1062.1000000000058,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1129.600000000035,
+            "at": 1078.3999999999942,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1185.100000000035,
+            "at": 1135.1000000000058,
             "home": false,
             "cover": true,
             "panel": false
@@ -2019,14 +2019,14 @@
         "tag": "BODY"
       },
       "back": {
-        "frames": 6,
+        "frames": 5,
         "homeExposures": 0,
         "events": [
           {
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 2004.600000000035,
+            "at": 1949.3999999999942,
             "panel": true,
             "cover": false
           },
@@ -2034,7 +2034,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 2004.9000000000233,
+            "at": 1949.6999999999825,
             "panel": true,
             "cover": false
           },
@@ -2042,7 +2042,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2005,
+            "at": 1949.6999999999825,
             "panel": true,
             "cover": false
           },
@@ -2050,51 +2050,45 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2008.4000000000233,
+            "at": 1953.1999999999825,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 2014.7000000000116,
+            "at": 1960.6000000000058,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 1975.600000000035,
+            "at": 1920.6000000000058,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 1976.600000000035,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2015.8000000000466,
+            "at": 1959.5,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2021.8000000000466,
+            "at": 1965.7999999999884,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2026.9000000000233,
+            "at": 1974.1999999999825,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2043.600000000035,
+            "at": 1991.1999999999825,
             "home": false,
             "cover": false,
             "panel": true
@@ -2110,7 +2104,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2074.3000000000466,
+            "at": 2025.1999999999825,
             "panel": false,
             "cover": true
           },
@@ -2119,45 +2113,45 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2078.600000000035,
+            "at": 2029,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2084,
+            "at": 2033.5,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2047.100000000035,
+            "at": 1994.1999999999825,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2085.8000000000466,
+            "at": 2034.7999999999884,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2088.100000000035,
+            "at": 2036.6000000000058,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2093.5,
+            "at": 2040.8999999999942,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2112,
+            "at": 2060.1999999999825,
             "home": false,
             "cover": false,
             "panel": false
@@ -2173,13 +2167,13 @@
       "blocked": 4,
       "language": "en-US",
       "transition": {
-        "frames": 48,
+        "frames": 46,
         "homeExposures": 0,
         "events": [
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2368.5,
+            "at": 2277.1999999999825,
             "panel": false,
             "cover": true
           },
@@ -2188,7 +2182,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2369,
+            "at": 2277.600000000006,
             "panel": false,
             "cover": true
           },
@@ -2197,44 +2191,44 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2369.4000000000233,
+            "at": 2278.100000000006,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2279.3000000000466,
+            "at": 2194,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2295.8000000000466,
+            "at": 2207.5,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2315.600000000035,
+            "at": 2223.899999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2331.100000000035,
+            "at": 2242.5,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2365.4000000000233,
+            "at": 2274.6999999999825,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2366.4000000000233,
+            "at": 2275.399999999994,
             "home": false,
             "cover": true,
             "panel": false
@@ -2253,7 +2247,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3111.9000000000233,
+            "at": 2994.6999999999825,
             "panel": true,
             "cover": false
           },
@@ -2261,7 +2255,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3112,
+            "at": 2994.7999999999884,
             "panel": true,
             "cover": false
           },
@@ -2269,7 +2263,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3112,
+            "at": 2994.899999999994,
             "panel": true,
             "cover": false
           },
@@ -2277,51 +2271,51 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3114.100000000035,
+            "at": 2996.899999999994,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 3118.9000000000233,
+            "at": 3001.399999999994,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3093,
+            "at": 2973.399999999994,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3093.600000000035,
+            "at": 2974.5,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3120.5,
+            "at": 3003,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3127.100000000035,
+            "at": 3009.1999999999825,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3145.7000000000116,
+            "at": 3026,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3160.600000000035,
+            "at": 3043.7999999999884,
             "home": false,
             "cover": false,
             "panel": true
@@ -2337,7 +2331,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3196.7000000000116,
+            "at": 3073.100000000006,
             "panel": false,
             "cover": true
           },
@@ -2346,45 +2340,45 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3199.2000000000116,
+            "at": 3075.399999999994,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 3204.5,
+            "at": 3079.899999999994,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3168.4000000000233,
+            "at": 3048.399999999994,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3205.600000000035,
+            "at": 3081,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3206.9000000000233,
+            "at": 3082.5,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3210.2000000000116,
+            "at": 3091.5,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3228.9000000000233,
+            "at": 3108.6999999999825,
             "home": false,
             "cover": false,
             "panel": false
@@ -2402,12 +2396,97 @@
       "message": "ChunkLoadError: Loading chunk 75844 failed.\n(error: [URL]\n    at s.f.j ([URL]\n    at [URL]\n    at Array.reduce (<anonymous>)\n    at s.e ([URL]\n    at Array.map (<anonymous>)\n    at i ([URL]\n    at p ([URL]\n    at [URL]\n    at [URL]\n    at Object.next ([URL]"
     }
   ],
-  "runtimeSha256": "f08da50ba8b578ce28c33f3c6e81de57644cd06a3d26a201c7378426b3a902cd",
+  "runtimeSha256": "5c633ad7d5fa15e95dc76b7b71715a97b5c651083b8d8ff91255239f1ff5530a",
   "engine": "141.0.7390.37",
+  "currentServerRoute": {
+    "frames": 18,
+    "homeExposures": 0,
+    "events": [
+      {
+        "name": "hashchange",
+        "route": "#/details",
+        "at": 1209.1000000000058,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewbeforehide",
+        "route": "#/details",
+        "target": "indexPage",
+        "at": 1399.8999999999942,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewbeforeshow",
+        "route": "#/details",
+        "item": "16113371c48eb37108bd832a31e4fa16",
+        "target": "itemDetailPage",
+        "at": 1400.2999999999884,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewhide",
+        "route": "#/details",
+        "target": "indexPage",
+        "at": 1403,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewshow",
+        "route": "#/details",
+        "item": "16113371c48eb37108bd832a31e4fa16",
+        "target": "itemDetailPage",
+        "at": 1403.1000000000058,
+        "panel": false,
+        "cover": true
+      }
+    ],
+    "sampleExcerpt": [
+      {
+        "at": 1195.8999999999942,
+        "home": false,
+        "cover": false,
+        "panel": true
+      },
+      {
+        "at": 1210.1000000000058,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 1229.1000000000058,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 1244.2999999999884,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 1264.5,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 1278.2999999999884,
+        "home": false,
+        "cover": true,
+        "panel": false
+      }
+    ]
+  },
   "cancelAndRapidSelection": "PASS",
   "failureRecovery": "PASS",
   "accountSwitch": "PASS",
   "logout": "PASS",
-  "requestFailureCount": 87,
+  "requestFailureCount": 107,
   "evidenceNote": "Frame samples are excerpts; counts and lifecycle events are retained. The expected ChunkLoadError belongs to the deliberate HTTP 503 failure-recovery case."
 }

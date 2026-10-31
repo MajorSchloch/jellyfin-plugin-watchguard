@@ -98,6 +98,13 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync(process.
     await observe();await page.goForward();await ready(item);await frames(3);row.forward=await page.evaluate(()=>wgStopOutgoing());assert.equal(row.forward.homeExposures,0);
    }
    if(!baseline&&layout==='tv'){
+    // Jellyfin also supports current-server links without a serverId parameter.
+    await page.goto(fixture.base+'/web/#/home');await page.reload();await wait(()=>window.WatchGuardPoc&&WatchGuardPoc.isInstalled());
+    await watchlists(items);await observe();blocked=0;heldId=items[0].Id;
+    await page.goto(fixture.base+'/web/#/details?id='+items[0].Id);await frames(12);
+    assert(blocked>0);assert(await page.evaluate(()=>!!document.querySelector('.watchguard-outgoing')));
+    unhold();await ready(items[0]);await frames(3);report.currentServerRoute=await page.evaluate(()=>wgStopOutgoing());
+    assert.equal(report.currentServerRoute.homeExposures,0,'Current-server links retain the same handoff contract');
     // A fresh document clears the native restored-view cache for failure cases.
     await page.goto(fixture.base+'/web/#/home');await page.reload();await wait(()=>window.WatchGuardPoc&&WatchGuardPoc.isInstalled());
     await watchlists(items);heldId=items[0].Id;await activate(items[0],'remote');await frames(4);

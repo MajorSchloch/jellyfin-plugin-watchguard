@@ -20,7 +20,7 @@ Release requires all of these conditions:
 
 - The current route is the exact pending detail route.
 - The ApiClient object, user, access token and server still match the captured account.
-- A native `viewshow` identifies the pending item and server on the connected `itemDetailPage`.
+- A native `viewshow` identifies the pending item on the connected `itemDetailPage`. An explicit server parameter must match. Native links that omit it use the captured current ApiClient server; that server identity is required and the rendered control must still match it.
 - That view is not hidden, has layout boxes and contains its rendered title.
 - Its native play-state control carries the matching item and server IDs.
 
@@ -52,7 +52,7 @@ The deadline cannot repair a native destination failure. It provides a visible r
 
 [Native TV detail and focus](evidence/outgoing-handoff/after-tv-detail.png), [mobile loading](evidence/outgoing-handoff/after-mobile-loading.png) and [failure recovery](evidence/outgoing-handoff/failure-recovery.png) show the remaining states.
 
-The final local package contains the corrected runtime but retains version 0.7.12 pending the candidate-version decision. ZIP SHA-256: `6808ae967ac25f945fde70c2e16c959616b6ed3f69be0afaf6d5fc8295a7afaa`. DLL SHA-256: `f08da50ba8b578ce28c33f3c6e81de57644cd06a3d26a201c7378426b3a902cd`. These are development artifacts, not replacements for the published v0.7.12 assets.
+The initial local package contained the first handoff runtime but retained version 0.7.12 pending the candidate-version decision. ZIP SHA-256: `6808ae967ac25f945fde70c2e16c959616b6ed3f69be0afaf6d5fc8295a7afaa`. DLL SHA-256: `f08da50ba8b578ce28c33f3c6e81de57644cd06a3d26a201c7378426b3a902cd`. These are development artifacts, not replacements for the published v0.7.12 assets.
 
 The retained incoming-startup suite passed 48 transition cases and 14 recovery cases. The existing navigation suite passed 72 control-transition cases. Fast checks passed 214 JavaScript tests, 94 Python tests, eight catalog tests and 376 backend tests. The initial fast run exposed stale current-release labels on master after v0.7.12 publication; those labels now match the existing catalog. No catalog entry changed.
 
@@ -65,3 +65,15 @@ The first native card transition timed out on each version. A local reproduction
 The added diagnostics also found that a fabricated `viewshow` event invoked Jellyfin controllers without their required view/options data. The browser suite now uses only actual native lifecycle events. Isolated unit tests retain the malformed and unrelated event rejection assertions. The browser test records script/request errors and failed-transition frames, and rejects script errors during normal card navigation. Neither correction changes runtime code, package bytes, timeouts or the strict Home/focus assertions.
 
 After the fixture correction, the pinned Linux Chromium 141 browser and real Chromium 79 each passed all ten cases on Jellyfin 12.3 with the base path. Every normal departure, Back and Forward sample had zero Home exposures. The Linux browser used `en-US`; normal card transitions had no script errors. The intentional HTTP 503 case still exercised the native chunk-load failure and bounded recovery.
+
+## Current-server link regression
+
+The corrected-fixture [run 41241472584](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41241472584) passed the new outgoing cases on 12.4, with zero Home exposures. The existing native-controls theme test then exposed a runtime edge case: native current-server links use `#/details?id=...` and omit `serverId` from their lifecycle parameters. The cover incorrectly waited for that optional parameter, although the native detail controls had rendered. [Failure evidence](evidence/outgoing-handoff/current-server-route-failure.json) is retained.
+
+The handoff now accepts that native link form while requiring the active server identity and the rendered control's server ID to match the captured account. Explicit mismatches still fail. A focused unit test covers omitted, mismatched and unknown server identity. The native suite also holds and observes a current-server detail link from Watchlists. No deadline or timeout was increased.
+
+## Final local runtime validation
+
+The packaged current-server correction passed real Chromium 79 and pinned Linux Chromium 141: ten movie/series cases each, plus the current-server link case, with zero Home exposures on departure, Back and Forward. The unchanged native-controls suite passed all 12 layout/width cases and all six built-in themes (Light, Purple Haze, Blue Radiance, Apple TV, WMC and Dark). [Its retained summary](evidence/outgoing-handoff/native-controls-final.json) records the focus, write and interaction checks.
+
+Fast checks passed 215 JavaScript tests, 94 Python tests, eight catalog tests and publication-note checks. Packaging verified the actual embedded scripts and settings code against ES2019/Chromium 79 syntax. Final local ZIP SHA-256: `e55f2aa67c51e029f6769dc5a3a3d8d7e749a0cb6c6ecc72a41374fbf8473ec2`. DLL SHA-256: `5c633ad7d5fa15e95dc76b7b71715a97b5c651083b8d8ff91255239f1ff5530a`. Version remains 0.7.12 in this development branch; published assets and the catalog are unchanged.

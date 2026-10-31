@@ -1329,6 +1329,13 @@ test('outgoing handoff rejects identity changes, route changes and stale destina
     f.control.setAttribute('data-id','two');f.show({id:'two',serverId:'server'});assert(!cover.isConnected);
     f.start();f.win.location.hash='#/login';f.dep.route(f.win.location.hash);assert.equal(f.doc.body.children.length,0);
 });
+test('current-server native links still require the captured server on rendered controls',()=>{
+    const f=departureFixture();f.win.location.hash='#/details?id=one';f.start();const cover=f.doc.body.children[0];
+    f.control.setAttribute('data-serverid','other');f.show({id:'one'});assert(cover.isConnected);
+    f.control.setAttribute('data-serverid','server');f.mutate();assert(!cover.isConnected);
+    const unknown=departureFixture();unknown.identity[3]=null;unknown.start();assert.equal(unknown.timers.size,0);
+    const mismatch=departureFixture();mismatch.win.location.hash='#/details?id=one&serverId=other';mismatch.start();assert.equal(mismatch.timers.size,0);
+});
 test('handoff timeout stops monitoring, gives recovery, and never marks the destination ready',()=>{
     const f=departureFixture();f.start();const timer=[...f.timers.values()][0];assert.equal(timer.ms,15000);
     timer.fn();const notice=f.doc.body.children[0];assert.equal(notice.className,'watchguard-outgoing-error');
