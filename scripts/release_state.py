@@ -113,7 +113,7 @@ class GitHub:
             matches = published
         require(len(matches) <= 1, 'Multiple releases use this tag. Inspect them manually.')
         if not matches:
-            require(self.tag('v' + version) is None, 'Tag exists without a release. Inspect it manually; no overwrite is permitted.')
+            require(self.tag('v' + version) is None, 'Tag exists without a visible release. Check for a hidden draft; no overwrite is permitted.')
             return None
         release = matches[0]
         require(not release['prerelease'], 'Candidate tag belongs to a prerelease. Inspect it manually.')

@@ -24,7 +24,9 @@ def check_run(api, run, attempt, allow_branch=False):
             'Untrusted qualification workflow or event. PR artifacts cannot publish.')
     require(run['run_attempt'] == attempt, 'Qualification attempt does not match.')
     require(allow_branch or run['head_branch'] == repo['default_branch'], 'Only default-branch qualification can publish.')
-    require(not run.get('pull_requests'), 'PR qualification cannot publish.')
+    # Associated PRs are metadata, even for a manual branch rehearsal or a
+    # merged default-branch push. Trust comes from event, repository, branch
+    # and exact-commit checks above, not an empty association list.
     if not allow_branch:
         comparison = api.request(f"compare/{run['head_sha']}...{repo['default_branch']}")
         require(comparison['status'] in ('ahead', 'identical'), 'Qualified commit is not on the default branch.')

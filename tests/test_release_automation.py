@@ -272,6 +272,19 @@ class ProvenanceTests(unittest.TestCase):
             with self.subTest(change=change), patch.object(self.api, 'request', side_effect=api), self.assertRaises(state.Blocked):
                 provenance.check_run(self.api, run, 2)
 
+    def test_pr_association_is_not_a_pr_event_or_publication_authority(self):
+        associated = {**self.run, 'pull_requests':[{'number':57}]}
+        def api(path):
+            return {'default_branch':'master'} if path == '' else {'status':'ahead'}
+        with patch.object(self.api,'request',side_effect=api):
+            provenance.check_run(self.api,associated,2)
+            branch = {**associated,'event':'workflow_dispatch','head_branch':'feature'}
+            provenance.check_run(self.api,branch,2,allow_branch=True)
+            with self.assertRaises(state.Blocked): provenance.check_run(self.api,branch,2)
+            for event in ('pull_request','pull_request_target'):
+                with self.subTest(event=event), self.assertRaises(state.Blocked):
+                    provenance.check_run(self.api,{**associated,'event':event},2,allow_branch=True)
+
     def test_missing_expired_duplicate_and_cross_run_artifacts_block(self):
         inventories = [[], [self.asset,self.asset], [{**self.asset,'expired':True}],
                        [{**self.asset,'workflow_run':{**self.asset['workflow_run'],'id':999}}],
