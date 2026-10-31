@@ -1,0 +1,22 @@
+{
+  "engine": "HeadlessChrome/79.0.3945.0",
+  "publishedZipSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+  "resources": {
+    "Jellyfin.Plugin.WatchGuard.Standalone.bootstrap.js": [
+      "SyntaxError: Unexpected token '.'"
+    ],
+    "Jellyfin.Plugin.WatchGuard.Standalone.startup.js": [
+      "SyntaxError: Unexpected token '.'"
+    ],
+    "Jellyfin.Plugin.WatchGuard.Web.navigation.js": [
+      "SyntaxError: Unexpected token '.'"
+    ],
+    "Jellyfin.Plugin.WatchGuard.Web.settings.html": [
+      "SyntaxError: Unexpected token '.'"
+    ],
+    "Jellyfin.Plugin.WatchGuard.Web.watchguard.js": [
+      "SyntaxError: Unexpected token '.'"
+    ]
+  },
+  "result": "CONFIRMED: all five published resource scripts fail parsing in Chromium 79"
+}

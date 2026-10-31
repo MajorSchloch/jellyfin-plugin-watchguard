@@ -2,7 +2,7 @@
 
 The reported device runs webOS TV 6.5.3-47, firmware 03.53.45, and is believed to be an LG C1. The model is unconfirmed. LG lists Chromium 79 for [webOS TV 6.x](https://webostv.developer.lge.com/develop/specifications/web-api-and-web-engine). No physical-TV console output was available for this change.
 
-Published WatchGuard scripts contain optional chaining, which Chromium 79 cannot parse. This is a confirmed compatibility gap, not proof of the only device failure. Server protection status remains independent of browser execution.
+Published v0.7.11 scripts contain optional chaining, which Chromium 79 cannot parse. This is a confirmed compatibility gap, not proof of the only device failure. Server protection status remains independent of browser execution.
 
 ## Delivery and maintenance
 
@@ -46,6 +46,8 @@ WATCHGUARD_CHROMIUM79=/path/to/Chromium node tests/browser79/native.cjs /path/to
 The old-engine driver is pinned to puppeteer-core 2.0.0, for test use only. Current Playwright cannot create a page in Chromium 79 because it requires a newer CDP download command. This driver does not download a browser automatically and is not shipped with WatchGuard.
 
 The local engine is Chromium **79.0.3945.0**, official snapshot **706915** (macOS Intel binary under Rosetta). [Download](https://storage.googleapis.com/chromium-browser-snapshots/Mac/706915/chrome-mac.zip). Archive SHA-256: `e6b754d211e4ad264c163b5a9e2fda9b2c07ab014402e8ee29e97de620ccefe6`. This validates an actual old engine, not a changed user agent or viewport. It does not qualify LG firmware or the webOS application wrapper.
+
+See the [recorded results, exact package hashes and screenshots](evidence/browser79/README.md).
 
 ## Physical-TV procedure
 
