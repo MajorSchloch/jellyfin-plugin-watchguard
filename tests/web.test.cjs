@@ -89,8 +89,9 @@ function documentFixture() {
     const focus = { isConnected: true, focus() { this.restored = true; } };
     const doc = { activeElement: focus, body: { append(node) { nodes.push(node); } }, createElement(tag) {
         return { tag, style: {}, children: [], events: {}, attributes: {}, setAttribute(k,v) { this.attributes[k]=v; }, getAttribute(k) { return this.attributes[k] ?? null; },
+            set textContent(value) { for (const child of [...this.children]) child.remove(); this.text = value; }, get textContent() { return this.text || ''; },
             insertBefore(child, before) { child.remove(); child.parent = this; child.removed = false; const at = this.children.indexOf(before); this.children.splice(at < 0 ? this.children.length : at, 0, child); },
-            append(...children) { for(const child of children) { child.remove(); child.parent = this; child.removed = false; this.children.push(child); } }, addEventListener(event, fn) { this.events[event] = fn; },
+            append(...children) { for(const child of children) { child.remove(); child.parent = this; child.removed = false; this.children.push(child); } }, addEventListener(event, fn) { const prior = this.events[event]; this.events[event] = e => { prior?.(e); fn(e); }; }, querySelector(tag) { return this.children.find(c => c.tag === tag) || null; },
             showModal() { this.opened = true; }, focus() { this.focused = true; }, remove() { if(this.parent) this.parent.children = this.parent.children.filter(c=>c!==this); this.parent = null; this.removed = true; } };
     } };
     return { doc, nodes, focus };
@@ -98,6 +99,70 @@ function documentFixture() {
 function descendants(node) { return [node, ...node.children.flatMap(descendants)]; }
 function button(dialog, label) { return descendants(dialog).find(n=>n.tag==='button' && n.textContent===label); }
 function textOf(node) { return descendants(node).map(n=>n.textContent || '').join(' '); }
+function tvChoiceFixture() {
+    const f = documentFixture(), controller = new AbortController(); let current = true, changes = 0;
+    f.doc.documentElement = {classList:{contains: value => value === 'layout-tv'}};
+    const select = f.doc.createElement('select'), parent = f.doc.createElement('div');
+    select.parentElement = parent; select.isConnected = true; select.value = 'a';
+    select.setAttribute('aria-label','Sort');
+    select.options = [{value:'a',textContent:'A',disabled:false},{value:'b',textContent:'B',disabled:false}];
+    select.dispatchEvent = event => {assert.equal(event.type,'change');changes++;};
+    require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js').tvChoices(f.doc,select,controller.signal,()=>current,parent);
+    const open = () => select.events.keydown({type:'keydown',key:'Enter',preventDefault(){},stopPropagation(){}});
+    return {...f,select,parent,controller,open,changes:()=>changes,setCurrent:value=>{current=value;}};
+}
+test('TV choices preserve select change semantics, reject repeated actions and restore focus', () => {
+    const f=tvChoiceFixture();f.open();f.open();assert.equal(f.parent.children.length,1);
+    const choice=button(f.parent.children[0],'B');choice.onclick();choice.onclick();
+    assert.equal(f.select.value,'b');assert.equal(f.changes(),1);assert.equal(f.select.focused,true);assert.equal(f.parent.children.length,0);
+});
+test('choosing the current TV value closes without a filter-change event', () => {
+    const f=tvChoiceFixture();f.open();button(f.parent.children[0],'A').onclick();
+    assert.equal(f.select.value,'a');assert.equal(f.changes(),0);assert.equal(f.parent.children.length,0);assert.equal(f.select.focused,true);
+});
+test('TV choice OK settles before native key dispatch can reopen the select', () => {
+    const f=tvChoiceFixture();f.open();const dialog=f.parent.children[0],choice=button(dialog,'B');let prevented=false,stopped=false;
+    dialog.events.keydown({key:'Enter',target:{tagName:'BUTTON',click:()=>choice.onclick()},preventDefault(){prevented=true;},stopPropagation(){stopped=true;}});
+    assert.equal(prevented,true);assert.equal(stopped,true);assert.equal(f.changes(),1);assert.equal(f.parent.children.length,0);
+});
+test('TV choices cancel on Back or lifetime abort and reject stale account/options', () => {
+    for(const reason of ['back','abort','account','options']) {
+        const f=tvChoiceFixture();f.open();const dialog=f.parent.children[0],choice=button(dialog,'B');
+        if(reason==='back')dialog.events.command({detail:{command:'back'},preventDefault(){},stopPropagation(){}});
+        if(reason==='abort')f.controller.abort();
+        if(reason==='account')f.setCurrent(false);
+        if(reason==='options')f.select.options.pop();
+        choice.onclick();assert.equal(f.select.value,'a');assert.equal(f.changes(),0);assert.equal(f.parent.children.length,0);
+        if(reason==='account'||reason==='abort')assert.notEqual(f.select.focused,true);
+    }
+});
+test('non-TV selects retain their platform interactions', () => {
+    const f=tvChoiceFixture();f.doc.documentElement.classList.contains=()=>false;
+    f.select.events.keydown({type:'keydown',key:'Enter',preventDefault(){assert.fail('Native event intercepted');}});
+    assert.equal(f.parent.children.length,0);
+});
+test('owned disclosures consume remote Back and restore their summary focus', async () => {
+    const f=progressiveFixture(); await turn();
+    const filter=descendants(f.page).find(n=>n.tag==='details' && n.className==='watchguard-filter');
+    filter.open=true;
+    let cancelled=false;
+    filter.events.command({detail:{command:'back'},preventDefault(){cancelled=true;},stopPropagation(){}});
+    assert.equal(cancelled,true);assert.equal(filter.open,false);assert.equal(filter.children[0].focused,true);
+    cancelled=false;filter.events.command({detail:{command:'back'},preventDefault(){cancelled=true;},stopPropagation(){}});
+    assert.equal(cancelled,false,'Closed disclosure must not consume ordinary navigation');
+    f.abort.abort();
+});
+test('outside-dismiss listener is removed on abort without listener AbortSignal support', () => {
+    for(const preAborted of [false,true]) {
+        const f=documentFixture(), listeners=new Map();
+        f.doc.addEventListener=(name,handler,options)=>{assert.equal(options,undefined);listeners.set(name,handler);};
+        f.doc.removeEventListener=(name,handler)=>{assert.equal(listeners.get(name),handler);listeners.delete(name);};
+        const controller=new AbortController();if(preAborted)controller.abort();
+        const api={getCurrentUserId:()=>me,accessToken:()=> 'token',getCurrentUser:()=>new Promise(()=>{})};
+        watchlistsPage(f.doc,api,controller.signal,'mine',()=>{});
+        assert.equal(listeners.size,preAborted?0:1);controller.abort();assert.equal(listeners.size,0);
+    }
+});
 function warningText(warning) {
     const f=documentFixture();const pending=confirmDeletion(f.doc,warning);const text=textOf(f.nodes[0]);button(f.nodes[0],'Cancel').onclick();return text;
 }
@@ -391,7 +456,7 @@ test('Checkboxes serialize all selections, reset defaults and reflect history wi
     assert.deepEqual(f.navigation.at(-1),['all','playing','title']);
     panel.children[4].onclick();assert.deepEqual(f.navigation.at(-1),['all','watchlisted,watching,playing','title']);
     assert.deepEqual(panel.children.slice(0,4).map(l=>l.children[0].checked),[true,true,true,false]);
-    filter.open=true;filter.events.keydown({key:'Escape',preventDefault(){}});assert.equal(filter.open,false);assert.equal(filter.children[0].focused,true);
+    filter.open=true;filter.events.keydown({key:'Escape',preventDefault(){},stopPropagation(){}});assert.equal(filter.open,false);assert.equal(filter.children[0].focused,true);
     assert.equal(f.calls.length,2);
 });
 

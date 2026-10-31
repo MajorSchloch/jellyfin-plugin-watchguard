@@ -1,0 +1,72 @@
+{
+  "server": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "device": "Chromium executable; no physical TV",
+  "cases": [
+    {
+      "layout": "tv",
+      "remoteTraversal": [
+        {
+          "tag": "SELECT",
+          "label": "Sort by",
+          "text": "TitlePlayback recencyRecently added"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "Status filters (3 selected)",
+          "text": "filter_listStatus · 3"
+        },
+        {
+          "tag": "SELECT",
+          "label": "Watchlist owner",
+          "text": "My listAll usersWatchGuardPoCTest"
+        },
+        {
+          "tag": "INPUT",
+          "label": "Search titles",
+          "text": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "label": null,
+          "text": "Activity: 30 days · older interest included"
+        }
+      ],
+      "secondaryArrowsAndBack": "PASS",
+      "selectChoicesAndBack": "PASS",
+      "filtersAndFocus": "PASS",
+      "membershipAndFocus": "PASS",
+      "dialogCancelAndFocus": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "filtersAndFocus": "PASS",
+      "posterRatio": 1.5,
+      "membershipAndFocus": "PASS",
+      "dialogCancelAndFocus": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "filtersAndFocus": "PASS",
+      "posterRatio": 1.4999557952435683,
+      "membershipAndFocus": "PASS",
+      "dialogCancelAndFocus": "PASS"
+    },
+    {
+      "layout": "modern",
+      "filtersAndFocus": "PASS",
+      "posterRatio": 1.5,
+      "membershipAndFocus": "PASS",
+      "dialogCancelAndFocus": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "packageSha256": "e825e51bff1ff5b974ba558379cbfeb7e3f95d0fc688fdedf172c8fa4d24cccd",
+  "runtimeSha256": "847a754bfb55b4da6b8e25ed3957c6df21425aba0c399c1e1b3ca83f82704c61",
+  "engine": "HeadlessChrome/79.0.3945.0",
+  "nativeLogin": "PASS",
+  "pluginVersion": "0.7.12",
+  "originalOptionalChaining": "SyntaxError in actual Chromium 79",
+  "settingsInline": "PASS",
+  "errors": []
+}

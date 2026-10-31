@@ -3,6 +3,99 @@
     'use strict';
     const message = 'WatchGuard: This item may still be in use.';
 
+    // Jellyfin's inputManager emits cancellable commands before route Back.
+    // Raw keys cover browsers/remotes without that integration. Scope all
+    // interception to an owned open surface; never intercept ordinary navigation.
+    function dismissible(element, close, enabled = () => true) {
+        element.addEventListener('command', event => {
+            if (enabled() && ['back', 'cancel'].includes(event.detail?.command)) {
+                event.preventDefault(); event.stopPropagation(); close();
+            }
+        });
+        element.addEventListener('keydown', event => {
+            if (enabled() && (['Escape', 'BrowserBack', 'GoBack'].includes(event.key) || event.keyCode === 461)) {
+                event.preventDefault(); event.stopPropagation(); close();
+            }
+        });
+    }
+    function remoteSummary(document) {
+        const summary = document.createElement('summary');
+        // Native focusManager includes .focusable, but not SUMMARY by default.
+        summary.className = 'focusable'; summary.tabIndex = 0;
+        return summary;
+    }
+    function disclosure(document) {
+        const details = document.createElement('details');
+        dismissible(details, () => { details.open = false; details.querySelector('summary')?.focus(); }, () => details.open);
+        return details;
+    }
+
+    // Direct Watchlists entry has no public loader for Jellyfin's emby-select.
+    // Its native component avoids browser select popups on webOS. Use a scoped
+    // modal in TV layout, with the same select value/change contract and native
+    // DIALOG/button directional navigation. Other layouts keep native selects.
+    function tvChoices(document, select, signal, current, container) {
+        let popup = null;
+        const values = () => Array.from(select.options).map(o => [o.value, o.textContent, o.disabled]);
+        const isOk = event => ['Enter', 'Accept'].includes(event.key) || [13, 195].includes(event.keyCode);
+        const open = event => {
+            if (!document.documentElement?.classList.contains('layout-tv')) return;
+            if (event.type === 'mousedown' && event.button !== 0) return;
+            if (event.type === 'keydown' && !isOk(event)) return;
+            if (!current() || signal.aborted || select.disabled) return;
+            event.preventDefault(); event.stopPropagation();
+            if (popup) return;
+            select.setAttribute('aria-haspopup', 'dialog');
+            const options = values(), snapshot = JSON.stringify(options);
+            const dialog = document.createElement('dialog'); dialog.className = 'watchguard-choice-dialog';
+            dialog.setAttribute('aria-label', select.getAttribute('aria-label'));
+            const heading = document.createElement('h3'); heading.textContent = select.getAttribute('aria-label'); dialog.append(heading);
+            const finish = (restore = true) => {
+                if (popup !== dialog) return;
+                popup = null; signal.removeEventListener('abort', abort); dialog.remove();
+                select.setAttribute('aria-expanded', 'false');
+                if (restore && current() && select.isConnected) select.focus({preventScroll:true});
+            };
+            const abort = () => finish(false);
+            let selected;
+            for (const [value, label, disabled] of options) {
+                const button = document.createElement('button'); button.type = 'button';
+                button.className = 'emby-button button-flat'; button.textContent = label; button.disabled = disabled;
+                button.setAttribute('aria-pressed', String(select.value === value));
+                if (select.value === value && !disabled) selected = button;
+                button.onclick = () => {
+                    if (popup !== dialog || disabled) return;
+                    const valid = current() && !signal.aborted && snapshot === JSON.stringify(values());
+                    const changed = select.value !== value;
+                    finish();
+                    if (!valid || !changed) return;
+                    select.value = value;
+                    select.dispatchEvent(new Event('change', {bubbles:true}));
+                };
+                dialog.append(button);
+            }
+            const cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'emby-button button-flat'; cancel.textContent = 'Cancel';
+            cancel.onclick = () => finish(); dialog.append(cancel);
+            dialog.addEventListener('cancel', event => { event.preventDefault(); finish(); });
+            dialog.addEventListener('close', () => finish()); dismissible(dialog, () => finish());
+            // Handle remote OK once, including controllers that use key code 195.
+            dialog.addEventListener('keydown', event => {
+                if (isOk(event) && event.target.tagName === 'BUTTON') {
+                    event.preventDefault(); event.stopPropagation(); event.target.click();
+                }
+            });
+            popup = dialog; signal.addEventListener('abort', abort, {once:true});
+            // Keep dialog buttons outside the select label: removing a clicked
+            // descendant before label activation can otherwise click the select again.
+            container.append(dialog);
+            try { dialog.showModal(); select.setAttribute('aria-expanded', 'true'); (selected || cancel).focus(); }
+            catch { finish(); }
+        };
+        // Prevent the platform popup at its mousedown boundary. click also covers
+        // native inputManager's select command; the open guard prevents duplicates.
+        for (const event of ['mousedown', 'click', 'keydown']) select.addEventListener(event, open);
+    }
+
     // Read-only feature checks: no requests, timers, credentials or DOM mutations.
     // Web's reported version is qualification context, never evidence of server protection.
     function browserCapabilities(api, document, host, installed) {
@@ -102,7 +195,7 @@
             dialog.className = 'watchguard-deletion-dialog';
             dialog.setAttribute('aria-labelledby', 'watchguard-delete-title');
             dialog.setAttribute('aria-describedby', 'watchguard-delete-description');
-            dialog.style.cssText = 'box-sizing:border-box;width:calc(100% - 2rem);max-width:38rem;max-height:calc(100dvh - 2rem);padding:0;border:1px solid #555;border-radius:.5rem;background:#202020;color:#eee;font:inherit;overflow:auto;';
+            dialog.style.cssText = 'box-sizing:border-box;width:calc(100% - 2rem);max-width:38rem;max-height:calc(100vh - 2rem);max-height:calc(100dvh - 2rem);padding:0;border:1px solid #555;border-radius:.5rem;background:#202020;color:#eee;font:inherit;overflow:auto;';
             const node = (tag, text, className = '') => {
                 const element = document.createElement(tag); element.textContent = text; element.className = className; return element;
             };
@@ -197,12 +290,12 @@
             if (allowDelete) actions.append(proceed);
             dialog.append(content, actions);
             if (signal?.aborted) { finish(false); return; }
-            try { openDeletionDialogs.add(document); document.body.append(dialog); dialog.showModal(); cancel.focus(); }
+            try { openDeletionDialogs.add(document); document.body.append(dialog); dismissible(dialog, () => finish(false)); dialog.showModal(); cancel.focus(); }
             catch (error) { signal?.removeEventListener('abort', abort); openDeletionDialogs.delete(document); dialog.remove(); reject(error); }
         });
     }
 
-    const key = id => typeof id === 'string' ? id.replaceAll('-', '').toLowerCase() : '';
+    const key = id => typeof id === 'string' ? id.replace(/-/g, '').toLowerCase() : '';
     function episodeProgress(owner) {
         const progress = owner.EpisodeProgress;
         if (progress == null) return null; // Older servers retain their existing counts/labels.
@@ -267,7 +360,7 @@
             dialog.addEventListener('close', finish);
             dialog.append(heading, description, list, close);
             // Keep the dialog owned by this rendered view: navigation/account teardown removes it.
-            container.append(dialog);
+            container.append(dialog); dismissible(dialog, finish);
             try { dialog.showModal(); close.focus(); } catch (error) { finish(); throw error; }
         };
     }
@@ -278,15 +371,15 @@
         const seen = new Set();
         for (const owner of status.Users) {
             if (!owner || !key(owner.UserId) || seen.has(key(owner.UserId)) || typeof owner.DisplayName !== 'string' ||
-                !Array.isArray(owner.Reasons) || !owner.Reasons.length || owner.Reasons.some(r => !Object.hasOwn(labels, r)) ||
+                !Array.isArray(owner.Reasons) || !owner.Reasons.length || owner.Reasons.some(r => !Object.prototype.hasOwnProperty.call(labels, r)) ||
                 typeof owner.CoverageComplete !== 'boolean' || !Number.isInteger(owner.AvailableEpisodes) || !Number.isInteger(owner.WatchedEpisodes) ||
                 owner.WatchedEpisodes < 0 || owner.AvailableEpisodes < owner.WatchedEpisodes) throw new Error('Invalid series activity user');
             episodeProgress(owner);
             seen.add(key(owner.UserId));
         }
-        target.replaceChildren();
-        const panel = document.createElement('details'); panel.className = 'watchguard-series-activity';
-        const summary = document.createElement('summary');
+        target.textContent = '';
+        const panel = disclosure(document); panel.className = 'watchguard-series-activity';
+        const summary = remoteSummary(document);
         const heading = document.createElement('span'); heading.className = 'watchguard-activity-heading';
         heading.textContent = seriesLabel || 'Series viewing'; summary.append(heading);
         let hasCounts = false;
@@ -348,7 +441,7 @@
         const seen = new Set();
         for (const entry of status.Users) {
             if (!entry || !key(entry.UserId) || seen.has(key(entry.UserId)) || typeof entry.DisplayName !== 'string' ||
-                !Array.isArray(entry.Reasons) || !entry.Reasons.length || entry.Reasons.some(r => !Object.hasOwn(reasons, r))) throw new Error('Invalid user');
+                !Array.isArray(entry.Reasons) || !entry.Reasons.length || entry.Reasons.some(r => !Object.prototype.hasOwnProperty.call(reasons, r))) throw new Error('Invalid user');
             seen.add(key(entry.UserId));
         }
         const others = status.Users.filter(u => key(u.UserId) !== key(user));
@@ -401,8 +494,8 @@
         const stale = document.createElement('span'); stale.className = 'watchguard-live-stale';
         stale.textContent = 'Playing when loaded · may have stopped';
         const progress = document.createElement('span'); progress.className = 'watchguard-progress';
-        const dates = document.createElement('details'); dates.className = 'watchguard-dates';
-        const dateSummary = document.createElement('summary');
+        const dates = disclosure(document); dates.className = 'watchguard-dates';
+        const dateSummary = remoteSummary(document);
         const exactDates = document.createElement('div'); dates.append(dateSummary, exactDates);
         line.append(icons, name, stale, progress, dates);
         let priorProgress, priorIcons, priorDates;
@@ -431,7 +524,7 @@
             }
             progress.hidden = person.AvailableEpisodes == null;
             const values = [];
-            if (person.Reasons.includes('Watchlisted') && Object.hasOwn(person, 'AddedAtUtc')) values.push(['Added', person.AddedAtUtc]);
+            if (person.Reasons.includes('Watchlisted') && Object.prototype.hasOwnProperty.call(person, 'AddedAtUtc')) values.push(['Added', person.AddedAtUtc]);
             if (person.LastPlayedDate) values.push(['Last played', person.LastPlayedDate]);
             const datesKey = JSON.stringify(values);
             if (priorDates !== datesKey) {
@@ -457,7 +550,7 @@
         let text = (showName ? owner.DisplayName + ' — ' : '') + owner.Reasons.map(r => viewingLabel(owner, r, activityReasons[r]) + (r === 'CurrentlyPlaying' ? ' ●' : '')).join(' · ');
         const progress = episodeProgress(owner);
         if (owner.AvailableEpisodes != null) text += ' · ' + (progress?.AiredWatched ?? owner.WatchedEpisodes) + '/' + (progress?.AiredAvailable ?? owner.AvailableEpisodes) + ' episodes' + (progress?.ExtraEpisodes.length ? ' +' + progress.ExtraEpisodes.length : '');
-        if (owner.Reasons.includes('Watchlisted') && Object.hasOwn(owner, 'AddedAtUtc'))
+        if (owner.Reasons.includes('Watchlisted') && Object.prototype.hasOwnProperty.call(owner, 'AddedAtUtc'))
             text += owner.AddedAtUtc && Number.isFinite(Date.parse(owner.AddedAtUtc))
                 ? ' · Added: ' + new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(new Date(owner.AddedAtUtc))
                 : ' · Added: unknown';
@@ -477,7 +570,7 @@
             const owners = new Set();
             for (const u of entry.Users) {
                 if (!u || !/^[0-9a-f]{32}$/i.test(key(u.UserId)) || owners.has(key(u.UserId)) || typeof u.DisplayName !== 'string' ||
-                    !Array.isArray(u.Reasons) || !u.Reasons.length || u.Reasons.some(r => !Object.hasOwn(activityReasons, r)) ||
+                    !Array.isArray(u.Reasons) || !u.Reasons.length || u.Reasons.some(r => !Object.prototype.hasOwnProperty.call(activityReasons, r)) ||
                     (u.LastPlayedDate != null && (typeof u.LastPlayedDate !== 'string' || !Number.isFinite(Date.parse(u.LastPlayedDate)))) ||
                     (u.AddedAtUtc != null && (typeof u.AddedAtUtc !== 'string' || !Number.isFinite(Date.parse(u.AddedAtUtc)) ||
                         !u.Reasons.includes('Watchlisted')))) throw new Error('Invalid interest');
@@ -514,8 +607,8 @@
                         if (owner.AvailableEpisodes != null) { previous.AvailableEpisodes = owner.AvailableEpisodes; previous.WatchedEpisodes = owner.WatchedEpisodes; }
                         if (owner.EpisodeProgress != null) previous.EpisodeProgress = owner.EpisodeProgress;
                         if (owner.LastPlayedDate && (!previous.LastPlayedDate || Date.parse(owner.LastPlayedDate) > Date.parse(previous.LastPlayedDate))) previous.LastPlayedDate = owner.LastPlayedDate;
-                        if (owner.Reasons.includes('Watchlisted') && Object.hasOwn(owner, 'AddedAtUtc')) {
-                            if (Object.hasOwn(previous, 'AddedAtUtc') && previous.AddedAtUtc !== owner.AddedAtUtc)
+                        if (owner.Reasons.includes('Watchlisted') && Object.prototype.hasOwnProperty.call(owner, 'AddedAtUtc')) {
+                            if (Object.prototype.hasOwnProperty.call(previous, 'AddedAtUtc') && previous.AddedAtUtc !== owner.AddedAtUtc)
                                 throw new Error('Conflicting watchlist dates');
                             previous.AddedAtUtc = owner.AddedAtUtc;
                         }
@@ -587,6 +680,9 @@
     function checkboxLabel(document, input, text) {
         const label = document.createElement('label'); label.className = 'emby-checkbox-label';
         input.className = 'emby-checkbox';
+        input.addEventListener('keydown', event => {
+            if (event.key === 'Enter' && !input.disabled) { event.preventDefault(); event.stopPropagation(); input.click(); }
+        });
         const caption = document.createElement('span'); caption.className = 'checkboxLabel'; caption.textContent = text;
         const outline = document.createElement('span'); outline.className = 'checkboxOutline'; outline.setAttribute('aria-hidden', 'true');
         const icon = document.createElement('span'); icon.className = 'material-icons checkboxIcon checkboxIcon-checked'; icon.textContent = 'check';
@@ -611,6 +707,7 @@
         const toolbar = document.createElement('div'); toolbar.className = 'watchguard-toolbar';
         function dropdown(label, choices) {
             const select = document.createElement('select'); select.className = 'emby-select emby-select-withcolor'; select.setAttribute('aria-label', label);
+            tvChoices(document, select, signal, () => active(), page);
             for (const [value, text, disabled] of choices) {
                 const option = document.createElement('option'); option.value = value; option.textContent = text; option.disabled = !!disabled; select.append(option);
             }
@@ -621,8 +718,8 @@
             const icon = document.createElement('span'); icon.className = 'material-icons selectArrow'; icon.textContent = 'keyboard_arrow_down'; arrow.append(icon); return arrow;
         }
         const select = dropdown('Watchlist owner', []); select.hidden = true;
-        const interestFilter = document.createElement('details'); interestFilter.className = 'watchguard-filter';
-        const summary = document.createElement('summary'); summary.className = 'emby-button button-flat'; summary.setAttribute('aria-label', 'Status filters');
+        const interestFilter = disclosure(document); interestFilter.className = 'watchguard-filter';
+        const summary = remoteSummary(document); summary.className = 'emby-button button-flat focusable'; summary.setAttribute('aria-label', 'Status filters');
         const filterIcon = document.createElement('span'); filterIcon.className = 'material-icons'; filterIcon.textContent = 'filter_list'; filterIcon.setAttribute('aria-hidden', 'true');
         const filterCount = document.createElement('span'); summary.append(filterIcon, filterCount);
         const choicesPanel = document.createElement('div'); choicesPanel.className = 'watchguard-filter-options paperList';
@@ -661,8 +758,12 @@
         };
         if (options.preferences) choicesPanel.append(save);
         choicesPanel.append(reset); interestFilter.append(summary, choicesPanel);
-        interestFilter.addEventListener('keydown', event => { if (event.key === 'Escape') { interestFilter.open = false; summary.focus(); event.preventDefault(); } });
-        document.addEventListener?.('pointerdown', event => { if (!interestFilter.contains(event.target)) interestFilter.open = false; }, {signal});
+        interestFilter.addEventListener('toggle', () => interestFilter.classList.toggle('focuscontainer', interestFilter.open));
+        const dismissOutside = event => { if (!interestFilter.contains(event.target)) interestFilter.open = false; };
+        if (!signal.aborted) {
+            document.addEventListener?.('pointerdown', dismissOutside);
+            signal.addEventListener('abort', () => document.removeEventListener?.('pointerdown', dismissOutside), {once:true});
+        }
         const order = dropdown('Sort by', [['title', 'Title'], ['recent', 'Playback recency'], ['added', 'Recently added']]); order.value = sort;
         order.title = 'Recently added uses recorded watchlist dates for the selected owners; older/unknown dates sort last. Playback recency uses native viewing dates.';
         const refresh = document.createElement('button'); refresh.className = 'emby-button button-flat watchguard-refresh'; refresh.type = 'button'; refresh.title = 'Refresh'; refresh.setAttribute('aria-label', 'Refresh');
@@ -680,8 +781,8 @@
         }
         const rangeSelect = dropdown('Activity range', [['7', 'Last 7 days'], ['30', 'Last 30 days'], ['90', 'Last 90 days']]);
         const olderToggle = document.createElement('input'); olderToggle.type = 'checkbox';
-        const secondary = document.createElement('details'); secondary.className = 'watchguard-secondary';
-        const secondarySummary = document.createElement('summary'); secondary.append(secondarySummary);
+        const secondary = disclosure(document); secondary.className = 'watchguard-secondary';
+        const secondarySummary = remoteSummary(document); secondary.append(secondarySummary);
         if (options.indexedActivity) {
             const field = document.createElement('label'); field.className = 'watchguard-toolbar-field';
             const label = document.createElement('span'); label.className = 'selectLabel'; label.textContent = 'Activity range'; field.append(label, rangeSelect, selectArrow());
@@ -700,8 +801,8 @@
         const spinner = document.createElement('span'); spinner.className = 'material-icons watchguard-spinner'; spinner.textContent = 'sync'; spinner.setAttribute('aria-hidden', 'true');
         status.className = 'watchguard-loading-status';
         const notice = document.createElement('div'); notice.className = 'watchguard-notice'; notice.hidden = true;
-        const coverageDetails = document.createElement('details'); coverageDetails.className = 'watchguard-coverage-details';
-        const coverageSummary = document.createElement('summary');
+        const coverageDetails = disclosure(document); coverageDetails.className = 'watchguard-coverage-details';
+        const coverageSummary = remoteSummary(document);
         const coverageText = document.createElement('p');
         const searchScope = document.createElement('p'); searchScope.id = 'watchguard-search-scope'; searchScope.textContent = 'Search covers known activity and watchlists, not the entire library.';
         const updateHelp = document.createElement('p'); updateHelp.textContent = 'The first page updates every 30 seconds while visible. After Load more, checks keep the displayed order and offer updates separately. Playback labels describe the last loaded state; discovery and verification may still be incomplete.';
@@ -799,8 +900,8 @@
                     link.append(poster, name); card.append(link);
                     const ownersText = document.createElement('div'); ownersText.className = 'watchguard-status secondaryText';
                     if (admin) ownersText.classList.add('watchguard-owners');
-                    const otherOwners = document.createElement('details'); otherOwners.className = 'watchguard-more-owners';
-                    const otherSummary = document.createElement('summary'); otherOwners.append(otherSummary);
+                    const otherOwners = disclosure(document); otherOwners.className = 'watchguard-more-owners';
+                    const otherSummary = remoteSummary(document); otherOwners.append(otherSummary);
                     const extraOwners = document.createElement('div'); otherOwners.append(extraOwners);
                     card.append(ownersText, otherOwners); record = { card, name, ownersText, otherOwners, otherSummary, extraOwners, rows: new Map() }; cards.set(key(entry.ItemId), record);
                 }
@@ -850,7 +951,7 @@
             loadedPages = 1; indexPopulating = false; pending = false; combined = false; preparing = false; requiresRefresh = false;
             coverage = ''; coverageLimited = false; coverageInfo = null;
             freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false;
-            grid.replaceChildren(); cards.clear(); freshness.textContent = '';
+            grid.textContent = ''; cards.clear(); freshness.textContent = '';
             failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
             refresh.setAttribute('aria-disabled', 'false'); render();
             return true;
@@ -938,7 +1039,7 @@
                     if (!Array.isArray(result)) throw new Error('Invalid memberships');
                     const entries = result.map(e => ({ ...e, Users: (scope !== 'mine' ? e.Users : [{
                         UserId: user, DisplayName: account.Name || 'You',
-                        ...(Object.hasOwn(e, 'AddedAtUtc') ? { AddedAtUtc: e.AddedAtUtc } : {})
+                        ...(Object.prototype.hasOwnProperty.call(e, 'AddedAtUtc') ? { AddedAtUtc: e.AddedAtUtc } : {})
                     }]).map(u => ({ ...u, Reasons: ['Watchlisted'], LastPlayedDate: null })) }));
                     selectInterest(entries, 'all', user); explicit = entries; if (!automatic.length) combined = false;
                 } catch (failure) { if (authorizationDenied(failure) || !current()) return; if (!options.indexedActivity) explicit = []; failures.push('WatchGuard: Could not load watchlists. Please refresh to retry.'); }
@@ -973,10 +1074,10 @@
         }
         function indexState(result) {
             if (!result.Freshness || (result.Freshness.Revision != null && typeof result.Freshness.Revision !== 'string') || (result.Continuation != null && typeof result.Continuation !== 'string')) throw new Error('Invalid index status');
-            for (const item of result.Items) for (const owner of item.Users) if (owner.Reasons.includes('Watchlisted') && !Object.hasOwn(owner, 'AddedAtUtc')) owner.AddedAtUtc = null;
+            for (const item of result.Items) for (const owner of item.Users) if (owner.Reasons.includes('Watchlisted') && !Object.prototype.hasOwnProperty.call(owner, 'AddedAtUtc')) owner.AddedAtUtc = null;
             preparing = result.Preparing === true; combined = !preparing; requiresRefresh = false;
-            continuation = result.Continuation || null; indexPopulating = Object.hasOwn(result.Freshness, 'PopulationPending') ? result.Freshness.PopulationPending : !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
-            if (Object.hasOwn(result.Freshness, 'PopulationPending')) return;
+            continuation = result.Continuation || null; indexPopulating = Object.prototype.hasOwnProperty.call(result.Freshness, 'PopulationPending') ? result.Freshness.PopulationPending : !result.Freshness.DiscoveryFinished || result.Freshness.Pending > 0;
+            if (Object.prototype.hasOwnProperty.call(result.Freshness, 'PopulationPending')) return;
 
         }
         function schedulePoll() {
@@ -1077,7 +1178,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     let enforcementExpected = /*WATCHGUARD_SERVER_EXPECTED*/false || deps.expected === true;
     let queue = Promise.resolve(), sequence = 0;
     const emit = (event, operation = 0) => { try { log?.(event, operation); } catch { /* Diagnostics never authorize deletion. */ } };
-    const key = value => typeof value === 'string' ? value.replaceAll('-', '').toLowerCase() : '';
+    const key = value => typeof value === 'string' ? value.replace(/-/g, '').toLowerCase() : '';
     const guid = value => /^[a-f0-9]{32}$/.test(key(value));
     const fail = code => Object.assign(new Error('WatchGuard approval requires a new explicit confirmation.'), { code, name: ['Cancelled','ContextChanged'].includes(code) ? 'AbortError' : 'Error' });
     const sameIds = (values, wanted) => Array.isArray(values) && values.length === wanted.length && values.every((v, i) => guid(v) && key(v) === key(wanted[i]));
@@ -1190,7 +1291,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
 }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
+        module.exports = { tvChoices, browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -1237,11 +1338,19 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
 
     const style = document.createElement('style');
     style.textContent = `
-        .watchguard-deletion-dialog::backdrop {background:rgba(0,0,0,.65)}
+        .watchguard-page :focus,.watchguard-toggle:focus,.watchguard-extra-button:focus,.watchguard-series-section :focus,.watchguard-deletion-dialog :focus,.watchguard-extras-dialog :focus {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:3px}
+        @supports selector(:focus-visible) {
+            .watchguard-page :focus:not(:focus-visible),.watchguard-toggle:focus:not(:focus-visible),.watchguard-extra-button:focus:not(:focus-visible),.watchguard-series-section :focus:not(:focus-visible),.watchguard-deletion-dialog :focus:not(:focus-visible),.watchguard-extras-dialog :focus:not(:focus-visible) {outline:none!important}
+        }
+        .watchguard-no-flex-gap .watchguard-user-line>*,.watchguard-no-flex-gap .watchguard-interest>*,.watchguard-no-flex-gap .watchguard-progress>*,.watchguard-no-flex-gap .watchguard-status-icons>*,.watchguard-no-flex-gap .watchguard-viewer-states>*,.watchguard-no-flex-gap .watchguard-dialog-reasons>*,.watchguard-no-flex-gap .watchguard-dialog-actions>* {margin-right:.4em}
+        .watchguard-choice-dialog {box-sizing:border-box;width:calc(100% - 2rem);max-width:30rem;max-height:calc(100vh - 2rem);overflow:auto;background:var(--jf-palette-background-paper,#202020);color:var(--jf-palette-text-primary,#eee);font:inherit;border:1px solid var(--jf-palette-divider,#888);border-radius:.3em;padding:1em}
+        .watchguard-choice-dialog button {display:block;width:100%;min-height:44px;text-align:start;margin:.25em 0}
+        .watchguard-choice-dialog button[aria-pressed="true"] {color:var(--jf-palette-secondary-main,#00a4dc)}
+        .watchguard-choice-dialog::backdrop,.watchguard-deletion-dialog::backdrop {background:rgba(0,0,0,.65)}
         .watchguard-deletion-dialog button:focus-visible {outline:2px solid #fff;outline-offset:2px}
 
         body.watchguard-page-open .skinBody {display:none!important}
-        .watchguard-page {position:fixed;inset:var(--watchguard-top,64px) 0 0;overflow:auto;z-index:10;padding-bottom:5em;box-sizing:border-box}
+        .watchguard-page {position:fixed;top:var(--watchguard-top,64px);right:0;bottom:0;left:0;overflow:auto;z-index:10;padding-bottom:5em;box-sizing:border-box}
         .watchguard-page [hidden] {display:none!important}
         .watchguard-page select {min-width:0;max-width:100%}
 
@@ -1255,7 +1364,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-filter {position:relative}
         .watchguard-filter summary {cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:.35em;min-height:2.5em;box-sizing:border-box}
         .watchguard-filter summary .material-icons {font-size:1.4em}
-        .watchguard-filter-options {position:absolute;inset-block-start:100%;inset-inline-start:0;z-index:2;min-width:13em;padding:.5em;border:1px solid var(--jf-palette-divider,#8885);border-radius:.2em;box-shadow:0 .3em 1em #0008}
+        .watchguard-filter-options {position:absolute;top:100%;left:0;inset-block-start:100%;inset-inline-start:0;z-index:2;min-width:13em;padding:.5em;border:1px solid var(--jf-palette-divider,#8885);border-radius:.2em;box-shadow:0 .3em 1em #0008}
 
         .watchguard-card {position:relative;min-width:0}
         .watchguard-remove {position:absolute;top:.3em;right:.3em;background:rgba(0,0,0,.75);border-radius:50%;padding:.5em;color:white}
@@ -1263,7 +1372,11 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-card a {display:block;color:inherit;text-decoration:none}
         .watchguard-poster {position:relative;aspect-ratio:2/3;background:#292929;display:flex;align-items:center;justify-content:center;border-radius:.25em;overflow:hidden}
         .watchguard-poster>.material-icons {font-size:3em;color:#999}
-        .watchguard-poster img {position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+        @supports not (aspect-ratio:2/3) {
+            .watchguard-poster {height:0;padding-bottom:150%}
+            .watchguard-poster>.material-icons {position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+        }
+        .watchguard-poster img {position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover}
         .watchguard-card a:hover .watchguard-poster {box-shadow:0 0 0 2px #00a4dc}
         .watchguard-card .cardText {padding-top:.5em;font-size:.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .watchguard-status {padding-top:.4em}
@@ -1276,7 +1389,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-extra-button {display:inline-flex;align-items:center;justify-content:center;min-width:2.75rem;min-height:2.75rem;padding:.25rem;margin:0 .15rem;border:1px solid #8886;border-radius:.4rem;color:var(--jf-palette-primary-main,#82c4ff);background:#8881;font:inherit;vertical-align:middle;cursor:pointer}
         .watchguard-extra-button:hover {background:#8883}
         .watchguard-extra-button:focus-visible,.watchguard-extras-dialog button:focus-visible {outline:2px solid #82c4ff;outline-offset:2px}
-        .watchguard-extras-dialog {width:min(34rem,calc(100vw - 2rem));max-height:80dvh;box-sizing:border-box;overflow:auto;padding:1.2rem;border:1px solid #8888;border-radius:.6rem;background:var(--jf-palette-background-paper,#202020);color:var(--jf-palette-text-primary,#eee);white-space:normal;text-align:start;overflow-wrap:anywhere}
+        .watchguard-extras-dialog {width:calc(100vw - 2rem);max-width:34rem;max-height:80vh;max-height:80dvh;box-sizing:border-box;overflow:auto;padding:1.2rem;border:1px solid #8888;border-radius:.6rem;background:var(--jf-palette-background-paper,#202020);color:var(--jf-palette-text-primary,#eee);white-space:normal;text-align:start;overflow-wrap:anywhere}
         .watchguard-extras-dialog::backdrop {background:#0009}
         .watchguard-extras-dialog h3 {font-size:1.1rem;margin:0 0 .6rem}
         .watchguard-extras-dialog p {font-size:.85rem;line-height:1.5;opacity:.85}
@@ -1291,20 +1404,21 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-toolbar {gap:.75rem;align-items:flex-end;margin:1rem 0}
         .watchguard-older-interest {max-width:100%;margin-top:.5rem}
         .watchguard-toolbar-field {position:relative;display:flex;flex-direction:column;gap:.3rem;min-width:0;flex:0 1 15rem}
-        .watchguard-toolbar-field>.selectArrowContainer {position:absolute;pointer-events:none;top:auto;bottom:.45em;inset-inline-end:.35em}
+        .watchguard-toolbar-field>.selectArrowContainer {position:absolute;pointer-events:none;top:auto;bottom:.45em;right:.35em;inset-inline-end:.35em}
         .watchguard-toolbar .selectArrow {font-size:1.5em;vertical-align:middle}
-        .watchguard-toolbar .emby-select {appearance:none;padding-inline-end:1.9em}
+        .watchguard-toolbar .emby-select {-webkit-appearance:none;appearance:none;padding-inline-end:1.9em}
         .watchguard-toolbar-field>.selectLabel,.watchguard-toolbar-field>.inputLabel {font-size:inherit;margin:0}
-        .watchguard-toolbar-field :is(select,input[type="search"]) {width:100%;min-height:44px;margin:0;box-sizing:border-box}
+        .watchguard-toolbar-field select, .watchguard-toolbar-field input[type="search"] {width:100%;min-height:44px;margin:0;box-sizing:border-box}
         .watchguard-sort {margin-inline-start:auto;flex-basis:13rem}
         .watchguard-refresh {margin:0;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
         .watchguard-filter summary {min-height:44px;margin:0}
         .watchguard-filter-options {max-width:calc(100vw - 3rem);box-sizing:border-box;color:inherit}
-        .watchguard-filter-options :is(label,button) {min-height:44px;box-sizing:border-box}
+        .watchguard-filter-options label, .watchguard-filter-options button {min-height:44px;box-sizing:border-box}
         .watchguard-filter-options .emby-button {display:flex;width:100%;margin:.25em 0;text-align:start}
-        .watchguard-toolbar .emby-checkbox-label {height:auto;min-height:44px;padding-block:.4em}
+        .watchguard-toolbar .emby-checkbox-label {height:auto;min-height:44px;padding-top:.4em;padding-bottom:.4em;padding-block:.4em}
+        .watchguard-toolbar .emby-checkbox:focus~.checkboxOutline {outline:2px solid var(--jf-palette-primary-main,#00a4dc);outline-offset:3px}
         .watchguard-toolbar .checkboxOutline {top:50%;transform:translateY(-50%)}
-        .watchguard-page :is(button,summary,select,input,a,[tabindex]):focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:3px}
+        .watchguard-page button:focus-visible, .watchguard-page summary:focus-visible, .watchguard-page select:focus-visible, .watchguard-page input:focus-visible, .watchguard-page a:focus-visible, .watchguard-page [tabindex]:focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:3px}
         .watchguard-notice {font-size:.85em;line-height:1.5;margin:.6rem 0;overflow-wrap:anywhere}
         .watchguard-coverage-details summary {cursor:pointer;padding:.5rem 0;min-height:44px;box-sizing:border-box;opacity:.85}
         .watchguard-coverage-details p {margin:.25rem 0 .75rem;padding-inline-start:1rem;border-inline-start:2px solid #8888}
@@ -1316,7 +1430,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-page .watchguard-user-line:last-child {border-bottom:0}
         .watchguard-page .watchguard-user {overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
         .watchguard-page .watchguard-status-icons {flex-wrap:wrap;max-width:2.8rem;border-radius:.25rem;background:#252a30;padding:.15rem}
-        .watchguard-page .watchguard-user-line :is(time,.watchguard-added-unknown) {grid-column:1/-1;font-size:.85em;opacity:.8;margin-inline-start:.15rem}
+        .watchguard-page .watchguard-user-line time, .watchguard-page .watchguard-user-line .watchguard-added-unknown {grid-column:1/-1;font-size:.85em;opacity:.8;margin-inline-start:.15rem}
         .watchguard-page .watchguard-progress {font-variant-numeric:tabular-nums;font-size:.9em}
         .watchguard-page .watchguard-remove {width:44px;height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;border:1px solid #ffffff40}
         .watchguard-page .watchguard-remove:hover {background:#00668b}
@@ -1368,7 +1482,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             .watchguard-filter {grid-column:1;grid-row:3;align-self:start}
             .watchguard-secondary {grid-column:2/4;grid-row:3;font-size:.8rem}
             .watchguard-secondary>summary {padding:.55rem 0;line-height:1.4}
-            .watchguard-filter summary {padding-inline:.35rem}
+            .watchguard-filter summary {padding-left:.35rem;padding-right:.35rem;padding-inline:.35rem}
             .watchguard-filter-options {inset-inline-start:0;max-width:calc(100vw - 2rem)}
             .watchguard-page .watchguard-grid {gap:1rem .75rem}
         }
@@ -1380,7 +1494,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-toolbar .emby-select {display:block;font-family:inherit;font-size:110%;font-weight:inherit;border-radius:.2em;border-style:solid;border-width:.16em;border-color:var(--jf-palette-FilledInput-borderColor,#8882);background:var(--jf-palette-background-paper,#202020);color:inherit;padding:.5em;appearance:auto}
         }
         .watchguard-toolbar .emby-select:focus {border-color:var(--jf-palette-secondary-main,#00a4dc)}
-        .watchguard-toolbar :is(button,summary)[aria-disabled="true"],.watchguard-toolbar button:disabled,.watchguard-toggle:disabled {opacity:.5;cursor:default}
+        .watchguard-toolbar button[aria-disabled="true"],.watchguard-toolbar summary[aria-disabled="true"],.watchguard-toolbar button:disabled,.watchguard-toggle:disabled {opacity:.5;cursor:default}
         .watchguard-toggle:focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:2px}
         .watchguard-toggle .detailButton-icon {text-decoration:none;cursor:inherit}
         @media(prefers-reduced-motion:reduce) {.watchguard-toolbar .emby-button,.watchguard-toggle {transition:none}}
@@ -1390,7 +1504,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-state-Watched {--wg-accent:#93d6a2}
         .watchguard-state-CurrentlyPlaying {--wg-accent:#c9a3f7}
         .watchguard-state-Unknown {--wg-accent:#bac0ca}
-        .watchguard-chip {display:inline-flex;align-items:center;color:var(--wg-accent,#ccc);background:color-mix(in srgb,var(--wg-accent,#ccc) 10%,transparent);border:1px solid color-mix(in srgb,var(--wg-accent,#ccc) 30%,transparent);border-radius:1em;padding:.15em .65em;font-size:.85em;line-height:1.5;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
+        .watchguard-chip {display:inline-flex;align-items:center;color:var(--wg-accent,#ccc);background:rgba(255,255,255,.08);background:color-mix(in srgb,var(--wg-accent,#ccc) 10%,transparent);border:1px solid var(--wg-accent,#ccc);border:1px solid color-mix(in srgb,var(--wg-accent,#ccc) 30%,transparent);border-radius:1em;padding:.15em .65em;font-size:.85em;line-height:1.5;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
         .watchguard-status-icons [class*="watchguard-state-"] {color:var(--wg-accent)}
         .watchguard-series-activity {width:100%;box-sizing:border-box;border:1px solid #ffffff24;border-radius:.7rem;background:#ffffff03;overflow:hidden}
         .watchguard-series-activity summary {cursor:pointer;padding:.8rem 1rem;min-height:2.75rem;box-sizing:border-box;line-height:1.7;overflow-wrap:anywhere}
@@ -1413,7 +1527,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-header.watchguard-series-section {font-size:1em;margin:0 0 1.25rem}
         .watchguard-series-section .watchguard-interest {display:block;max-height:none}
         @media(max-width:50em) {
-            .detailPagePrimaryContent:has(>.watchguard-series-section) {padding-inline:5%}
+            .detailPagePrimaryContent.watchguard-has-series {padding-left:5%;padding-right:5%;padding-inline:5%}
             .watchguard-series-viewers>li {grid-template-columns:minmax(0,1fr)}
             .watchguard-series-activity summary {padding:.7rem .8rem}
             .watchguard-series-viewers {padding:0 .8rem}
@@ -1422,15 +1536,31 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-header [hidden] {display:none!important}
         .watchguard-interest {display:flex;flex-wrap:wrap;gap:.15em 1em;max-height:4.5em;overflow:auto;color:var(--jf-palette-text-secondary,#aaa)}
         .watchguard-interest>span {display:inline-flex;align-items:baseline;gap:.35em;min-width:0;max-width:100%}
-        .watchguard-user {flex-shrink:0;max-width:min(20ch,40vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .watchguard-user {flex-shrink:0;max-width:20ch;max-width:min(20ch,40vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         @media(max-width:50em) {
-            .detailRibbon:has(.watchguard-header), .detailPagePrimaryContainer:has(.watchguard-series-section)>.detailRibbon {display:block;width:100%;box-sizing:border-box;height:auto;min-height:7.2em}
+            .detailRibbon.watchguard-has-header, .detailPagePrimaryContainer.watchguard-has-series>.detailRibbon {display:block;width:100%;box-sizing:border-box;height:auto;min-height:7.2em}
         }
         .watchguard-error {color:inherit}
         .watchguard-error:empty,.watchguard-interest:empty {display:none}
         .watchguard-sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
     `;
+    // Older engines drop an entire unknown @layer block. These rules already
+    // target only owned controls; flatten the single fallback layer there.
+    if (!('CSSLayerBlockRule' in root)) style.textContent = style.textContent.replace(/@layer watchguard-controls \{([\s\S]*?)\n        \}/g, '$1');
     document.head.append(style);
+    const gapProbe = document.createElement('div');
+    gapProbe.style.cssText = 'position:absolute;visibility:hidden;display:flex;flex-direction:column;row-gap:1px';
+    gapProbe.append(document.createElement('div'), document.createElement('div'));
+    document.body.append(gapProbe);
+    document.body.classList.toggle('watchguard-no-flex-gap', gapProbe.scrollHeight !== 1); gapProbe.remove();
+    function detailLayout() {
+        document.querySelectorAll('.watchguard-has-series,.watchguard-has-header').forEach(e => e.classList.remove('watchguard-has-series', 'watchguard-has-header'));
+        document.querySelectorAll('.watchguard-series-section').forEach(e => {
+            e.closest('.detailPagePrimaryContent')?.classList.add('watchguard-has-series');
+            e.closest('.detailPagePrimaryContainer')?.classList.add('watchguard-has-series');
+        });
+        document.querySelectorAll('.watchguard-header').forEach(e => e.closest('.detailRibbon')?.classList.add('watchguard-has-header'));
+    }
     function closePage() {
         pageLifetime?.abort(); pageLifetime = null; pagePanel?.remove(); pagePanel = null; pageSignature = null;
         document.body.classList.remove('watchguard-page-open');
@@ -1464,6 +1594,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             updateNavigation();
         }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), search: params.get('search'), indexedActivity: true, preferences: true});
         document.body.classList.add('watchguard-page-open'); document.body.append(pagePanel);
+        if (document.documentElement.classList.contains('layout-tv')) pagePanel.querySelector('select,button,input')?.focus();
         root.WatchGuardStartup?.finish();
     }
 
@@ -1479,7 +1610,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         const next = route ? hash : null;
         if (signature === next) return;
         signature = next; const revision = ++epoch;
-        panel?.remove(); detailButton?.remove(); panel = null; refreshDetailMembership = null;
+        panel?.remove(); detailButton?.remove(); panel = null; refreshDetailMembership = null; detailLayout();
         if (!route) return;
         const user = api.getCurrentUserId();
         const current = () => valid(api, user) && revision === epoch && root.location.hash === hash;
@@ -1506,7 +1637,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                 header.className += ' watchguard-series-section';
                 primaryContent.insertBefore(header, primaryContent.firstChild);
             } else info.append(header);
-            anchor.insertBefore(toggle, anchor.querySelector('.btnMoreCommands')); panel = header; detailButton = toggle;
+            anchor.insertBefore(toggle, anchor.querySelector('.btnMoreCommands')); panel = header; detailButton = toggle; detailLayout();
             let member, writing = false;
             const render = () => {
                 label.textContent = member ? 'Remove from Watchlist' : 'Add to Watchlist';
@@ -1519,7 +1650,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             async function refreshInterest() {
                 const account = await api.getCurrentUser();
                 if (!current()) return;
-                interest.replaceChildren();
+                interest.textContent = '';
                 if (account.Policy?.IsAdministrator !== true) return;
                 interest.textContent = 'Loading interest…'; interest.setAttribute('aria-busy', 'true');
                 try {
@@ -1527,7 +1658,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                     const status = await request(api, (series ? 'SeriesActivity/' : 'Protection/') + encodeURIComponent(scopeId));
                     if (!series) validateStatus(status, scopeId, user);
                     if (current()) {
-                        interest.replaceChildren();
+                        interest.textContent = '';
                         if (seriesLabel && status.Users.length) { const scopeText = document.createElement('span'); scopeText.textContent = seriesLabel; interest.append(scopeText); }
                         if (series) renderSeriesActivity(document, interest, status, scopeId, user, seriesLabel);
                         else for (const owner of status.Users) interest.append(userLine(document, owner));
@@ -1538,19 +1669,22 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             toggle.onclick = async () => {
                 if (!current() || toggle.disabled) return;
                 const focused = document.activeElement === toggle;
+                const restoreFocus = () => {
+                    if (focused && current() && document.activeElement === document.body) toggle.focus({preventScroll:true});
+                };
                 const desired = !member; writing = true;
                 toggle.disabled = true; toggle.setAttribute('aria-busy', 'true'); error.textContent = '';
                 try {
                     // This action renders its own result; other entry points still notify.
                     await membership.set(scopeId, desired, false);
                     if (!current()) return;
-                    writing = false; member = desired; render();
+                    writing = false; member = desired; render(); restoreFocus();
                     try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
                 } catch {
                     if (current()) { writing = false; error.textContent = 'WatchGuard: Could not update your watchlist. Please retry.'; toggle.setAttribute('aria-busy', 'false'); toggle.disabled = false; }
                 } finally {
                     // Do not steal focus after the user navigates or focuses another control.
-                    if (focused && current() && document.activeElement === document.body) toggle.focus({preventScroll:true});
+                    restoreFocus();
                 }
             };
             refreshDetailMembership = async (changedId, present) => {

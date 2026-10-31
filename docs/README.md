@@ -10,6 +10,8 @@ Start with the repository [README](../README.md) for features, installation, lim
 
 ## Current reference material
 
+Unpublished compatibility work: [older browsers, Chromium 79 validation and TV test procedure](browser-compatibility.md).
+
 | Question | Reference |
 | --- | --- |
 | How do I install, upgrade or verify the published plugin? | [README](../README.md), [upgrade/rollback fundamentals](server-enforcement-upgrade-v049.md) |

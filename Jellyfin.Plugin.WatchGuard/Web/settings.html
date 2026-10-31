@@ -40,12 +40,12 @@
         field('#wgApprovalReadiness').textContent = 'Checking approval request readiness…';
         field('#wgProxyNetworkNote').textContent = 'Jellyfin client-IP forwarding and native remote-access restrictions are not verified by WatchGuard.';
         const who = identity(), revision = epoch, statusRevision = ++statusGeneration;
-        field('#wgBrowserCapabilities').replaceChildren();
+        field('#wgBrowserCapabilities').textContent = '';
         const current = () => valid(who, revision) && statusRevision === statusGeneration;
         try {
             const result = await ApiClient.ajax({type:'GET', url:ApiClient.getUrl('WatchGuard/IntegrationStatus'), dataType:'json'});
             if (!current()) return;
-            const target = field('#wgIntegration'); target.replaceChildren();
+            const target = field('#wgIntegration'); target.textContent = '';
             const standalone = result.Standalone?.Enabled === true;
             const lines = [ 'Plugin loaded: true · WatchGuard ' + result.PluginVersion + ' · Jellyfin ' + result.JellyfinVersion,
                 'Qualified server releases: ' + result.TestedVersions.join(', ') + ' · Compatibility range: ' + result.CompatibilityRange,
@@ -127,7 +127,7 @@
             field('#wgEnforcement').checked = config.EnableServerEnforcement === true; field('#wgCaughtUp').checked = config.ProtectCaughtUpSeries !== false; field('#wgDiagnostics').checked = config.DiagnosticMode; await status();
         } catch { if (valid(who, revision)) field('#wgSettingsMessage').textContent = 'Could not load settings. Administrator access is required.'; }
     });
-    page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgApprovalReadiness').textContent = 'Approval request readiness has not been checked.'; field('#wgProxyNetworkNote').textContent = 'Jellyfin proxy/network health: not checked.'; field('#wgIntegration').replaceChildren(); field('#wgBrowser').textContent = ''; field('#wgBrowserCapabilities').replaceChildren(); });
+    page.addEventListener('pagehide', () => { epoch++; statusGeneration++; field('#wgApprovalReadiness').textContent = 'Approval request readiness has not been checked.'; field('#wgProxyNetworkNote').textContent = 'Jellyfin proxy/network health: not checked.'; field('#wgIntegration').textContent = ''; field('#wgBrowser').textContent = ''; field('#wgBrowserCapabilities').textContent = ''; });
     field('#wgCheck').onclick = status;
     field('#WatchGuardSettingsForm').onsubmit = async function (event) {
         event.preventDefault();

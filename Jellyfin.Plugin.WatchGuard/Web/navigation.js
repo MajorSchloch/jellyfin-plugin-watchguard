@@ -7,6 +7,8 @@
     const css = document.createElement('style');
     css.id = 'watchguard-navigation-style';
     css.textContent = `
+        .watchguard-nav:focus {outline:2px solid var(--jf-palette-primary-main,currentColor)!important;outline-offset:-2px}
+        @supports selector(:focus-visible) {.watchguard-nav:focus:not(:focus-visible) {outline:none!important}}
         .watchguard-nav {box-sizing:border-box;white-space:nowrap;text-decoration:none}
         .watchguard-nav:focus-visible {outline:2px solid var(--jf-palette-primary-main,currentColor)!important;outline-offset:-2px}
         .watchguard-nav-row {display:flex;list-style:none;padding:0;margin:0;min-width:0}
@@ -20,12 +22,13 @@
         .mainDrawer:not(.drawer-open) .watchguard-nav-legacy {visibility:hidden}
         body.watchguard-page-open .mainDrawer a[href="#/home"].navMenuOption-selected {background:transparent!important;color:inherit}
         body.watchguard-page-open .mainDrawer a[href="#/home"].navMenuOption-selected:hover {background:var(--jf-palette-action-hover,rgba(255,255,255,.08))!important}
-        .headerTabs:has(>.watchguard-nav-tab) {display:flex;justify-content:center;align-items:center}
-        .headerTabs:has(>.watchguard-nav-tab)>.tabs-viewmenubar {flex:0 1 auto;width:auto;min-width:0}
+        .headerTabs.watchguard-has-tab {display:flex;justify-content:center;align-items:center}
+        .headerTabs.watchguard-has-tab>.tabs-viewmenubar {flex:0 1 auto;width:auto;min-width:0}
         .watchguard-nav.watchguard-nav-tab {flex:none;transition:color .15s;padding:1.5em;border:0;border-radius:0;margin:0;background:transparent;box-shadow:none;color:var(--jf-palette-text-secondary,rgba(255,255,255,.7))}
         .watchguard-nav.watchguard-nav-tab[aria-current="page"] {color:var(--jf-palette-text-primary,#fff)}
-        .watchguard-nav.watchguard-nav-tab:hover,.watchguard-nav.watchguard-nav-tab:focus-visible {background:transparent;color:var(--jf-palette-secondary-main,#00a4dc)}
-        body.watchguard-page-open .headerTabs:has(>.watchguard-nav-tab) .emby-tab-button-active:not(:hover):not(:focus-visible) {color:var(--jf-palette-text-secondary,rgba(255,255,255,.7))}
+        .watchguard-nav.watchguard-nav-tab:hover {background:transparent;color:var(--jf-palette-secondary-main,#00a4dc)}
+        .watchguard-nav.watchguard-nav-tab:focus-visible {background:transparent;color:var(--jf-palette-secondary-main,#00a4dc)}
+        body.watchguard-page-open .headerTabs.watchguard-has-tab .emby-tab-button-active:not(:hover):not(:focus) {color:var(--jf-palette-text-secondary,rgba(255,255,255,.7))}
         @media(prefers-reduced-motion:reduce) {.watchguard-nav {transition:none!important}}
     `;
     document.head.append(css);
@@ -98,6 +101,7 @@
                 classes(text,nativeText,'watchguard-nav-text'); classes(text.firstElementChild,primary,'');
             }
         } else if (kind === 'legacy-tabs') {
+            if (!container.classList.contains('watchguard-has-tab')) container.classList.add('watchguard-has-tab');
             const style = root.getComputedStyle(native);
             for (const property of ['font','padding','lineHeight','textTransform']) if (link.style[property] !== style[property]) link.style[property] = style[property];
         }
@@ -111,8 +115,9 @@
         if (kind === 'legacy-drawer') link.classList.toggle('navMenuOption-selected',open);
         if (kind === 'modern') link.classList.toggle('Mui-selected',open);
     }
-    function clear() { for (const {row} of entries.values()) row.remove(); entries.clear(); focused = null; }
+    function clear() { document.querySelectorAll('.watchguard-has-tab').forEach(e => e.classList.remove('watchguard-has-tab')); for (const {row} of entries.values()) row.remove(); entries.clear(); focused = null; }
     function update() {
+        document.querySelectorAll('.watchguard-has-tab').forEach(e => { if (!e.querySelector('.watchguard-nav-tab')) e.classList.remove('watchguard-has-tab'); });
         const api = root.ApiClient, next = [api,api?.getCurrentUserId?.(),api?.accessToken?.()];
         if (next.some((v,i) => v !== identity[i])) { clear(); identity = next; }
         if (!next[1] || !next[2] || !/^#\/(?:home|details|movies|tv|list|search|music|livetv)(?:[/?]|$)/.test(root.location.hash)) { clear(); return; }

@@ -142,7 +142,7 @@ def main():
             assert 'EnableServerEnforcement' not in configuration
             configuration['ProtectCaughtUpSeries']=False
             call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/Configuration','POST',configuration,expected=204)
-            public=root/'catalog';public.mkdir();archive_path=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.11.zip'
+            public=root/'catalog';public.mkdir();archive_path=ROOT/'artifacts/Jellyfin.Plugin.WatchGuard-v0.7.12.zip'
             digest=archive_path.with_suffix('.zip.sha256').read_text().split()[0]
             assert hashlib.sha256(archive_path.read_bytes()).hexdigest()==digest
             report['candidateZipSha256']=digest
@@ -154,13 +154,13 @@ def main():
             thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
             catalog_url='http://host.docker.internal:'+str(server.server_port)
             guid='a3c6bc84-783d-4ba8-a0db-89bfb83ab486'
-            manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable qualification','category':'General','description':'Local candidate','overview':'Fixture','versions':[{'version':'0.7.11.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive_path.read_bytes()).hexdigest(),'sourceUrl':catalog_url+'/'+archive_path.name,'timestamp':'2026-10-16T00:00:00Z','changelog':'Unpublished local fixture'}]}]
+            manifest=[{'guid':guid,'name':'WatchGuard','owner':'Disposable qualification','category':'General','description':'Local candidate','overview':'Fixture','versions':[{'version':'0.7.12.0','targetAbi':'12.2.0.0','checksum':hashlib.md5(archive_path.read_bytes()).hexdigest(),'sourceUrl':catalog_url+'/'+archive_path.name,'timestamp':'2026-10-16T00:00:00Z','changelog':'Unpublished local fixture'}]}]
             (public/'manifest.json').write_text(json.dumps(manifest))
             try:
                 call('/Repositories','POST',[{'Name':'Disposable candidate','Url':catalog_url+'/manifest.json','Enabled':True}],expected=204)
                 from urllib.parse import urlencode
-                call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':guid,'version':'0.7.11.0','repositoryUrl':catalog_url+'/manifest.json'}),'POST',expected=204)
-                docker('stop',name);shutil.move(str(guard),str(root/'retired-v048'));guard=plugins/'WatchGuard_0.7.11.0'
+                call('/Packages/Installed/WatchGuard?'+urlencode({'assemblyGuid':guid,'version':'0.7.12.0','repositoryUrl':catalog_url+'/manifest.json'}),'POST',expected=204)
+                docker('stop',name);shutil.move(str(guard),str(root/'retired-v048'));guard=plugins/'WatchGuard_0.7.12.0'
                 assert (guard/'meta.json').exists()
                 assert (guard/DLL.name).read_bytes()==DLL.read_bytes()
                 docker('start',name);ready()
