@@ -154,3 +154,43 @@ The original concurrency comparison serialized complete asset objects. Authentic
 The canonical comparison excludes counters and presentation fields, and normalizes asset order. All 28 publication/provenance tests pass, including new publication, partial uploads, catalog-only recovery and repeated execution. Negative tests retain rejection of changed identities, asset metadata, qualification markers and bytes. Public ZIP and sidecar corruption still prevent catalog writes, even when metadata stays unchanged.
 
 All 82 Python tests, eight catalog tests, release-note validation and whitespace checks pass. No live publication was used. The existing 39-suite compatibility evidence remains unchanged because this correction does not change the plugin package. Read-only inspection and the release-environment permission policy remain unchanged.
+
+### Publisher installation-token correction and v0.7.12 recovery
+
+[Publication run 41230106691, attempt 1, job 124622433564](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41230106691/job/124622433564) stopped before release writes. Its runner reported `Contents: write`. However, the repository response did not establish `permissions.push === true`. That user-permission field cannot reliably describe the approved job's installation token.
+
+The approved publisher now checks authority through `POST /repos/{owner}/{repo}/releases/generate-notes`. GitHub documents that this endpoint requires **Contents: write** and [does not save its generated notes](https://docs.github.com/en/rest/releases/releases#generate-release-notes-content-for-a-release). The check uses the default branch and a probe name, `watchguard-permission-check`. It creates no tag, draft, asset or catalog commit. The publisher discards the response content. Publication notes still come from the exact qualified commit.
+
+Only the writable publisher uses this check, behind the existing `release` environment approval. No workflow permissions or tokens change. Read-only inspection still uses available metadata and reports unknown draft state when it cannot establish visibility. A successful public release-list request alone never proves complete draft visibility.
+
+The probe retains the existing 60-second API timeout. Permission denial, API failure, timeout, missing branch metadata or an invalid response blocks publication. There is no fallback to assumed authority and no automatic retry. After a successful check, the publisher still enumerates all release pages and rejects ambiguous drafts. Exact provenance, asset bytes, hashes, tag targets and concurrent-change checks remain required.
+
+The regression fixture now inherits the real permission detector and release enumeration. Previously, its unconditional `True` hid this failure. Tests cover missing/false permission metadata, successful publication, partial uploads, catalog-only recovery and repeated execution. Negative cases cover API failures, malformed responses, later inventory-page failures and ambiguous drafts. Existing integrity and provenance assertions remain in place.
+
+Retain [qualification run 41227441169](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41227441169), **attempt 1**:
+
+- Source commit: `816872c29aa4c0edb38d11c1da9bad93b28471f9`.
+- Package artifact: `13052236910`.
+- Qualification record artifact: `13053283727`.
+- ZIP SHA-256: `e825e51bff1ff5b974ba558379cbfeb7e3f95d0fc688fdedf172c8fa4d24cccd`.
+- All 39 compatibility suites passed, with full proxy coverage on Jellyfin 12.2, 12.3 and 12.4.
+
+After this tooling fix reaches `master`, preview recovery:
+
+```sh
+gh workflow run publish.yaml --repo MajorSchloch/jellyfin-plugin-watchguard --ref master \
+  -f run_id=41227441169 -f attempt=1 -f validation_only=true
+```
+
+Review that result. When publication is authorized, request recovery and approve the existing `release` environment:
+
+```sh
+gh workflow run publish.yaml --repo MajorSchloch/jellyfin-plugin-watchguard --ref master \
+  -f run_id=41227441169 -f attempt=1 -f validation_only=false
+```
+
+Use a new publisher run, not a rerun of the failed job's old tooling. The publisher uses the retained qualified commit and package; the tooling-fix commit does not become the release target. This path requires no rebuild or compatibility matrix. It verifies existing assets, resumes only missing operations and stops on conflicts. If publication already completed, it verifies the release and catalog and performs no writes. Missing or expired qualification artifacts still block recovery.
+
+These commands are operator instructions, not actions performed by the fix. Keep the original failed run and its diagnostics. No live publication or release mutation is needed to test this tooling change. The approved job's live permission probe will execute during authorized recovery; local regression tests simulate its API responses.
+
+Validation for this correction: 37 targeted publication/provenance tests, 94 Python tests in total, eight catalog tests, 210 JavaScript tests and 376 backend tests passed. Release-note and package checks passed. The focused new-publication test fails with the original detector and passes with the correction. A read-only provenance check retrieved and verified both artifact IDs above and all 39 retained suite reports. Local packaging produced an identical ZIP and DLL (`847a754bfb55b4da6b8e25ed3957c6df21425aba0c399c1e1b3ca83f82704c61`). No new compatibility matrix ran. The local read-only check used existing operator credentials; its metadata established draft visibility. The workflow inspection token remains read-only, with unknown draft state covered by regression tests.
