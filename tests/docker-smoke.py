@@ -270,6 +270,7 @@ def main():
             elif options.startup:
                 subprocess.run(['node', str(ROOT/'tests/startup-browser.cjs'), str(fixture)], check=True, timeout=600)
             elif options.navigation:
+                subprocess.run(['node', str(ROOT/'tests/outgoing-browser.cjs'), str(fixture)], check=True, timeout=240)
                 subprocess.run(['node', str(ROOT/'tests/native-controls-browser.cjs'), str(fixture)], check=True, timeout=360)
                 subprocess.run(['node', str(ROOT/'tests/navigation-arrival-browser.cjs'), str(fixture)], check=True, timeout=360)
                 subprocess.run(['node', str(ROOT/'tests/navigation-shell-browser.cjs'), str(fixture)], check=True, timeout=240)

@@ -1,6 +1,6 @@
 # Jellyfin WatchGuard
 
-**Current release: [v0.7.11](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.11)** · Published target: **Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0 / .NET 10** · [Plugin catalog](manifest.json)
+**Current release: [v0.7.12](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.12)** · Published target: **Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0 / .NET 10** · [Plugin catalog](manifest.json)
 
 **Release validation:** [v0.7.11 native controls](docs/native-controls-v0711.md) and [catalog recovery](docs/catalog-recovery.md).
 

@@ -1,6 +1,8 @@
-# WatchGuard v0.7.12 preparation
+# WatchGuard v0.7.12 — older browsers and TV controls
 
-Unpublished compatibility patch. Do not publish until review and the release-environment approval are complete. The public catalog and published binaries remain unchanged.
+**Published 2026-10-31.** The public catalog lists v0.7.12. [Merged-source qualification run 41227441169](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41227441169), attempt 1, passed all 39 suites on `816872c29aa4c0edb38d11c1da9bad93b28471f9`. ZIP SHA-256: `e825e51bff1ff5b974ba558379cbfeb7e3f95d0fc688fdedf172c8fa4d24cccd`.
+
+The following preparation evidence remains a historical record.
 
 See [browser changes, validation and remaining physical-TV work](browser-compatibility.md). Publication copy is maintained separately in [release notes](releases/v0.7.12.md).
 

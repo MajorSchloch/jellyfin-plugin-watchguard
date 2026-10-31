@@ -1,0 +1,150 @@
+{
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "cases": [
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "type": "Series",
+      "blocked": 2,
+      "transition": {
+        "frames": 60,
+        "homeExposures": 53,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 712.1449999976903,
+            "panel": false,
+            "cover": false
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1584.2950000078417,
+            "panel": false,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1585.094999987632,
+            "panel": false,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1587.500000023283,
+            "panel": false,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1587.5600000144914,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 690.9100000048056,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 713.1800000206567,
+            "home": true,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 727.5399999925867,
+            "home": true,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 738.515000033658,
+            "home": true,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 754.9250000156462,
+            "home": true,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 772.0900000422262,
+            "home": true,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 788.475000008475,
+            "home": true,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 805.6100000394508,
+            "home": true,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 821.7400000430644,
+            "home": true,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 838.7400000356138,
+            "home": true,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1672.4050000193529,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1705.1750000100583,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1721.6500000213273,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": true,
+        "tag": "BUTTON"
+      }
+    }
+  ],
+  "result": "FAIL",
+  "physicalTV": false,
+  "runtimeSha256": "847a754bfb55b4da6b8e25ed3957c6df21425aba0c399c1e1b3ca83f82704c61",
+  "engine": "HeadlessChrome/79.0.3945.0",
+  "error": "Home is never exposed during card navigation\n\n53 !== 0\n",
+  "route": "#/details"
+}

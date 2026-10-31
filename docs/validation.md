@@ -1,6 +1,6 @@
 # Validation and release qualification
 
-**Current published version:** [WatchGuard v0.7.11](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.11) · Qualified Jellyfin Server/Web **12.2.0, 12.3.0 and 12.4.0**, .NET 10.
+**Current published version:** [WatchGuard v0.7.12](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.12) · Qualified Jellyfin Server/Web **12.2.0, 12.3.0 and 12.4.0**, .NET 10.
 
 The v0.7.11 publication run passed all 39 qualification suites. See the [release record](release-v0711.md) and [catalog recovery](catalog-recovery.md) for the verified package and subsequent manifest correction.
 
