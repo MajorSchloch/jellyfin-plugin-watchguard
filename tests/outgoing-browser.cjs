@@ -4,7 +4,7 @@ const fixture=JSON.parse(fs.readFileSync(process.argv[2]));
 assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyfin)?$/);
 const output=process.argv[3]||'artifacts/outgoing-browser';fs.mkdirSync(output,{recursive:true});
 const old=!!process.env.WATCHGUARD_CHROMIUM79, baseline=process.env.WATCHGUARD_HANDOFF_BASELINE==='1';
-const report={serverVersion:fixture.serverVersion,image:fixture.image,cases:[],result:'RUNNING',physicalTV:false};
+const report={serverVersion:fixture.serverVersion,image:fixture.image,cases:[],result:'RUNNING',physicalTV:false,errors:[]};
 report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync(process.env.WATCHGUARD_BASELINE_DLL||'artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll')).digest('hex');
 (async()=>{
  const browser=old?await require('./browser79/node_modules/puppeteer-core').launch({executablePath:process.env.WATCHGUARD_CHROMIUM79,headless:true}):await require('./browser/node_modules/playwright').chromium.launch({headless:true});
@@ -14,8 +14,10 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync(process.
  const frames=n=>page.evaluate(n=>new Promise(resolve=>{let count=0;const next=()=>++count===n?resolve():requestAnimationFrame(next);next();}),n);
  const unhold=()=>{heldId=null;release.splice(0).forEach(resolve=>resolve());};
  async function setup(layout,width) {
-  const context=old?await browser.createIncognitoBrowserContext():await browser.newContext({viewport:{width,height:900},hasTouch:width===390,ignoreHTTPSErrors:fixture.tls===true});
+  const context=old?await browser.createIncognitoBrowserContext():await browser.newContext({viewport:{width,height:900},hasTouch:width===390,locale:'en-US',ignoreHTTPSErrors:fixture.tls===true});
   page=await context.newPage();if(old)await page.setViewport({width,height:900,hasTouch:width===390});
+  page.on('pageerror',error=>report.errors.push({kind:'script',layout,message:String(error.stack||error.message).replace(/https?:\/\/[^\s]+/g,'[URL]').replace(/[A-Za-z0-9_-]{32,}/g,'[IDENTIFIER]')}));
+  page.on('requestfailed',request=>report.errors.push({path:new URL(request.url()).pathname,error:request.failure().errorText}));
   page.setDefaultTimeout(20000);
   const init=()=>{
    const active=new Set(),add=document.addEventListener.bind(document),remove=document.removeEventListener.bind(document);
@@ -73,21 +75,23 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync(process.
    const items=['Series','Movie'].map(type=>all.find(i=>i.Type===type));assert(items.every(Boolean));
    for(const item of items){
     if(baseline&&report.cases.length)break;
-    await watchlists(items);await observe();blocked=0;heldId=item.Id;failure=false;
+    await watchlists(items);await observe();blocked=0;heldId=item.Id;failure=false;const errorStart=report.errors.length;
     await activate(item,input);await frames(35);
     assert(blocked>0,'The test held native destination work');
-    const row={layout,width,input,type:item.Type,blocked};report.cases.push(row);
+    const row={layout,width,input,type:item.Type,blocked,language:await page.evaluate(()=>navigator.language)};report.cases.push(row);
     await page.screenshot({path:path.join(output,layout+'-'+item.Type+'-loading.png')});
     if(!baseline){
      assert(await page.evaluate(()=>!!document.querySelector('.watchguard-outgoing')&&!document.querySelector('.watchguard-page')&&wgOutsideCount()===0),'Watchlists teardown is prompt; only neutral loading remains');
-     await page.evaluate(()=>document.dispatchEvent(new CustomEvent('viewshow',{detail:{params:{id:'unrelated',serverId:'other'}}})));
-     assert(await page.evaluate(()=>!!document.querySelector('.watchguard-outgoing')),'An unrelated lifecycle event cannot release the cover');
+     // Malformed/unrelated lifecycle events are tested on the isolated handoff
+     // in web.test.cjs. Emitting a fabricated viewshow into Jellyfin also invokes
+     // its native controllers, which require their real view/options contract.
     }
     unhold();await ready(item);await frames(3);
     row.transition=await page.evaluate(()=>wgStopOutgoing());
     row.focus=await page.evaluate(()=>({inDetail:!!document.activeElement.closest('#itemDetailPage'),tag:document.activeElement.tagName}));
     await page.screenshot({path:path.join(output,layout+'-'+item.Type+'-detail.png')});
     assert.equal(row.transition.homeExposures,0,'Home is never exposed during card navigation');
+    assert.deepEqual(report.errors.slice(errorStart).filter(e=>e.kind==='script'),[],'Card navigation must not cause a script error');
     if(input==='remote')assert(row.focus.inDetail,'Remote focus transfers to native detail controls');
     await observe();await page.goBack();await wait(()=>!!document.querySelector('.watchguard-page'));
     await frames(3);row.back=await page.evaluate(()=>wgStopOutgoing());assert.equal(row.back.homeExposures,0);
@@ -133,6 +137,6 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync(process.
    await context.close();
   }
   report.result='PASS';
- }catch(error){report.result='FAIL';report.error=error.message;if(page&&!page.isClosed()){report.route=new URL(page.url()).hash.split('?')[0];await page.screenshot({path:path.join(output,'failure.png')});}throw error;}
+ }catch(error){report.result='FAIL';report.error=error.message;if(page&&!page.isClosed()){report.route=new URL(page.url()).hash.split('?')[0];report.failedTransition=await page.evaluate(()=>window.wgStopOutgoing&&wgStopOutgoing());await page.screenshot({path:path.join(output,'failure.png')});}throw error;}
  finally{unhold();fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2)+'\n');await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

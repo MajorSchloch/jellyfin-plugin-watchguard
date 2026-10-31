@@ -34,7 +34,7 @@ A navigation sequence has one 15-second cleanup deadline. Retargeting does not e
 
 `tests/outgoing-browser.cjs` runs against a disposable server and actual packaged scripts. It uses Puppeteer 2 with a real Chromium 79 binary when `WATCHGUARD_CHROMIUM79` is set; otherwise it uses the pinned Playwright browser. It is part of the existing base-path navigation qualification scenario on Jellyfin 12.2, 12.3 and 12.4. Existing startup and navigation suites remain required.
 
-The cases cover TV, Desktop Legacy, Mobile Legacy, Modern and Auto; movie and series cards; remote OK, mouse and touch; held destination requests; unrelated lifecycle events; Back/Forward; cancelled navigation followed by another selection; failure cleanup; authenticated account switching and logout. Tests assert prompt Watchlists teardown, no Home frames, matching native detail readiness and TV destination focus.
+The cases cover TV, Desktop Legacy, Mobile Legacy, Modern and Auto; movie and series cards; remote OK, mouse and touch; held destination requests; Back/Forward; cancelled navigation followed by another selection; failure cleanup; authenticated account switching and logout. Tests assert prompt Watchlists teardown, no Home frames, matching native detail readiness and TV destination focus.
 
 Unit tests independently reject mismatched lifecycle/item/server/account state, hidden or detached destinations and extended deadlines. They check listener/observer cleanup, failure recovery and preservation of header focus.
 
@@ -55,3 +55,13 @@ The deadline cannot repair a native destination failure. It provides a visible r
 The final local package contains the corrected runtime but retains version 0.7.12 pending the candidate-version decision. ZIP SHA-256: `6808ae967ac25f945fde70c2e16c959616b6ed3f69be0afaf6d5fc8295a7afaa`. DLL SHA-256: `f08da50ba8b578ce28c33f3c6e81de57644cd06a3d26a201c7378426b3a902cd`. These are development artifacts, not replacements for the published v0.7.12 assets.
 
 The retained incoming-startup suite passed 48 transition cases and 14 recovery cases. The existing navigation suite passed 72 control-transition cases. Fast checks passed 214 JavaScript tests, 94 Python tests, eight catalog tests and 376 backend tests. The initial fast run exposed stale current-release labels on master after v0.7.12 publication; those labels now match the existing catalog. No catalog entry changed.
+
+## First CI attempt and fixture correction
+
+[Run 41239515881, attempt 1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41239515881) tested commit `aeb86547668d85bc9254c7b2e2f62a48cb7bc819`. Its CI package artifact `13057155527` matched the local ZIP and DLL hashes above. All integration jobs except the three navigation jobs passed; the complete evidence gate did not run. This attempt is not a successful qualification.
+
+The first native card transition timed out on each version. A local reproduction in the pinned Linux browser image found its default language was `en-US@posix`. Jellyfin's native `Number.toLocaleString` rejected that language tag during control construction, before the detail lifecycle. The new test now selects `en-US`, as the existing native suites do. [The original Linux reproduction](evidence/outgoing-handoff/linux-fixture-failure.json) retains the error and lifecycle evidence.
+
+The added diagnostics also found that a fabricated `viewshow` event invoked Jellyfin controllers without their required view/options data. The browser suite now uses only actual native lifecycle events. Isolated unit tests retain the malformed and unrelated event rejection assertions. The browser test records script/request errors and failed-transition frames, and rejects script errors during normal card navigation. Neither correction changes runtime code, package bytes, timeouts or the strict Home/focus assertions.
+
+After the fixture correction, the pinned Linux Chromium 141 browser and real Chromium 79 each passed all ten cases on Jellyfin 12.3 with the base path. Every normal departure, Back and Forward sample had zero Home exposures. The Linux browser used `en-US`; normal card transitions had no script errors. The intentional HTTP 503 case still exercised the native chunk-load failure and bounded recovery.

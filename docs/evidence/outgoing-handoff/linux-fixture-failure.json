@@ -1,0 +1,168 @@
+{
+  "result": "FAIL",
+  "engine": "141.0.7390.37",
+  "serverVersion": "12.3.0",
+  "runtimeSha256": "f08da50ba8b578ce28c33f3c6e81de57644cd06a3d26a201c7378426b3a902cd",
+  "error": "page.waitForFunction: Timeout 20000ms exceeded.",
+  "scriptErrors": [
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Number.toLocaleString (<anonymous>)\n    at a ([URL]\n    at i.setProgress ([URL]\n    at i.createdCallback ([URL]\n    at c.createdCallback ([URL]\n    at [URL]\n    at n ([URL]\n    at window.CustomElements.addModule.e.upgrade ([URL]\n    at i ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Number.toLocaleString (<anonymous>)\n    at a ([URL]\n    at i.setProgress ([URL]\n    at i.createdCallback ([URL]\n    at c.createdCallback ([URL]\n    at [URL]\n    at n ([URL]\n    at window.CustomElements.addModule.e.upgrade ([URL]\n    at i ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Number.toLocaleString (<anonymous>)\n    at a ([URL]\n    at i.setProgress ([URL]\n    at i.createdCallback ([URL]\n    at c.createdCallback ([URL]\n    at [URL]\n    at n ([URL]\n    at window.CustomElements.addModule.e.upgrade ([URL]\n    at i ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Number.toLocaleString (<anonymous>)\n    at a ([URL]\n    at i.setProgress ([URL]\n    at i.createdCallback ([URL]\n    at c.createdCallback ([URL]\n    at [URL]\n    at n ([URL]\n    at window.CustomElements.addModule.e.upgrade ([URL]\n    at i ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "TypeError: Cannot read properties of undefined (reading 'contains')\n    at HTMLDocument.<anonymous> ([URL]\n    at eval (eval at evaluate (:290:30), <anonymous>:1:14)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "TypeError: Cannot read properties of undefined (reading '_sdk')\n    at t.value ([URL]\n    at [URL]\n    at Generator.<anonymous> ([URL]\n    at Generator.next ([URL]\n    at Q ([URL]\n    at a ([URL]\n    at [URL]\n    at new Promise (<anonymous>)\n    at Z ([URL]\n    at Z ([URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Number.toLocaleString (<anonymous>)\n    at a ([URL]\n    at i.setProgress ([URL]\n    at i.createdCallback ([URL]\n    at c.createdCallback ([URL]\n    at [URL]\n    at n ([URL]\n    at window.CustomElements.addModule.e.upgrade ([URL]\n    at i ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "RangeError: Invalid language tag: en-us@posix\n    at Date.toLocaleTimeString (<anonymous>)\n    at s ([URL]\n    at Object.getDisplayTime ([URL]\n    at [URL]"
+    }
+  ],
+  "events": [
+    {
+      "name": "hashchange",
+      "route": "#/details",
+      "at": 1237.8000000000466,
+      "panel": false,
+      "cover": true
+    },
+    {
+      "name": "viewshow",
+      "route": "#/details",
+      "item": "unrelated",
+      "at": 1884.5,
+      "panel": false,
+      "cover": true
+    }
+  ],
+  "ciRun": 41239515881,
+  "explanation": "Local reproduction in the pinned Linux browser image. Its default language en-US@posix causes native Number.toLocaleString to throw before the detail view lifecycle."
+}

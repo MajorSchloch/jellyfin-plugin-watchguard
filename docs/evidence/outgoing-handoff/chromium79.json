@@ -1,603 +1,11 @@
 {
-  "serverVersion": "12.4.0",
-  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "serverVersion": "12.3.0",
+  "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
   "cases": [
     {
       "layout": "tv",
       "width": 1280,
       "input": "remote",
-      "type": "Series",
-      "blocked": 2,
-      "transition": {
-        "frames": 63,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 891.4499999955297,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "unrelated",
-            "at": 1775.5099999485537,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforehide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 1791.849999979604,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 1792.4349999520928,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewhide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 1794.7449999628589,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 1794.7949999943376,
-            "panel": false,
-            "cover": true
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 863.1149999564514,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 892.6050000009127,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 903.7399999797344,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 907.474999956321,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 922.614999988582,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 1922.2049999516457,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1939.8999999975786,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1958.3199999760836,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      },
-      "focus": {
-        "inDetail": true,
-        "tag": "BUTTON"
-      },
-      "back": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforehide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 2299.9999999883585,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 2300.3849999513477,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewhide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 2303.55499999132,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 2304.879999952391,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "hashchange",
-            "route": "#/home",
-            "at": 2306.429999996908,
-            "panel": true,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 2283.6200000019744,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2306.9499999983236,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2324.559999979101,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2341.0999999614432,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2306.9499999983236,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2324.559999979101,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2341.0999999614432,
-            "home": false,
-            "cover": false,
-            "panel": true
-          }
-        ]
-      },
-      "forward": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforehide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 2353.434999997262,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 2353.5849999752827,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewhide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 2356.809999968391,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 2357.689999975264,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 2362.269999983255,
-            "panel": false,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 2342.290000000503,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2363.729999982752,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2372.0650000032037,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2390.484999981709,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2363.729999982752,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2372.0650000032037,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2390.484999981709,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      }
-    },
-    {
-      "layout": "tv",
-      "width": 1280,
-      "input": "remote",
-      "type": "Movie",
-      "blocked": 4,
-      "transition": {
-        "frames": 58,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 2541.5349999675527,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforehide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 2545.6799999810755,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 2545.944999961648,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewhide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 2547.8199999779463,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 2547.8849999490194,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "unrelated",
-            "at": 3371.8149999622256,
-            "panel": false,
-            "cover": true
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 2525.9749999968335,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2542.569999990519,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 2556.6799999796785,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 2574.839999957476,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 2589.879999984987,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 3462.564999994356,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3476.4999999897555,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3490.644999954384,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      },
-      "focus": {
-        "inDetail": true,
-        "tag": "BUTTON"
-      },
-      "back": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforehide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 3774.3550000013784,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 3774.524999957066,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewhide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 3776.984999945853,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 3778.2049999805167,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "hashchange",
-            "route": "#/home",
-            "at": 3779.5099999639206,
-            "panel": true,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 3764.934999984689,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3780.294999945909,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3788.914999982808,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3807.199999981094,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3780.294999945909,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3788.914999982808,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3807.199999981094,
-            "home": false,
-            "cover": false,
-            "panel": true
-          }
-        ]
-      },
-      "forward": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforehide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 3816.7499999981374,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 3816.869999980554,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewhide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 3819.019999995362,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 3819.569999992382,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 3823.1599999708124,
-            "panel": false,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 3808.3049999549985,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3824.559999979101,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3840.509999950882,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3857.785000000149,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3824.559999979101,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3840.509999950882,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3857.785000000149,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      }
-    },
-    {
-      "layout": "desktop-legacy",
-      "width": 1280,
-      "input": "mouse",
       "type": "Series",
       "blocked": 2,
       "transition": {
@@ -607,15 +15,7 @@
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 641.509999986738,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "unrelated",
-            "at": 1517.8849999792874,
+            "at": 628.2950000022538,
             "panel": false,
             "cover": true
           },
@@ -623,7 +23,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 1537.549999949988,
+            "at": 1510.5750000220723,
             "panel": false,
             "cover": true
           },
@@ -632,7 +32,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1538.2299999473616,
+            "at": 1511.240000021644,
             "panel": false,
             "cover": true
           },
@@ -640,7 +40,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 1542.2899999539368,
+            "at": 1513.7850000173785,
             "panel": false,
             "cover": true
           },
@@ -649,58 +49,526 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1542.3749999608845,
+            "at": 1513.8499999884516,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 604.605000000447,
+            "at": 605.9050000039861,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 617.6999999443069,
+            "at": 629.8250000108965,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 643.804999999702,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 652.6799999992363,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 669.690000009723,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 686.4649999770336,
+            "home": false,
+            "cover": true,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": true,
+        "tag": "BUTTON"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1919.705000007525,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1920.2349999686703,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1923.86500001885,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1925.0999999931082,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 1926.5949999680743,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 1902.6600000215694,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1927.1699999808334,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 644.2649999517016,
+            "at": 1934.6999999834225,
             "home": false,
-            "cover": true,
-            "panel": false
+            "cover": false,
+            "panel": true
           },
           {
-            "at": 659.0749999741092,
+            "at": 1953.174999973271,
             "home": false,
-            "cover": true,
-            "panel": false
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1966.6399999987334,
+            "panel": false,
+            "cover": true
           },
           {
-            "at": 668.9499999629334,
-            "home": false,
-            "cover": true,
-            "panel": false
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1966.8800000217743,
+            "panel": false,
+            "cover": true
           },
           {
-            "at": 1601.909999968484,
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1971.7299999902025,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1972.53999998793,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1977.0949999801815,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 1954.894999973476,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1978.5649999976158,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 1626.4349999837577,
+            "at": 2003.6400000099093,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 1638.2699999958277,
+            "at": 2020.5100000021048,
             "home": false,
             "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "type": "Movie",
+      "blocked": 4,
+      "transition": {
+        "frames": 58,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 2136.240000021644,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2140.2999999700114,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2140.5399999930523,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2143.1699999957345,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2143.244999984745,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 2120.829999970738,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2137.219999975059,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2151.160000008531,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2170.2349999686703,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2184.8100000061095,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2202.679999987595,
+            "home": false,
+            "cover": true,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": true,
+        "tag": "BUTTON"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 3419.6999999694526,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 3419.850000005681,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 3421.9799999846146,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 3423.1000000145286,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 3424.3249999708496,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 3411.2399999867193,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 3425.1299999887124,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 3434.804999968037,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 3453.139999997802,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 3462.935000017751,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 3463.0550000001676,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 3465.429999982007,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 3466.004999994766,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 3469.6700000204146,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 3454.429999983404,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 3470.6899999873713,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 3485.3100000182167,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 3501.2949999654666,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Series",
+      "blocked": 2,
+      "transition": {
+        "frames": 63,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 706.9000000483356,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1610.8850000309758,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1611.6800000309013,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1614.7850000415929,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1614.8550000507385,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 664.5400000270456,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 677.2350000101142,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 709.3000000459142,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 724.8600000166334,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 729.1950000217184,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 742.5999999977648,
+            "home": false,
+            "cover": true,
             "panel": false
           }
         ]
@@ -717,7 +585,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 1955.7649999624118,
+            "at": 2039.3350000376813,
             "panel": true,
             "cover": false
           },
@@ -725,7 +593,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 1956.5899999579415,
+            "at": 2039.7000000230037,
             "panel": true,
             "cover": false
           },
@@ -733,7 +601,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 1964.8049999959767,
+            "at": 2044.8250000481494,
             "panel": true,
             "cover": false
           },
@@ -741,57 +609,39 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 1966.9149999972433,
+            "at": 2046.4999999967404,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 1969.0599999739788,
+            "at": 2049.5150000206195,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 1938.094999990426,
+            "at": 2025.5350000225008,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 1970.5949999624863,
+            "at": 2048.3550000353716,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 1985.2649999666028,
+            "at": 2060.0300000514835,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2002.3699999437667,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1970.5949999624863,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1985.2649999666028,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2002.3699999437667,
+            "at": 2076.055000012275,
             "home": false,
             "cover": false,
             "panel": true
@@ -806,7 +656,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2021.9149999902584,
+            "at": 2091.2050000042655,
             "panel": false,
             "cover": true
           },
@@ -815,7 +665,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2022.2099999664351,
+            "at": 2091.3650000002235,
             "panel": false,
             "cover": true
           },
@@ -823,7 +673,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2029.9549999763258,
+            "at": 2096.440000052098,
             "panel": false,
             "cover": true
           },
@@ -832,57 +682,39 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2031.444999971427,
+            "at": 2097.215000016149,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2038.4199999971315,
+            "at": 2101.7350000329316,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2004.1999999666587,
+            "at": 2077.3300000000745,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2040.6549999606796,
+            "at": 2103.8100000005215,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2053.37999999756,
+            "at": 2128.0100000440143,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2070.449999999255,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2040.6549999606796,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2053.37999999756,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2070.449999999255,
+            "at": 2144.6800000267103,
             "home": false,
             "cover": false,
             "panel": false
@@ -897,13 +729,13 @@
       "type": "Movie",
       "blocked": 4,
       "transition": {
-        "frames": 58,
+        "frames": 57,
         "homeExposures": 0,
         "events": [
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2222.6949999458157,
+            "at": 2277.855000051204,
             "panel": false,
             "cover": true
           },
@@ -911,7 +743,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2227.67999995267,
+            "at": 2282.325000036508,
             "panel": false,
             "cover": true
           },
@@ -920,7 +752,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2228.244999947492,
+            "at": 2282.625000050757,
             "panel": false,
             "cover": true
           },
@@ -928,7 +760,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 2230.829999956768,
+            "at": 2284.715000016149,
             "panel": false,
             "cover": true
           },
@@ -937,66 +769,46 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2230.9049999457784,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "unrelated",
-            "at": 3116.5849999524653,
+            "at": 2284.78000004543,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2188.5349999647588,
+            "at": 2244.7850000462495,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2202.13499997044,
+            "at": 2259.0300000156276,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2224.6549999690615,
+            "at": 2279.6800000360236,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2253.504999971483,
+            "at": 2293.7450000317767,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2268.0799999507144,
+            "at": 2311.015000042971,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 3197.214999992866,
+            "at": 2325.5400000489317,
             "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3220.5599999870174,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3236.6599999950267,
-            "home": false,
-            "cover": false,
+            "cover": true,
             "panel": false
           }
         ]
@@ -1006,14 +818,14 @@
         "tag": "BODY"
       },
       "back": {
-        "frames": 5,
+        "frames": 4,
         "homeExposures": 0,
         "events": [
           {
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3518.7549999682233,
+            "at": 3465.1100000482984,
             "panel": true,
             "cover": false
           },
@@ -1021,7 +833,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3518.9899999531917,
+            "at": 3465.30999999959,
             "panel": true,
             "cover": false
           },
@@ -1029,7 +841,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3523.2499999692664,
+            "at": 3469.680000038352,
             "panel": true,
             "cover": false
           },
@@ -1037,63 +849,39 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3524.634999979753,
+            "at": 3471.2250000447966,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 3525.954999960959,
+            "at": 3472.6900000241585,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3510.454999981448,
+            "at": 3457.1450000512414,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3511.1399999586865,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3527.029999997467,
+            "at": 3473.295000032522,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3533.94999995362,
+            "at": 3492.735000036191,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3552.529999986291,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3527.029999997467,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3533.94999995362,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3552.529999986291,
+            "at": 3509.39500000095,
             "home": false,
             "cover": false,
             "panel": true
@@ -1108,7 +896,7 @@
             "name": "viewbeforehide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 3566.8949999962933,
+            "at": 3526.4550000429153,
             "panel": false,
             "cover": true
           },
@@ -1117,7 +905,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3567.0999999856576,
+            "at": 3526.685000048019,
             "panel": false,
             "cover": true
           },
@@ -1125,7 +913,7 @@
             "name": "viewhide",
             "route": "#/details",
             "target": "indexPage",
-            "at": 3570.374999952037,
+            "at": 3531.3200000091456,
             "panel": false,
             "cover": true
           },
@@ -1134,57 +922,39 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3570.954999944661,
+            "at": 3532.095000031404,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 3575.1649999874644,
+            "at": 3536.9350000401028,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3554.294999979902,
+            "at": 3511.5800000494346,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3576.619999948889,
+            "at": 3538.440000033006,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3587.2149999486282,
+            "at": 3559.265000047162,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3602.789999975357,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3576.619999948889,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3587.2149999486282,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3602.789999975357,
+            "at": 3578.810000035446,
             "home": false,
             "cover": false,
             "panel": false
@@ -1196,598 +966,6 @@
       "layout": "mobile-legacy",
       "width": 390,
       "input": "touch",
-      "type": "Series",
-      "blocked": 2,
-      "transition": {
-        "frames": 62,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 682.8550000209361,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "unrelated",
-            "at": 1533.675000013318,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforehide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 1554.5750000164844,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 1555.4350000456907,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewhide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 1559.0749999973923,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 1559.140000026673,
-            "panel": false,
-            "cover": true
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 607.2100000455976,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 621.1350000230595,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 638.1249999976717,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 654.5650000334717,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 680.8249999885447,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 1635.4000000283122,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1674.6750000165775,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1688.930000003893,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      },
-      "focus": {
-        "inDetail": false,
-        "tag": "BODY"
-      },
-      "back": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforehide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 1940.3650000458583,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 1940.7399999909103,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewhide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 1945.4050000058487,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 1945.464999997057,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "hashchange",
-            "route": "#/home",
-            "at": 1948.2650000136346,
-            "panel": true,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 1925.6700000260025,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1949.0649999934249,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1952.8850000351667,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1971.9400000176392,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1949.0649999934249,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1952.8850000351667,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1971.9400000176392,
-            "home": false,
-            "cover": false,
-            "panel": true
-          }
-        ]
-      },
-      "forward": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforehide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 1986.330000043381,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 1986.5200000349432,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewhide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 1990.7850000308827,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 1990.9399999887682,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 1995.195000024978,
-            "panel": false,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 1973.3450000057928,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 1996.8100000405684,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2002.3999999975786,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2022.4250000319444,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1996.8100000405684,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2002.3999999975786,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2022.4250000319444,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      }
-    },
-    {
-      "layout": "mobile-legacy",
-      "width": 390,
-      "input": "touch",
-      "type": "Movie",
-      "blocked": 4,
-      "transition": {
-        "frames": 59,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 2191.835000005085,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforehide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 2193.6299999943003,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 2193.9199999906123,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewhide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 2196.125000016764,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 2196.1950000259094,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "unrelated",
-            "at": 3047.705000033602,
-            "panel": false,
-            "cover": true
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 2123.840000014752,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2137.6750000054017,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2153.1700000050478,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2170.6750000012107,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2189.4350000075065,
-            "home": false,
-            "cover": true,
-            "panel": false
-          },
-          {
-            "at": 3125.5000000237487,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3136.515000020154,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3154.240000003483,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      },
-      "focus": {
-        "inDetail": false,
-        "tag": "BODY"
-      },
-      "back": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforehide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 3404.6800000360236,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 3404.8300000140443,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewhide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 3408.694999990985,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 3408.7500000023283,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "hashchange",
-            "route": "#/home",
-            "at": 3411.450000014156,
-            "panel": true,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 3396.2000000174157,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3412.2150000184774,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3420.010000001639,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3437.8600000054576,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3412.2150000184774,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3420.010000001639,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3437.8600000054576,
-            "home": false,
-            "cover": false,
-            "panel": true
-          }
-        ]
-      },
-      "forward": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforehide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 3449.040000035893,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 3449.2000000318512,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewhide",
-            "route": "#/details",
-            "target": "indexPage",
-            "at": 3451.920000021346,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 3451.9800000125542,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 3455.74000000488,
-            "panel": false,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 3439.119999995455,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3457.585000025574,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3471.025000035297,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3486.7599999997765,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3457.585000025574,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3471.025000035297,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3486.7599999997765,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      }
-    },
-    {
-      "layout": "modern",
-      "width": 1280,
-      "input": "mouse",
       "type": "Series",
       "blocked": 2,
       "transition": {
@@ -1797,15 +975,15 @@
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 757.735000050161,
+            "at": 641.7899999651127,
             "panel": false,
             "cover": true
           },
           {
-            "name": "viewshow",
+            "name": "viewbeforehide",
             "route": "#/details",
-            "item": "unrelated",
-            "at": 1639.72500001546,
+            "target": "indexPage",
+            "at": 1499.6549999923445,
             "panel": false,
             "cover": true
           },
@@ -1814,7 +992,15 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1655.5650000227615,
+            "at": 1500.324999971781,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1502.5550000136718,
             "panel": false,
             "cover": true
           },
@@ -1823,58 +1009,292 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1656.7050000303425,
+            "at": 1502.6099999668077,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 697.0699999947101,
+            "at": 564.2200000002049,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 711.890000035055,
+            "at": 579.0949999936856,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 758.6800000281073,
+            "at": 596.2999999755993,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 612.7299999934621,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 639.8150000022724,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 761.3250000285916,
+            "at": 651.209999981802,
+            "home": false,
+            "cover": true,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 5,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1883.0699999816716,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1883.4250000072643,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1888.0149999749847,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1888.074999966193,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 1890.7899999758229,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 1869.1049999906681,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1869.524999987334,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1891.635000007227,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1913.4300000150688,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1929.5949999941513,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1943.1650000042282,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1943.3399999979883,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1947.4799999734387,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1947.539999964647,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1951.729999971576,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 1931.0699999914505,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1953.2749999780208,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1961.70499996515,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1980.8399999747053,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "type": "Movie",
+      "blocked": 4,
+      "transition": {
+        "frames": 57,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 2161.6849999991246,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2165.225000004284,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2165.500000002794,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2167.604999965988,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2167.680000013206,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 2096.8850000062957,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2112.574999977369,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2129.099999961909,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2145.294999994803,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2162.7199999638833,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 784.0100000030361,
+            "at": 2179.4750000117347,
             "home": false,
             "cover": true,
-            "panel": false
-          },
-          {
-            "at": 1732.2750000166707,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1750.4600000102073,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1763.2150000426918,
-            "home": false,
-            "cover": false,
             "panel": false
           }
         ]
@@ -1891,15 +1311,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 2072.5100000272505,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewhide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 2072.6900000008754,
+            "at": 3384.3500000075437,
             "panel": true,
             "cover": false
           },
@@ -1907,7 +1319,15 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2072.755000030156,
+            "at": 3384.5449999789707,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 3389.114999969024,
             "panel": true,
             "cover": false
           },
@@ -1915,57 +1335,269 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 2074.930000002496,
+            "at": 3389.18499997817,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 2079.830000002403,
+            "at": 3392.5099999760278,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2042.5600000307895,
+            "at": 3374.314999964554,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2081.1500000418164,
+            "at": 3393.96499999566,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2094.130000041332,
+            "at": 3411.9599999976344,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2112.615000049118,
+            "at": 3428.765000018757,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 3443.1449999683537,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 3443.3749999734573,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 3448.114999977406,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 3448.2049999642186,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 3453.3100000116974,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 3431.2299999874085,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2081.1500000418164,
+            "at": 3454.734999977518,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 3479.3099999660626,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 3495.9800000069663,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Series",
+      "blocked": 2,
+      "transition": {
+        "frames": 62,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 775.034999998752,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1659.8050000029616,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1661.6550000035204,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 718.7850000336766,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2094.130000041332,
+            "at": 731.2600000295788,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2112.615000049118,
+            "at": 775.8000000030734,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 777.2049999912269,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 786.1600000178441,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 800.8600000175647,
+            "home": false,
+            "cover": true,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 5,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2136.4949999842793,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2136.884999985341,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2136.990000028163,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2140.484999981709,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 2148.830000020098,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 2100.5800000275485,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2150.3350000130013,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2161.6200000280514,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2164.359999995213,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2181.5150000038557,
             "home": false,
             "cover": false,
             "panel": true
@@ -1981,7 +1613,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2157.4150000233203,
+            "at": 2215.3249999973923,
             "panel": false,
             "cover": true
           },
@@ -1990,63 +1622,45 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 2161.6200000280514,
+            "at": 2219.3850000039674,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2166.3700000499375,
+            "at": 2224.050000018906,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2114.0550000127405,
+            "at": 2182.970000023488,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2168.4750000131316,
+            "at": 2226.1600000201724,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2170.3400000114925,
+            "at": 2228.609999991022,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2195.8100000047125,
+            "at": 2230.924999981653,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 2213.4300000034273,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2170.3400000114925,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2195.8100000047125,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2213.4300000034273,
+            "at": 2248.940000019502,
             "home": false,
             "cover": false,
             "panel": false
@@ -2067,7 +1681,7 @@
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 2398.9650000003166,
+            "at": 2457.45500002522,
             "panel": false,
             "cover": true
           },
@@ -2076,7 +1690,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2401.705000025686,
+            "at": 2460.235000005923,
             "panel": false,
             "cover": true
           },
@@ -2085,66 +1699,46 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 2402.0350000355393,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "unrelated",
-            "at": 3282.230000011623,
+            "at": 2460.6299999868497,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 2346.900000004098,
+            "at": 2402.2799999802373,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2361.215000040829,
+            "at": 2416.5950000169687,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 2399.8800000408664,
+            "at": 2458.3650000276975,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2407.4900000123307,
+            "at": 2466.435000009369,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 2411.840000015218,
+            "at": 2467.9599999799393,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 3356.6400000127032,
+            "at": 2483.0349999829195,
             "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3397.5550000322983,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3412.3799999943003,
-            "home": false,
-            "cover": false,
+            "cover": true,
             "panel": false
           }
         ]
@@ -2161,7 +1755,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3720.4750000382774,
+            "at": 3754.175000009127,
             "panel": true,
             "cover": false
           },
@@ -2169,7 +1763,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3720.6500000320375,
+            "at": 3754.3450000230223,
             "panel": true,
             "cover": false
           },
@@ -2177,7 +1771,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3720.7150000031106,
+            "at": 3754.4050000142306,
             "panel": true,
             "cover": false
           },
@@ -2185,63 +1779,45 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3723.1400000164285,
+            "at": 3757.084999990184,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 3728.7900000228547,
+            "at": 3762.6499999896623,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3694.985000009183,
+            "at": 3728.189999994356,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3695.6350000109524,
+            "at": 3728.8750000298023,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3730.5449999985285,
+            "at": 3764.030000020284,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3745.8750000223517,
+            "at": 3781.665000016801,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3762.445000000298,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3730.5449999985285,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3745.8750000223517,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 3762.445000000298,
+            "at": 3799.0500000305474,
             "home": false,
             "cover": false,
             "panel": true
@@ -2257,7 +1833,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3791.9350000447594,
+            "at": 3830.119999998715,
             "panel": false,
             "cover": true
           },
@@ -2266,57 +1842,39 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3795.060000033118,
+            "at": 3833.2999999984168,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 3799.4000000180677,
+            "at": 3838.0749999778345,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3763.8500000466593,
+            "at": 3800.5400000256486,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3800.950000004377,
+            "at": 3839.604999986477,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3828.960000013467,
+            "at": 3847.300000023097,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3844.585000013467,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3800.950000004377,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3828.960000013467,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3844.585000013467,
+            "at": 3865.300000004936,
             "home": false,
             "cover": false,
             "panel": false
@@ -2331,21 +1889,13 @@
       "type": "Series",
       "blocked": 2,
       "transition": {
-        "frames": 63,
+        "frames": 61,
         "homeExposures": 0,
         "events": [
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 859.7799999988638,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "unrelated",
-            "at": 1694.4500000099652,
+            "at": 840.1650000014342,
             "panel": false,
             "cover": true
           },
@@ -2354,7 +1904,7 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1714.7150000091642,
+            "at": 1680.6700000306591,
             "panel": false,
             "cover": true
           },
@@ -2363,322 +1913,46 @@
             "route": "#/details",
             "item": "16113371c48eb37108bd832a31e4fa16",
             "target": "itemDetailPage",
-            "at": 1716.2150000222027,
+            "at": 1682.0500000030734,
             "panel": false,
             "cover": true
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 756.7000000271946,
+            "at": 738.5300000314601,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 767.6499999943189,
+            "at": 750.850000011269,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 784.8649999941699,
+            "at": 766.07499999227,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 800.7799999904819,
+            "at": 783.8200000114739,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 858.0200000433251,
+            "at": 838.2550000096671,
             "home": false,
             "cover": true,
             "panel": false
           },
           {
-            "at": 1794.5550000295043,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1821.4349999907427,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 1833.9949999935925,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      },
-      "focus": {
-        "inDetail": false,
-        "tag": "BODY"
-      },
-      "back": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforehide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 2140.4900000197813,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewhide",
-            "route": "#/home",
-            "target": "itemDetailPage",
-            "at": 2140.7450000406243,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 2140.8299999893643,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "viewshow",
-            "route": "#/home",
-            "target": "indexPage",
-            "at": 2143.51500000339,
-            "panel": true,
-            "cover": false
-          },
-          {
-            "name": "hashchange",
-            "route": "#/home",
-            "at": 2149.4299999903888,
-            "panel": true,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 2094.7700000251643,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2150.450000015553,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2167.7849999978207,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2184.2250000336207,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2150.450000015553,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2167.7849999978207,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2184.2250000336207,
-            "home": false,
-            "cover": false,
-            "panel": true
-          }
-        ]
-      },
-      "forward": {
-        "frames": 4,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 2219.8949999874458,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "16113371c48eb37108bd832a31e4fa16",
-            "target": "itemDetailPage",
-            "at": 2224.050000018906,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 2228.3649999881163,
-            "panel": false,
-            "cover": false
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 2185.475000005681,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2230.265000020154,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2253.1200000084937,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2268.2999999960884,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2230.265000020154,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2253.1200000084937,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 2268.2999999960884,
-            "home": false,
-            "cover": false,
-            "panel": false
-          }
-        ]
-      }
-    },
-    {
-      "layout": "auto",
-      "width": 390,
-      "input": "touch",
-      "type": "Movie",
-      "blocked": 4,
-      "transition": {
-        "frames": 58,
-        "homeExposures": 0,
-        "events": [
-          {
-            "name": "hashchange",
-            "route": "#/details",
-            "at": 2487.120000005234,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewbeforeshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 2487.795000022743,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "0861d0d4e102153477520464665669c1",
-            "target": "itemDetailPage",
-            "at": 2488.1049999967217,
-            "panel": false,
-            "cover": true
-          },
-          {
-            "name": "viewshow",
-            "route": "#/details",
-            "item": "unrelated",
-            "at": 3347.600000037346,
-            "panel": false,
-            "cover": true
-          }
-        ],
-        "sampleExcerpt": [
-          {
-            "at": 2403.3000000054017,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2417.4650000059046,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2434.43500000285,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2451.085000007879,
-            "home": false,
-            "cover": false,
-            "panel": true
-          },
-          {
-            "at": 2485.660000005737,
+            "at": 839.2849999945611,
             "home": false,
             "cover": true,
-            "panel": false
-          },
-          {
-            "at": 3435.189999989234,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3469.790000002831,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3484.9300000350922,
-            "home": false,
-            "cover": false,
             "panel": false
           }
         ]
@@ -2695,7 +1969,7 @@
             "name": "viewbeforehide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3752.299999992829,
+            "at": 2091.3799999980256,
             "panel": true,
             "cover": false
           },
@@ -2703,7 +1977,7 @@
             "name": "viewhide",
             "route": "#/home",
             "target": "itemDetailPage",
-            "at": 3752.550000033807,
+            "at": 2091.6000000433996,
             "panel": true,
             "cover": false
           },
@@ -2711,7 +1985,7 @@
             "name": "viewbeforeshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3752.61500000488,
+            "at": 2091.67500003241,
             "panel": true,
             "cover": false
           },
@@ -2719,63 +1993,259 @@
             "name": "viewshow",
             "route": "#/home",
             "target": "indexPage",
-            "at": 3755.7200000155717,
+            "at": 2094.130000041332,
             "panel": true,
             "cover": false
           },
           {
             "name": "hashchange",
             "route": "#/home",
-            "at": 3762.120000028517,
+            "at": 2099.7250000364147,
             "panel": true,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3712.9900000290945,
+            "at": 2048.2950000441633,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3763.6550000170246,
+            "at": 2100.670000014361,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3774.5749999885447,
+            "at": 2106.150000006892,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3799.8850000440143,
+            "at": 2117.435000021942,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3819.5200000191107,
+            "at": 2134.790000040084,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 5,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 2167.760000040289,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 2172.24000004353,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 2177.010000043083,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 2135.7950000092387,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3774.5749999885447,
+            "at": 2178.684999991674,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2180.1650000270456,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2181.979999993928,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2203.0650000087917,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "auto",
+      "width": 390,
+      "input": "touch",
+      "type": "Movie",
+      "blocked": 4,
+      "transition": {
+        "frames": 59,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 2420.9499999997206,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2421.70000000624,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2422.0250000362284,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 2337.61000004597,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3799.8850000440143,
+            "at": 2349.930000025779,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3819.5200000191107,
+            "at": 2367.3800000105985,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2383.8899999973364,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2419.4750000024214,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2421.1800000048243,
+            "home": false,
+            "cover": true,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 3646.180000039749,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 3646.390000008978,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 3646.4500000001863,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 3649.1750000277534,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 3654.069999989588,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "sampleExcerpt": [
+          {
+            "at": 3611.510000017006,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 3655.0850000348873,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 3668.0100000230595,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 3684.7100000013597,
             "home": false,
             "cover": false,
             "panel": true
@@ -2791,7 +2261,7 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3874.4799999985844,
+            "at": 3722.6600000285544,
             "panel": false,
             "cover": true
           },
@@ -2800,57 +2270,39 @@
             "route": "#/details",
             "item": "0861d0d4e102153477520464665669c1",
             "target": "itemDetailPage",
-            "at": 3877.9600000125356,
+            "at": 3725.860000005923,
             "panel": false,
             "cover": true
           },
           {
             "name": "hashchange",
             "route": "#/details",
-            "at": 3884.0150000178255,
+            "at": 3730.9649999951944,
             "panel": false,
             "cover": false
           }
         ],
         "sampleExcerpt": [
           {
-            "at": 3823.2150000403635,
+            "at": 3686.0800000140443,
             "home": false,
             "cover": false,
             "panel": true
           },
           {
-            "at": 3885.0899999961257,
+            "at": 3732.0199999958277,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3902.7050000149757,
+            "at": 3750.09000004502,
             "home": false,
             "cover": false,
             "panel": false
           },
           {
-            "at": 3918.275000003632,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3885.0899999961257,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3902.7050000149757,
-            "home": false,
-            "cover": false,
-            "panel": false
-          },
-          {
-            "at": 3918.275000003632,
+            "at": 3768.0050000199117,
             "home": false,
             "cover": false,
             "panel": false
@@ -2861,10 +2313,19 @@
   ],
   "result": "PASS",
   "physicalTV": false,
+  "errors": [
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "ChunkLoadError: Loading chunk 75844 failed.\n(error: [URL]\n    at Object.s.f.j ([URL]\n    at [URL]\n    at Array.reduce (<anonymous>)\n    at s.e ([URL]\n    at Array.map (<anonymous>)\n    at i ([URL]\n    at p ([URL]\n    at [URL]\n    at [URL]\n    at Object.next ([URL]"
+    }
+  ],
   "runtimeSha256": "f08da50ba8b578ce28c33f3c6e81de57644cd06a3d26a201c7378426b3a902cd",
   "engine": "HeadlessChrome/79.0.3945.0",
   "cancelAndRapidSelection": "PASS",
   "failureRecovery": "PASS",
   "accountSwitch": "PASS",
-  "logout": "PASS"
+  "logout": "PASS",
+  "requestFailureCount": 67,
+  "evidenceNote": "Frame samples are excerpts; counts and lifecycle events are retained. The expected ChunkLoadError belongs to the deliberate HTTP 503 failure-recovery case."
 }
