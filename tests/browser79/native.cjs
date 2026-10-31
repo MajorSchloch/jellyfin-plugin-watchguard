@@ -60,6 +60,34 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
             await page.waitForFunction(()=>['ready','empty','populating'].includes(document.querySelector('.watchguard-page').getAttribute('data-view-state')));
             if(layout==='tv') assert(await page.evaluate(()=>document.documentElement.classList.contains('layout-tv')));
             const row={layout};report.cases.push(row);
+            if(layout==='tv') {
+                row.remoteTraversal=[];
+                await page.focus('.watchguard-refresh');
+                for(const key of ['ArrowLeft','ArrowLeft','ArrowLeft','ArrowLeft','ArrowDown']) {
+                    await page.keyboard.press(key);
+                    row.remoteTraversal.push(await page.evaluate(()=>({tag:document.activeElement.tagName,label:document.activeElement.getAttribute('aria-label'),text:document.activeElement.textContent.slice(0,70)})));
+                }
+                assert.deepEqual(row.remoteTraversal.map(e=>e.tag),['SELECT','SUMMARY','SELECT','INPUT','SUMMARY']);
+                assert.equal(row.remoteTraversal[0].label,'Sort by');assert.equal(row.remoteTraversal[2].label,'Watchlist owner');
+                await page.evaluate(()=>{window.wgKeys=[];for(const type of ['keydown','keyup','click'])document.addEventListener(type,e=>{if(window.wgKeys.length<200)window.wgKeys.push({type,key:e.key,tag:e.target.tagName,text:e.target.tagName==='BUTTON'?e.target.textContent:'',active:document.activeElement.tagName});},true);});
+                // Native arrows reach secondary controls; the summary is focusable.
+                await page.keyboard.press('Enter');
+                await page.waitForFunction(()=>document.querySelector('.watchguard-secondary').open);
+                for(const [label,key,param] of [['Watchlist owner','ArrowDown','owner=all'],['Sort by','ArrowDown','sort=recent'],['Activity range','ArrowUp','days=7']]) {
+                    const selector='select[aria-label="'+label+'"]';
+                    await page.focus(selector);await page.keyboard.press('Enter');
+                    await page.waitForSelector('.watchguard-choice-dialog',{visible:true});
+                    assert(await page.evaluate(()=>document.querySelector('.watchguard-choice-dialog').contains(document.activeElement)));
+                    await page.screenshot({path:path.join(output,'tv-'+label.toLowerCase().replace(/ /g,'-')+'-choices.png')});
+                    await page.keyboard.press(key);await page.keyboard.press('Enter');
+                    await page.waitForFunction(value=>location.hash.includes(value),{},param);
+                    assert(await page.evaluate(s=>document.activeElement===document.querySelector(s),selector));
+                    await page.keyboard.press('Enter');await page.waitForSelector('.watchguard-choice-dialog',{visible:true});
+                    await page.keyboard.press('Escape');
+                    assert(await page.evaluate(s=>!document.querySelector('.watchguard-choice-dialog')&&document.activeElement===document.querySelector(s),selector));
+                }
+                row.selectChoicesAndBack='PASS';
+            }
             await page.focus('.watchguard-filter summary'); await page.keyboard.press('Enter');
             await page.waitForFunction(()=>document.querySelector('.watchguard-filter').open);
             await page.keyboard.press('ArrowDown');
@@ -117,6 +145,6 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
         report.settingsInline='PASS';
         report.errors=errors; assert.deepEqual(errors,[]);
         report.result='PASS';
-    } catch(error) { report.result='FAIL';report.error=error.message;report.errors=errors;await page.screenshot({path:path.join(output,'failure.png')});throw error; }
+    } catch(error) { report.result='FAIL';report.error=error.message;report.errors=errors;report.keys=await page.evaluate(()=>window.wgKeys);await page.screenshot({path:path.join(output,'failure.png')});throw error; }
     finally { fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2)+'\n');await browser.close(); }
 })().catch(error=>{console.error(error);process.exitCode=1;});

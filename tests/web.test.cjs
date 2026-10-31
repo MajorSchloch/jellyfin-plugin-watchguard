@@ -99,6 +99,44 @@ function documentFixture() {
 function descendants(node) { return [node, ...node.children.flatMap(descendants)]; }
 function button(dialog, label) { return descendants(dialog).find(n=>n.tag==='button' && n.textContent===label); }
 function textOf(node) { return descendants(node).map(n=>n.textContent || '').join(' '); }
+function tvChoiceFixture() {
+    const f = documentFixture(), controller = new AbortController(); let current = true, changes = 0;
+    f.doc.documentElement = {classList:{contains: value => value === 'layout-tv'}};
+    const select = f.doc.createElement('select'), parent = f.doc.createElement('div');
+    select.parentElement = parent; select.isConnected = true; select.value = 'a';
+    select.setAttribute('aria-label','Sort');
+    select.options = [{value:'a',textContent:'A',disabled:false},{value:'b',textContent:'B',disabled:false}];
+    select.dispatchEvent = event => {assert.equal(event.type,'change');changes++;};
+    require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js').tvChoices(f.doc,select,controller.signal,()=>current,parent);
+    const open = () => select.events.keydown({type:'keydown',key:'Enter',preventDefault(){},stopPropagation(){}});
+    return {...f,select,parent,controller,open,changes:()=>changes,setCurrent:value=>{current=value;}};
+}
+test('TV choices preserve select change semantics, reject repeated actions and restore focus', () => {
+    const f=tvChoiceFixture();f.open();f.open();assert.equal(f.parent.children.length,1);
+    const choice=button(f.parent.children[0],'B');choice.onclick();choice.onclick();
+    assert.equal(f.select.value,'b');assert.equal(f.changes(),1);assert.equal(f.select.focused,true);assert.equal(f.parent.children.length,0);
+});
+test('TV choice OK settles before native key dispatch can reopen the select', () => {
+    const f=tvChoiceFixture();f.open();const dialog=f.parent.children[0],choice=button(dialog,'B');let prevented=false,stopped=false;
+    dialog.events.keydown({key:'Enter',target:{tagName:'BUTTON',click:()=>choice.onclick()},preventDefault(){prevented=true;},stopPropagation(){stopped=true;}});
+    assert.equal(prevented,true);assert.equal(stopped,true);assert.equal(f.changes(),1);assert.equal(f.parent.children.length,0);
+});
+test('TV choices cancel on Back or lifetime abort and reject stale account/options', () => {
+    for(const reason of ['back','abort','account','options']) {
+        const f=tvChoiceFixture();f.open();const dialog=f.parent.children[0],choice=button(dialog,'B');
+        if(reason==='back')dialog.events.command({detail:{command:'back'},preventDefault(){},stopPropagation(){}});
+        if(reason==='abort')f.controller.abort();
+        if(reason==='account')f.setCurrent(false);
+        if(reason==='options')f.select.options.pop();
+        choice.onclick();assert.equal(f.select.value,'a');assert.equal(f.changes(),0);assert.equal(f.parent.children.length,0);
+        if(reason==='account'||reason==='abort')assert.notEqual(f.select.focused,true);
+    }
+});
+test('non-TV selects retain their platform interactions', () => {
+    const f=tvChoiceFixture();f.doc.documentElement.classList.contains=()=>false;
+    f.select.events.keydown({type:'keydown',key:'Enter',preventDefault(){assert.fail('Native event intercepted');}});
+    assert.equal(f.parent.children.length,0);
+});
 test('owned disclosures consume remote Back and restore their summary focus', async () => {
     const f=progressiveFixture(); await turn();
     const filter=descendants(f.page).find(n=>n.tag==='details' && n.className==='watchguard-filter');

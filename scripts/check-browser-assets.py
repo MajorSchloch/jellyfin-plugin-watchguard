@@ -2,6 +2,7 @@
 import argparse
 from pathlib import Path
 import subprocess
+import shutil
 import tempfile
 import zipfile
 
@@ -13,6 +14,11 @@ with tempfile.TemporaryDirectory() as temp:
     runtime = Path(temp) / 'Jellyfin.Plugin.WatchGuard.dll'
     with zipfile.ZipFile(args.archive) as archive:
         runtime.write_bytes(archive.read(runtime.name))
+    extracted = Path(temp) / 'browser-assets'
     subprocess.run(['dotnet', 'run', '--project', 'tests/BrowserAssets', '-c', 'Release', '--',
-                    str(runtime), str(args.output)], check=True)
-subprocess.run(['node', 'scripts/browser/check.cjs', str(args.output)], check=True)
+                    str(runtime), str(extracted)], check=True)
+    # Never let resources from a previous package satisfy this package's inventory.
+    subprocess.run(['node', 'scripts/browser/check.cjs', str(extracted)], check=True)
+    args.output.mkdir(parents=True, exist_ok=True)
+    for resource in extracted.iterdir():
+        shutil.copyfile(resource, args.output / resource.name)

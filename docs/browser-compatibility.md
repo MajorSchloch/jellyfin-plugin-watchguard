@@ -25,6 +25,8 @@ Node.js and npm are now required for a source build. The build uses `scripts/bro
 
 Jellyfin's focus manager recognizes `.focusable`, but does not include `summary` in its native tag list. WatchGuard disclosure summaries use that convention. The open status popup uses a native focus container; closing it restores ordinary navigation. Checkbox Enter/OK toggles the native input and emits its normal change event.
 
+On direct Watchlists entry, Jellyfin's `emby-select` component is not registered and no public module loader is available. Its [native implementation](https://github.com/jellyfin/jellyfin-web/blob/master/src/elements/emby-select/emby-select.js) avoids platform select popups on webOS. In TV layout, WatchGuard opens a scoped choice dialog for owner, sort and activity range. It uses native button presentation and Jellyfin's dialog focus navigation, while preserving the underlying select values and change events. Choice actions reject changed accounts, closed views and changed option lists. Other layouts keep their existing select interaction.
+
 Owned open disclosures and dialogs consume Back/cancel commands and restore focus. Raw Escape/BrowserBack/GoBack and webOS Back key code 461 also close these surfaces. Closed surfaces leave Back to Jellyfin. No TV-model allowlist is used.
 
 Membership completion restores the focused action before the separate interest refresh finishes. The existing identity, route and focus checks prevent restoration after navigation or an account change. Pending writes still prevent duplicates.
@@ -49,7 +51,7 @@ The local engine is Chromium **79.0.3945.0**, official snapshot **706915** (macO
 
 1. Record the exact TV model, Jellyfin client type and Server/Web versions.
 2. Open Watchlists directly, then reload. Confirm the loading handoff clears without exposing Home.
-3. Use arrows and OK to enter Watchlists and reach owner, status, search, sort and activity controls.
+3. Select Jellyfin’s TV layout. Use arrows and OK to enter Watchlists and reach owner, status, search, sort and activity controls. Change owner, sort and range in the choice dialogs; confirm Back cancels and restores focus.
 4. Open status filters. Move through checkboxes, toggle one, then press Back. Confirm focus returns to Status.
 5. Open a movie or series. Add and remove only your test membership. Confirm the icon, feedback and focused action update.
 6. Open episode extras and a deletion warning on disposable media. Use Back to cancel; confirm nothing is deleted.

@@ -30,6 +30,70 @@
         return details;
     }
 
+    // Direct Watchlists entry has no public loader for Jellyfin's emby-select.
+    // Its native component avoids browser select popups on webOS. Use a scoped
+    // modal in TV layout, with the same select value/change contract and native
+    // DIALOG/button directional navigation. Other layouts keep native selects.
+    function tvChoices(document, select, signal, current, container) {
+        let popup = null;
+        const values = () => Array.from(select.options).map(o => [o.value, o.textContent, o.disabled]);
+        const isOk = event => ['Enter', 'Accept'].includes(event.key) || [13, 195].includes(event.keyCode);
+        const open = event => {
+            if (!document.documentElement?.classList.contains('layout-tv')) return;
+            if (event.type === 'mousedown' && event.button !== 0) return;
+            if (event.type === 'keydown' && !isOk(event)) return;
+            if (!current() || signal.aborted || select.disabled) return;
+            event.preventDefault(); event.stopPropagation();
+            if (popup) return;
+            const options = values(), snapshot = JSON.stringify(options);
+            const dialog = document.createElement('dialog'); dialog.className = 'watchguard-choice-dialog';
+            dialog.setAttribute('aria-label', select.getAttribute('aria-label'));
+            const heading = document.createElement('h3'); heading.textContent = select.getAttribute('aria-label'); dialog.append(heading);
+            const finish = (restore = true) => {
+                if (popup !== dialog) return;
+                popup = null; signal.removeEventListener('abort', abort); dialog.remove();
+                select.setAttribute('aria-expanded', 'false');
+                if (restore && current() && select.isConnected) select.focus({preventScroll:true});
+            };
+            const abort = () => finish(false);
+            let selected;
+            for (const [value, label, disabled] of options) {
+                const button = document.createElement('button'); button.type = 'button';
+                button.className = 'emby-button button-flat'; button.textContent = label; button.disabled = disabled;
+                button.setAttribute('aria-pressed', String(select.value === value));
+                if (select.value === value && !disabled) selected = button;
+                button.onclick = () => {
+                    if (popup !== dialog || disabled) return;
+                    const valid = current() && !signal.aborted && snapshot === JSON.stringify(values());
+                    finish(valid);
+                    if (!valid) return;
+                    select.value = value;
+                    select.dispatchEvent(new Event('change', {bubbles:true}));
+                };
+                dialog.append(button);
+            }
+            const cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'emby-button button-flat'; cancel.textContent = 'Cancel';
+            cancel.onclick = () => finish(); dialog.append(cancel);
+            dialog.addEventListener('cancel', event => { event.preventDefault(); finish(); });
+            dialog.addEventListener('close', () => finish()); dismissible(dialog, () => finish());
+            // Handle remote OK once, including controllers that use key code 195.
+            dialog.addEventListener('keydown', event => {
+                if (isOk(event) && event.target.tagName === 'BUTTON') {
+                    event.preventDefault(); event.stopPropagation(); event.target.click();
+                }
+            });
+            popup = dialog; signal.addEventListener('abort', abort, {once:true});
+            // Keep dialog buttons outside the select label: removing a clicked
+            // descendant before label activation can otherwise click the select again.
+            container.append(dialog);
+            try { dialog.showModal(); select.setAttribute('aria-expanded', 'true'); (selected || cancel).focus(); }
+            catch { finish(); }
+        };
+        // Prevent the platform popup at its mousedown boundary. click also covers
+        // native inputManager's select command; the open guard prevents duplicates.
+        for (const event of ['mousedown', 'click', 'keydown']) select.addEventListener(event, open);
+    }
+
     // Read-only feature checks: no requests, timers, credentials or DOM mutations.
     // Web's reported version is qualification context, never evidence of server protection.
     function browserCapabilities(api, document, host, installed) {
@@ -641,6 +705,7 @@
         const toolbar = document.createElement('div'); toolbar.className = 'watchguard-toolbar';
         function dropdown(label, choices) {
             const select = document.createElement('select'); select.className = 'emby-select emby-select-withcolor'; select.setAttribute('aria-label', label);
+            tvChoices(document, select, signal, () => active(), page);
             for (const [value, text, disabled] of choices) {
                 const option = document.createElement('option'); option.value = value; option.textContent = text; option.disabled = !!disabled; select.append(option);
             }
@@ -1224,7 +1289,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
 }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
+        module.exports = { tvChoices, browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
@@ -1276,7 +1341,10 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             .watchguard-page :focus:not(:focus-visible),.watchguard-toggle:focus:not(:focus-visible),.watchguard-extra-button:focus:not(:focus-visible),.watchguard-series-section :focus:not(:focus-visible),.watchguard-deletion-dialog :focus:not(:focus-visible),.watchguard-extras-dialog :focus:not(:focus-visible) {outline:none!important}
         }
         .watchguard-no-flex-gap .watchguard-user-line>*,.watchguard-no-flex-gap .watchguard-interest>*,.watchguard-no-flex-gap .watchguard-progress>*,.watchguard-no-flex-gap .watchguard-status-icons>*,.watchguard-no-flex-gap .watchguard-viewer-states>*,.watchguard-no-flex-gap .watchguard-dialog-reasons>*,.watchguard-no-flex-gap .watchguard-dialog-actions>* {margin-right:.4em}
-        .watchguard-deletion-dialog::backdrop {background:rgba(0,0,0,.65)}
+        .watchguard-choice-dialog {box-sizing:border-box;width:calc(100% - 2rem);max-width:30rem;max-height:calc(100vh - 2rem);overflow:auto;background:var(--jf-palette-background-paper,#202020);color:var(--jf-palette-text-primary,#eee);font:inherit;border:1px solid var(--jf-palette-divider,#888);border-radius:.3em;padding:1em}
+        .watchguard-choice-dialog button {display:block;width:100%;min-height:44px;text-align:start;margin:.25em 0}
+        .watchguard-choice-dialog button[aria-pressed="true"] {color:var(--jf-palette-secondary-main,#00a4dc)}
+        .watchguard-choice-dialog::backdrop,.watchguard-deletion-dialog::backdrop {background:rgba(0,0,0,.65)}
         .watchguard-deletion-dialog button:focus-visible {outline:2px solid #fff;outline-offset:2px}
 
         body.watchguard-page-open .skinBody {display:none!important}
