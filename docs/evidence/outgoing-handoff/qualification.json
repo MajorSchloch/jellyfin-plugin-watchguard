@@ -1,0 +1,406 @@
+{
+  "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+  "commit": "9f5f8702a83d2031f66ac7bdaeecacc1c5fb492f",
+  "run": 41245891354,
+  "attempt": 1,
+  "qualificationResult": "PASS",
+  "workflowConclusion": "failure",
+  "publishRequested": false,
+  "proxyMatrix": true,
+  "packageArtifactId": 13058538512,
+  "qualificationRecordArtifactId": 13060590895,
+  "packageSha256": "36d67f77f6721a029c9ed21bb17ed16b826ae7e41d53cf98b15cc19fbaa87ba8",
+  "runtimeSha256": "6943145dee6b3be8613255072d3ea30271cb389b526a91ae605c3bbd59b97f4e",
+  "supportedHosts": [
+    "12.2",
+    "12.3",
+    "12.4"
+  ],
+  "images": [
+    "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+    "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+    "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+    "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+    "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+    "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044"
+  ],
+  "suites": [
+    {
+      "version": "12.2",
+      "suite": "activity-browser",
+      "status": "PASS",
+      "scenarios": [
+        "activity-native-browser-polling"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "websocket",
+      "status": "PASS",
+      "scenarios": [
+        "caddy-websocket-measure"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "activity-index",
+      "status": "PASS",
+      "scenarios": [
+        "activity-native-comparisons"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "legacy",
+      "status": "PASS",
+      "scenarios": [
+        "legacy-catalog",
+        "legacy-browser"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "server-enforcement",
+      "status": "PASS",
+      "scenarios": [
+        "enforcement-official-proxies"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "server-enforcement-basepath",
+      "status": "PASS",
+      "scenarios": [
+        "enforcement-basepath"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "server-enforcement-linuxserver",
+      "status": "PASS",
+      "scenarios": [
+        "enforcement-linuxserver"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "basepath",
+      "status": "PASS",
+      "scenarios": [
+        "basepath-full-browser"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "migration",
+      "status": "PASS",
+      "scenarios": [
+        "injector-migration"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "discovery",
+      "status": "PASS",
+      "scenarios": [
+        "discovery-v045"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "standalone-caddy",
+      "status": "PASS",
+      "scenarios": [
+        "standalone-catalog-upgrades-preferences-caddy"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "basepath-navigation",
+      "status": "PASS",
+      "scenarios": [
+        "basepath-native-catalog",
+        "basepath-drawer-navigation",
+        "basepath-startup"
+      ]
+    },
+    {
+      "version": "12.2",
+      "suite": "verification",
+      "status": "PASS",
+      "scenarios": [
+        "verification-default",
+        "verification-policies",
+        "discovery-v047"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "activity-browser",
+      "status": "PASS",
+      "scenarios": [
+        "activity-native-browser-polling"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "websocket",
+      "status": "PASS",
+      "scenarios": [
+        "caddy-websocket-measure"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "activity-index",
+      "status": "PASS",
+      "scenarios": [
+        "activity-native-comparisons"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "legacy",
+      "status": "PASS",
+      "scenarios": [
+        "legacy-catalog",
+        "legacy-browser"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "server-enforcement",
+      "status": "PASS",
+      "scenarios": [
+        "enforcement-official-proxies"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "server-enforcement-basepath",
+      "status": "PASS",
+      "scenarios": [
+        "enforcement-basepath"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "server-enforcement-linuxserver",
+      "status": "PASS",
+      "scenarios": [
+        "enforcement-linuxserver"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "basepath",
+      "status": "PASS",
+      "scenarios": [
+        "basepath-full-browser"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "migration",
+      "status": "PASS",
+      "scenarios": [
+        "injector-migration"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "discovery",
+      "status": "PASS",
+      "scenarios": [
+        "discovery-v045"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "standalone-caddy",
+      "status": "PASS",
+      "scenarios": [
+        "standalone-catalog-upgrades-preferences-caddy"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "basepath-navigation",
+      "status": "PASS",
+      "scenarios": [
+        "basepath-native-catalog",
+        "basepath-drawer-navigation",
+        "basepath-startup"
+      ]
+    },
+    {
+      "version": "12.3",
+      "suite": "verification",
+      "status": "PASS",
+      "scenarios": [
+        "verification-default",
+        "verification-policies",
+        "discovery-v047"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "activity-browser",
+      "status": "PASS",
+      "scenarios": [
+        "activity-native-browser-polling"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "websocket",
+      "status": "PASS",
+      "scenarios": [
+        "caddy-websocket-measure"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "activity-index",
+      "status": "PASS",
+      "scenarios": [
+        "activity-native-comparisons"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "legacy",
+      "status": "PASS",
+      "scenarios": [
+        "legacy-catalog",
+        "legacy-browser"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "server-enforcement",
+      "status": "PASS",
+      "scenarios": [
+        "enforcement-official-proxies"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "server-enforcement-basepath",
+      "status": "PASS",
+      "scenarios": [
+        "enforcement-basepath"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "server-enforcement-linuxserver",
+      "status": "PASS",
+      "scenarios": [
+        "enforcement-linuxserver"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "basepath",
+      "status": "PASS",
+      "scenarios": [
+        "basepath-full-browser"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "migration",
+      "status": "PASS",
+      "scenarios": [
+        "injector-migration"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "discovery",
+      "status": "PASS",
+      "scenarios": [
+        "discovery-v045"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "standalone-caddy",
+      "status": "PASS",
+      "scenarios": [
+        "standalone-catalog-upgrades-preferences-caddy"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "basepath-navigation",
+      "status": "PASS",
+      "scenarios": [
+        "basepath-native-catalog",
+        "basepath-drawer-navigation",
+        "basepath-startup"
+      ]
+    },
+    {
+      "version": "12.4",
+      "suite": "verification",
+      "status": "PASS",
+      "scenarios": [
+        "verification-default",
+        "verification-policies",
+        "discovery-v047"
+      ]
+    }
+  ],
+  "nativeOutgoing": [
+    {
+      "serverVersion": "12.2.0",
+      "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+      "engine": "141.0.7390.37",
+      "cardCases": 10,
+      "homeExposures": 0,
+      "currentServerRoute": "PASS",
+      "remoteFocus": true,
+      "cancelAndRapidSelection": "PASS",
+      "failureRecovery": "PASS",
+      "accountSwitch": "PASS",
+      "logout": "PASS"
+    },
+    {
+      "serverVersion": "12.3.0",
+      "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+      "engine": "141.0.7390.37",
+      "cardCases": 10,
+      "homeExposures": 0,
+      "currentServerRoute": "PASS",
+      "remoteFocus": true,
+      "cancelAndRapidSelection": "PASS",
+      "failureRecovery": "PASS",
+      "accountSwitch": "PASS",
+      "logout": "PASS"
+    },
+    {
+      "serverVersion": "12.4.0",
+      "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+      "engine": "141.0.7390.37",
+      "cardCases": 10,
+      "homeExposures": 0,
+      "currentServerRoute": "PASS",
+      "remoteFocus": true,
+      "cancelAndRapidSelection": "PASS",
+      "failureRecovery": "PASS",
+      "accountSwitch": "PASS",
+      "logout": "PASS"
+    }
+  ],
+  "publicationRehearsal": {
+    "run": 41245891354,
+    "attempt": 1,
+    "write": false,
+    "state": "blocked",
+    "error": "Qualified ZIP conflicts with the completed public release.",
+    "elapsedSeconds": 8.64
+  },
+  "note": "Summary for review; the original CI qualification-record artifact remains the authoritative record. Read-only rehearsal rejected different bytes under the already published 0.7.12 version. No writes."
+}

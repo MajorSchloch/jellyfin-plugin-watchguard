@@ -36,7 +36,7 @@ A navigation sequence has one 15-second cleanup deadline. Retargeting does not e
 
 The cases cover TV, Desktop Legacy, Mobile Legacy, Modern and Auto; movie and series cards; remote OK, mouse and touch; held destination requests; Back/Forward; cancelled navigation followed by another selection; failure cleanup; authenticated account switching and logout. Tests assert prompt Watchlists teardown, no Home frames, matching native detail readiness and TV destination focus.
 
-Unit tests independently reject mismatched lifecycle/item/server/account state, hidden or detached destinations and extended deadlines. They check listener/observer cleanup, failure recovery and preservation of header focus.
+Unit tests independently reject mismatched lifecycle/item/server/account state, missing native layout and extended deadlines. They check listener/observer cleanup, failure recovery and preservation of header focus.
 
 Browser emulation is not physical-TV validation. On the LG device, open a movie and a series with OK, use Back during loading, then repeat with a slow server connection. Confirm that loading stays inside the transition, focus reaches the detail controls, and Back returns to Watchlists. Pointer remote behavior, firmware-specific input handling and suspend/resume still require the physical device.
 
@@ -89,3 +89,15 @@ A scope review also narrowed the newly added native lifecycle hooks to detail ro
 The departure-only lifecycle package passed both native outgoing suites (Chromium 79 and pinned Linux Chromium 141), including the current-server route. All ten movie/series cases per engine had zero Home exposures on departure and Back/Forward. The retained native-controls suite passed all 12 layout/width cases and six themes again. The linked browser summaries and after screenshots now describe this final package.
 
 ZIP SHA-256: `36d67f77f6721a029c9ed21bb17ed16b826ae7e41d53cf98b15cc19fbaa87ba8`. DLL SHA-256: `6943145dee6b3be8613255072d3ea30271cb389b526a91ae605c3bbd59b97f4e`. Packaged ES2019/Chromium 79 checks and all 215 JavaScript tests passed. Version/catalog metadata remain unchanged. Physical LG firmware validation is still required.
+
+## Final qualification
+
+[Run 41245891354, attempt 1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41245891354) tested source commit `9f5f8702a83d2031f66ac7bdaeecacc1c5fb492f` with `publish=false` and `proxy_matrix=true`. All 39 suites passed on Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0, and the strict **Verify complete compatibility evidence** gate passed. The package was byte-identical to the final local scoped package above. [Retained summary](evidence/outgoing-handoff/qualification.json) records every suite, image digest and native handoff result.
+
+- Package artifact: [13058538512](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41245891354/artifacts/13058538512).
+- Original qualification record: [13060590895](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41245891354/artifacts/13060590895).
+- Native outgoing reports: 30 movie/series card cases plus three current-server link cases, with zero Home exposures during departure and Back/Forward. Recovery, account switching, logout and remote destination focus passed on each version.
+
+The workflow's overall result is **failure**, solely because the separate read-only publication rehearsal correctly rejected `Qualified ZIP conflicts with the completed public release.` This development branch retains version 0.7.12 with changed runtime bytes. The rehearsal used `write=false`; public releases and catalog metadata were not changed. The runtime qualification passed, but this is not a publication-ready candidate or authority to replace v0.7.12.
+
+The earlier activity-loading assertion passed in this final run. Its cause remains unconfirmed and its original failure is retained; this PR does not claim to fix the separate preferences/activity-initialization race. The earlier superseded run was cancelled after its recorded failure; its unfinished navigation jobs are not counted as passes. Physical-TV validation and native ApiClient's lack of a transport-abort handle remain the limits described above.
