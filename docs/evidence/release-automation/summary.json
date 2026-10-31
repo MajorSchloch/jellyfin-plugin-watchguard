@@ -1,0 +1,57 @@
+{
+  "qualifiedCommit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+  "run": 41166850534,
+  "attempt": 1,
+  "result": "PASS",
+  "publish": false,
+  "proxyMatrix": true,
+  "suiteCount": 39,
+  "scenarioCount": 54,
+  "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+  "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+  "packageArtifactId": 13029635495,
+  "recordArtifactId": 13030018454,
+  "supportedHosts": [
+    "12.2",
+    "12.3",
+    "12.4"
+  ],
+  "publicationAuthority": false,
+  "publicationAuthorityReason": "Manual branch validation; this record cannot authorize a merged/default-branch publication.",
+  "checks": {
+    "backend": 376,
+    "javascript": 203,
+    "python": 77,
+    "catalog": 8,
+    "actionlint": "1.7.12"
+  },
+  "elapsedSeconds": 1948.0,
+  "combinedJobExecutionSeconds": 21453.0,
+  "combinedReadyToStartSeconds": 62.0,
+  "publicCatalogUnchanged": true,
+  "releaseAndDraftMetadataUnchanged": true,
+  "preservedReleaseIds": [
+    429209739,
+    429096534
+  ],
+  "limitations": [
+    "Read-only inspection cannot enumerate hidden drafts; approved publication rechecks full state.",
+    "No live release mutation or remote catalog commit was performed to test automation.",
+    "Native menu timeout in run 41075911155 attempt 1 remains unresolved."
+  ],
+  "supersededRuns": [
+    {
+      "run": 41090215306,
+      "commit": "4874132541b0192bbdd0f63ca22800551bfd8c5a",
+      "result": "cancelled",
+      "reason": "Read-only live API probe found that Actions artifact download rejects the release-asset Accept header. The corrected code uses each endpoint contract."
+    },
+    {
+      "run": 41092304009,
+      "commit": "8221e0962175e7388a2ac352488ea2e073c85d4c",
+      "result": "failure",
+      "suiteGate": "PASS: 39 suites",
+      "reason": "Record sealing incorrectly treated an associated PR as a PR-triggered run. Corrected event/repository/branch/commit checks retain rejection of PR and fork publication."
+    }
+  ]
+}

@@ -58,7 +58,7 @@ A unique published release can be checked without touching an unrelated draft wi
 
 ## Draft visibility limit
 
-GitHub hides drafts from read-only Actions tokens. The hosted check confirmed this behavior: it verified v0.7.11 but could not see the existing empty draft. Inspection jobs retain `contents: read`. The publisher receives `contents: write` only after release-environment approval.
+GitHub restricts draft visibility to push access, as described in its [release API documentation](https://docs.github.com/en/rest/releases/releases#list-releases). The hosted check confirmed this behavior: it verified v0.7.11 but could not see the existing empty draft. Inspection jobs retain `contents: read`. The publisher receives `contents: write` only after release-environment approval.
 
 When no public release exists, the preflight reports `unpublished-or-draft` instead of claiming that no draft exists. A read-only publisher cannot plan draft writes from that incomplete list. After approval, it requires draft visibility and checks the full state before any mutation.
 
@@ -103,3 +103,42 @@ Measurements and hosted validation results are recorded in the PR and the accomp
 The earlier [CI efficiency report](ci-efficiency.md) remains historical evidence. Its matrix measurements are not a prediction for every run. The new fast path avoids builds and fixtures for a verified completed release; the full matrix itself retains its work and limits.
 
 GitHub's [artifact API](https://docs.github.com/en/rest/actions/artifacts) supplies artifact IDs, digests and run origin. The [workflow-run API](https://docs.github.com/en/rest/actions/workflow-runs) supplies exact attempts and jobs. Those API checks accompany the record; a JSON claim alone is not publication authority.
+
+### Verified result
+
+[Validation run 41166850534](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41166850534), attempt 1, passed on `f252d741c4a3bfc6f90706d6f6556a72d09eaa7e`. It used `publish=false` and `proxy_matrix=true`. Build, all 18 integration jobs, the 39-suite gate, provenance sealing and the read-only publisher rehearsal passed.
+
+The [qualification record](evidence/release-automation/qualification-record.json) contains all 39 suites, 54 primary scenarios and exact artifact identities. Package artifact: `13029635495`. Record artifact: `13030018454`. This branch validation does not authorize publication after a merge.
+
+- ZIP SHA-256: `c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b`.
+- DLL SHA-256: `febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa`.
+- Fast checks: 376 backend, 203 JavaScript, 77 Python and eight catalog tests passed. Packaging, release-note checks and actionlint 1.7.12 also passed.
+
+The package is byte-identical to published v0.7.11. Public catalog, release, draft and asset metadata remain unchanged. The [summary](evidence/release-automation/summary.json) records these checks and their limits. Later evidence-only changes do not change the tested package or publication logic.
+
+| Measurement | Observed result |
+|---|---:|
+| Earlier full run 41063076511, elapsed | 32m 32s |
+| New full validation, elapsed | 32m 28s |
+| Earlier full run, combined job execution | 6h 09m 21s |
+| New full validation, combined job execution | 5h 57m 33s |
+| Hosted completed-release inspection, elapsed | 20s |
+| Hosted inspection, combined job execution | 12s |
+| Hosted public verification within that inspection | 3.053s |
+| Hosted publisher rehearsal, complete job | 13s |
+| Publisher record/package verification within that job | 6.664s |
+| Local public check, median of three samples | 1.668s |
+| Local temporary-manifest recovery, median of three samples | 0.511s |
+
+The full matrix retains the same work. These two full runs do not establish a matrix speedup. The new fast path avoids that work for a verified completed release. The hosted inspection skipped build, integration and qualification jobs. Its token could not see private drafts, which the report states explicitly.
+
+The local recovery samples include anonymous metadata, ZIP and checksum checks. They exclude artifact retrieval, release uploads, remote catalog writes and approval waits. No live publication was performed. A separate local verification had a network timeout and retry; it is not part of these timing samples.
+
+See [full timings](evidence/release-automation/qualification-timings.json), [hosted inspection timings](evidence/release-automation/hosted-inspect-final-timings.json), [publisher rehearsal](evidence/release-automation/publisher-rehearsal.json) and [local recovery samples](evidence/release-automation/recovery-timings.json). Timing reports separate elapsed time, combined execution and dependency-ready delay. Publication delay can include environment approval.
+
+### Retained unsuccessful attempts
+
+- [Run 41090215306](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41090215306) was cancelled during integration after a live API probe found an incorrect download header. Actions artifact ZIP downloads require the normal API header. Release-asset downloads require the binary header. The fix has regression coverage and live read-only verification.
+- [Run 41092304009](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41092304009) passed all 39 suites but failed record sealing. GitHub associated its manual branch run with PR #57. The check incorrectly treated that association as a PR trigger. The corrected verifier checks the actual event, repository, branch and source commit. PR-triggered and fork runs remain ineligible for publication.
+
+Neither run counts as successful workflow qualification. Their original logs and artifacts remain intact. The corrected final run used fresh evidence from one commit and attempt. It did not combine earlier reports or retry native assertions.

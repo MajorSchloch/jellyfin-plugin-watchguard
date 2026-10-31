@@ -14,9 +14,9 @@ from release_state import GitHub, candidate, digest, inspect, require
 
 
 def stable_release(release):
-    fields = ('id', 'tag_name', 'target_commitish', 'draft', 'prerelease', 'published_at', 'body')
+    fields = ('id', 'tag_name', 'target_commitish', 'draft', 'prerelease', 'published_at')
     asset_fields = ('id', 'name', 'size', 'digest', 'created_at', 'updated_at')
-    return {**{k: release[k] for k in fields}, 'assets': [{k: a[k] for k in asset_fields} for a in release['assets']]}
+    return {**{k: release[k] for k in fields}, 'bodySha256': digest((release.get('body') or '').encode()), 'assets': [{k: a[k] for k in asset_fields} for a in release['assets']]}
 
 
 def main():
