@@ -1,12 +1,16 @@
 /* Real old engine + disposable native Jellyfin. Never use production credentials. */
 const fs = require('node:fs'), path = require('node:path'), assert = require('node:assert/strict');
 const puppeteer = require('./node_modules/puppeteer-core');
+const crypto = require('node:crypto');
+const version = /<Version>([^<]+)<\/Version>/.exec(fs.readFileSync('Directory.Build.props','utf8'))[1];
 const fixture = JSON.parse(fs.readFileSync(process.argv[2]));
 assert.match(fixture.base, /^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyfin)?$/);
 assert.equal(fixture.username, 'WatchGuardPoCTest');
 const output = process.argv[3] || 'artifacts/browser79-native';
 fs.mkdirSync(output, {recursive:true});
 const report = {server:fixture.serverVersion, image:fixture.image, device:'Chromium executable; no physical TV', cases:[], result:'RUNNING'};
+report.packageSha256=crypto.createHash('sha256').update(fs.readFileSync('artifacts/Jellyfin.Plugin.WatchGuard-v'+version+'.zip')).digest('hex');
+report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll')).digest('hex');
 (async () => {
     assert(process.env.WATCHGUARD_CHROMIUM79, 'Set the actual Chromium 79 executable path');
     const browser = await puppeteer.launch({executablePath:process.env.WATCHGUARD_CHROMIUM79, headless:true});
@@ -33,9 +37,11 @@ const report = {server:fixture.serverVersion, image:fixture.image, device:'Chrom
         await page.keyboard.press('Enter');
         await page.waitForFunction(() => location.hash === '#/home' && window.WatchGuardPoc && WatchGuardPoc.isInstalled());
         report.nativeLogin = 'PASS';
+        report.pluginVersion=await page.evaluate(async()=> (await ApiClient.ajax({url:ApiClient.getUrl('WatchGuard/IntegrationStatus'),type:'GET',dataType:'json'})).PluginVersion);
+        assert.equal(report.pluginVersion,version);
         // Prove the released syntax gap using the original source in this engine.
         const original=fs.readFileSync('Jellyfin.Plugin.WatchGuard/Standalone/bootstrap.js','utf8');
-        assert.equal(await page.evaluate(source=>{try{new Function(source);return true;}catch(e){return false;}},original),false);
+        assert.equal(await page.evaluate(source=>{try{new Function(source);return 'parsed';}catch(e){return e.name;}},original),'SyntaxError');
         report.originalOptionalChaining = 'SyntaxError in actual Chromium 79';
         for (const layout of ['tv', 'desktop-legacy', 'mobile-legacy', 'modern']) {
             await page.setViewport({width:layout==='mobile-legacy'?390:1280,height:900});
