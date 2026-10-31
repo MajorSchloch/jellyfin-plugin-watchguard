@@ -2,6 +2,8 @@
 
 Release publication and the catalog commit are separate workflow steps. A release can be public before its assets are available from every download endpoint. curl's standard `--retry` does not retry HTTP 404; v0.7.11's checksum request failed less than two seconds after publication, so the manifest commit never ran.
 
+For records from the resumable workflows, use [release operation](release-automation.md) and the explicit qualification run and attempt. The manual procedure below remains available for historical releases without that record.
+
 ## Recovery procedure
 
 1. Confirm that build, every integration job and the complete-evidence gate passed for the publication run. Record its commit, validated artifact ID and expected ZIP SHA-256. Start a small branch from current master.
@@ -16,7 +18,7 @@ Release publication and the catalog commit are separate workflow steps. A releas
    The generator validates the local sidecar before downloading, anonymously checks release metadata, compares the public ZIP byte-for-byte with the validated ZIP, checks the public SHA-256 and filename, then derives the catalog URL and timestamp from the public release. It never uploads or modifies release assets.
 4. Review the manifest diff: only the missing version should be added, using the actual `published_at`, asset URL, ZIP MD5 and maintained release summary. Check all previous entries against master with `--check-history`; retain their complete contents. Run the catalog and normal PR checks, then submit the recovery PR for review.
 
-Do not rerun the publication job to repair a catalog-only failure: its create/upload steps intentionally do not replace existing immutable releases. Do not delete, recreate or overwrite assets. If checksums or ZIP contents disagree, stop and investigate provenance. A failed verification leaves the manifest unchanged. If assets remain unavailable beyond the retry budget, leave the catalog unchanged and investigate public availability before a later explicit recovery attempt.
+For the historical workflow, do not rerun its create/upload job to repair a catalog-only failure. Use the recovery procedure above. The new publisher resumes only verified missing operations. Do not delete, recreate or overwrite assets. If checksums or ZIP contents disagree, stop and investigate provenance. A failed verification leaves the manifest unchanged. If assets remain unavailable beyond the retry budget, leave the catalog unchanged and investigate public availability before a later explicit recovery attempt.
 
 ## Download bounds
 

@@ -1,0 +1,86 @@
+name: Publish WatchGuard
+on:
+  workflow_run:
+    workflows: [Qualify WatchGuard]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Exact qualification run ID (never latest)
+        required: true
+        type: string
+      attempt:
+        description: Exact qualification attempt
+        required: true
+        default: '1'
+        type: string
+      validation_only:
+        description: Verify provenance and show the next actions without any writes
+        type: boolean
+        default: true
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      publish: ${{ steps.inspect.outputs.publish }}
+    env:
+      QUALIFICATION_RUN: ${{ inputs.run_id || github.event.workflow_run.id }}
+      QUALIFICATION_ATTEMPT: ${{ inputs.attempt || github.event.workflow_run.run_attempt }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Branch code is used only in the read-only rehearsal.
+          ref: ${{ inputs.validation_only && github.sha || github.event.repository.default_branch }}
+      - name: Verify explicit provenance and current release state
+        id: inspect
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VALIDATION_ONLY: ${{ inputs.validation_only || false }}
+          AUTOMATIC: ${{ github.event_name == 'workflow_run' }}
+        run: |
+          args=()
+          if [ "$VALIDATION_ONLY" = true ]; then args+=(--validate-branch --verify-record); fi
+          if [ "$AUTOMATIC" = true ]; then args+=(--automatic); fi
+          python3 scripts/publish_release.py --run "$QUALIFICATION_RUN" --attempt "$QUALIFICATION_ATTEMPT" "${args[@]}"
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: WatchGuard-publication-inspect-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: artifacts/publication-result.json
+          if-no-files-found: warn
+
+  publish:
+    needs: inspect
+    if: needs.inspect.outputs.publish == 'true' && !inputs.validation_only && github.ref_name == github.event.repository.default_branch
+    environment: release
+    concurrency:
+      group: watchguard-release
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      QUALIFICATION_RUN: ${{ inputs.run_id || github.event.workflow_run.id }}
+      QUALIFICATION_ATTEMPT: ${{ inputs.attempt || github.event.workflow_run.run_attempt }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Recheck after approval and resume only missing operations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/publish_release.py --run "$QUALIFICATION_RUN" --attempt "$QUALIFICATION_ATTEMPT" --write
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: WatchGuard-publication-result-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: artifacts/publication-result.json
+          if-no-files-found: warn

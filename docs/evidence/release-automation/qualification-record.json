@@ -1,0 +1,2521 @@
+{
+  "schemaVersion": 1,
+  "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+  "sourceCommit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+  "run": 41166850534,
+  "attempt": 1,
+  "workflow": ".github/workflows/release.yaml",
+  "version": "0.7.11",
+  "publishRequested": false,
+  "supportedHosts": [
+    "12.2",
+    "12.3",
+    "12.4"
+  ],
+  "suiteInventory": {
+    "activity-index": [
+      {
+        "id": "activity-native-comparisons",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "activity-index"
+        ],
+        "env": {}
+      }
+    ],
+    "activity-browser": [
+      {
+        "id": "activity-native-browser-polling",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "activity-browser"
+        ],
+        "env": {}
+      }
+    ],
+    "standalone-caddy": [
+      {
+        "id": "standalone-catalog-upgrades-preferences-caddy",
+        "command": [
+          "tests/docker-smoke.py",
+          "--linuxserver",
+          "--catalog",
+          "--caddy",
+          "--preference-roundtrip"
+        ],
+        "env": {}
+      }
+    ],
+    "verification": [
+      {
+        "id": "verification-default",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "verification"
+        ],
+        "env": {}
+      },
+      {
+        "id": "verification-policies",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "verification"
+        ],
+        "env": {
+          "WATCHGUARD_VERIFICATION_POLICIES": "1",
+          "WATCHGUARD_VERIFICATION_OUTPUT": "artifacts/verification-native-v048-policies.json"
+        }
+      },
+      {
+        "id": "discovery-v047",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "discovery"
+        ],
+        "env": {
+          "WATCHGUARD_DISCOVERY_BASELINE": "0.4.7"
+        }
+      }
+    ],
+    "migration": [
+      {
+        "id": "injector-migration",
+        "command": [
+          "tests/docker-smoke.py",
+          "--linuxserver",
+          "--migration",
+          "--injector-dll",
+          "{injector_dll}"
+        ],
+        "env": {}
+      }
+    ],
+    "basepath": [
+      {
+        "id": "basepath-full-browser",
+        "command": [
+          "tests/docker-smoke.py",
+          "--base-path",
+          "/jellyfin",
+          "--proxy"
+        ],
+        "env": {}
+      }
+    ],
+    "basepath-navigation": [
+      {
+        "id": "basepath-native-catalog",
+        "command": [
+          "tests/docker-smoke.py",
+          "--listing",
+          "--base-path",
+          "/jellyfin",
+          "--proxy"
+        ],
+        "env": {}
+      },
+      {
+        "id": "basepath-drawer-navigation",
+        "command": [
+          "tests/docker-smoke.py",
+          "--navigation",
+          "--base-path",
+          "/jellyfin",
+          "--proxy"
+        ],
+        "env": {}
+      },
+      {
+        "id": "basepath-startup",
+        "command": [
+          "tests/docker-smoke.py",
+          "--startup",
+          "--base-path",
+          "/jellyfin",
+          "--proxy"
+        ],
+        "env": {}
+      }
+    ],
+    "legacy": [
+      {
+        "id": "legacy-catalog",
+        "command": [
+          "tests/docker-smoke.py",
+          "--legacy-injector",
+          "--catalog",
+          "--injector-dll",
+          "{injector_dll}"
+        ],
+        "env": {}
+      },
+      {
+        "id": "legacy-browser",
+        "command": [
+          "tests/docker-smoke.py",
+          "--legacy-injector",
+          "--injector-dll",
+          "{injector_dll}"
+        ],
+        "env": {}
+      }
+    ],
+    "discovery": [
+      {
+        "id": "discovery-v045",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "discovery"
+        ],
+        "env": {}
+      }
+    ],
+    "server-enforcement": [
+      {
+        "id": "enforcement-official-proxies",
+        "command": [
+          "tests/server-enforcement.py"
+        ],
+        "env": {}
+      }
+    ],
+    "server-enforcement-basepath": [
+      {
+        "id": "enforcement-basepath",
+        "command": [
+          "tests/server-enforcement.py",
+          "--base-path",
+          "/jellyfin"
+        ],
+        "env": {}
+      }
+    ],
+    "server-enforcement-linuxserver": [
+      {
+        "id": "enforcement-linuxserver",
+        "command": [
+          "tests/server-enforcement.py",
+          "--linuxserver"
+        ],
+        "env": {}
+      }
+    ],
+    "websocket": [
+      {
+        "id": "caddy-websocket-measure",
+        "command": [
+          "tests/docker-smoke.py",
+          "--linuxserver",
+          "--caddy",
+          "--measure"
+        ],
+        "env": {}
+      }
+    ]
+  },
+  "proxyMatrix": true,
+  "packageArtifact": {
+    "id": 13029635495,
+    "node_id": "MDg6QXJ0aWZhY3QxMzAyOTYzNTQ5NQ==",
+    "name": "WatchGuard-package-attempt-1",
+    "size_in_bytes": 201417,
+    "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029635495",
+    "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029635495/zip",
+    "expired": false,
+    "digest": "sha256:ce3e8fe35c0b440daedc3085468ecfcad25b4dfb8f526cfef423caf2f7fe17f7",
+    "created_at": "2026-10-31T04:03:27Z",
+    "updated_at": "2026-10-31T04:03:27Z",
+    "expires_at": "2027-01-29T04:02:00Z",
+    "workflow_run": {
+      "id": 41166850534,
+      "repository_id": 1412930805,
+      "head_repository_id": 1412930805,
+      "head_branch": "chore/resumable-release",
+      "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+    }
+  },
+  "evidenceArtifacts": [
+    {
+      "id": 13030580325,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDU4MDMyNQ==",
+      "name": "WatchGuard-evidence-12.2-activity-native-attempt-1",
+      "size_in_bytes": 562465,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030580325",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030580325/zip",
+      "expired": false,
+      "digest": "sha256:4c66f805efe831bcd6310391254bfc14e7a3f95ba05a028d22809241224f6dfe",
+      "created_at": "2026-10-31T04:21:53Z",
+      "updated_at": "2026-10-31T04:21:53Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13030206348,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDIwNjM0OA==",
+      "name": "WatchGuard-evidence-12.2-activity-browser-attempt-1",
+      "size_in_bytes": 290200,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030206348",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030206348/zip",
+      "expired": false,
+      "digest": "sha256:10b6d0b6f8a1e2bf6aea94f0641c8d226fde496ff27fb705e0bd1acdfbbc35b6",
+      "created_at": "2026-10-31T04:21:26Z",
+      "updated_at": "2026-10-31T04:21:26Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13030385831,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDM4NTgzMQ==",
+      "name": "WatchGuard-evidence-12.2-standalone-discovery-attempt-1",
+      "size_in_bytes": 1728978,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030385831",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030385831/zip",
+      "expired": false,
+      "digest": "sha256:0d3dbf5a4362365945769c8646562cd269528a8cf8053f70f7492d1894530ab9",
+      "created_at": "2026-10-31T04:24:51Z",
+      "updated_at": "2026-10-31T04:24:51Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13030372557,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDM3MjU1Nw==",
+      "name": "WatchGuard-evidence-12.2-verification-navigation-attempt-1",
+      "size_in_bytes": 11144897,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030372557",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030372557/zip",
+      "expired": false,
+      "digest": "sha256:df61f0253baf9a91393456b6079aa420a6b33300e3a662ef0362aa1d02de6755",
+      "created_at": "2026-10-31T04:33:36Z",
+      "updated_at": "2026-10-31T04:33:36Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13030590218,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDU5MDIxOA==",
+      "name": "WatchGuard-evidence-12.2-migration-browser-attempt-1",
+      "size_in_bytes": 3488382,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030590218",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030590218/zip",
+      "expired": false,
+      "digest": "sha256:f2e9d0b901675e1c7e8308430843ea553b1b21a37522d5ff21070c208308304e",
+      "created_at": "2026-10-31T04:21:33Z",
+      "updated_at": "2026-10-31T04:21:33Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13029876883,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTg3Njg4Mw==",
+      "name": "WatchGuard-evidence-12.2-enforcement-legacy-attempt-1",
+      "size_in_bytes": 3314333,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029876883",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029876883/zip",
+      "expired": false,
+      "digest": "sha256:e7504f9d3b3fdd8aee2869ea034acbef5d6673290251488dc9384108c95bf479",
+      "created_at": "2026-10-31T04:17:54Z",
+      "updated_at": "2026-10-31T04:17:54Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13029897419,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTg5NzQxOQ==",
+      "name": "WatchGuard-evidence-12.3-activity-native-attempt-1",
+      "size_in_bytes": 562297,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029897419",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029897419/zip",
+      "expired": false,
+      "digest": "sha256:56e971a8315b04a3dec199e1679d685439dc22754511c9342bcdbff22849972f",
+      "created_at": "2026-10-31T04:22:20Z",
+      "updated_at": "2026-10-31T04:22:20Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13030381034,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDM4MTAzNA==",
+      "name": "WatchGuard-evidence-12.3-activity-browser-attempt-1",
+      "size_in_bytes": 291772,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030381034",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030381034/zip",
+      "expired": false,
+      "digest": "sha256:7c85293a4b4ddfa04dfb7c4c9f9c8933d3cb5627523769db1b1b478948fe0712",
+      "created_at": "2026-10-31T04:21:20Z",
+      "updated_at": "2026-10-31T04:21:20Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13029563198,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTU2MzE5OA==",
+      "name": "WatchGuard-evidence-12.3-standalone-discovery-attempt-1",
+      "size_in_bytes": 1747344,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029563198",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029563198/zip",
+      "expired": false,
+      "digest": "sha256:2ef33b61ded0e90bb5f17bcf6276f2a17380557f05ed0736e9756c77af668425",
+      "created_at": "2026-10-31T04:21:57Z",
+      "updated_at": "2026-10-31T04:21:57Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13030496291,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDQ5NjI5MQ==",
+      "name": "WatchGuard-evidence-12.3-verification-navigation-attempt-1",
+      "size_in_bytes": 11186583,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030496291",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030496291/zip",
+      "expired": false,
+      "digest": "sha256:e35542a88794108492b6c6c9ea2bbeba90c3a74e0e641afb545596f0e616c178",
+      "created_at": "2026-10-31T04:32:30Z",
+      "updated_at": "2026-10-31T04:32:30Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13029598055,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTU5ODA1NQ==",
+      "name": "WatchGuard-evidence-12.3-migration-browser-attempt-1",
+      "size_in_bytes": 3466861,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029598055",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029598055/zip",
+      "expired": false,
+      "digest": "sha256:6caa1a9fd58b0e4cb31c9e46bdf2ea272809954eebf9669b7b44752cfc6d47d4",
+      "created_at": "2026-10-31T04:22:11Z",
+      "updated_at": "2026-10-31T04:22:11Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13029622884,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTYyMjg4NA==",
+      "name": "WatchGuard-evidence-12.3-enforcement-legacy-attempt-1",
+      "size_in_bytes": 3283292,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029622884",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029622884/zip",
+      "expired": false,
+      "digest": "sha256:746a6578bd83a589549b1f6f72bd249f42e9592756d9fdf89979c29633167903",
+      "created_at": "2026-10-31T04:20:59Z",
+      "updated_at": "2026-10-31T04:20:59Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13030090833,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDA5MDgzMw==",
+      "name": "WatchGuard-evidence-12.4-activity-native-attempt-1",
+      "size_in_bytes": 562198,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030090833",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030090833/zip",
+      "expired": false,
+      "digest": "sha256:0aa2d2ff6c066b8a76ba4aaf9c2ec2561d309cf389b885df6ff665e3d0f1008a",
+      "created_at": "2026-10-31T04:21:55Z",
+      "updated_at": "2026-10-31T04:21:55Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13030565196,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDU2NTE5Ng==",
+      "name": "WatchGuard-evidence-12.4-activity-browser-attempt-1",
+      "size_in_bytes": 291402,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030565196",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030565196/zip",
+      "expired": false,
+      "digest": "sha256:d81893e3328058801b83da724f1cc2a13af8a26f55897413e3e01cce3abac4e7",
+      "created_at": "2026-10-31T04:21:35Z",
+      "updated_at": "2026-10-31T04:21:35Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13029792868,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTc5Mjg2OA==",
+      "name": "WatchGuard-evidence-12.4-standalone-discovery-attempt-1",
+      "size_in_bytes": 1739972,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029792868",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029792868/zip",
+      "expired": false,
+      "digest": "sha256:0312ba458fd299edf66d6f64cf899e9ad2e9f2cb93f7ae6b94e615ee0fd34a11",
+      "created_at": "2026-10-31T04:24:12Z",
+      "updated_at": "2026-10-31T04:24:12Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13029698648,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTY5ODY0OA==",
+      "name": "WatchGuard-evidence-12.4-verification-navigation-attempt-1",
+      "size_in_bytes": 11215665,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029698648",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029698648/zip",
+      "expired": false,
+      "digest": "sha256:5ca39ca13deb085595aed1ea67a86e22f659896d904e44c311960199ff3894f5",
+      "created_at": "2026-10-31T04:29:02Z",
+      "updated_at": "2026-10-31T04:29:02Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13030595711,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAzMDU5NTcxMQ==",
+      "name": "WatchGuard-evidence-12.4-migration-browser-attempt-1",
+      "size_in_bytes": 3463908,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030595711",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13030595711/zip",
+      "expired": false,
+      "digest": "sha256:63f2b7e74df08784a87b4773f8e408f58aceed03271baeeb62605740494c0d0d",
+      "created_at": "2026-10-31T04:21:00Z",
+      "updated_at": "2026-10-31T04:21:00Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    },
+    {
+      "id": 13029194556,
+      "node_id": "MDg6QXJ0aWZhY3QxMzAyOTE5NDU1Ng==",
+      "name": "WatchGuard-evidence-12.4-enforcement-legacy-attempt-1",
+      "size_in_bytes": 3346555,
+      "url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029194556",
+      "archive_download_url": "https://api.github.com/repos/MajorSchloch/jellyfin-plugin-watchguard/actions/artifacts/13029194556/zip",
+      "expired": false,
+      "digest": "sha256:c3fa2e94bb80ca85a6f3564adc8e47bb268fa9c6e2a1ead81a35a9c17ffe1cdb",
+      "created_at": "2026-10-31T04:18:12Z",
+      "updated_at": "2026-10-31T04:18:12Z",
+      "expires_at": "2027-01-29T04:02:00Z",
+      "workflow_run": {
+        "id": 41166850534,
+        "repository_id": 1412930805,
+        "head_repository_id": 1412930805,
+        "head_branch": "chore/resumable-release",
+        "head_sha": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e"
+      }
+    }
+  ],
+  "qualification": {
+    "result": "PASS",
+    "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+    "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+    "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+    "suites": [
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+        "suite": "activity-browser",
+        "attempts": [
+          {
+            "scenario": "activity-native-browser-polling",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "activity-browser"
+            ],
+            "environment": {},
+            "elapsedSeconds": 910.419,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "activity-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+        "suite": "websocket",
+        "attempts": [
+          {
+            "scenario": "caddy-websocket-measure",
+            "command": [
+              "tests/docker-smoke.py",
+              "--linuxserver",
+              "--caddy",
+              "--measure"
+            ],
+            "environment": {},
+            "elapsedSeconds": 43.322,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "activity-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+        "suite": "activity-index",
+        "attempts": [
+          {
+            "scenario": "activity-native-comparisons",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "activity-index"
+            ],
+            "environment": {},
+            "elapsedSeconds": 1031.306,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "activity-native",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+        "suite": "legacy",
+        "attempts": [
+          {
+            "scenario": "legacy-catalog",
+            "command": [
+              "tests/docker-smoke.py",
+              "--legacy-injector",
+              "--catalog",
+              "--injector-dll",
+              "{injector_dll}"
+            ],
+            "environment": {},
+            "elapsedSeconds": 127.047,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "legacy-browser",
+            "command": [
+              "tests/docker-smoke.py",
+              "--legacy-injector",
+              "--injector-dll",
+              "{injector_dll}"
+            ],
+            "environment": {},
+            "elapsedSeconds": 100.349,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+        "suite": "server-enforcement",
+        "attempts": [
+          {
+            "scenario": "enforcement-official-proxies",
+            "command": [
+              "tests/server-enforcement.py"
+            ],
+            "environment": {},
+            "elapsedSeconds": 180.423,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": true,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+        "suite": "server-enforcement-basepath",
+        "attempts": [
+          {
+            "scenario": "enforcement-basepath",
+            "command": [
+              "tests/server-enforcement.py",
+              "--base-path",
+              "/jellyfin"
+            ],
+            "environment": {},
+            "elapsedSeconds": 149.704,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+        "suite": "server-enforcement-linuxserver",
+        "attempts": [
+          {
+            "scenario": "enforcement-linuxserver",
+            "command": [
+              "tests/server-enforcement.py",
+              "--linuxserver"
+            ],
+            "environment": {},
+            "elapsedSeconds": 184.707,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+        "suite": "basepath",
+        "attempts": [
+          {
+            "scenario": "basepath-full-browser",
+            "command": [
+              "tests/docker-smoke.py",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 457.235,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "migration-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+        "suite": "migration",
+        "attempts": [
+          {
+            "scenario": "injector-migration",
+            "command": [
+              "tests/docker-smoke.py",
+              "--linuxserver",
+              "--migration",
+              "--injector-dll",
+              "{injector_dll}"
+            ],
+            "environment": {},
+            "elapsedSeconds": 503.188,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "migration-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+        "suite": "discovery",
+        "attempts": [
+          {
+            "scenario": "discovery-v045",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "discovery"
+            ],
+            "environment": {},
+            "elapsedSeconds": 232.06,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "standalone-discovery",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "lscr.io/linuxserver/jellyfin:12.2ubu2604-ls53@sha256:1bb4f88d822a0510bb3604b68aacb80d77c1d2a30181e500090c65111b98723b",
+        "suite": "standalone-caddy",
+        "attempts": [
+          {
+            "scenario": "standalone-catalog-upgrades-preferences-caddy",
+            "command": [
+              "tests/docker-smoke.py",
+              "--linuxserver",
+              "--catalog",
+              "--caddy",
+              "--preference-roundtrip"
+            ],
+            "environment": {},
+            "elapsedSeconds": 922.6,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "standalone-discovery",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+        "suite": "basepath-navigation",
+        "attempts": [
+          {
+            "scenario": "basepath-native-catalog",
+            "command": [
+              "tests/docker-smoke.py",
+              "--listing",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 192.946,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "basepath-drawer-navigation",
+            "command": [
+              "tests/docker-smoke.py",
+              "--navigation",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 509.23,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "basepath-startup",
+            "command": [
+              "tests/docker-smoke.py",
+              "--startup",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 248.068,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "verification-navigation",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.2",
+        "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+        "suite": "verification",
+        "attempts": [
+          {
+            "scenario": "verification-default",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "verification"
+            ],
+            "environment": {},
+            "elapsedSeconds": 264.532,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "verification-policies",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "verification"
+            ],
+            "environment": {
+              "WATCHGUARD_VERIFICATION_POLICIES": "1",
+              "WATCHGUARD_VERIFICATION_OUTPUT": "artifacts/verification-native-v048-policies.json"
+            },
+            "elapsedSeconds": 264.144,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "discovery-v047",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "discovery"
+            ],
+            "environment": {
+              "WATCHGUARD_DISCOVERY_BASELINE": "0.4.7"
+            },
+            "elapsedSeconds": 232.21,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "verification-navigation",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+        "suite": "activity-browser",
+        "attempts": [
+          {
+            "scenario": "activity-native-browser-polling",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "activity-browser"
+            ],
+            "environment": {},
+            "elapsedSeconds": 908.63,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "activity-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+        "suite": "websocket",
+        "attempts": [
+          {
+            "scenario": "caddy-websocket-measure",
+            "command": [
+              "tests/docker-smoke.py",
+              "--linuxserver",
+              "--caddy",
+              "--measure"
+            ],
+            "environment": {},
+            "elapsedSeconds": 41.811,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "activity-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+        "suite": "activity-index",
+        "attempts": [
+          {
+            "scenario": "activity-native-comparisons",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "activity-index"
+            ],
+            "environment": {},
+            "elapsedSeconds": 1054.526,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "activity-native",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+        "suite": "legacy",
+        "attempts": [
+          {
+            "scenario": "legacy-catalog",
+            "command": [
+              "tests/docker-smoke.py",
+              "--legacy-injector",
+              "--catalog",
+              "--injector-dll",
+              "{injector_dll}"
+            ],
+            "environment": {},
+            "elapsedSeconds": 150.494,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "legacy-browser",
+            "command": [
+              "tests/docker-smoke.py",
+              "--legacy-injector",
+              "--injector-dll",
+              "{injector_dll}"
+            ],
+            "environment": {},
+            "elapsedSeconds": 128.794,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+        "suite": "server-enforcement",
+        "attempts": [
+          {
+            "scenario": "enforcement-official-proxies",
+            "command": [
+              "tests/server-enforcement.py"
+            ],
+            "environment": {},
+            "elapsedSeconds": 237.385,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": true,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+        "suite": "server-enforcement-basepath",
+        "attempts": [
+          {
+            "scenario": "enforcement-basepath",
+            "command": [
+              "tests/server-enforcement.py",
+              "--base-path",
+              "/jellyfin"
+            ],
+            "environment": {},
+            "elapsedSeconds": 195.665,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+        "suite": "server-enforcement-linuxserver",
+        "attempts": [
+          {
+            "scenario": "enforcement-linuxserver",
+            "command": [
+              "tests/server-enforcement.py",
+              "--linuxserver"
+            ],
+            "environment": {},
+            "elapsedSeconds": 235.266,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+        "suite": "basepath",
+        "attempts": [
+          {
+            "scenario": "basepath-full-browser",
+            "command": [
+              "tests/docker-smoke.py",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 485.592,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "migration-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+        "suite": "migration",
+        "attempts": [
+          {
+            "scenario": "injector-migration",
+            "command": [
+              "tests/docker-smoke.py",
+              "--linuxserver",
+              "--migration",
+              "--injector-dll",
+              "{injector_dll}"
+            ],
+            "environment": {},
+            "elapsedSeconds": 542.258,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "migration-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+        "suite": "discovery",
+        "attempts": [
+          {
+            "scenario": "discovery-v045",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "discovery"
+            ],
+            "environment": {},
+            "elapsedSeconds": 159.697,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "standalone-discovery",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308",
+        "suite": "standalone-caddy",
+        "attempts": [
+          {
+            "scenario": "standalone-catalog-upgrades-preferences-caddy",
+            "command": [
+              "tests/docker-smoke.py",
+              "--linuxserver",
+              "--catalog",
+              "--caddy",
+              "--preference-roundtrip"
+            ],
+            "environment": {},
+            "elapsedSeconds": 826.092,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "standalone-discovery",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+        "suite": "basepath-navigation",
+        "attempts": [
+          {
+            "scenario": "basepath-native-catalog",
+            "command": [
+              "tests/docker-smoke.py",
+              "--listing",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 183.082,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "basepath-drawer-navigation",
+            "command": [
+              "tests/docker-smoke.py",
+              "--navigation",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 479.208,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "basepath-startup",
+            "command": [
+              "tests/docker-smoke.py",
+              "--startup",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 235.244,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "verification-navigation",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.3",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+        "suite": "verification",
+        "attempts": [
+          {
+            "scenario": "verification-default",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "verification"
+            ],
+            "environment": {},
+            "elapsedSeconds": 263.914,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "verification-policies",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "verification"
+            ],
+            "environment": {
+              "WATCHGUARD_VERIFICATION_POLICIES": "1",
+              "WATCHGUARD_VERIFICATION_OUTPUT": "artifacts/verification-native-v048-policies.json"
+            },
+            "elapsedSeconds": 255.784,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "discovery-v047",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "discovery"
+            ],
+            "environment": {
+              "WATCHGUARD_DISCOVERY_BASELINE": "0.4.7"
+            },
+            "elapsedSeconds": 231.422,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "verification-navigation",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+        "suite": "activity-browser",
+        "attempts": [
+          {
+            "scenario": "activity-native-browser-polling",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "activity-browser"
+            ],
+            "environment": {},
+            "elapsedSeconds": 932.107,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "activity-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044",
+        "suite": "websocket",
+        "attempts": [
+          {
+            "scenario": "caddy-websocket-measure",
+            "command": [
+              "tests/docker-smoke.py",
+              "--linuxserver",
+              "--caddy",
+              "--measure"
+            ],
+            "environment": {},
+            "elapsedSeconds": 53.914,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "activity-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+        "suite": "activity-index",
+        "attempts": [
+          {
+            "scenario": "activity-native-comparisons",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "activity-index"
+            ],
+            "environment": {},
+            "elapsedSeconds": 1034.149,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "activity-native",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+        "suite": "legacy",
+        "attempts": [
+          {
+            "scenario": "legacy-catalog",
+            "command": [
+              "tests/docker-smoke.py",
+              "--legacy-injector",
+              "--catalog",
+              "--injector-dll",
+              "{injector_dll}"
+            ],
+            "environment": {},
+            "elapsedSeconds": 129.169,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "legacy-browser",
+            "command": [
+              "tests/docker-smoke.py",
+              "--legacy-injector",
+              "--injector-dll",
+              "{injector_dll}"
+            ],
+            "environment": {},
+            "elapsedSeconds": 102.582,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+        "suite": "server-enforcement",
+        "attempts": [
+          {
+            "scenario": "enforcement-official-proxies",
+            "command": [
+              "tests/server-enforcement.py"
+            ],
+            "environment": {},
+            "elapsedSeconds": 186.913,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": true,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+        "suite": "server-enforcement-basepath",
+        "attempts": [
+          {
+            "scenario": "enforcement-basepath",
+            "command": [
+              "tests/server-enforcement.py",
+              "--base-path",
+              "/jellyfin"
+            ],
+            "environment": {},
+            "elapsedSeconds": 154.618,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044",
+        "suite": "server-enforcement-linuxserver",
+        "attempts": [
+          {
+            "scenario": "enforcement-linuxserver",
+            "command": [
+              "tests/server-enforcement.py",
+              "--linuxserver"
+            ],
+            "environment": {},
+            "elapsedSeconds": 192.402,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "enforcement-legacy",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+        "suite": "basepath",
+        "attempts": [
+          {
+            "scenario": "basepath-full-browser",
+            "command": [
+              "tests/docker-smoke.py",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 447.042,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "migration-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044",
+        "suite": "migration",
+        "attempts": [
+          {
+            "scenario": "injector-migration",
+            "command": [
+              "tests/docker-smoke.py",
+              "--linuxserver",
+              "--migration",
+              "--injector-dll",
+              "{injector_dll}"
+            ],
+            "environment": {},
+            "elapsedSeconds": 486.607,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "migration-browser",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+        "suite": "discovery",
+        "attempts": [
+          {
+            "scenario": "discovery-v045",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "discovery"
+            ],
+            "environment": {},
+            "elapsedSeconds": 221.444,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "standalone-discovery",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044",
+        "suite": "standalone-caddy",
+        "attempts": [
+          {
+            "scenario": "standalone-catalog-upgrades-preferences-caddy",
+            "command": [
+              "tests/docker-smoke.py",
+              "--linuxserver",
+              "--catalog",
+              "--caddy",
+              "--preference-roundtrip"
+            ],
+            "environment": {},
+            "elapsedSeconds": 900.506,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "standalone-discovery",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+        "suite": "basepath-navigation",
+        "attempts": [
+          {
+            "scenario": "basepath-native-catalog",
+            "command": [
+              "tests/docker-smoke.py",
+              "--listing",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 172.801,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "basepath-drawer-navigation",
+            "command": [
+              "tests/docker-smoke.py",
+              "--navigation",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 463.171,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "basepath-startup",
+            "command": [
+              "tests/docker-smoke.py",
+              "--startup",
+              "--base-path",
+              "/jellyfin",
+              "--proxy"
+            ],
+            "environment": {},
+            "elapsedSeconds": 230.141,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "verification-navigation",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "jellyfinVersion": "12.4",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+        "suite": "verification",
+        "attempts": [
+          {
+            "scenario": "verification-default",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "verification"
+            ],
+            "environment": {},
+            "elapsedSeconds": 206.372,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "verification-policies",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "verification"
+            ],
+            "environment": {
+              "WATCHGUARD_VERIFICATION_POLICIES": "1",
+              "WATCHGUARD_VERIFICATION_OUTPUT": "artifacts/verification-native-v048-policies.json"
+            },
+            "elapsedSeconds": 199.748,
+            "exitCode": 0,
+            "retry": false
+          },
+          {
+            "scenario": "discovery-v047",
+            "command": [
+              "tests/docker-smoke.py",
+              "--profile",
+              "discovery"
+            ],
+            "environment": {
+              "WATCHGUARD_DISCOVERY_BASELINE": "0.4.7"
+            },
+            "elapsedSeconds": 172.449,
+            "exitCode": 0,
+            "retry": false
+          }
+        ],
+        "status": "PASS",
+        "python": "3.12.0",
+        "node": "v24.22.0",
+        "commit": "f252d741c4a3bfc6f90706d6f6556a72d09eaa7e",
+        "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+        "runtimeSha256": "febca265d9dae4e638573377a94b72bd6a7124213bba9bc2f48bc41d3c87eaaa",
+        "origin": {
+          "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+          "run": 41166850534,
+          "attempt": 1
+        },
+        "shard": "verification-navigation",
+        "proxyMatrix": false,
+        "dotnet": "10.0.302",
+        "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "browserEnvironment": "mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a",
+        "playwright": "1.56.1",
+        "chromium": {
+          "name": "chromium",
+          "revision": "1194",
+          "installByDefault": true,
+          "browserVersion": "141.0.7390.37"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "runId": 41092307824,
+  "runAttempt": 1,
+  "commit": "8221e0962175e7388a2ac352488ea2e073c85d4c",
+  "status": "completed",
+  "conclusion": "success",
+  "elapsedSeconds": 21.0,
+  "combinedJobExecutionSeconds": 14.0,
+  "combinedReadyToStartSeconds": 6.0,
+  "queueDefinition": "Dependency-ready to job start; includes scheduler/runner provisioning and, for publication, environment approval. GitHub does not expose an exact runner queue timestamp.",
+  "elapsedDefinition": "First attempt: workflow creation to completion. Later attempts: attempt start to completion.",
+  "executionDefinition": "Sum of completed non-skipped job intervals, including setup and cleanup; overlapping jobs count separately.",
+  "incompleteJobs": [],
+  "jobs": [
+    {
+      "name": "plan",
+      "id": 124189063876,
+      "conclusion": "success",
+      "executionSeconds": 10.0,
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run python3 scripts/release_plan.py --publish 'false' --inspect-only 'true'",
+          "category": "other",
+          "seconds": 3.0
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "status",
+      "id": 124189174176,
+      "conclusion": "success",
+      "executionSeconds": 4.0,
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "State the result and next action",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    }
+  ]
+}

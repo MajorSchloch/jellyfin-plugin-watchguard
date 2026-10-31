@@ -1,0 +1,13 @@
+{
+  "run": 41166850534,
+  "attempt": 1,
+  "write": false,
+  "state": "already published and verified",
+  "version": "0.7.11",
+  "actions": [],
+  "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+  "recordArtifactId": 13030018454,
+  "preservedDrafts": [],
+  "draftVisibility": false,
+  "elapsedSeconds": 6.664
+}

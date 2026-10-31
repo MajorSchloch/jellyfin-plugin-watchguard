@@ -1,0 +1,65 @@
+{
+  "environment": "macOS-27.0.1-arm64-arm-64bit",
+  "version": "0.7.11",
+  "packageSha256": "c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+  "samples": [
+    {
+      "sample": 1,
+      "publicCheckSeconds": 2.354,
+      "localCatalogRecoverySeconds": 0.846
+    },
+    {
+      "sample": 2,
+      "publicCheckSeconds": 1.627,
+      "localCatalogRecoverySeconds": 0.511
+    },
+    {
+      "sample": 3,
+      "publicCheckSeconds": 1.668,
+      "localCatalogRecoverySeconds": 0.466
+    }
+  ],
+  "publicCheckMedianSeconds": 1.668,
+  "localCatalogRecoveryMedianSeconds": 0.511,
+  "limitations": "Local network samples. Recovery writes a temporary manifest only. No release upload, remote catalog commit, approval wait or matrix speedup is measured.",
+  "preservedReleases": [
+    {
+      "id": 429209739,
+      "tag_name": "v0.7.11",
+      "target_commitish": "1531c01712ba43e92a5b45c1610555ddb4ef4774",
+      "draft": true,
+      "prerelease": false,
+      "published_at": null,
+      "assets": [],
+      "bodySha256": "675c73dde5beff994c7d96449d08a417bf7eaf35144453dc699dd4b18e51a7c6"
+    },
+    {
+      "id": 429096534,
+      "tag_name": "v0.7.11",
+      "target_commitish": "734c820a495a40af5bc13c9e4342ed0af86a6eb9",
+      "draft": false,
+      "prerelease": false,
+      "published_at": "2026-10-30T13:57:38Z",
+      "assets": [
+        {
+          "id": 692287735,
+          "name": "Jellyfin.Plugin.WatchGuard-v0.7.11.zip",
+          "size": 582213,
+          "digest": "sha256:c48fc7150da44e6e37670bd2be41813ee1590c931b29a964a110fdb06e7a534b",
+          "created_at": "2026-10-30T13:57:37Z",
+          "updated_at": "2026-10-30T13:57:37Z"
+        },
+        {
+          "id": 692287737,
+          "name": "Jellyfin.Plugin.WatchGuard-v0.7.11.zip.sha256",
+          "size": 105,
+          "digest": "sha256:630dab11c0800004b927011b85b3f574ab186502a4b6ac1be6865c82359f28be",
+          "created_at": "2026-10-30T13:57:37Z",
+          "updated_at": "2026-10-30T13:57:37Z"
+        }
+      ],
+      "bodySha256": "675c73dde5beff994c7d96449d08a417bf7eaf35144453dc699dd4b18e51a7c6"
+    }
+  ],
+  "publicCatalogUnchanged": true
+}

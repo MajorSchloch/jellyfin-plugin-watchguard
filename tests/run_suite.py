@@ -22,6 +22,7 @@ report={'schemaVersion':2,'jellyfinVersion':fixture_images.version(), 'image':fi
 package=next(Path('artifacts').glob('Jellyfin.Plugin.WatchGuard-v'+ET.parse('Directory.Build.props').findtext('./PropertyGroup/Version')+'.zip'))
 report['packageSha256']=hashlib.sha256(package.read_bytes()).hexdigest()
 report['runtimeSha256']=hashlib.sha256(Path('artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll').read_bytes()).hexdigest()
+report['origin']={'repository':os.environ.get('GITHUB_REPOSITORY'), 'run':int(os.environ.get('GITHUB_RUN_ID','0')), 'attempt':int(os.environ.get('GITHUB_RUN_ATTEMPT','0'))}
 report['shard']=os.environ.get('WATCHGUARD_SHARD')
 report['proxyMatrix']=os.environ.get('WATCHGUARD_PROXY_MATRIX')=='1'
 report['dotnet']=subprocess.check_output(['dotnet','--version'],text=True).strip()

@@ -49,9 +49,11 @@ class RepositoryHygieneTests(unittest.TestCase):
             self.assertIn("Unpublished", (ROOT / "release-preparation.md").read_text())
         for workflow in ["build.yaml", "release.yaml"]:
             source = (ROOT / ".github/workflows" / workflow).read_text(encoding="utf-8")
-            self.assertIn(f"Jellyfin.Plugin.WatchGuard-v{BUILD_VERSION}.zip", source)
+            self.assertIn('scripts/release_plan.py', source)
+            self.assertIn('outputs.package', source)
         source = (ROOT / ".github/workflows/release.yaml").read_text(encoding="utf-8")
-        self.assertIn(f"--notes-file docs/releases/{CANDIDATE_DOC.name}", source)
+        publisher = (ROOT / 'scripts/publish_release.py').read_text()
+        self.assertIn("api.file(f'docs/releases/v{version}.md', record['sourceCommit'])", publisher)
 
     def test_historical_template_artifacts_are_not_tracked(self):
         for name in [
