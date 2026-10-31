@@ -1,0 +1,239 @@
+{
+  "result": "PASS",
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "runtimeSha256": "6943145dee6b3be8613255072d3ea30271cb389b526a91ae605c3bbd59b97f4e",
+  "cases": [
+    {
+      "layout": "auto",
+      "width": 390,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "auto",
+      "width": 1280,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "auto",
+      "width": 2048,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "modern",
+      "width": 390,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "modern",
+      "width": 2048,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 390,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 2048,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 1280,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 2048,
+      "focus": {
+        "visible": true,
+        "outline": "solid"
+      },
+      "writes": "One pending write; failure retains membership, node and focus; successful retry and inverse write",
+      "menuWrite": "Native menu updates the same detail button; actual native close event precedes the next action",
+      "interactions": "Escape returns focus; outside dismiss; keyboard checkbox; delayed rapid search preserves panel, focus and route"
+    }
+  ],
+  "themes": [
+    {
+      "theme": "light",
+      "errorContrast": {
+        "foreground": [
+          228.09,
+          228.09,
+          228.09
+        ],
+        "background": [
+          48,
+          48,
+          48
+        ],
+        "ratio": 10.388985462908048
+      }
+    },
+    {
+      "theme": "purplehaze",
+      "errorContrast": {
+        "foreground": [
+          242.249,
+          241.62800000000001,
+          248.519
+        ],
+        "background": [
+          35,
+          12,
+          51
+        ],
+        "ratio": 16.045293523936373
+      }
+    },
+    {
+      "theme": "blueradiance",
+      "errorContrast": {
+        "foreground": [
+          229.8,
+          234.6,
+          239.2
+        ],
+        "background": [
+          3,
+          51,
+          97
+        ],
+        "ratio": 10.572214971838454
+      }
+    },
+    {
+      "theme": "appletv",
+      "errorContrast": {
+        "foreground": [
+          24.44,
+          24.44,
+          24.44
+        ],
+        "background": [
+          188,
+          188,
+          188
+        ],
+        "ratio": 9.309454505320637
+      }
+    },
+    {
+      "theme": "wmc",
+      "errorContrast": {
+        "foreground": [
+          230.3,
+          232.2,
+          235.4
+        ],
+        "background": [
+          8,
+          27,
+          59
+        ],
+        "ratio": 13.935342727336444
+      }
+    },
+    {
+      "theme": "dark",
+      "errorContrast": {
+        "foreground": [
+          187.14000000000001,
+          187.14000000000001,
+          187.14000000000001
+        ],
+        "background": [
+          28.8,
+          28.8,
+          28.8
+        ],
+        "ratio": 8.813599426116282
+      }
+    }
+  ],
+  "device": "Chromium mouse/touch emulation; not physical devices"
+}

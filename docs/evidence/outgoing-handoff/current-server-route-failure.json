@@ -1,0 +1,9 @@
+{
+  "ciRun": 41241472584,
+  "job": 124656553351,
+  "serverVersion": "12.4.0",
+  "outgoingCases": 10,
+  "outgoingResult": "PASS",
+  "runtimeSha256": "f08da50ba8b578ce28c33f3c6e81de57644cd06a3d26a201c7378426b3a902cd",
+  "failure": "Existing native-controls theme test followed a current-server #/details?id=... link. The handoff incorrectly required serverId in the lifecycle event and blocked the rendered detail action."
+}

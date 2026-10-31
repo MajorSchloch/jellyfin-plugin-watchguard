@@ -1,6 +1,14 @@
-# WatchGuard v0.7.12 preparation
+# WatchGuard v0.7.13 preparation
 
-Unpublished older-browser and TV compatibility patch. Review [implementation and hardware limits](docs/browser-compatibility.md) and [publication copy](docs/releases/v0.7.12.md). Full qualification uses `publish=false` and `proxy_matrix=true`; do not publish this candidate as part of the compatibility work.
+Unpublished patch for the transition from Watchlists to native item details. See [preparation and validation](docs/release-v0713.md), [implementation and TV procedure](docs/outgoing-handoff.md), and [publication copy](docs/releases/v0.7.13.md).
+
+The reviewed transition implementation is unchanged by this version preparation. The public catalog and published v0.7.12 assets remain unchanged.
+
+Run 41245891354, attempt 1, passed all 39 compatibility suites with a development package that still identified itself as v0.7.12. Retain it as regression evidence only. It cannot authorize v0.7.13 publication. After merge, automatic master qualification must validate the final v0.7.13 package before publication and release-environment approval.
+
+## Published v0.7.12 record
+
+Published on 2026-10-31. See [the retained qualification and package record](docs/release-v0712.md). Its release assets and catalog entry remain unchanged.
 
 ## Published v0.7.11 record
 

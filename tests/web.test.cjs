@@ -1279,3 +1279,74 @@ test('compatibility reports feature independence, unqualified simulations and cu
     assert.equal(read()['deletion-adapter'].Status,'Unsupported');
     assert.equal(browserCapabilities(null,doc,host,false).Checks.find(c=>c.Id==='browser-api').Status,'Unavailable');
 });
+
+function departureFixture() {
+    const {createDeparture}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+    const listeners=new Map(),timers=new Map();let observer,serial=0;
+    const identity=[{},'owner','token','server'],clock={now:100};
+    const doc={activeElement:null,addEventListener:(n,fn)=>listeners.set(n,fn),removeEventListener:(n,fn)=>{if(listeners.get(n)===fn)listeners.delete(n);}};
+    function node(tag) {
+        const n={tag,children:[],dataset:{},attrs:{},isConnected:true,
+            setAttribute(k,v){this.attrs[k]=v;},getAttribute(k){return this.attrs[k]||null;},
+            append(...children){for(const c of children){c.remove();c.parent=this;c.isConnected=true;this.children.push(c);}},
+            remove(){if(this.parent)this.parent.children=this.parent.children.filter(n=>n!==this);this.parent=null;this.isConnected=false;},
+            contains(other){return this===other||this.children.some(n=>n.contains(other));},
+            closest(s){return this.native&&s==='.skinBody'?this:null;},
+            focus(){doc.activeElement=this;listeners.get('focusin')?.({target:this});}};
+        return n;
+    }
+    doc.createElement=node;doc.body=node('body');const page=node('page');doc.body.append(page);doc.activeElement=page;
+    doc.querySelector=()=>page.isConnected?page:null;
+    const win={location:{hash:'#/details?id=one&serverId=server'},performance:{now:()=>clock.now},setTimeout(fn,ms){timers.set(++serial,{fn,ms});return serial;},clearTimeout(id){timers.delete(id);},MutationObserver:class{constructor(fn){this.fn=fn;observer=this;}observe(){}disconnect(){this.disconnected=true;}}};
+    const view=node('view');view.id='itemDetailPage';view.classList={contains:()=>false};view.getClientRects=()=>[{}];
+    const control=node('button');control.native=true;control.setAttribute('data-id','one');control.setAttribute('data-serverid','server');view.append(control);
+    const title={textContent:'Title'};view.querySelector=s=>s==='.nameContainer'?title:control;
+    const dep=createDeparture(doc,win,()=>identity.slice());
+    return {dep,doc,win,identity,view,control,title,timers,listeners,clock,mutate:()=>observer.fn(),observer:()=>observer,
+        start(){dep.route(win.location.hash,'#/home?watchguard=watchlists');page.remove();},
+        show(params={id:'one',serverId:'server'},target=view){dep.shown({target,detail:{params}});}};
+}
+test('outgoing handoff needs matching lifecycle, rendered item/server and native layout',()=>{
+    const f=departureFixture();f.start();const cover=f.doc.body.children[0];
+    f.show({},f.doc);assert(cover.isConnected);
+    f.show({id:'other',serverId:'server'});assert(cover.isConnected);
+    f.show({id:'one',serverId:'other'});assert(cover.isConnected);
+    f.control.setAttribute('data-id','old');f.show();assert(cover.isConnected);
+    f.control.setAttribute('data-id','one');f.control.setAttribute('data-serverid','wrong');f.mutate();assert(cover.isConnected);
+    f.control.setAttribute('data-serverid','server');f.title.textContent='';f.mutate();assert(cover.isConnected);
+    f.title.textContent='Title';f.view.getClientRects=()=>[];f.mutate();assert(cover.isConnected);
+    f.view.getClientRects=()=>[{}];f.control.focus();assert(cover.contains(f.doc.activeElement));
+    f.mutate();assert(!cover.isConnected);assert.equal(f.doc.activeElement,f.control);
+    assert.equal(f.timers.size,0);assert.equal(f.listeners.size,0);assert(f.observer().disconnected);
+});
+test('outgoing handoff rejects identity changes, route changes and stale destination signals',()=>{
+    for(const field of [0,1,2,3]){
+        const f=departureFixture();f.start();const cover=f.doc.body.children[0];
+        f.identity[field]='different';f.show();assert(!cover.isConnected);assert.equal(f.listeners.size,0);assert.equal(f.timers.size,0);
+    }
+    const f=departureFixture();f.start();f.win.location.hash='#/details?id=two&serverId=server';f.dep.route(f.win.location.hash);
+    const cover=f.doc.body.children[0];f.show();assert(cover.isConnected);
+    f.control.setAttribute('data-id','two');f.show({id:'two',serverId:'server'});assert(!cover.isConnected);
+    f.start();f.win.location.hash='#/login';f.dep.route(f.win.location.hash);assert.equal(f.doc.body.children.length,0);
+});
+test('current-server native links still require the captured server on rendered controls',()=>{
+    const f=departureFixture();f.win.location.hash='#/details?id=one';f.start();const cover=f.doc.body.children[0];
+    f.control.setAttribute('data-serverid','other');f.show({id:'one'});assert(cover.isConnected);
+    f.control.setAttribute('data-serverid','server');f.mutate();assert(!cover.isConnected);
+    const unknown=departureFixture();unknown.identity[3]=null;unknown.start();assert.equal(unknown.timers.size,0);
+    const mismatch=departureFixture();mismatch.win.location.hash='#/details?id=one&serverId=other';mismatch.start();assert.equal(mismatch.timers.size,0);
+});
+test('handoff timeout stops monitoring, gives recovery, and never marks the destination ready',()=>{
+    const f=departureFixture();f.start();const timer=[...f.timers.values()][0];assert.equal(timer.ms,15000);
+    timer.fn();const notice=f.doc.body.children[0];assert.equal(notice.className,'watchguard-outgoing-error');
+    assert.equal(f.listeners.size,0);assert.equal(f.timers.size,0);assert(f.observer().disconnected);
+    f.dep.route(f.win.location.hash);assert(notice.isConnected,'Routine reconciliation retains recovery');
+    f.dep.clear();assert(!notice.isConnected);
+});
+test('handoff preserves header focus and a retarget cannot extend the cleanup deadline',()=>{
+    const f=departureFixture();f.start();f.clock.now+=12000;
+    f.win.location.hash='#/details?id=two&serverId=server';f.dep.route(f.win.location.hash);
+    assert.equal([...f.timers.values()][0].ms,3000);
+    const header=f.doc.createElement('button');header.focus();f.control.setAttribute('data-id','two');
+    f.show({id:'two',serverId:'server'});assert.equal(f.doc.activeElement,header);f.dep.clear();
+});

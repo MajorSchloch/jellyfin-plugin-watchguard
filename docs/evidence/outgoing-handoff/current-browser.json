@@ -1,0 +1,616 @@
+{
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "cases": [
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 52,
+        "homeExposures": 0,
+        "sampleExcerpt": [
+          {
+            "at": 1605.2000000000116,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1616.7000000000116,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1657.9000000000087,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1663.7000000000116,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1676.6000000000058,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1685.1000000000058,
+            "home": false,
+            "cover": true,
+            "panel": false
+          }
+        ],
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1668.2000000000116,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2352,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 2352.9000000000087,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2356,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 2356.2000000000116,
+            "panel": false,
+            "cover": true
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": true,
+        "tag": "BUTTON"
+      },
+      "back": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    },
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 46,
+        "homeExposures": 0,
+        "eventOrder": [
+          "hashchange",
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow"
+        ]
+      },
+      "focus": {
+        "inDetail": true,
+        "tag": "BUTTON"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 53,
+        "homeExposures": 0,
+        "eventOrder": [
+          "hashchange",
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow"
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 47,
+        "homeExposures": 0,
+        "eventOrder": [
+          "hashchange",
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow"
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 53,
+        "homeExposures": 0,
+        "eventOrder": [
+          "hashchange",
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow"
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 47,
+        "homeExposures": 0,
+        "eventOrder": [
+          "hashchange",
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow"
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewbeforeshow",
+          "viewhide",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 52,
+        "homeExposures": 0,
+        "eventOrder": [
+          "hashchange",
+          "viewbeforeshow",
+          "viewshow"
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 6,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewhide",
+          "viewbeforeshow",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforeshow",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 48,
+        "homeExposures": 0,
+        "eventOrder": [
+          "hashchange",
+          "viewbeforeshow",
+          "viewshow"
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewhide",
+          "viewbeforeshow",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforeshow",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    },
+    {
+      "layout": "auto",
+      "width": 390,
+      "input": "touch",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 52,
+        "homeExposures": 0,
+        "eventOrder": [
+          "hashchange",
+          "viewbeforeshow",
+          "viewshow"
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewhide",
+          "viewbeforeshow",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforeshow",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    },
+    {
+      "layout": "auto",
+      "width": 390,
+      "input": "touch",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 47,
+        "homeExposures": 0,
+        "eventOrder": [
+          "hashchange",
+          "viewbeforeshow",
+          "viewshow"
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 6,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforehide",
+          "viewhide",
+          "viewbeforeshow",
+          "viewshow",
+          "hashchange"
+        ]
+      },
+      "forward": {
+        "frames": 5,
+        "homeExposures": 0,
+        "eventOrder": [
+          "viewbeforeshow",
+          "viewshow",
+          "hashchange"
+        ]
+      }
+    }
+  ],
+  "result": "PASS",
+  "physicalTV": false,
+  "errors": [
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "ChunkLoadError: Loading chunk 75844 failed.\n(error: [URL]\n    at s.f.j ([URL]\n    at [URL]\n    at Array.reduce (<anonymous>)\n    at s.e ([URL]\n    at Array.map (<anonymous>)\n    at i ([URL]\n    at p ([URL]\n    at [URL]\n    at [URL]\n    at Object.next ([URL]"
+    }
+  ],
+  "runtimeSha256": "6943145dee6b3be8613255072d3ea30271cb389b526a91ae605c3bbd59b97f4e",
+  "engine": "141.0.7390.37",
+  "currentServerRoute": {
+    "frames": 20,
+    "homeExposures": 0,
+    "events": [
+      {
+        "name": "hashchange",
+        "route": "#/details",
+        "at": 1010.3999999999942,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewbeforehide",
+        "route": "#/details",
+        "target": "indexPage",
+        "at": 1209,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewbeforeshow",
+        "route": "#/details",
+        "item": "16113371c48eb37108bd832a31e4fa16",
+        "target": "itemDetailPage",
+        "at": 1209.5,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewhide",
+        "route": "#/details",
+        "target": "indexPage",
+        "at": 1215.1000000000058,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewshow",
+        "route": "#/details",
+        "item": "16113371c48eb37108bd832a31e4fa16",
+        "target": "itemDetailPage",
+        "at": 1215.199999999997,
+        "panel": false,
+        "cover": true
+      }
+    ],
+    "sampleExcerpt": [
+      {
+        "at": 997.1999999999971,
+        "home": false,
+        "cover": false,
+        "panel": true
+      },
+      {
+        "at": 1011.6000000000058,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 1030.8999999999942,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 1044.3999999999942,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 1061.5,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 1077.6000000000058,
+        "home": false,
+        "cover": true,
+        "panel": false
+      }
+    ]
+  },
+  "cancelAndRapidSelection": "PASS",
+  "failureRecovery": "PASS",
+  "accountSwitch": "PASS",
+  "logout": "PASS",
+  "requestFailureCount": 102,
+  "evidenceNote": "Summary of the full native report: every frame count and Home-exposure count retained, event order retained for each phase, detailed timeline/sample excerpts for the first TV and current-server transitions. Expected ChunkLoadError belongs to deliberate HTTP 503 recovery."
+}

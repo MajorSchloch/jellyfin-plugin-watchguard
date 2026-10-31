@@ -1290,14 +1290,110 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     return {install, isInstalled: api => installed.get(api)?.method === api?.deleteItem};
 }
 
+    // Native viewshow precedes async item rendering. Require both the lifecycle
+    // identity and native rendered controls; never infer readiness from the URL alone.
+    function detailHandoffReady(view, params, hash, server) {
+        const route = new URLSearchParams(hash.split('?')[1] || '');
+        const id = key(route.get('id'));
+        if (!/^#\/details(?:\?|$)/.test(hash) || !id || !key(server) || !view?.isConnected || view.id !== 'itemDetailPage' ||
+            key(params?.id) !== id || (params?.serverId && key(params.serverId) !== key(server)) ||
+            (route.get('serverId') && key(route.get('serverId')) !== key(server)) || view.classList.contains('hide')) return false;
+        const control = view.querySelector('.mainDetailButtons .btnPlaystate[data-id][data-serverid]');
+        return key(control?.getAttribute('data-id')) === id && key(control?.getAttribute('data-serverid')) === key(server) &&
+            !!view.querySelector('.nameContainer')?.textContent.trim() && view.getClientRects().length > 0;
+    }
+
+    function createDeparture(document, window, currentIdentity) {
+        let pending, notice;
+        const same = values => { const current = currentIdentity(); return values.every((value, index) => value === current[index]); };
+        function clear() {
+            if (pending) {
+                window.clearTimeout(pending.timer); pending.observer.disconnect();
+                document.removeEventListener('focusin', pending.focus, true);
+                pending.panel.remove(); pending = null;
+            }
+            notice?.remove(); notice = null;
+        }
+        function check() {
+            const state = pending;
+            if (!state) return;
+            if (!same(state.identity) || window.location.hash !== state.hash) { clear(); return; }
+            if (document.activeElement === document.body) state.back.focus();
+            if (!detailHandoffReady(state.view, state.params, state.hash, state.identity[3])) return;
+            const restore = state.panel.contains(document.activeElement);
+            const focus = state.nativeFocus;
+            clear();
+            // Preserve the native focus manager's chosen destination. Never steal
+            // focus from a header control used while the destination was loading.
+            if (restore && focus?.isConnected && state.view.contains(focus)) focus.focus();
+        }
+        function route(hash, from) {
+            if (pending?.hash === hash) { check(); return; }
+            if (notice && notice.dataset.route !== hash) { notice.remove(); notice = null; }
+            const previous = pending;
+            const identity = currentIdentity().slice();
+            const params = new URLSearchParams(hash.split('?')[1] || '');
+            const eligible = /^#\/details(?:\?|$)/.test(hash) && params.get('id') && identity[1] && identity[2] && identity[3] &&
+                (!params.get('serverId') || key(params.get('serverId')) === key(identity[3]));
+            if (!eligible || (previous && !same(previous.identity))) { clear(); return; }
+            if (!from && !previous) return;
+            const origin = from || previous.origin;
+            const deadline = previous?.deadline || window.performance.now() + 15000;
+            clear();
+            const panel = document.createElement('section'); panel.className = 'watchguard-outgoing';
+            panel.setAttribute('aria-label', 'Item loading');
+            const status = document.createElement('p'); status.setAttribute('role', 'status'); status.textContent = 'Loading item…';
+            const back = document.createElement('a'); back.className = 'emby-button button-link focusable';
+            back.href = origin; back.textContent = 'Back to Watchlists';
+            panel.append(status, back); document.body.append(panel);
+            const state = {hash, identity, origin, deadline, panel, back}; pending = state;
+            state.focus = event => {
+                if (!same(identity)) { clear(); return; }
+                if (event.target.closest?.('.skinBody')) {
+                    state.nativeFocus = event.target;
+                    back.focus();
+                }
+            };
+            document.addEventListener('focusin', state.focus, true);
+            state.observer = new window.MutationObserver(check);
+            state.observer.observe(document.body, {subtree:true, childList:true, attributes:true});
+            state.timer = window.setTimeout(() => {
+                if (pending !== state) return;
+                const valid = same(identity) && window.location.hash === hash;
+                const restore = panel.contains(document.activeElement) || document.activeElement === document.body;
+                clear();
+                if (!valid) return;
+                // A deadline is failure recovery, never a readiness signal.
+                status.textContent = 'Item loading did not finish.'; status.setAttribute('role', 'alert');
+                panel.className = 'watchguard-outgoing-error'; panel.dataset.route = hash;
+                document.body.append(panel); notice = panel; if (restore) back.focus();
+            }, Math.max(0, deadline - window.performance.now()));
+            if (document.querySelector('.watchguard-page')?.contains(document.activeElement)) back.focus();
+        }
+        function shown(event) {
+            if (!pending || event.target?.id !== 'itemDetailPage') return;
+            const params = event.detail?.params;
+            const route = new URLSearchParams(pending.hash.split('?')[1] || '');
+            // Native links may omit serverId to use the current ApiClient. The
+            // rendered control must still identify the captured server in check().
+            if (key(params?.id) !== key(route.get('id')) || (params?.serverId && key(params.serverId) !== key(pending.identity[3]))) return;
+            pending.view = event.target; pending.params = params; check();
+        }
+        return {route, shown, clear};
+    }
+
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { tvChoices, browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
+        module.exports = { createDeparture, detailHandoffReady, tvChoices, browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
     let diagnostic = /*WATCHGUARD_DIAGNOSTICS*/false;
     let identity, panel, detailButton, refreshDetailMembership, signature, membership, epoch = 0;
     let pagePanel, pageSignature, pageLifetime;
+    const departure = createDeparture(document, root, () => {
+        const api = root.ApiClient;
+        return [api, api?.getCurrentUserId?.(), api?.accessToken?.(), api?.serverId?.()];
+    });
     // The shell owns its identity fence; connecting the runtime must retain its nodes.
     const syncNavigation = () => root.WatchGuardNavigation?.update();
     let lifetime = new AbortController();
@@ -1307,7 +1403,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         if (!identity || next.some((v, i) => v !== identity[i])) {
             lifetime.abort(); lifetime = new AbortController();
             panel?.remove(); detailButton?.remove(); panel = null; refreshDetailMembership = null; signature = null; epoch++;
-            syncNavigation(); closePage();
+            departure.clear(); syncNavigation(); closePage();
             identity = next;
             membership = next[1] && next[2] ? createMembership(api, lifetime.signal, (id, present) => {
                 // A native menu can change the same title. Refresh its state without
@@ -1350,6 +1446,9 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-deletion-dialog button:focus-visible {outline:2px solid #fff;outline-offset:2px}
 
         body.watchguard-page-open .skinBody {display:none!important}
+        .watchguard-outgoing,.watchguard-outgoing-error {position:fixed;top:var(--watchguard-top,64px);left:0;right:0;z-index:20;padding:1.25em;background:var(--jf-palette-background-default,#101010);color:var(--jf-palette-text-primary,#eee)}
+        .watchguard-outgoing {bottom:0}
+        .watchguard-outgoing a:focus,.watchguard-outgoing-error a:focus {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:3px}
         .watchguard-page {position:fixed;top:var(--watchguard-top,64px);right:0;bottom:0;left:0;overflow:auto;z-index:10;padding-bottom:5em;box-sizing:border-box}
         .watchguard-page [hidden] {display:none!important}
         .watchguard-page select {min-width:0;max-width:100%}
@@ -1570,13 +1669,19 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         const hash = root.location.hash;
         // Never add a user-content entry to dashboard, login, video or setup screens.
         const eligible = api && /^#\/(?:home|details|movies|tv|list|search|music|livetv)(?:[/?]|$)/.test(hash);
-        if (!eligible) { syncNavigation(); closePage(); return; }
+        if (!eligible) { departure.clear(); syncNavigation(); closePage(); return; }
         const visible = element => element && element.getClientRects().length > 0;
         const legacy = document.querySelector('.skinHeader');
         root.WatchGuardNavigation?.update();
         const params = new URLSearchParams(hash.split('?')[1] || '');
         const open = /^#\/home(?:\?|$)/.test(hash) && params.get('watchguard') === 'watchlists';
-        if (!open) { closePage(); return; }
+        if (!open) {
+            // Mount the neutral cover before revealing native layout. Abort the
+            // live Watchlists view immediately; the cover owns no account data.
+            departure.route(hash, pagePanel?.isConnected ? pageSignature : null);
+            closePage(); return;
+        }
+        departure.clear();
         const header = visible(legacy) ? legacy : document.querySelector('header.MuiAppBar-root');
         if (header) document.body.style.setProperty('--watchguard-top', Math.max(0, header.getBoundingClientRect().bottom) + 'px');
         if (pagePanel?.isConnected) {
@@ -1770,7 +1875,12 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     root.WatchGuardNavigation?.connect(updateNavigation);
     for (const name of ['viewbeforeshow', 'viewshow', 'pointerdown', 'keydown', 'click'])
         document.addEventListener(name, bind, true);
-    document.addEventListener('viewshow', () => { signature = null; updateDetail(); }, true);
+    // These added lifecycle hooks only prepare departure. Keep incoming
+    // Watchlists mounting/query/preference timing on its existing route path.
+    const prepareDeparture = () => { if (/^#\/details(?:\?|$)/.test(root.location.hash)) updateNavigation(); };
+    document.addEventListener('viewbeforeshow', prepareDeparture, true);
+    document.addEventListener('viewshow', event => { prepareDeparture(); departure.shown(event); signature = null; updateDetail(); }, true);
+    root.addEventListener('pagehide', event => { if (event.target === root || event.target === document) departure.clear(); });
     root.addEventListener('hashchange', () => { updateNavigation(); updateDetail(); });
     setInterval(() => { bind(); updateNavigation(); updateDetail(); }, 500);
 })(typeof window === 'undefined' ? globalThis : window);
