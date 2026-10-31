@@ -72,8 +72,20 @@ The corrected-fixture [run 41241472584](https://github.com/MajorSchloch/jellyfin
 
 The handoff now accepts that native link form while requiring the active server identity and the rendered control's server ID to match the captured account. Explicit mismatches still fail. A focused unit test covers omitted, mismatched and unknown server identity. The native suite also holds and observes a current-server detail link from Watchlists. No deadline or timeout was increased.
 
-## Final local runtime validation
+## Current-server correction validation
 
 The packaged current-server correction passed real Chromium 79 and pinned Linux Chromium 141: ten movie/series cases each, plus the current-server link case, with zero Home exposures on departure, Back and Forward. The unchanged native-controls suite passed all 12 layout/width cases and all six built-in themes (Light, Purple Haze, Blue Radiance, Apple TV, WMC and Dark). [Its retained summary](evidence/outgoing-handoff/native-controls-final.json) records the focus, write and interaction checks.
 
 Fast checks passed 215 JavaScript tests, 94 Python tests, eight catalog tests and publication-note checks. Packaging verified the actual embedded scripts and settings code against ES2019/Chromium 79 syntax. Final local ZIP SHA-256: `e55f2aa67c51e029f6769dc5a3a3d8d7e749a0cb6c6ecc72a41374fbf8473ec2`. DLL SHA-256: `5c633ad7d5fa15e95dc76b7b71715a97b5c651083b8d8ff91255239f1ff5530a`. Version remains 0.7.12 in this development branch; published assets and the catalog are unchanged.
+
+## Scope review and separate activity failure
+
+[Run 41243499835](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41243499835) tested commit `db59c2d5d34edddd0f27ab0857a0e15e61cb9821`, package artifact `13058705301` (the `e55f2a…` ZIP above). Its 12.4 migration/browser job failed an existing episode-extras assertion at `tests/browser-poc.cjs:785`. [Evidence](evidence/outgoing-handoff/activity-loading-failure.json) and [screenshot](evidence/outgoing-handoff/activity-loading-failure.png) show Watchlists in background population with no verified matches and no outgoing cover. The cause is not established; this is not a successful full qualification. The activity/preferences-initialization follow-up remains separate, without retries or weaker assertions.
+
+A scope review also narrowed the newly added native lifecycle hooks to detail routes. They prepare outgoing navigation only; incoming Watchlists mounting, queries and preference initialization remain on their existing route path. An unrelated checkbox-focus specificity edit was removed. No activity or preference implementation changed.
+
+## Final scoped package
+
+The departure-only lifecycle package passed both native outgoing suites (Chromium 79 and pinned Linux Chromium 141), including the current-server route. All ten movie/series cases per engine had zero Home exposures on departure and Back/Forward. The retained native-controls suite passed all 12 layout/width cases and six themes again. The linked browser summaries and after screenshots now describe this final package.
+
+ZIP SHA-256: `36d67f77f6721a029c9ed21bb17ed16b826ae7e41d53cf98b15cc19fbaa87ba8`. DLL SHA-256: `6943145dee6b3be8613255072d3ea30271cb389b526a91ae605c3bbd59b97f4e`. Packaged ES2019/Chromium 79 checks and all 215 JavaScript tests passed. Version/catalog metadata remain unchanged. Physical LG firmware validation is still required.

@@ -2,7 +2,7 @@
   "result": "PASS",
   "serverVersion": "12.4.0",
   "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
-  "runtimeSha256": "5c633ad7d5fa15e95dc76b7b71715a97b5c651083b8d8ff91255239f1ff5530a",
+  "runtimeSha256": "6943145dee6b3be8613255072d3ea30271cb389b526a91ae605c3bbd59b97f4e",
   "cases": [
     {
       "layout": "auto",

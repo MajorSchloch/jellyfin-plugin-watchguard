@@ -1515,7 +1515,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-filter-options label, .watchguard-filter-options button {min-height:44px;box-sizing:border-box}
         .watchguard-filter-options .emby-button {display:flex;width:100%;margin:.25em 0;text-align:start}
         .watchguard-toolbar .emby-checkbox-label {height:auto;min-height:44px;padding-top:.4em;padding-bottom:.4em;padding-block:.4em}
-        .watchguard-toolbar .emby-checkbox:focus~.checkboxOutline {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:3px}
+        .watchguard-toolbar .emby-checkbox:focus~.checkboxOutline {outline:2px solid var(--jf-palette-primary-main,#00a4dc);outline-offset:3px}
         .watchguard-toolbar .checkboxOutline {top:50%;transform:translateY(-50%)}
         .watchguard-page button:focus-visible, .watchguard-page summary:focus-visible, .watchguard-page select:focus-visible, .watchguard-page input:focus-visible, .watchguard-page a:focus-visible, .watchguard-page [tabindex]:focus-visible {outline:2px solid var(--jf-palette-primary-main,#00a4dc)!important;outline-offset:3px}
         .watchguard-notice {font-size:.85em;line-height:1.5;margin:.6rem 0;overflow-wrap:anywhere}
@@ -1875,8 +1875,11 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     root.WatchGuardNavigation?.connect(updateNavigation);
     for (const name of ['viewbeforeshow', 'viewshow', 'pointerdown', 'keydown', 'click'])
         document.addEventListener(name, bind, true);
-    document.addEventListener('viewbeforeshow', updateNavigation, true);
-    document.addEventListener('viewshow', event => { updateNavigation(); departure.shown(event); signature = null; updateDetail(); }, true);
+    // These added lifecycle hooks only prepare departure. Keep incoming
+    // Watchlists mounting/query/preference timing on its existing route path.
+    const prepareDeparture = () => { if (/^#\/details(?:\?|$)/.test(root.location.hash)) updateNavigation(); };
+    document.addEventListener('viewbeforeshow', prepareDeparture, true);
+    document.addEventListener('viewshow', event => { prepareDeparture(); departure.shown(event); signature = null; updateDetail(); }, true);
     root.addEventListener('pagehide', event => { if (event.target === root || event.target === document) departure.clear(); });
     root.addEventListener('hashchange', () => { updateNavigation(); updateDetail(); });
     setInterval(() => { bind(); updateNavigation(); updateDetail(); }, 500);

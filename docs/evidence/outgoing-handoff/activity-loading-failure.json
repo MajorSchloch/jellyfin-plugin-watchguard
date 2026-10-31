@@ -1,0 +1,15 @@
+{
+  "run": 41243499835,
+  "attempt": 1,
+  "commit": "db59c2d5d34edddd0f27ab0857a0e15e61cb9821",
+  "job": 124663123230,
+  "evidenceArtifact": 13059371207,
+  "serverVersion": "12.4.0",
+  "suite": "basepath",
+  "phase": "Caught Up",
+  "assertion": "tests/browser-poc.cjs:785: BrowserMember additional-episode control did not become visible within 10 seconds",
+  "observedState": "Watchlists: Background population / No verified matches yet. No outgoing handoff cover is present.",
+  "orderingViolations": 0,
+  "deleteCount": 0,
+  "cause": "Not established. Preserve as separate activity/preferences-initialization follow-up; no retry or relaxed assertion."
+}
