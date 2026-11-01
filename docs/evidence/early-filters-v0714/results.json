@@ -1,11 +1,11 @@
 {
-  "sourceCommit": "6e0d3d533f723bff12952435afeb30da659ad6b4",
+  "sourceCommit": "278414dc94cedf07b1f0ee38ea8e91ba7f530d6d",
   "baseCommit": "7812c06",
   "candidate": "0.7.14",
   "platform": "macOS-27.0.1-arm64-arm-64bit",
   "node": "v25.9.0",
   "fastChecks": {
-    "javascript": 249,
+    "javascript": 260,
     "python": 111,
     "backend": 376,
     "catalog": 8,
@@ -15,11 +15,11 @@
     "qualificationPolicy": "PASS",
     "publicManifestUnchanged": true
   },
-  "packageSha256": "066c3662a02229b893795818c5e76c86e93d5702393e391c7aebddcaff6606aa",
-  "dllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
+  "packageSha256": "078fc17739634cd1a8a037dc5cfdb62e88aeee490eedd3f0473bbef402239850",
+  "dllSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
   "native": [
     {
-      "fixture": "watchguard-poc-d41f82b3a9",
+      "fixture": "watchguard-poc-31a784a111",
       "native": {
         "serverVersion": "12.4.0",
         "webVersion": "12.4.0",
@@ -28,81 +28,14 @@
       "result": "PASS",
       "deployedPackage": {
         "version": "0.7.14",
-        "packageSha256": "066c3662a02229b893795818c5e76c86e93d5702393e391c7aebddcaff6606aa",
-        "dllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
-        "deployedDllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
+        "packageSha256": "078fc17739634cd1a8a037dc5cfdb62e88aeee490eedd3f0473bbef402239850",
+        "dllSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
+        "deployedDllSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
         "activeVersion": "0.7.14.0",
         "reportedVersion": "0.7.14"
       },
       "scenario": "basepath-full-browser",
-      "elapsedSeconds": 398.346,
-      "nativeChecks": 32,
-      "orderingViolations": 0,
-      "knownLimitations": [],
-      "earlyFilters": {
-        "engine": "current Chromium",
-        "cases": [
-          {
-            "width": 1280,
-            "result": "PASS",
-            "state": {
-              "frames": 31,
-              "replacements": 0,
-              "home": 0,
-              "focus": "Search titles",
-              "disclosure": true
-            },
-            "preferencesReads": 1,
-            "query": {
-              "owner": "mine",
-              "days": "7",
-              "older": "false",
-              "statuses": "watched",
-              "sort": "added",
-              "search": "PoC"
-            }
-          },
-          {
-            "width": 390,
-            "result": "PASS",
-            "state": {
-              "frames": 33,
-              "replacements": 0,
-              "home": 0,
-              "focus": "Search titles",
-              "disclosure": true
-            },
-            "preferencesReads": 1,
-            "query": {
-              "owner": "mine",
-              "days": "7",
-              "older": "false",
-              "statuses": "watched",
-              "sort": "added",
-              "search": "PoC"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "fixture": "watchguard-poc-db61a057b7",
-      "native": {
-        "serverVersion": "12.3.0",
-        "webVersion": "12.3.0",
-        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5"
-      },
-      "result": "PASS",
-      "deployedPackage": {
-        "version": "0.7.14",
-        "packageSha256": "066c3662a02229b893795818c5e76c86e93d5702393e391c7aebddcaff6606aa",
-        "dllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
-        "deployedDllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
-        "activeVersion": "0.7.14.0",
-        "reportedVersion": "0.7.14"
-      },
-      "scenario": "basepath-full-browser",
-      "elapsedSeconds": 399.465,
+      "elapsedSeconds": 406.725,
       "nativeChecks": 32,
       "orderingViolations": 0,
       "knownLimitations": [],
@@ -127,6 +60,49 @@
               "statuses": "watched",
               "sort": "added",
               "search": "PoC"
+            },
+            "roundTrips": [
+              {
+                "via": "control",
+                "sort": "title",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              },
+              {
+                "via": "history",
+                "sort": "title",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              },
+              {
+                "via": "equivalent",
+                "sort": "added",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              }
+            ],
+            "transition": {
+              "frames": 52,
+              "replacements": 0,
+              "home": 0
             }
           },
           {
@@ -147,6 +123,202 @@
               "statuses": "watched",
               "sort": "added",
               "search": "PoC"
+            },
+            "roundTrips": [
+              {
+                "via": "control",
+                "sort": "title",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              },
+              {
+                "via": "history",
+                "sort": "title",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              },
+              {
+                "via": "equivalent",
+                "sort": "added",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              }
+            ],
+            "transition": {
+              "frames": 44,
+              "replacements": 0,
+              "home": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "watchguard-poc-4a4bb59965",
+      "native": {
+        "serverVersion": "12.3.0",
+        "webVersion": "12.3.0",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5"
+      },
+      "result": "PASS",
+      "deployedPackage": {
+        "version": "0.7.14",
+        "packageSha256": "078fc17739634cd1a8a037dc5cfdb62e88aeee490eedd3f0473bbef402239850",
+        "dllSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
+        "deployedDllSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
+        "activeVersion": "0.7.14.0",
+        "reportedVersion": "0.7.14"
+      },
+      "scenario": "basepath-full-browser",
+      "elapsedSeconds": 405.746,
+      "nativeChecks": 32,
+      "orderingViolations": 0,
+      "knownLimitations": [],
+      "earlyFilters": {
+        "engine": "current Chromium",
+        "cases": [
+          {
+            "width": 1280,
+            "result": "PASS",
+            "state": {
+              "frames": 34,
+              "replacements": 0,
+              "home": 0,
+              "focus": "Search titles",
+              "disclosure": true
+            },
+            "preferencesReads": 1,
+            "query": {
+              "owner": "mine",
+              "days": "7",
+              "older": "false",
+              "statuses": "watched",
+              "sort": "added",
+              "search": "PoC"
+            },
+            "roundTrips": [
+              {
+                "via": "control",
+                "sort": "title",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              },
+              {
+                "via": "history",
+                "sort": "title",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              },
+              {
+                "via": "equivalent",
+                "sort": "added",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              }
+            ],
+            "transition": {
+              "frames": 52,
+              "replacements": 0,
+              "home": 0
+            }
+          },
+          {
+            "width": 390,
+            "result": "PASS",
+            "state": {
+              "frames": 29,
+              "replacements": 0,
+              "home": 0,
+              "focus": "Search titles",
+              "disclosure": true
+            },
+            "preferencesReads": 1,
+            "query": {
+              "owner": "mine",
+              "days": "7",
+              "older": "false",
+              "statuses": "watched",
+              "sort": "added",
+              "search": "PoC"
+            },
+            "roundTrips": [
+              {
+                "via": "control",
+                "sort": "title",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              },
+              {
+                "via": "history",
+                "sort": "title",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              },
+              {
+                "via": "equivalent",
+                "sort": "added",
+                "activityRequests": 1,
+                "retained": {
+                  "panel": true,
+                  "focus": "Sort by",
+                  "disclosure": true,
+                  "lookups": 1
+                },
+                "result": "PASS"
+              }
+            ],
+            "transition": {
+              "frames": 41,
+              "replacements": 0,
+              "home": 0
             }
           }
         ]
@@ -158,14 +330,14 @@
     "engine": "HeadlessChrome/79.0.3945.0",
     "server": "12.4.0",
     "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
-    "packageSha256": "066c3662a02229b893795818c5e76c86e93d5702393e391c7aebddcaff6606aa",
-    "runtimeSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
+    "packageSha256": "078fc17739634cd1a8a037dc5cfdb62e88aeee490eedd3f0473bbef402239850",
+    "runtimeSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
     "earlyFilters": [
       {
         "width": 1280,
         "result": "PASS",
         "state": {
-          "frames": 46,
+          "frames": 60,
           "replacements": 0,
           "home": 0,
           "focus": "Search titles",
@@ -179,13 +351,56 @@
           "statuses": "watched",
           "sort": "added",
           "search": "PoC"
+        },
+        "roundTrips": [
+          {
+            "via": "control",
+            "sort": "title",
+            "activityRequests": 1,
+            "retained": {
+              "panel": true,
+              "focus": "Sort by",
+              "disclosure": true,
+              "lookups": 1
+            },
+            "result": "PASS"
+          },
+          {
+            "via": "history",
+            "sort": "title",
+            "activityRequests": 1,
+            "retained": {
+              "panel": true,
+              "focus": "Sort by",
+              "disclosure": true,
+              "lookups": 1
+            },
+            "result": "PASS"
+          },
+          {
+            "via": "equivalent",
+            "sort": "added",
+            "activityRequests": 1,
+            "retained": {
+              "panel": true,
+              "focus": "Sort by",
+              "disclosure": true,
+              "lookups": 1
+            },
+            "result": "PASS"
+          }
+        ],
+        "transition": {
+          "frames": 111,
+          "replacements": 0,
+          "home": 0
         }
       },
       {
         "width": 390,
         "result": "PASS",
         "state": {
-          "frames": 37,
+          "frames": 48,
           "replacements": 0,
           "home": 0,
           "focus": "Search titles",
@@ -199,6 +414,49 @@
           "statuses": "watched",
           "sort": "added",
           "search": "PoC"
+        },
+        "roundTrips": [
+          {
+            "via": "control",
+            "sort": "title",
+            "activityRequests": 1,
+            "retained": {
+              "panel": true,
+              "focus": "Sort by",
+              "disclosure": true,
+              "lookups": 1
+            },
+            "result": "PASS"
+          },
+          {
+            "via": "history",
+            "sort": "title",
+            "activityRequests": 1,
+            "retained": {
+              "panel": true,
+              "focus": "Sort by",
+              "disclosure": true,
+              "lookups": 1
+            },
+            "result": "PASS"
+          },
+          {
+            "via": "equivalent",
+            "sort": "added",
+            "activityRequests": 1,
+            "retained": {
+              "panel": true,
+              "focus": "Sort by",
+              "disclosure": true,
+              "lookups": 1
+            },
+            "result": "PASS"
+          }
+        ],
+        "transition": {
+          "frames": 98,
+          "replacements": 0,
+          "home": 0
         }
       }
     ],
@@ -262,12 +520,5 @@
     ],
     "errors": []
   },
-  "qualification": "Focused branch validation only; full qualification runs automatically on the final master package after merge.",
-  "playwright": "1.56.1",
-  "currentBrowser": {
-    "name": "chromium",
-    "revision": "1194",
-    "installByDefault": true,
-    "browserVersion": "141.0.7390.37"
-  }
+  "qualification": "Focused branch validation only; full qualification runs automatically on the final master package after merge."
 }
