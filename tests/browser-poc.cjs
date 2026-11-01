@@ -1,5 +1,6 @@
 const setNativeCheckbox=require('./native-checkbox.cjs');
 const readiness = require('./browser-readiness.cjs');
+const nativeMovies = require('./native-movies.cjs');
 const removalContract = require('./removal-feedback-contract.cjs');
 /* Run only through docker-smoke.py, which owns a fresh server and synthetic media. */
 const { chromium } = require('./browser/node_modules/playwright');
@@ -20,6 +21,7 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
     const context = await browser.newContext({ ignoreHTTPSErrors: fixture.tls === true, viewport: { width: 1280, height: 900 }, locale: 'en-US' });
     const page = await context.newPage();
     await readiness.capture(page);
+    await page.addInitScript(nativeMovies.observeViews);
     // Keep the trigger/attachment boundary when a native menu assertion fails.
     // Record only structural state: no URLs, item/user IDs, tokens or responses.
     const menuEvents=[];
@@ -204,13 +206,17 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
         await page.getByText('My Media',{exact:true}).waitFor();
         await page.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
     }
+    let moviesRoute;
     async function movies() {
         await page.goto(fixture.base + '/web/');
-        await page.getByRole('link', { name: 'PoC Movies', exact: true }).first().click();
-        await page.getByText('PoC Bulk One', { exact: true }).waitFor();
+        const link = page.getByRole('link', { name: 'PoC Movies', exact: true }).first();
+        moviesRoute = await link.getAttribute('href');
+        await link.click();
+        await nativeMovies.waitForMovies(page, moviesRoute);
+        await card('PoC Bulk One');
         await page.waitForFunction(() => window.WatchGuardPoc?.isInstalled());
     }
-    function card(title) { return page.locator('.card[data-id="' + fixture.items[title] + '"]'); }
+    function card(title) { return nativeMovies.card(page, moviesRoute, fixture, title); }
     try {
         await page.goto(fixture.base + '/web/');
         await page.locator('#txtManualName').fill(fixture.username);
@@ -222,6 +228,8 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
         await page.getByText('My Media', {exact:true}).waitFor();
         await readiness.identity(page,fixture);
         readiness.timing(fixture,'native-login',Date.now()-loginStarted);
+        report.phase = 'Delayed native Movies transition';
+        report.moviesNavigation = await require('./movies-navigation-regression.cjs')(page, fixture, output);
         report.phase = 'Watchlist UI';
         const memberPassword = require('node:crypto').randomUUID();
         await api('/Users/New', 'POST', { Name: 'BrowserMember', Password: memberPassword });
@@ -1073,26 +1081,26 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
         await page.getByRole('button',{name:'Remove from Watchlist',exact:true}).waitFor();
         if (fixture.standalone) assert.ok(await detailMembershipNode.evaluate(e=>e.isConnected && e===document.querySelector('#itemDetailPage:not(.hide) .watchguard-toggle')),
             'A native menu membership update retains the existing detail action');
-        await movies();await card('PoC Context Movie').click({button:'right'});
+        await movies();await (await card('PoC Context Movie')).click({button:'right'});
         await ownCommand().getByText('Remove from Watchlist',{exact:true}).waitFor();assert.equal(await ownCommand().count(),1);
         await ownCommand().click();await ownCommand().getByText('Add to Watchlist',{exact:true}).waitFor();
         await page.locator('.dialogContainer').filter({has:page.locator('.watchguard-native-action')}).click({position:{x:5,y:5}});await ownCommand().waitFor({state:'detached'});
-        await card('PoC Context Movie').click({button:'right'});
+        await (await card('PoC Context Movie')).click({button:'right'});
         await ownCommand().getByText('Add to Watchlist',{exact:true}).waitFor();
         await page.route('**/WatchGuard/Watchlist/*',route=>route.fulfill({status:503,body:'unavailable'}));
         await ownCommand().click();await ownCommand().getByRole('alert').waitFor();
         await page.unroute('**/WatchGuard/Watchlist/*');await page.locator('.dialogContainer').filter({has:page.locator('.watchguard-native-action')}).click({position:{x:5,y:5}});await ownCommand().waitFor({state:'detached'});
         report.paths.push({path:'Native membership menus',result:'detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed'});
         report.phase = 'Card context menu';
-        await movies(); await card('PoC Context Movie').click({ button: 'right' });
+        await movies(); await (await card('PoC Context Movie')).click({ button: 'right' });
         await page.getByText(/^Delete (?:media|series|episode|season)$/i).click(); await nativeConfirm(); await cancel('PoC Context Movie');
-        await card('PoC Context Movie').click({ button: 'right' });
+        await (await card('PoC Context Movie')).click({ button: 'right' });
         await page.getByText(/^Delete (?:media|series|episode|season)$/i).click(); await nativeConfirm(); await approve('PoC Context Movie');
         report.paths.push({ path: 'Card right-click menu', cancel: 'zero DELETE', override: 'one DELETE, HTTP 204', genericErrorOnCancel: true });
         async function selectBulk() {
-            await movies(); await card('PoC Bulk One').click({button:'right'});
+            await movies(); await (await card('PoC Bulk One')).click({button:'right'});
             await page.getByText('Select',{exact:true}).click();
-            await card('PoC Bulk Two').locator('.itemSelectionPanel').click({position:{x:70,y:70}});
+            await (await card('PoC Bulk Two')).locator('.itemSelectionPanel').click({position:{x:70,y:70}});
             await page.locator('.itemSelectionCount').filter({hasText:'2'}).waitFor();
             await page.locator('.btnSelectionPanelOptions').click();
             await page.getByText('Delete',{exact:true}).click();

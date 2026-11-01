@@ -1,0 +1,755 @@
+{
+  "baseCommit": "2ada67b",
+  "implementationCommit": "4eba8f644293712c05ee0266b4a554f84724099a",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "node": "v25.9.0",
+  "playwright": "1.56.1",
+  "browser": {
+    "name": "chromium",
+    "revision": "1194",
+    "installByDefault": true,
+    "browserVersion": "141.0.7390.37"
+  },
+  "fastChecks": {
+    "javascript": 230,
+    "python": 111,
+    "backend": 376,
+    "catalog": 8,
+    "deterministicPackaging": "PASS",
+    "packagedEs2019": "PASS",
+    "qualificationPolicy": "PASS",
+    "releaseNotes": "PASS"
+  },
+  "packageSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+  "dllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+  "suites": [
+    {
+      "version": "12.3",
+      "scenario": "basepath-full-browser",
+      "fixture": "watchguard-poc-ec7b63e3a0",
+      "status": "PASS",
+      "native": {
+        "serverVersion": "12.3.0",
+        "webVersion": "12.3.0",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5"
+      },
+      "elapsedSeconds": 398.321,
+      "nativeActionsSeconds": 359.267,
+      "deployedPackage": {
+        "version": "0.7.13",
+        "packageSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+        "dllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+        "deployedDllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+        "activeVersion": "0.7.13.0",
+        "reportedVersion": "0.7.13"
+      },
+      "heldTransition": {
+        "scenario": "Home and Movies share one real item; Movies module held",
+        "status": "PASS",
+        "oldHelperAcceptedHome": true,
+        "activeViewWhileHeld": "indexPage",
+        "destinationReadyWhileHeld": false,
+        "destinationCardVerified": true
+      },
+      "deletionRequests": 13,
+      "orderingViolations": 0,
+      "knownLimitations": [],
+      "paths": [
+        {
+          "path": "Progressive overview",
+          "result": "explicit cards rendered with discovery held; no false empty state; query controls superseded earlier responses; card node preserved on completion"
+        },
+        {
+          "path": "Indexed time filters",
+          "result": "7/30/90-day URL selection, older-interest toggle, reload, native-sized controls and no overflow at 1280/390"
+        },
+        {
+          "path": "My Watchlist",
+          "result": "empty/list, movie and series links, membership integrity, explicit removal retry and load/refresh recovery passed",
+          "removalFeedback": "PASS"
+        },
+        {
+          "path": "Overview polish",
+          "result": "keyboard disclosure; visible safety/coverage warnings; labeled colors; multi-user/unsafe text; 44px controls and no overflow at 1280/390"
+        },
+        {
+          "path": "Playback-only series",
+          "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+        },
+        {
+          "path": "Modern compatibility",
+          "result": "Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+        },
+        {
+          "path": "Watchlist action 1280",
+          "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+          "appearance": {
+            "text": "bookmark_remove",
+            "color": "rgb(0, 164, 220)",
+            "visible": true
+          }
+        },
+        {
+          "path": "Watchlist action 390",
+          "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+          "appearance": {
+            "text": "bookmark_remove",
+            "color": "rgb(0, 164, 220)",
+            "visible": true
+          }
+        },
+        {
+          "path": "Watchlist navigation during write",
+          "result": "Delayed failure cannot repaint the new detail route or mutate membership"
+        },
+        {
+          "path": "Inline users",
+          "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+        },
+        {
+          "path": "Watchlist controls",
+          "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+        },
+        {
+          "path": "Recent viewing activity",
+          "result": "completed movie and whole series, exact native date, four available episodes (undated extras in current UI), explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+        },
+        {
+          "path": "Caught Up",
+          "result": "native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, configurable fresh Caught Up protection, targeted viewers, Escape zero DELETE and no permanent membership"
+        },
+        {
+          "path": "PoC Zero",
+          "result": "native deletion without extra WatchGuard warning"
+        },
+        {
+          "path": "Structured confirmation accessibility",
+          "result": "unsafe long title/names rendered literally; separate ownership and six reasons; modal focus cycle, Cancel Enter and focus restoration; desktop/mobile bounds and zero DELETE"
+        },
+        {
+          "path": "Identity change during confirmation",
+          "result": "native ApiClient authentication cleared while open; lifetime cancels and removes dialog with zero DELETE; restored identity loads normally"
+        },
+        {
+          "path": "Self-only protection",
+          "result": "watchlist, native resume and session each Cancel with zero DELETE; override exactly once"
+        },
+        {
+          "path": "Explicit desktop-legacy",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Explicit modern",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Missing parent resolution",
+          "result": "404 blocks deletion with zero DELETE requests"
+        },
+        {
+          "path": "PoC Parent Interested Episode",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Interested Season",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Episode",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Season",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Movie Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "PoC Series Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Escape on movie detail",
+          "cancel": "zero DELETE",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native membership menus",
+          "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+        },
+        {
+          "path": "Card right-click menu",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native two-item bulk selection",
+          "cancel": "zero DELETE after cancelling both prompts",
+          "override": "one DELETE per approved item, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Account switch",
+          "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+        },
+        {
+          "path": "Account isolation and native permissions",
+          "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+        }
+      ]
+    },
+    {
+      "version": "12.4",
+      "scenario": "previous-stable-upgrade-caddy",
+      "fixture": "watchguard-poc-5539367833",
+      "status": "PASS",
+      "native": {
+        "serverVersion": "12.4.0",
+        "webVersion": "12.4.0",
+        "image": "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044"
+      },
+      "elapsedSeconds": 424.627,
+      "nativeActionsSeconds": 356.214,
+      "deployedPackage": {
+        "version": "0.7.13",
+        "packageSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+        "dllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+        "deployedDllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+        "activeVersion": "0.7.13.0",
+        "reportedVersion": "0.7.13"
+      },
+      "heldTransition": {
+        "scenario": "Home and Movies share one real item; Movies module held",
+        "status": "PASS",
+        "oldHelperAcceptedHome": true,
+        "activeViewWhileHeld": "indexPage",
+        "destinationReadyWhileHeld": false,
+        "destinationCardVerified": true
+      },
+      "deletionRequests": 13,
+      "orderingViolations": 0,
+      "knownLimitations": [],
+      "paths": [
+        {
+          "path": "Progressive overview",
+          "result": "explicit cards rendered with discovery held; no false empty state; query controls superseded earlier responses; card node preserved on completion"
+        },
+        {
+          "path": "Indexed time filters",
+          "result": "7/30/90-day URL selection, older-interest toggle, reload, native-sized controls and no overflow at 1280/390"
+        },
+        {
+          "path": "My Watchlist",
+          "result": "empty/list, movie and series links, membership integrity, explicit removal retry and load/refresh recovery passed",
+          "removalFeedback": "PASS"
+        },
+        {
+          "path": "Overview polish",
+          "result": "keyboard disclosure; visible safety/coverage warnings; labeled colors; multi-user/unsafe text; 44px controls and no overflow at 1280/390"
+        },
+        {
+          "path": "Playback-only series",
+          "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+        },
+        {
+          "path": "Modern compatibility",
+          "result": "Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+        },
+        {
+          "path": "Watchlist action 1280",
+          "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+          "appearance": {
+            "text": "bookmark_remove",
+            "color": "rgb(0, 164, 220)",
+            "visible": true
+          }
+        },
+        {
+          "path": "Watchlist action 390",
+          "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+          "appearance": {
+            "text": "bookmark_remove",
+            "color": "rgb(0, 164, 220)",
+            "visible": true
+          }
+        },
+        {
+          "path": "Watchlist navigation during write",
+          "result": "Delayed failure cannot repaint the new detail route or mutate membership"
+        },
+        {
+          "path": "Inline users",
+          "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+        },
+        {
+          "path": "Watchlist controls",
+          "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+        },
+        {
+          "path": "Recent viewing activity",
+          "result": "completed movie and whole series, exact native date, four available episodes (undated extras in current UI), explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+        },
+        {
+          "path": "Caught Up",
+          "result": "native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, configurable fresh Caught Up protection, targeted viewers, Escape zero DELETE and no permanent membership"
+        },
+        {
+          "path": "PoC Zero",
+          "result": "native deletion without extra WatchGuard warning"
+        },
+        {
+          "path": "Structured confirmation accessibility",
+          "result": "unsafe long title/names rendered literally; separate ownership and six reasons; modal focus cycle, Cancel Enter and focus restoration; desktop/mobile bounds and zero DELETE"
+        },
+        {
+          "path": "Identity change during confirmation",
+          "result": "native ApiClient authentication cleared while open; lifetime cancels and removes dialog with zero DELETE; restored identity loads normally"
+        },
+        {
+          "path": "Self-only protection",
+          "result": "watchlist, native resume and session each Cancel with zero DELETE; override exactly once"
+        },
+        {
+          "path": "Explicit desktop-legacy",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Explicit modern",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Missing parent resolution",
+          "result": "404 blocks deletion with zero DELETE requests"
+        },
+        {
+          "path": "PoC Parent Interested Episode",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Interested Season",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Episode",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Season",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Movie Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "PoC Series Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Escape on movie detail",
+          "cancel": "zero DELETE",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native membership menus",
+          "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+        },
+        {
+          "path": "Card right-click menu",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native two-item bulk selection",
+          "cancel": "zero DELETE after cancelling both prompts",
+          "override": "one DELETE per approved item, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Account switch",
+          "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+        },
+        {
+          "path": "Account isolation and native permissions",
+          "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+        }
+      ]
+    },
+    {
+      "version": "12.4",
+      "scenario": "basepath-full-browser",
+      "fixture": "watchguard-poc-665685394a",
+      "status": "PASS",
+      "native": {
+        "serverVersion": "12.4.0",
+        "webVersion": "12.4.0",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771"
+      },
+      "elapsedSeconds": 394.693,
+      "nativeActionsSeconds": 357.56,
+      "deployedPackage": {
+        "version": "0.7.13",
+        "packageSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+        "dllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+        "deployedDllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+        "activeVersion": "0.7.13.0",
+        "reportedVersion": "0.7.13"
+      },
+      "heldTransition": {
+        "scenario": "Home and Movies share one real item; Movies module held",
+        "status": "PASS",
+        "oldHelperAcceptedHome": true,
+        "activeViewWhileHeld": "indexPage",
+        "destinationReadyWhileHeld": false,
+        "destinationCardVerified": true
+      },
+      "deletionRequests": 13,
+      "orderingViolations": 0,
+      "knownLimitations": [],
+      "paths": [
+        {
+          "path": "Progressive overview",
+          "result": "explicit cards rendered with discovery held; no false empty state; query controls superseded earlier responses; card node preserved on completion"
+        },
+        {
+          "path": "Indexed time filters",
+          "result": "7/30/90-day URL selection, older-interest toggle, reload, native-sized controls and no overflow at 1280/390"
+        },
+        {
+          "path": "My Watchlist",
+          "result": "empty/list, movie and series links, membership integrity, explicit removal retry and load/refresh recovery passed",
+          "removalFeedback": "PASS"
+        },
+        {
+          "path": "Overview polish",
+          "result": "keyboard disclosure; visible safety/coverage warnings; labeled colors; multi-user/unsafe text; 44px controls and no overflow at 1280/390"
+        },
+        {
+          "path": "Playback-only series",
+          "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+        },
+        {
+          "path": "Modern compatibility",
+          "result": "Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+        },
+        {
+          "path": "Watchlist action 1280",
+          "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+          "appearance": {
+            "text": "bookmark_remove",
+            "color": "rgb(0, 164, 220)",
+            "visible": true
+          }
+        },
+        {
+          "path": "Watchlist action 390",
+          "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+          "appearance": {
+            "text": "bookmark_remove",
+            "color": "rgb(0, 164, 220)",
+            "visible": true
+          }
+        },
+        {
+          "path": "Watchlist navigation during write",
+          "result": "Delayed failure cannot repaint the new detail route or mutate membership"
+        },
+        {
+          "path": "Inline users",
+          "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+        },
+        {
+          "path": "Watchlist controls",
+          "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+        },
+        {
+          "path": "Recent viewing activity",
+          "result": "completed movie and whole series, exact native date, four available episodes (undated extras in current UI), explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+        },
+        {
+          "path": "Caught Up",
+          "result": "native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, configurable fresh Caught Up protection, targeted viewers, Escape zero DELETE and no permanent membership"
+        },
+        {
+          "path": "PoC Zero",
+          "result": "native deletion without extra WatchGuard warning"
+        },
+        {
+          "path": "Structured confirmation accessibility",
+          "result": "unsafe long title/names rendered literally; separate ownership and six reasons; modal focus cycle, Cancel Enter and focus restoration; desktop/mobile bounds and zero DELETE"
+        },
+        {
+          "path": "Identity change during confirmation",
+          "result": "native ApiClient authentication cleared while open; lifetime cancels and removes dialog with zero DELETE; restored identity loads normally"
+        },
+        {
+          "path": "Self-only protection",
+          "result": "watchlist, native resume and session each Cancel with zero DELETE; override exactly once"
+        },
+        {
+          "path": "Explicit desktop-legacy",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Explicit modern",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Missing parent resolution",
+          "result": "404 blocks deletion with zero DELETE requests"
+        },
+        {
+          "path": "PoC Parent Interested Episode",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Interested Season",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Episode",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Season",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Movie Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "PoC Series Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Escape on movie detail",
+          "cancel": "zero DELETE",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native membership menus",
+          "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+        },
+        {
+          "path": "Card right-click menu",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native two-item bulk selection",
+          "cancel": "zero DELETE after cancelling both prompts",
+          "override": "one DELETE per approved item, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Account switch",
+          "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+        },
+        {
+          "path": "Account isolation and native permissions",
+          "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+        }
+      ]
+    },
+    {
+      "version": "12.3",
+      "scenario": "previous-stable-upgrade-caddy",
+      "fixture": "watchguard-poc-5d532abada",
+      "status": "PASS",
+      "native": {
+        "serverVersion": "12.3.0",
+        "webVersion": "12.3.0",
+        "image": "lscr.io/linuxserver/jellyfin:12.3ubu2604-ls56@sha256:4212ca390fbc6bd5002048d2d2ce2b8a5b1ad278ec4cbabe6519869117404308"
+      },
+      "elapsedSeconds": 424.295,
+      "nativeActionsSeconds": 358.286,
+      "deployedPackage": {
+        "version": "0.7.13",
+        "packageSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+        "dllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+        "deployedDllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+        "activeVersion": "0.7.13.0",
+        "reportedVersion": "0.7.13"
+      },
+      "heldTransition": {
+        "scenario": "Home and Movies share one real item; Movies module held",
+        "status": "PASS",
+        "oldHelperAcceptedHome": true,
+        "activeViewWhileHeld": "indexPage",
+        "destinationReadyWhileHeld": false,
+        "destinationCardVerified": true
+      },
+      "deletionRequests": 13,
+      "orderingViolations": 0,
+      "knownLimitations": [],
+      "paths": [
+        {
+          "path": "Progressive overview",
+          "result": "explicit cards rendered with discovery held; no false empty state; query controls superseded earlier responses; card node preserved on completion"
+        },
+        {
+          "path": "Indexed time filters",
+          "result": "7/30/90-day URL selection, older-interest toggle, reload, native-sized controls and no overflow at 1280/390"
+        },
+        {
+          "path": "My Watchlist",
+          "result": "empty/list, movie and series links, membership integrity, explicit removal retry and load/refresh recovery passed",
+          "removalFeedback": "PASS"
+        },
+        {
+          "path": "Overview polish",
+          "result": "keyboard disclosure; visible safety/coverage warnings; labeled colors; multi-user/unsafe text; 44px controls and no overflow at 1280/390"
+        },
+        {
+          "path": "Playback-only series",
+          "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+        },
+        {
+          "path": "Modern compatibility",
+          "result": "Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+        },
+        {
+          "path": "Watchlist action 1280",
+          "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+          "appearance": {
+            "text": "bookmark_remove",
+            "color": "rgb(0, 164, 220)",
+            "visible": true
+          }
+        },
+        {
+          "path": "Watchlist action 390",
+          "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+          "appearance": {
+            "text": "bookmark_remove",
+            "color": "rgb(0, 164, 220)",
+            "visible": true
+          }
+        },
+        {
+          "path": "Watchlist navigation during write",
+          "result": "Delayed failure cannot repaint the new detail route or mutate membership"
+        },
+        {
+          "path": "Inline users",
+          "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+        },
+        {
+          "path": "Watchlist controls",
+          "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+        },
+        {
+          "path": "Recent viewing activity",
+          "result": "completed movie and whole series, exact native date, four available episodes (undated extras in current UI), explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+        },
+        {
+          "path": "Caught Up",
+          "result": "native Continuing/Ended, aired 4/4, new unwatched episode, future available 3/3, Watching filter, configurable fresh Caught Up protection, targeted viewers, Escape zero DELETE and no permanent membership"
+        },
+        {
+          "path": "PoC Zero",
+          "result": "native deletion without extra WatchGuard warning"
+        },
+        {
+          "path": "Structured confirmation accessibility",
+          "result": "unsafe long title/names rendered literally; separate ownership and six reasons; modal focus cycle, Cancel Enter and focus restoration; desktop/mobile bounds and zero DELETE"
+        },
+        {
+          "path": "Identity change during confirmation",
+          "result": "native ApiClient authentication cleared while open; lifetime cancels and removes dialog with zero DELETE; restored identity loads normally"
+        },
+        {
+          "path": "Self-only protection",
+          "result": "watchlist, native resume and session each Cancel with zero DELETE; override exactly once"
+        },
+        {
+          "path": "Explicit desktop-legacy",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Explicit modern",
+          "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+        },
+        {
+          "path": "Missing parent resolution",
+          "result": "404 blocks deletion with zero DELETE requests"
+        },
+        {
+          "path": "PoC Parent Interested Episode",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Interested Season",
+          "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Episode",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Parent Clear Season",
+          "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+        },
+        {
+          "path": "PoC Movie Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "PoC Series Detail",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Escape on movie detail",
+          "cancel": "zero DELETE",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native membership menus",
+          "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+        },
+        {
+          "path": "Card right-click menu",
+          "cancel": "zero DELETE",
+          "override": "one DELETE, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Native two-item bulk selection",
+          "cancel": "zero DELETE after cancelling both prompts",
+          "override": "one DELETE per approved item, HTTP 204",
+          "genericErrorOnCancel": true
+        },
+        {
+          "path": "Account switch",
+          "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+        },
+        {
+          "path": "Account isolation and native permissions",
+          "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+        }
+      ]
+    }
+  ]
+}
