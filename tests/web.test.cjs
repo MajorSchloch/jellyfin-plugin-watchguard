@@ -1557,3 +1557,58 @@ test('Preferences can finish inside the search debounce without stranding or iss
     f.calls[2].resolve(indexedResult());await turn();assert.equal(f.page.getAttribute('aria-busy'),'false');
     assert.equal(search.value,'Latest');
 });
+
+for(const via of ['control','history','equivalent control','equivalent history'])
+test('Pending account round-trip settles latest sort via '+via,async t=>{
+    const account=deferred();let lookups=0;
+    const f=progressiveFixture(true,false,'all',true,{account:()=>++lookups===1?Promise.resolve({Policy:{IsAdministrator:true}}):account.promise});
+    t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult());await turn();
+    const sort=control(f,'Sort by');sort.focus();sort.value='added';sort.onchange();
+    if(via.includes('history')) f.page.updateFilters('all','watchlisted,watching,playing',via.startsWith('equivalent')?'added':'title');
+    else {sort.value=via.startsWith('equivalent')?'added':'title';sort.onchange();}
+    account.resolve({Policy:{IsAdministrator:true}});await turn();
+    assert.equal(f.calls[2]?.o.url,'WatchGuard/Watchlists','Latest valid load must request membership');
+    f.calls[2].resolve([]);await turn();assert.match(f.calls[3].o.url,new RegExp('sort='+(via.startsWith('equivalent')?'added':'title')));
+    f.calls[3].resolve(indexedResult());await turn();
+    assert.equal(f.page.getAttribute('aria-busy'),'false');assert.equal(f.calls.length,4);assert.equal(lookups,2);
+    assert.equal(control(f,'Sort by'),sort);assert.equal(sort.focused,true);
+});
+
+for(const phase of ['account','preferences','membership','activity'])
+test('Equivalent updates retain valid initialization and requests during '+phase,async t=>{
+    const account=deferred();let lookups=0;
+    const f=progressiveFixture(true,true,'all',true,{account:()=>{lookups++;return account.promise;},interest:'watchlisted',sort:'title'});
+    t.after(()=>f.abort.abort());
+    if(phase!=='account'){account.resolve({Policy:{IsAdministrator:true}});await turn();}
+    if(['membership','activity'].includes(phase)){f.calls[0].resolve({Owner:'mine',Statuses:['watched'],Sort:'recent'});await turn();}
+    if(phase==='activity'){f.calls[1].resolve([]);await turn();}
+    const before=f.calls.length;
+    for(let i=0;i<3;i++){control(f,'Sort by').onchange();f.page.updateFilters('all','watchlisted','title','30','true','');}
+    await turn();assert.equal(f.calls.length,before,'Equivalent values must keep the current request');assert.equal(lookups,1);
+    if(phase==='account'){account.resolve({Policy:{IsAdministrator:true}});await turn();}
+    if(['account','preferences'].includes(phase)){f.calls[0].resolve({Owner:'mine',Statuses:['watched'],Sort:'recent'});await turn();}
+    if(phase!=='activity'){f.calls[1].resolve([]);await turn();}
+    f.calls[2].resolve(indexedResult());await turn();
+    assert.equal(f.calls.length,3);assert.equal(f.page.getAttribute('aria-busy'),'false');
+});
+
+for(const phase of ['account','preferences'])
+test('Sort returns to initial URL value during '+phase,async t=>{
+    const account=deferred();const f=progressiveFixture(true,true,'all',true,{account:()=>account.promise,sort:'title'});t.after(()=>f.abort.abort());
+    if(phase==='preferences'){account.resolve({Policy:{IsAdministrator:true}});await turn();}
+    const sort=control(f,'Sort by');sort.value='added';sort.onchange();sort.value='title';sort.onchange();
+    account.resolve({Policy:{IsAdministrator:true}});await turn();f.calls[0].resolve({Owner:'mine',Statuses:['watched'],Sort:'recent'});await turn();
+    f.calls[1].resolve([]);await turn();assert.match(f.calls[2].o.url,/owner=all.*sort=title/);
+    f.calls[2].resolve(indexedResult());await turn();assert.equal(f.page.getAttribute('aria-busy'),'false');assert.equal(f.calls.length,3);
+});
+
+test('Equivalent sort events retain a pending indexed poll and one poll timer',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());await turn();
+    f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult());await turn();
+    t.mock.timers.tick(30000);await turn();assert.equal(f.calls.length,3);
+    const sort=control(f,'Sort by');for(let i=0;i<3;i++)sort.onchange();await turn();assert.equal(f.calls.length,3);
+    f.calls[2].resolve(indexedResult());await turn();assert.equal(f.page.getAttribute('aria-busy'),'false');
+    t.mock.timers.tick(29999);await turn();assert.equal(f.calls.length,3);
+    t.mock.timers.tick(1);await turn();assert.equal(f.calls.length,4);
+});

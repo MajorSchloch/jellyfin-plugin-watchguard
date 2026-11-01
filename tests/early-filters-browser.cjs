@@ -57,10 +57,50 @@ module.exports=async function(page,fixture,output,oldEngine=false) {
             const query=requests.find(r=>r.endpoint==='ActivityBrowser');assert.ok(query,'Latest activity query starts');
             assert.deepEqual(query.query,{owner:'mine',days:'7',older:'false',statuses:'watched',sort:'added',search:'PoC'});
             assert.equal(requests.filter(r=>r.endpoint==='Preferences' && r.method!=='GET').length,0,'Filtering does not save preferences');
-            const state=await page.evaluate(()=>{const s=window.wgEarly;s.running=false;return {frames:s.frames,replacements:s.replacements,home:s.home,focus:document.activeElement.getAttribute('aria-label'),disclosure:document.querySelector('.watchguard-secondary').open};});
+            const state=await page.evaluate(()=>{const s=window.wgEarly;return {frames:s.frames,replacements:s.replacements,home:s.home,focus:document.activeElement.getAttribute('aria-label'),disclosure:document.querySelector('.watchguard-secondary').open};});
             assert.ok(state.frames>0);assert.equal(state.replacements,0);assert.equal(state.home,0);assert.equal(state.focus,'Search titles');assert.equal(state.disclosure,true);
             await page.screenshot({path:path.join(output,'early-filters-'+width+'-ready.png')});
-            cases.push({width,result:'PASS',state,preferencesReads:1,query:query.query});
+            const roundTrips=[];
+            for(const via of ['control','history','equivalent']) {
+                await select('[aria-label="Sort by"]','title');
+                await wait(()=>document.querySelector('.watchguard-page').getAttribute('aria-busy')==='false');
+                if(via==='history')await page.evaluate(()=>history.pushState(history.state,'',location.href));
+                // Defer the native account promise, not its data. Jellyfin may
+                // cache this lookup, so a network interceptor cannot hold it.
+                await page.evaluate(()=>{
+                    const original=ApiClient.getCurrentUser;
+                    let release;const gate=new Promise(resolve=>{release=resolve;});
+                    window.wgAccountGate={calls:0,release:release,original:original};
+                    ApiClient.getCurrentUser=function(){window.wgAccountGate.calls++;const result=original.apply(this,arguments);return gate.then(()=>result);};
+                });
+                const start=requests.length;
+                try {
+                    await page.focus('[aria-label="Sort by"]');
+                    await select('[aria-label="Sort by"]','added');
+                    await wait(()=>window.wgAccountGate.calls===1);
+                    if(via==='history')await page.goBack();else await select('[aria-label="Sort by"]',via==='equivalent'?'added':'title');
+                    const expected=via==='equivalent'?'added':'title';
+                    await wait(sort=>new URLSearchParams(location.hash.split('?')[1]).get('sort')===sort,expected);
+                    assert.equal(requests.length,start,'No data requests before account resolution');
+                    if(via==='control')await page.screenshot({path:path.join(output,'roundtrip-'+width+'-held.png')});
+                    await page.evaluate(()=>window.wgAccountGate.release());
+                    await wait(()=>document.querySelector('.watchguard-page').getAttribute('aria-busy')==='false');
+                    const data=requests.slice(start);
+                    assert.equal(data.filter(r=>/^Watchlists?$/.test(r.endpoint)).length,1,'One replacement membership request');
+                    const queries=data.filter(r=>r.endpoint==='ActivityBrowser');
+                    assert.ok(queries.length>=1 && queries.length<=4,'Bounded automatic preparation');
+                    assert.ok(queries.every(r=>r.query.sort===expected),'Only the latest sort reaches activity');
+                    const retained=await page.evaluate(()=>({panel:document.querySelector('.watchguard-page')===window.wgEarly.panel,focus:document.activeElement.getAttribute('aria-label'),disclosure:document.querySelector('.watchguard-secondary').open,lookups:window.wgAccountGate.calls}));
+                    assert.equal(retained.panel,true);assert.equal(retained.focus,'Sort by');assert.equal(retained.disclosure,true);assert.equal(retained.lookups,1);
+                    roundTrips.push({via,sort:expected,activityRequests:queries.length,retained,result:'PASS'});
+                } finally {
+                    await page.evaluate(()=>{const held=window.wgAccountGate;held.release();ApiClient.getCurrentUser=held.original;delete window.wgAccountGate;});
+                }
+            }
+            const transition=await page.evaluate(()=>{const s=window.wgEarly;s.running=false;return {frames:s.frames,replacements:s.replacements,home:s.home};});
+            assert.equal(transition.replacements,0);assert.equal(transition.home,0);
+            await page.screenshot({path:path.join(output,'roundtrip-'+width+'-ready.png')});
+            cases.push({width,result:'PASS',state,preferencesReads:1,query:query.query,roundTrips,transition});
         } finally {
             release();await page.evaluate(()=>{if(window.wgEarly)window.wgEarly.running=false;});
             if(oldEngine){page.removeListener('request',intercept);await page.setRequestInterception(false);}else await page.unroute('**/WatchGuard/Preferences',intercept);
