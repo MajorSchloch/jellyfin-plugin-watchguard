@@ -273,3 +273,26 @@ test('native dismissal failure propagates without retry or recovery',async()=>{
     assert.equal(f.state().clicks,1);
     assert.equal(f.state().disposed,true);
 });
+
+const removalContract=require('./removal-feedback-contract.cjs');
+const published031=require('./published-v031-identity.json');
+const historicalIdentity={...published031,deployedDllSha256:published031.dllSha256,activeVersion:'0.3.1.0',reportedVersion:'0.3.1'};
+test('Only the exact published v0.3.1 identity permits empty removal feedback',()=>{
+    assert.equal(removalContract.classify(historicalIdentity,false,'0.7.13','0.3.1','').status,'KNOWN_LIMITATION');
+    assert.equal(removalContract.classify(historicalIdentity,false,'0.7.13','0.3.1','Could not remove').status,'PASS');
+    for(const field of Object.keys(historicalIdentity)){
+        assert.throws(()=>removalContract.classify({...historicalIdentity,[field]:'unknown'},false,'0.7.13','0.3.1',''),field);
+        const missing={...historicalIdentity};delete missing[field];
+        assert.throws(()=>removalContract.classify(missing,false,'0.7.13','0.3.1',''),field+' missing');
+    }
+    assert.throws(()=>removalContract.classify(undefined,false,'0.7.13','0.3.1',''),'Legacy mode alone is insufficient');
+    assert.throws(()=>removalContract.classify(historicalIdentity,false,'0.7.13','0.7.13',''),'Changed live plugin');
+    assert.throws(()=>removalContract.classify(historicalIdentity,false,'0.7.13','0.3.1','Other failure'),'No other failure is exempt');
+});
+test('Current candidates must retain removal feedback even with historical mode flags',()=>{
+    const candidate={version:'0.7.13',activeVersion:'0.7.13.0',reportedVersion:'0.7.13',packageSha256:'a'.repeat(64),dllSha256:'b'.repeat(64),deployedDllSha256:'b'.repeat(64)};
+    assert.equal(removalContract.classify(candidate,true,'0.7.13','0.7.13','Could not remove').status,'PASS');
+    assert.throws(()=>removalContract.classify(candidate,true,'0.7.13','0.7.13',''));
+    assert.throws(()=>removalContract.classify(candidate,false,'0.7.13','0.7.13',''));
+    assert.throws(()=>removalContract.classify(historicalIdentity,true,'0.7.13','0.3.1',''));
+});

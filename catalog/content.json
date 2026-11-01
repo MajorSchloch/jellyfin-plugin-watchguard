@@ -216,6 +216,7 @@
     "0.7.13.0": {
       "summary": [
         "Open movies and series from Watchlists without a brief view of Home while the item loads.",
+        "Keep removal errors visible through activity updates and retry without duplicate requests.",
         "Keep native destination focus and recover safely when navigation fails or the account changes."
       ],
       "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.13.md"

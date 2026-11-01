@@ -1,0 +1,228 @@
+{
+  "testCommit": "e607c9b27edacb445d4722c89aa3f9c458cf7af8",
+  "runtime": "published v0.3.1",
+  "requiredChecks": "PASS",
+  "removalFeedback": "KNOWN_LIMITATION",
+  "deployedPackage": {
+    "version": "0.3.1",
+    "packageSha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+    "dllSha256": "a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7",
+    "deployedDllSha256": "a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7",
+    "activeVersion": "0.3.1.0",
+    "reportedVersion": "0.3.1"
+  },
+  "removal": {
+    "alert": "",
+    "cards": 2,
+    "failedDeletes": 1,
+    "indexed": false,
+    "status": "KNOWN_LIMITATION",
+    "check": "removal-feedback-after-activity",
+    "limitation": "Published v0.3.1 erases removal feedback when activity completes",
+    "identity": {
+      "version": "0.3.1",
+      "packageSha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+      "dllSha256": "a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7",
+      "deployedDllSha256": "a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7",
+      "activeVersion": "0.3.1.0",
+      "reportedVersion": "0.3.1"
+    },
+    "membershipUnchanged": true,
+    "cardsUnchanged": true,
+    "explicitRetry": "PASS"
+  },
+  "knownLimitations": [
+    {
+      "status": "KNOWN_LIMITATION",
+      "check": "removal-feedback-after-activity",
+      "limitation": "Published v0.3.1 erases removal feedback when activity completes",
+      "identity": {
+        "version": "0.3.1",
+        "packageSha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+        "dllSha256": "a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7",
+        "deployedDllSha256": "a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7",
+        "activeVersion": "0.3.1.0",
+        "reportedVersion": "0.3.1"
+      }
+    }
+  ],
+  "paths": [
+    {
+      "path": "Progressive overview",
+      "result": "explicit cards rendered with discovery held; no false empty state; query controls superseded earlier responses; card node preserved on completion"
+    },
+    {
+      "path": "My Watchlist",
+      "result": "empty/list, movie and series links, membership integrity, explicit removal retry and load/refresh recovery passed",
+      "removalFeedback": "KNOWN_LIMITATION"
+    },
+    {
+      "path": "Playback-only series",
+      "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+    },
+    {
+      "path": "Modern compatibility",
+      "result": "Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+    },
+    {
+      "path": "Inline users",
+      "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+    },
+    {
+      "path": "Watchlist controls",
+      "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+    },
+    {
+      "path": "Recent viewing activity",
+      "result": "completed movie and whole series, exact native date, four available episodes (undated extras in current UI), explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+    },
+    {
+      "path": "PoC Zero",
+      "result": "native deletion without extra WatchGuard warning"
+    },
+    {
+      "path": "PoC Self",
+      "result": "native deletion without extra WatchGuard warning"
+    },
+    {
+      "path": "Explicit desktop-legacy",
+      "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+    },
+    {
+      "path": "Explicit modern",
+      "result": "correct shell verified; shared legacy detail controls/list and native cancel/override passed"
+    },
+    {
+      "path": "Missing parent resolution",
+      "result": "404 blocks deletion with zero DELETE requests"
+    },
+    {
+      "path": "PoC Parent Interested Episode",
+      "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+    },
+    {
+      "path": "PoC Parent Interested Season",
+      "result": "parent interest labelled; Cancel zero DELETE; override deletes target once, parent survives"
+    },
+    {
+      "path": "PoC Parent Clear Episode",
+      "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+    },
+    {
+      "path": "PoC Parent Clear Season",
+      "result": "confirmed clear parent; no extra warning; target deleted once, parent survives"
+    },
+    {
+      "path": "PoC Movie Detail",
+      "cancel": "zero DELETE",
+      "override": "one DELETE, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "PoC Series Detail",
+      "cancel": "zero DELETE",
+      "override": "one DELETE, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Escape on movie detail",
+      "cancel": "zero DELETE",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Native membership menus",
+      "result": "detail and poster menu add/remove, own state, duplicate prevention, detail consistency and failed mutation feedback passed"
+    },
+    {
+      "path": "Card right-click menu",
+      "cancel": "zero DELETE",
+      "override": "one DELETE, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Native two-item bulk selection",
+      "cancel": "zero DELETE after cancelling both prompts",
+      "override": "one DELETE per approved item, HTTP 204",
+      "genericErrorOnCancel": true
+    },
+    {
+      "path": "Account switch",
+      "result": "old controls removed on sign-out; normal-user detail has no cross-user indicator"
+    },
+    {
+      "path": "Account isolation and native permissions",
+      "result": "My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE"
+    }
+  ],
+  "orderingViolations": 0,
+  "timing": {
+    "elapsedSeconds": 99.732,
+    "phases": [
+      {
+        "phase": "workspace",
+        "status": "PASS",
+        "seconds": 0.003
+      },
+      {
+        "phase": "container-start",
+        "status": "PASS",
+        "seconds": 9.842
+      },
+      {
+        "phase": "native-setup-authentication",
+        "status": "PASS",
+        "seconds": 0.402
+      },
+      {
+        "phase": "background-tasks",
+        "status": "PASS",
+        "seconds": 4.74
+      },
+      {
+        "phase": "generate-media",
+        "status": "PASS",
+        "seconds": 1.844
+      },
+      {
+        "phase": "configure-libraries",
+        "status": "PASS",
+        "seconds": 2.465
+      },
+      {
+        "phase": "media-indexing",
+        "status": "PASS",
+        "seconds": 2.31
+      },
+      {
+        "phase": "installation-and-regressions",
+        "status": "PASS",
+        "seconds": 3.663
+      },
+      {
+        "phase": "current-backend-contracts",
+        "status": "PASS",
+        "seconds": 3.746
+      },
+      {
+        "phase": "proxy-and-browser-setup",
+        "status": "PASS",
+        "seconds": 0.061
+      },
+      {
+        "phase": "browser-settings",
+        "status": "PASS",
+        "seconds": 4.679
+      },
+      {
+        "phase": "browser-actions-and-permissions",
+        "status": "PASS",
+        "seconds": 65.797
+      },
+      {
+        "phase": "teardown",
+        "status": "PASS",
+        "seconds": 0.18
+      }
+    ]
+  }
+}

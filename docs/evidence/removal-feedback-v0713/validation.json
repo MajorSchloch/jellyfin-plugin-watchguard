@@ -1,0 +1,47 @@
+{
+  "runtimeCommit": "25f91bfe522fd45189c5f66a9f004a30f70b826c",
+  "version": "0.7.13",
+  "zipSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+  "dllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+  "fastChecks": {
+    "javascript": 226,
+    "python": 94,
+    "catalog": 8,
+    "backend": 376,
+    "focusedRemoval": 11,
+    "result": "PASS"
+  },
+  "prChecks": {
+    "run": 41256467437,
+    "attempt": 1,
+    "sourceCommit": "3fc819e593113f6d53afbbaa4a8c1b178a1f945a",
+    "seconds": 42,
+    "result": "PASS",
+    "packageArtifact": 13063516160,
+    "packageMatchesLocal": true
+  },
+  "packagedBrowser": {
+    "es2019": "PASS",
+    "chromium79": "79.0.3945.0",
+    "parse": "PASS",
+    "physicalTV": false
+  },
+  "native": {
+    "server": "12.3.0",
+    "web": "12.3.0",
+    "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+    "playwright": "1.56.1",
+    "chromium": "141.0.7390.37",
+    "host": "macOS",
+    "candidateForcedRace": "PASS",
+    "legacyPublished031ForcedRace": "FAIL",
+    "legacyFailureIsStillBlocking": true,
+    "candidateFixture": "PASS",
+    "candidateFixtureSeconds": 392.762,
+    "candidateBrowserSeconds": 357.289,
+    "candidateRecordedPaths": 32,
+    "orderingViolations": 0
+  },
+  "fullBranchMatrixRun": false,
+  "publicationAuthorized": false
+}

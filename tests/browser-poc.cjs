@@ -1,5 +1,6 @@
 const setNativeCheckbox=require('./native-checkbox.cjs');
 const readiness = require('./browser-readiness.cjs');
+const removalContract = require('./removal-feedback-contract.cjs');
 /* Run only through docker-smoke.py, which owns a fresh server and synthetic media. */
 const { chromium } = require('./browser/node_modules/playwright');
 const assert = require('node:assert/strict');
@@ -12,7 +13,8 @@ const output = path.resolve(fixture.reportDirectory || 'artifacts/poc'); fs.mkdi
 const errorText = 'There was an error deleting the item from the server. Please check that Jellyfin has write access to the media folder and try again.';
 const mineActivity = fixture.activityIndex ? '**/WatchGuard/ActivityBrowser?owner=mine&*' : '**/WatchGuard/ActivityOverview/Me';
 const allActivity = fixture.activityIndex ? '**/WatchGuard/ActivityBrowser?owner=all&*' : '**/WatchGuard/ActivityOverview';
-const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnostics: [], deletes: [], orderingViolations: 0 };
+const candidateVersion=/<Version>([^<]+)<\/Version>/.exec(fs.readFileSync(path.resolve(__dirname,'../Directory.Build.props'),'utf8'))[1];
+const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnostics: [], deletes: [], orderingViolations: 0 };
 (async () => {
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ ignoreHTTPSErrors: fixture.tls === true, viewport: { width: 1280, height: 900 }, locale: 'en-US' });
@@ -314,8 +316,22 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         await page.goForward();
         await page.waitForFunction(()=>document.querySelectorAll('.watchguard-card').length===2);
         if(fixture.activityIndex) assert.equal(page.url(),latestOwnerView,'Forward restores the latest owner view');
+        // Hold initial activity across a failed removal. Cards must be usable
+        // before activity completes; completion must not erase action feedback.
+        let releaseRemovalActivity, removalActivityStarted;
+        const removalActivityReady = new Promise(resolve => { removalActivityStarted = resolve; });
+        const removalActivityGate = new Promise(resolve => { releaseRemovalActivity = resolve; });
+        const holdRemovalActivity = async route => { removalActivityStarted(); await removalActivityGate; await route.continue(); };
+        await page.route(mineActivity, holdRemovalActivity);
         await page.reload(); await myList().getByRole('link',{name:'PoC Series Detail',exact:true}).waitFor();
+        await removalActivityReady;
+        assert.equal(await myList().getAttribute('aria-busy'),'true','Remove is available on preliminary cards');
         await page.screenshot({path:path.join(output,'my-watchlist.png')});
+        const removalMemberships = await api('/WatchGuard/Watchlist');
+        const otherMemberships = await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken);
+        const removalTitles = await myList().getByRole('link').allTextContents();
+        const livePluginVersion = (await api('/WatchGuard/IntegrationStatus')).PluginVersion;
+        removalContract.validateIdentity(fixture.deployedPackage,fixture.standalone,candidateVersion,livePluginVersion);
         const failedRemovalRequests = [];
         const removalMock = async route => {
             const request = route.request();
@@ -336,12 +352,41 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
             }));
             throw error;
         }
+        await page.screenshot({path:path.join(output,'removal-error-before-activity.png')});
+        releaseRemovalActivity();
+        await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+        await page.unroute(mineActivity,holdRemovalActivity);
+        const removalAfterActivity = {
+            alert:await myList().locator('[role="alert"]').textContent(),
+            cards:await myList().locator('.watchguard-card').count(),
+            failedDeletes:failedRemovalRequests.length,
+            indexed:fixture.activityIndex === true
+        };
+        fs.writeFileSync(path.join(output,'removal-race.json'),JSON.stringify(removalAfterActivity,null,2)+'\n');
+        await page.screenshot({path:path.join(output,'removal-error-after-activity.png')});
+        assert.equal(removalAfterActivity.cards,2,'A failed removal must retain both cards');
         assert.equal(failedRemovalRequests.length,1,'Exactly one failed removal should be intercepted');
         assert.equal(failedRemovalRequests[0].method,'DELETE','The failed removal should use DELETE');
         assert.equal(await myList().getByRole('link').count(),2);
+        assert.deepEqual(await myList().getByRole('link').allTextContents(),removalTitles,'Failed removal preserves the same cards');
+        assert.deepEqual(await api('/WatchGuard/Watchlist'),removalMemberships,'Failed removal preserves membership');
+        assert.deepEqual(await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken),otherMemberships,'Other owner membership is unchanged');
+        const removalOutcome=removalContract.classify(fixture.deployedPackage,fixture.standalone,candidateVersion,
+            (await api('/WatchGuard/IntegrationStatus')).PluginVersion,removalAfterActivity.alert);
+        Object.assign(removalAfterActivity,removalOutcome,{membershipUnchanged:true,cardsUnchanged:true});
+        if(removalOutcome.status==='KNOWN_LIMITATION'){
+            report.knownLimitations.push(removalOutcome);
+            console.log('KNOWN_LIMITATION: '+removalOutcome.limitation+'; ZIP '+fixture.deployedPackage.packageSha256+'; deployed DLL '+fixture.deployedPackage.deployedDllSha256);
+        }
+        fs.writeFileSync(path.join(output,'removal-race.json'),JSON.stringify(removalAfterActivity,null,2)+'\n');
         await page.unroute('**/WatchGuard/Watchlist/*',removalMock);
         await myList().getByRole('button',{name:'Remove PoC Movie Detail from Watchlist',exact:true}).click();
         await myList().getByRole('link',{name:'PoC Movie Detail',exact:true}).waitFor({state:'hidden'});
+        assert.doesNotMatch(await myList().locator('[role="alert"]').textContent(),/Could not remove/,'Successful retry clears removal feedback');
+        assert.deepEqual(await api('/WatchGuard/Watchlist'),removalMemberships.filter(e=>e.ItemId.replaceAll('-','')!==fixture.items['PoC Movie Detail'].replaceAll('-','')),'Explicit retry removes only the selected membership');
+        assert.deepEqual(await api('/WatchGuard/Watchlist','GET',undefined,member.AccessToken),otherMemberships);
+        removalAfterActivity.explicitRetry='PASS';
+        fs.writeFileSync(path.join(output,'removal-race.json'),JSON.stringify(removalAfterActivity,null,2)+'\n');
         await myList().getByRole('link',{name:'PoC Series Detail',exact:true}).click();
         await page.locator('#itemDetailPage').getByText('PoC Series Detail',{exact:true}).first().waitFor();
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();
@@ -360,7 +405,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         // would incorrectly demand a false empty state during population.
         await page.waitForFunction(()=>{const page=document.querySelector('.watchguard-page');return ['empty','populating'].includes(page?.dataset.viewState) || (!page?.dataset.viewState && page?.innerText.includes('No matching activity in this overview.'));},{},{timeout:45000});
         await page.goBack();
-        report.paths.push({path:'My Watchlist',result:'empty/list, movie and series links, removal, failed removal/load and refresh recovery passed'});
+        report.paths.push({path:'My Watchlist',result:'empty/list, movie and series links, membership integrity, explicit removal retry and load/refresh recovery passed',removalFeedback:removalOutcome.status});
         report.phase = 'Playback-only series overview';
         const automaticId = fixture.items['PoC Parent Clear'];
         const episode = (await api('/Shows/' + automaticId + '/Episodes')).Items[0];
@@ -1119,7 +1164,7 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         assert.equal(report.deletes.length,beforeDenied);
         report.paths.push({path:'Account isolation and native permissions',result:'My Watchlist belongs to switched user; native non-admin deletion right preserved, cross-user check denied with zero DELETE'});
         report.result='PASS';
-        console.log('PASS: native movie/series details, right-click menu, Escape, and bulk selection; fresh interest check precedes every observed DELETE.');
+        console.log('PASS: mandatory native movie/series details, right-click menu, Escape, and bulk selection checks; fresh interest check precedes every observed DELETE. Historical limitations: '+report.knownLimitations.length+' (reported separately, not passes).');
         fs.writeFileSync(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
     } catch (error) {
         console.log('Failed phase:', report.phase);

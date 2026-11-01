@@ -4,6 +4,10 @@
 
 The minimum ABI remains 12.2.0.0. Dependencies, plugin GUID, stored data and protection rules are unchanged. The public catalog still lists v0.7.12; existing assets and historical evidence remain unchanged.
 
+## Follow-up removal-feedback correction
+
+Master qualification run 41252629663, attempt 1, failed in the historical Jellyfin 12.3 legacy fixture. See [the cause, focused validation and remaining historical limitation](removal-feedback-v0713.md). The correction keeps v0.7.13 and requires a fresh package qualification. After merge, manually dispatch **Qualify WatchGuard** on master with `publish=true` and `proxy_matrix=true`; the unchanged Directory.Build.props will not trigger it automatically. The preparation results below remain historical evidence, not authorization for the changed package.
+
 ## Development regression evidence
 
 [Run 41245891354](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41245891354), attempt 1, passed all 39 suites and the strict compatibility evidence gate. It tested commit `9f5f8702a83d2031f66ac7bdaeecacc1c5fb492f` with `publish=false` and `proxy_matrix=true` on Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0.

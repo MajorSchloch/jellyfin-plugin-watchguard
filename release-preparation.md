@@ -4,7 +4,7 @@ Unpublished patch for the transition from Watchlists to native item details. See
 
 The reviewed transition implementation is unchanged by this version preparation. The public catalog and published v0.7.12 assets remain unchanged.
 
-Run 41245891354, attempt 1, passed all 39 compatibility suites with a development package that still identified itself as v0.7.12. Retain it as regression evidence only. It cannot authorize v0.7.13 publication. After merge, automatic master qualification must validate the final v0.7.13 package before publication and release-environment approval.
+Run 41245891354, attempt 1, passed all 39 compatibility suites with a development package that still identified itself as v0.7.12. Retain it as regression evidence only. It cannot authorize v0.7.13 publication. The initial master qualification (run 41252629663, attempt 1) failed. The removal-feedback fix changes the package without changing Directory.Build.props. After this fix merges, manually dispatch **Qualify WatchGuard** on master with `publish=true` and `proxy_matrix=true`. Fresh qualification and release-environment approval remain required. See [the removal-race evidence](docs/removal-feedback-v0713.md).
 
 ## Published v0.7.12 record
 

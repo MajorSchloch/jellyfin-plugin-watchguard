@@ -1,4 +1,6 @@
 import fixture_images
+import fixture_package_identity
+import xml.etree.ElementTree as ET
 from fixture_evidence import capture as capture_failure, Phases
 from fixture_inventory import wait_inventory, wait_ready
 """Run isolated pinned Jellyfin deployment and browser tests; never mounts real media.
@@ -236,9 +238,17 @@ def main():
             if options.standalone:
                 status = call('/WatchGuard/IntegrationStatus', token=token)
                 assert status['ServerMatchesTestedVersion'] is True and status['JellyfinVersion'] == version
+            expected_version = ET.parse(ROOT/'Directory.Build.props').findtext('./PropertyGroup/Version') if options.standalone else '0.3.1'
+            package = ROOT/'artifacts'/('Jellyfin.Plugin.WatchGuard-v'+expected_version+'.zip')
+            deployed_path = '/config/' + (installed_folder/fixture_package_identity.DLL).relative_to(root/'config').as_posix()
+            deployed_identity = fixture_package_identity.verify(
+                package, docker('exec',name,'sha256sum',deployed_path).split()[0],
+                call('/Plugins',token=token), call('/WatchGuard/IntegrationStatus',token=token)['PluginVersion'], expected_version)
+            identity_file = ROOT/'artifacts/testing'/name/'deployed-package.json'
+            identity_file.write_text(json.dumps(deployed_identity,indent=2)+'\n')
             fixture = root / 'fixture.json'
             fixture.write_text(json.dumps({'base': browser_base, 'username': username, 'password': password,
-                'serverVersion':version, 'image':image, 'standalone':options.standalone, 'activityIndex':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')/name), 'token': token, 'userId': admin['User']['Id'], 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
+                'deployedPackage':deployed_identity, 'serverVersion':version, 'image':image, 'standalone':options.standalone, 'activityIndex':options.standalone, 'tls':options.caddy, 'reportDirectory':str(ROOT/'artifacts/v049'/('linuxserver' if options.linuxserver else 'official')/('caddy' if options.caddy else 'basepath' if options.base_path else 'direct')/('migration' if options.migration else 'standalone' if options.standalone else 'injector')/name), 'token': token, 'userId': admin['User']['Id'], 'serverId': admin['ServerId'], 'items': {i['Name']: i['Id'] for i in items}}))
             if listing:
                 values=json.loads(fixture.read_text());values.update({k:listing[k] for k in ('repositoryUrl','imageSha256')});fixture.write_text(json.dumps(values))
             fixture.chmod(0o600)
