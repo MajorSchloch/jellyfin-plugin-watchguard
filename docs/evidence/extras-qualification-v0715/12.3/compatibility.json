@@ -1,0 +1,145 @@
+{
+  "serverVersion": "12.3.0",
+  "inspectOnly": false,
+  "attached": 2,
+  "checks": [
+    {
+      "Id": "version-range",
+      "Status": "Tested",
+      "Detail": "12.2.x, 12.3.x and 12.4.x release versions; .NET 10; minimum ABI 12.2.0.0",
+      "Action": "",
+      "Passed": true
+    },
+    {
+      "Id": "deletion-inventory",
+      "Status": "Tested",
+      "Detail": "Exactly one native LibraryController and both known deletion actions, with no additional DELETE actions in that controller.",
+      "Action": "",
+      "Passed": true
+    },
+    {
+      "Id": "deletion-signatures",
+      "Status": "Tested",
+      "Detail": "DeleteItem(Guid itemId) and DeleteItems(Guid[] ids), returning ActionResult.",
+      "Action": "",
+      "Passed": true
+    },
+    {
+      "Id": "deletion-routes",
+      "Status": "Tested",
+      "Detail": "Only DELETE Items/{itemId} and DELETE Items with the native empty controller prefix.",
+      "Action": "",
+      "Passed": true
+    },
+    {
+      "Id": "deletion-authorization",
+      "Status": "Tested",
+      "Detail": "Native default authorization required; no anonymous override or changed policy/scheme/roles.",
+      "Action": "",
+      "Passed": true
+    },
+    {
+      "Id": "deletion-binding",
+      "Status": "Tested",
+      "Detail": "Native route Guid and query Guid[] with Jellyfin's comma-delimited model binder.",
+      "Action": "",
+      "Passed": true
+    }
+  ],
+  "assembly": "Jellyfin.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "controller": "Jellyfin.Api.Controllers.LibraryController",
+  "authenticationTypes": [
+    "Jellyfin.Api.Auth.CustomAuthenticationHandler",
+    "Jellyfin.Api.Auth.DefaultAuthorizationPolicy.DefaultAuthorizationHandler",
+    "Jellyfin.Api.Auth.DefaultAuthorizationPolicy.DefaultAuthorizationRequirement"
+  ],
+  "actions": [
+    {
+      "method": "DeleteItem",
+      "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+      "authorization": [
+        {
+          "Policy": null,
+          "Roles": null,
+          "AuthenticationSchemes": null
+        }
+      ],
+      "controllerAttributes": [
+        "[System.Runtime.CompilerServices.NullableContextAttribute((Byte)1)]",
+        "[System.Runtime.CompilerServices.NullableAttribute((Byte)0)]",
+        "[Microsoft.AspNetCore.Mvc.RouteAttribute(\"\")]"
+      ],
+      "parameters": [
+        {
+          "name": "itemId",
+          "type": "System.Guid",
+          "attributes": [],
+          "binder": null
+        }
+      ],
+      "route": "Items/{itemId}",
+      "authorized": true
+    },
+    {
+      "method": "DeleteItems",
+      "returns": "Microsoft.AspNetCore.Mvc.ActionResult",
+      "authorization": [
+        {
+          "Policy": null,
+          "Roles": null,
+          "AuthenticationSchemes": null
+        }
+      ],
+      "controllerAttributes": [
+        "[System.Runtime.CompilerServices.NullableContextAttribute((Byte)1)]",
+        "[System.Runtime.CompilerServices.NullableAttribute((Byte)0)]",
+        "[Microsoft.AspNetCore.Mvc.RouteAttribute(\"\")]"
+      ],
+      "parameters": [
+        {
+          "name": "ids",
+          "type": "System.Guid[]",
+          "attributes": [
+            "Microsoft.AspNetCore.Mvc.FromQueryAttribute",
+            "Microsoft.AspNetCore.Mvc.ModelBinderAttribute"
+          ],
+          "binder": "Jellyfin.Api.ModelBinders.CommaDelimitedCollectionModelBinder"
+        }
+      ],
+      "route": "Items",
+      "authorized": true
+    }
+  ],
+  "result": "PASS",
+  "packagedRuntime": {
+    "runtimeOptions": {
+      "tfm": "net10.0",
+      "includedFrameworks": [
+        {
+          "name": "Microsoft.NETCore.App",
+          "version": "10.0.13"
+        },
+        {
+          "name": "Microsoft.AspNetCore.App",
+          "version": "10.0.13"
+        }
+      ],
+      "configProperties": {
+        "System.GC.Server": false,
+        "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
+        "System.Reflection.NullabilityInfoContext.IsSupported": true,
+        "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false
+      }
+    }
+  },
+  "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+  "imageIdentity": {
+    "Id": "sha256:2c49d5da544290cec872a2675537f03bdb8e6aa111140526c95a6456e489349c",
+    "RepoDigests": [
+      "jellyfin/jellyfin@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5"
+    ],
+    "Architecture": "arm64",
+    "Os": "linux"
+  },
+  "webIndexSha256": "afae382dfccd9d632067b604a342b170bd66881b77d3ea38e22e7e582731a8fe"
+}

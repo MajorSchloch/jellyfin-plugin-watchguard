@@ -1,0 +1,88 @@
+{
+  "testedCommit": "63c6cc71e920bfaf9e179e4d7c97e5c4b4cd9f2f",
+  "runtimeSourceCommit": "7c63b26afb2215130c12a479915ffb361abfd8bc",
+  "scope": "Focused local validation; not a sealed release qualification record",
+  "native": [
+    {
+      "version": "12.3",
+      "fixture": "watchguard-poc-217eaf6250",
+      "command": "WATCHGUARD_JELLYFIN_VERSION=12.3 python3 tests/docker-smoke.py --base-path /jellyfin --proxy",
+      "exitCode": 0,
+      "elapsedSeconds": 443.937,
+      "browserSeconds": 401.278,
+      "controlledPollSeconds": 30.047,
+      "versions": {
+        "serverVersion": "12.3.0",
+        "webVersion": "12.3.0",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5"
+      },
+      "deployed": {
+        "version": "0.7.15",
+        "packageSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+        "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+        "deployedDllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+        "activeVersion": "0.7.15.0",
+        "reportedVersion": "0.7.15"
+      }
+    },
+    {
+      "version": "12.4",
+      "fixture": "watchguard-poc-7d7d8da1da",
+      "command": "WATCHGUARD_JELLYFIN_VERSION=12.4 python3 tests/docker-smoke.py --base-path /jellyfin --proxy",
+      "exitCode": 0,
+      "elapsedSeconds": 443.841,
+      "browserSeconds": 401.255,
+      "controlledPollSeconds": 30.026,
+      "versions": {
+        "serverVersion": "12.4.0",
+        "webVersion": "12.4.0",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771"
+      },
+      "deployed": {
+        "version": "0.7.15",
+        "packageSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+        "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+        "deployedDllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+        "activeVersion": "0.7.15.0",
+        "reportedVersion": "0.7.15"
+      }
+    }
+  ],
+  "fast": {
+    "javascript": {
+      "passed": 304,
+      "failed": 0
+    },
+    "dotnet": {
+      "passed": 376,
+      "failed": 0
+    },
+    "python": {
+      "passed": 120,
+      "failed": 0
+    },
+    "catalog": {
+      "passed": 8,
+      "failed": 0
+    },
+    "checks": [
+      "locked restore, Release build/test",
+      "qualification policy generation/evidence contract check",
+      "release notes and authoritative version metadata",
+      "published installation metadata comparison against origin/master",
+      "catalog ZIP validation",
+      "deterministic package reproduction",
+      "five packaged browser scripts, settings inline code and startup concatenation parse as ES2019",
+      "git diff --check"
+    ]
+  },
+  "packageUnchanged": true,
+  "zipSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+  "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+  "limits": [
+    "Original CI ActivityBrowser response was not retained; its precise cause remains unconfirmed.",
+    "Native tests ran locally on macOS arm64 with current Chromium, not physical TV.",
+    "No runtime change; no new return-position or Chromium 79 native run. Packaged ES2019 checks passed.",
+    "Full unchanged qualification policy remains required after merge."
+  ]
+}

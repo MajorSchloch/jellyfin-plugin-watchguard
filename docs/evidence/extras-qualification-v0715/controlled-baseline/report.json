@@ -1,0 +1,110 @@
+{
+  "deployedPackage": {
+    "version": "0.7.15",
+    "packageSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+    "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+    "deployedDllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+    "activeVersion": "0.7.15.0",
+    "reportedVersion": "0.7.15"
+  },
+  "knownLimitations": [],
+  "target": "Jellyfin 12.3.0",
+  "paths": [
+    {
+      "path": "Progressive overview",
+      "result": "explicit cards rendered with discovery held; no false empty state; query controls superseded earlier responses; card node preserved on completion"
+    },
+    {
+      "path": "Indexed time filters",
+      "result": "7/30/90-day URL selection, older-interest toggle, reload, native-sized controls and no overflow at 1280/390"
+    },
+    {
+      "path": "My Watchlist",
+      "result": "empty/list, movie and series links, membership integrity, explicit removal retry and load/refresh recovery passed",
+      "removalFeedback": "PASS"
+    },
+    {
+      "path": "Overview polish",
+      "result": "keyboard disclosure; visible safety/coverage warnings; labeled colors; multi-user/unsafe text; 44px controls and no overflow at 1280/390"
+    },
+    {
+      "path": "Playback-only series",
+      "result": "no membership, appears under Watching, user/reason filters and recency/title sorting pass; inline users and deletion warning show Watching; cancellation sends zero DELETE; no permanent membership created"
+    },
+    {
+      "path": "Modern compatibility",
+      "result": "Native modern React application routes /details to the legacy itemDetailPage; one placement path verified, no separate React details route exists in inspected source"
+    },
+    {
+      "path": "Watchlist action 1280",
+      "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+      "appearance": {
+        "text": "bookmark_remove",
+        "color": "rgb(0, 164, 220)",
+        "visible": true
+      }
+    },
+    {
+      "path": "Watchlist action 390",
+      "result": "Keyboard add/remove; both failed writes retain state; repeated disabled clicks send one write; saved minus visible without hover; same button node; other membership retained",
+      "appearance": {
+        "text": "bookmark_remove",
+        "color": "rgb(0, 164, 220)",
+        "visible": true
+      }
+    },
+    {
+      "path": "Watchlist navigation during write",
+      "result": "Delayed failure cannot repaint the new detail route or mutate membership"
+    },
+    {
+      "path": "Inline users",
+      "result": "five users including three long names; all three reasons; 1280/390 px geometry, bounded growth, no action overlap, no badge/popover"
+    },
+    {
+      "path": "Watchlist controls",
+      "result": "add/remove, reload persistence, mutation failure, admin indicator, private normal-user UI, SPA back/forward passed"
+    },
+    {
+      "path": "Recent viewing activity",
+      "result": "completed movie and whole series, exact native date, four available episodes (undated extras in current UI), explicit+Watched merge, user/Watched/Playing filters, active indicator and history-only protection=false"
+    }
+  ],
+  "diagnostics": [
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] confirmation-opened 1",
+    "[WatchGuard PoC] cancelled 1",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] installed 0",
+    "[WatchGuard PoC] intercepted 1",
+    "[WatchGuard PoC] confirmation-opened 1",
+    "[WatchGuard PoC] cancelled 1"
+  ],
+  "deletes": [],
+  "orderingViolations": 0,
+  "loginToAdapterMs": 185,
+  "phase": "Caught Up",
+  "moviesNavigation": {
+    "scenario": "Home and Movies share one real item; Movies module held",
+    "status": "PASS",
+    "oldHelperAcceptedHome": true,
+    "activeViewWhileHeld": "indexPage",
+    "destinationReadyWhileHeld": false,
+    "destinationCardVerified": true
+  },
+  "playbackCancellation": {
+    "clickReturnedAt": 12483.399999976158,
+    "closedWhenClickReturned": false,
+    "closedAt": 12632.600000023842,
+    "viewReadyAt": 12654.199999988079,
+    "nextNavigationAt": 20768.899999976158,
+    "nextDetailReady": true
+  },
+  "seriesActivityMs": 28
+}
