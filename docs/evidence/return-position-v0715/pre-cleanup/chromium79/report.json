@@ -1,0 +1,363 @@
+{
+  "server": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "device": "Chromium executable; no physical TV",
+  "cases": [
+    {
+      "layout": "tv",
+      "remoteTraversal": [
+        {
+          "tag": "SELECT",
+          "label": "Sort by",
+          "text": "TitlePlayback recencyRecently added"
+        },
+        {
+          "tag": "SUMMARY",
+          "label": "Status filters (3 selected)",
+          "text": "filter_listStatus · 3"
+        },
+        {
+          "tag": "SELECT",
+          "label": "Watchlist owner",
+          "text": "My listAll usersReturn-1793555699393WatchGuardPoCTest"
+        },
+        {
+          "tag": "INPUT",
+          "label": "Search titles",
+          "text": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "label": null,
+          "text": "Activity: 30 days · older interest included"
+        }
+      ],
+      "secondaryArrowsAndBack": "PASS",
+      "selectChoicesAndBack": "PASS",
+      "filtersAndFocus": "PASS",
+      "membershipAndFocus": "PASS",
+      "dialogCancelAndFocus": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "filtersAndFocus": "PASS",
+      "posterRatio": 1.5,
+      "membershipAndFocus": "PASS",
+      "dialogCancelAndFocus": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "filtersAndFocus": "PASS",
+      "posterRatio": 1.4999557952435683,
+      "membershipAndFocus": "PASS",
+      "dialogCancelAndFocus": "PASS"
+    },
+    {
+      "layout": "modern",
+      "filtersAndFocus": "PASS",
+      "posterRatio": 1.5,
+      "membershipAndFocus": "PASS",
+      "dialogCancelAndFocus": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "packageSha256": "49f749bdae23d0b1dca9bd0c2d8f045f1df659f2ad6aaa5c7198017c11b3cb44",
+  "runtimeSha256": "db072e1ca7ffe797753b1ee34848300896010d87010d7f9404322361925e8f03",
+  "engine": "HeadlessChrome/79.0.3945.0",
+  "nativeLogin": "PASS",
+  "earlyFilters": [
+    {
+      "width": 1280,
+      "result": "PASS",
+      "state": {
+        "frames": 45,
+        "replacements": 0,
+        "home": 0,
+        "focus": "Search titles",
+        "disclosure": true
+      },
+      "preferencesReads": 1,
+      "query": {
+        "owner": "mine",
+        "days": "7",
+        "older": "false",
+        "statuses": "watched",
+        "sort": "added",
+        "search": "PoC"
+      },
+      "roundTrips": [
+        {
+          "via": "control",
+          "sort": "title",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        },
+        {
+          "via": "history",
+          "sort": "title",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        },
+        {
+          "via": "equivalent",
+          "sort": "added",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        }
+      ],
+      "transition": {
+        "frames": 93,
+        "replacements": 0,
+        "home": 0
+      }
+    },
+    {
+      "width": 390,
+      "result": "PASS",
+      "state": {
+        "frames": 38,
+        "replacements": 0,
+        "home": 0,
+        "focus": "Search titles",
+        "disclosure": true
+      },
+      "preferencesReads": 1,
+      "query": {
+        "owner": "mine",
+        "days": "7",
+        "older": "false",
+        "statuses": "watched",
+        "sort": "added",
+        "search": "PoC"
+      },
+      "roundTrips": [
+        {
+          "via": "control",
+          "sort": "title",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        },
+        {
+          "via": "history",
+          "sort": "title",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        },
+        {
+          "via": "equivalent",
+          "sort": "added",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        }
+      ],
+      "transition": {
+        "frames": 78,
+        "replacements": 0,
+        "home": 0
+      }
+    }
+  ],
+  "returnPosition": {
+    "engine": "Chromium 79",
+    "physicalTV": false,
+    "serverVersion": "12.4.0",
+    "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+    "deployedPackage": {
+      "version": "0.7.15",
+      "packageSha256": "49f749bdae23d0b1dca9bd0c2d8f045f1df659f2ad6aaa5c7198017c11b3cb44",
+      "dllSha256": "db072e1ca7ffe797753b1ee34848300896010d87010d7f9404322361925e8f03",
+      "deployedDllSha256": "db072e1ca7ffe797753b1ee34848300896010d87010d7f9404322361925e8f03",
+      "activeVersion": "0.7.15.0",
+      "reportedVersion": "0.7.15"
+    },
+    "cases": [
+      {
+        "layout": "tv",
+        "width": 1280,
+        "input": "remote",
+        "kind": "first-movie",
+        "before": {
+          "top": 290.203125,
+          "scroll": 1060,
+          "count": 25
+        },
+        "after": {
+          "found": true,
+          "top": 290.203125,
+          "scroll": 1060,
+          "focused": true,
+          "focusLabel": null,
+          "count": 25,
+          "viewState": "ready",
+          "returnState": "restored"
+        },
+        "queries": [
+          {
+            "continuation": false,
+            "check": false
+          }
+        ],
+        "transition": {
+          "frames": 34,
+          "homeExposures": 0
+        },
+        "remoteAfterReturn": "PASS",
+        "repeatBack": "PASS"
+      },
+      {
+        "layout": "tv",
+        "width": 1280,
+        "input": "remote",
+        "kind": "deep-movie",
+        "before": {
+          "top": 289.796875,
+          "scroll": 2379,
+          "count": 45
+        },
+        "after": {
+          "found": true,
+          "top": 289.796875,
+          "scroll": 2379,
+          "focused": true,
+          "focusLabel": null,
+          "count": 45,
+          "viewState": "ready",
+          "returnState": "restored"
+        },
+        "queries": [
+          {
+            "continuation": false,
+            "check": false
+          },
+          {
+            "continuation": true,
+            "check": false
+          }
+        ],
+        "transition": {
+          "frames": 35,
+          "homeExposures": 0
+        },
+        "remoteAfterReturn": "PASS",
+        "repeatBack": "PASS"
+      },
+      {
+        "layout": "tv",
+        "width": 1280,
+        "input": "remote",
+        "kind": "series",
+        "before": {
+          "top": 289.671875,
+          "scroll": 621,
+          "count": 25
+        },
+        "after": {
+          "found": true,
+          "top": 289.671875,
+          "scroll": 621,
+          "focused": true,
+          "focusLabel": null,
+          "count": 25,
+          "viewState": "ready",
+          "returnState": "restored"
+        },
+        "queries": [
+          {
+            "continuation": false,
+            "check": false
+          }
+        ],
+        "transition": {
+          "frames": 33,
+          "homeExposures": 0
+        },
+        "remoteAfterReturn": "PASS",
+        "repeatBack": "PASS"
+      },
+      {
+        "layout": "tv",
+        "kind": "removed-membership",
+        "result": "PASS"
+      },
+      {
+        "layout": "tv",
+        "kind": "native-expired-continuation",
+        "status": 409,
+        "result": "PASS"
+      },
+      {
+        "layout": "tv",
+        "kind": "interaction-cancels-return",
+        "result": "PASS"
+      },
+      {
+        "layout": "tv",
+        "kind": "navigation-cancels-return",
+        "result": "PASS"
+      },
+      {
+        "layout": "tv",
+        "kind": "fresh-entry",
+        "result": "PASS"
+      },
+      {
+        "kind": "detail-authorization-denial",
+        "status": 401,
+        "injectedFailure": true,
+        "result": "PASS"
+      },
+      {
+        "kind": "detail-authorization-denial",
+        "status": 403,
+        "injectedFailure": true,
+        "result": "PASS"
+      },
+      {
+        "kind": "account-change-during-return",
+        "result": "PASS"
+      }
+    ],
+    "browserVersion": "HeadlessChrome/79.0.3945.0",
+    "result": "PASS"
+  },
+  "pluginVersion": "0.7.15",
+  "originalOptionalChaining": "SyntaxError in actual Chromium 79",
+  "settingsInline": "PASS",
+  "errors": []
+}

@@ -1,0 +1,69 @@
+{
+  "engine": "Chromium 79",
+  "physicalTV": false,
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "deployedPackage": {
+    "version": "0.7.15",
+    "packageSha256": "33a983f505ead88224ee00d0b8e1125b65bbc832413732e7ec364f253f0d5827",
+    "dllSha256": "538c5b63a5a9c684bc70deac18a3d35a6ec70f0594490e3cbbabd2833a867422",
+    "deployedDllSha256": "538c5b63a5a9c684bc70deac18a3d35a6ec70f0594490e3cbbabd2833a867422",
+    "activeVersion": "0.7.15.0",
+    "reportedVersion": "0.7.15"
+  },
+  "cases": [
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "kind": "first-movie",
+      "before": {
+        "top": 290.203125,
+        "scroll": 1060,
+        "count": 25
+      },
+      "after": {
+        "found": true,
+        "top": 290.203125,
+        "scroll": 1060,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 37,
+        "homeExposures": 0
+      },
+      "remoteAfterReturn": "PASS",
+      "repeatBack": "PASS"
+    }
+  ],
+  "browserVersion": "HeadlessChrome/79.0.3945.0",
+  "activeCase": {
+    "layout": "tv",
+    "width": 1280,
+    "input": "remote",
+    "kind": "deep-movie",
+    "title": "Return Position 28",
+    "phase": "capture"
+  },
+  "result": "FAIL",
+  "error": "Evaluation failed: TypeError: Cannot read property 'scrollIntoView' of null\n    at __puppeteer_evaluation_script__:1:128",
+  "failure": {
+    "route": "#/home",
+    "count": 44,
+    "scroll": 1684,
+    "viewState": "ready",
+    "returnState": "none",
+    "focus": null
+  },
+  "excludedFromValidation": "Current Chromium and Chromium79 shared one mutable disposable account. The concurrent current-browser removal case removed the old-engine target. Final checks use isolated fixtures."
+}

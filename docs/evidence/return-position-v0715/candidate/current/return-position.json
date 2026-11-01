@@ -1,0 +1,412 @@
+{
+  "engine": "current Chromium",
+  "physicalTV": false,
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "deployedPackage": {
+    "version": "0.7.15",
+    "packageSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+    "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+    "deployedDllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+    "activeVersion": "0.7.15.0",
+    "reportedVersion": "0.7.15"
+  },
+  "cases": [
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "first-movie",
+      "before": {
+        "top": 272.453125,
+        "scroll": 888,
+        "count": 25
+      },
+      "after": {
+        "found": true,
+        "top": 272.453125,
+        "scroll": 888,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 16,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "deep-movie",
+      "before": {
+        "top": 272.5,
+        "scroll": 2073,
+        "count": 45
+      },
+      "after": {
+        "found": true,
+        "top": 272.5,
+        "scroll": 2073,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        },
+        {
+          "continuation": true,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 17,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "series",
+      "before": {
+        "top": 272.4375,
+        "scroll": 493,
+        "count": 25
+      },
+      "after": {
+        "found": true,
+        "top": 272.4375,
+        "scroll": 493,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 18,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "removed-membership",
+      "result": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "native-expired-continuation",
+      "status": 409,
+      "result": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "interaction-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "navigation-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "fresh-entry",
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "kind": "first-movie",
+      "before": {
+        "top": 257.46875,
+        "scroll": 3479,
+        "count": 25
+      },
+      "after": {
+        "found": true,
+        "top": 257.46875,
+        "scroll": 3479,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 17,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "kind": "deep-movie",
+      "before": {
+        "top": 257.90625,
+        "scroll": 8425,
+        "count": 45
+      },
+      "after": {
+        "found": true,
+        "top": 257.90625,
+        "scroll": 8425,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        },
+        {
+          "continuation": true,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 15,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "kind": "series",
+      "before": {
+        "top": 257.65625,
+        "scroll": 1830,
+        "count": 25
+      },
+      "after": {
+        "found": true,
+        "top": 257.65625,
+        "scroll": 1830,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 14,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "removed-membership",
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "native-expired-continuation",
+      "status": 409,
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "interaction-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "navigation-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "fresh-entry",
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "first-movie",
+      "before": {
+        "top": 242.09375,
+        "scroll": 856,
+        "count": 25
+      },
+      "after": {
+        "found": true,
+        "top": 242.09375,
+        "scroll": 856,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 18,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "deep-movie",
+      "before": {
+        "top": 241.140625,
+        "scroll": 2042,
+        "count": 45
+      },
+      "after": {
+        "found": true,
+        "top": 241.140625,
+        "scroll": 2042,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        },
+        {
+          "continuation": true,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 17,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "series",
+      "before": {
+        "top": 242.078125,
+        "scroll": 461,
+        "count": 25
+      },
+      "after": {
+        "found": true,
+        "top": 242.078125,
+        "scroll": 461,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 16,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "removed-membership",
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "native-expired-continuation",
+      "status": 409,
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "interaction-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "navigation-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "fresh-entry",
+      "result": "PASS"
+    },
+    {
+      "kind": "detail-authorization-denial",
+      "status": 401,
+      "injectedFailure": true,
+      "result": "PASS"
+    },
+    {
+      "kind": "detail-authorization-denial",
+      "status": 403,
+      "injectedFailure": true,
+      "result": "PASS"
+    },
+    {
+      "kind": "account-change-during-return",
+      "result": "PASS"
+    }
+  ],
+  "browserVersion": "141.0.7390.37",
+  "result": "PASS"
+}
