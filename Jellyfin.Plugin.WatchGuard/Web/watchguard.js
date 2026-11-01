@@ -692,7 +692,7 @@
     // Only scalar navigation hints live here: never rows, credentials, cursors or DOM.
     // Hash navigation can have null state. Add one namespaced identifier without
     // changing native keys/index/user state, the URL, or the history length.
-    function createReturnPositions(window, now = () => Date.now()) {
+    function createReturnPositions(window, now = () => window.performance.now()) {
         const records = new Map(), field = '__watchguardReturnV1';
         const prefix = Math.random().toString(36).slice(2) + '-';
         let sequence = 0;
@@ -703,7 +703,9 @@
                     let state = window.history.state;
                     if (state !== null && (typeof state !== 'object' || Array.isArray(state))) return null;
                     if (!state || !Object.prototype.hasOwnProperty.call(state, field)) {
-                        state = {...state, [field]: prefix + (++sequence)};
+                        // Jellyfin's hash router reads (state || {idx:null}).idx.
+                        // Preserve that null-index meaning when annotating null.
+                        state = {...(state || {idx:null}), [field]: prefix + (++sequence)};
                         window.history.replaceState(state, '', window.location.href);
                     }
                     if (typeof state[field] !== 'string' || state[field].length > 64) return null;
@@ -745,7 +747,10 @@
         const interacted = () => { cancelRestoration(); options.forgetPosition?.(); };
         const interactionEvents = ['keydown', 'pointerdown', 'touchstart', 'wheel'];
         if (restoration && !signal.aborted) {
-            restoreTimer = setTimeout(cancelRestoration, 8000);
+            restoreTimer = setTimeout(() => {
+                if (restoration && active()) { returnNotice.textContent = 'Return position unavailable. Showing current results.'; returnNotice.hidden = false; }
+                cancelRestoration();
+            }, 8000);
             for (const type of interactionEvents) document.addEventListener?.(type, interacted, true);
             signal.addEventListener('abort', () => {
                 cancelRestoration();
@@ -875,8 +880,8 @@
         const returnNotice = document.createElement('p'); returnNotice.className = 'watchguard-notice'; returnNotice.setAttribute('role', 'status'); returnNotice.hidden = true;
         page.append(returnNotice);
         if (options.indexedActivity) { status.after?.(freshness); page.append(updates, more); }
-        const user = api.getCurrentUserId(), token = api.accessToken();
-        const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
+        const user = api.getCurrentUserId(), token = api.accessToken(), server = api.serverId?.();
+        const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token && api.serverId?.() === server && (!options.isCurrent || options.isCurrent());
         let directory = [], loadedScope, viewSignature, viewGeneration, ownerChoices;
         const requestedView = () => JSON.stringify([filter, kind, sort, range, includeOlder, searchText]);
         let polling = false;
@@ -1242,7 +1247,9 @@
         }
         more.onclick = loadMore;
         page.capturePosition = (target = document.activeElement) => {
-            if (!active() || !loadedScope || !grid.children.length) return null;
+            // Departure runs after the URL changes, before this panel is aborted.
+            // Reading its geometry is allowed only for the captured identity.
+            if (signal.aborted || api.getCurrentUserId() !== user || api.accessToken() !== token || api.serverId?.() !== server || !loadedScope || !grid.children.length) return null;
             const visible = [...cards].filter(([, record]) => record.card.parentNode === grid);
             const selected = visible.find(([, record]) => record.card.contains(target)) ||
                 visible.find(([, record]) => record.card.getBoundingClientRect().bottom > page.getBoundingClientRect().top);
@@ -1826,7 +1833,10 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         const header = visible(legacy) ? legacy : document.querySelector('header.MuiAppBar-root');
         if (header) document.body.style.setProperty('--watchguard-top', Math.max(0, header.getBoundingClientRect().bottom) + 'px');
         if (pagePanel?.isConnected) {
-            if (pageSignature !== hash) pagePanel.updateFilters(params.get('owner'), params.get('interest'), params.get('sort'), params.get('days'), params.get('older'), params.get('search') || '');
+            if (pageSignature !== hash) {
+                pageSignature = hash;
+                pagePanel.updateFilters(params.get('owner'), params.get('interest'), params.get('sort'), params.get('days'), params.get('older'), params.get('search') || '');
+            }
             pageSignature = hash; pageEntry = returnPositions.entry(); return;
         }
         closePage(); pageSignature = hash;
@@ -1841,7 +1851,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             root.history.replaceState(root.history.state, '', '#/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort) + '&days=' + encodeURIComponent(days) + '&older=' + encodeURIComponent(older) + '&search=' + encodeURIComponent(search));
             updateNavigation();
         }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), search: params.get('search'), indexedActivity: true, preferences: true,
-            returnPosition, forgetPosition: () => returnPositions.forget(entry), authorizationDenied: () => returnPositions.clear()});
+            returnPosition, isCurrent: () => root.ApiClient === api && root.location.hash === pageSignature,
+            forgetPosition: () => returnPositions.forget(entry), authorizationDenied: () => returnPositions.clear()});
         // Capture activation before Jellyfin's delegated click changes the route
         // or its departure cover transfers focus away from the selected title.
         const mounted = pagePanel;

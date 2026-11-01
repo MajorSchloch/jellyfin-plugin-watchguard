@@ -345,7 +345,7 @@ function progressiveFixture(admin = true, preferences = false, owner = 'all', in
     const navigation=[];
     options.documentSetup?.(f.doc);
     const page = watchlistsPage(f.doc,api,abort.signal,owner,(...args)=>{navigation.push(args);page.updateFilters(...args);},{preferences,indexedActivity,...options});
-    return {page,calls,abort,navigation,document:f.doc,changeAccount(){token='second';}};
+    return {page,calls,abort,navigation,api,document:f.doc,changeAccount(){token='second';}};
 }
 const turn = () => new Promise(resolve=>setImmediate(resolve));
 const automaticResult = {Items:[{...overviewItems[0],Users:[{...overviewItems[0].Users[1],Reasons:['InProgress','CurrentlyPlaying']}]}],IsComplete:false,LimitReached:true,Notice:'Not exhaustive; limit reached'};
@@ -1625,7 +1625,7 @@ test('Return entries preserve native history, isolate identical URLs, bound reco
     positions.save(entry,'route',hint);
     assert.deepEqual(positions.read(entry,'route'),{id:hint.id,action:'remove',top:180,scroll:5000,pages:3,view:'query'});
     assert.equal(positions.read(entry,'other-query'),null);
-    for(let i=0;i<8;i++){window.history.state=null;const next=positions.entry();assert.notEqual(next,entry);positions.save(next,'route',hint);}
+    for(let i=0;i<8;i++){window.history.state=null;const next=positions.entry();assert.equal(window.history.state.idx,null,'Null entries retain native null-index semantics');assert.notEqual(next,entry);positions.save(next,'route',hint);}
     assert.equal(positions.read(entry,'route'),null,'At most eight entries');
     positions.save(entry,'route',hint);now=15*60*1000+1;assert.equal(positions.read(entry,'route'),null);
     positions.save(entry,'route',hint);positions.clear();assert.equal(positions.read(entry,'route'),null);
@@ -1691,12 +1691,12 @@ test('Return counts preparation within its six-request ceiling and retains four-
         assert.equal(f.page.children.at(-1).textContent,ready?'Load more results':'Continue loading');
     }
 });
-for(const reason of ['keydown','pointerdown','touchstart','wheel','abort','account','query','deadline'])test('Return never moves focus or scroll after '+reason,async t=>{
+for(const reason of ['keydown','pointerdown','touchstart','wheel','abort','account','server','query','deadline'])test('Return never moves focus or scroll after '+reason,async t=>{
     t.mock.timers.enable({apis:['setTimeout']});const f=returnFixture();t.after(()=>f.abort.abort());
     await returnFirst(f,[f.item('1'.repeat(32))],'second');assert.equal(f.calls.length,3);
     f.page.scrollTop=777;
     if(f.events.has(reason))for(const listener of f.events.get(reason))listener({target:f.page});
-    else if(reason==='abort')f.abort.abort();else if(reason==='account')f.changeAccount();
+    else if(reason==='abort')f.abort.abort();else if(reason==='account')f.changeAccount();else if(reason==='server')f.api.serverId=()=> 'another-server';
     else if(reason==='query')f.page.updateFilters('all','watchlisted','title',30,'true','Changed');
     else t.mock.timers.tick(8000);
     f.calls[2].resolve(indexedResult([f.item(f.target)],'third'));await turn();

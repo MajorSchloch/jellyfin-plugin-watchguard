@@ -4,6 +4,7 @@ on:
     paths:
       - 'Jellyfin.Plugin.WatchGuard/Web/watchguard.js'
       - 'tests/return-position-browser.cjs'
+      - 'tests/return-position-scenarios.cjs'
       - 'tests/docker-smoke.py'
       - '.github/workflows/return-position.yaml'
 permissions:

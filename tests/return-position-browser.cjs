@@ -7,8 +7,8 @@ const output=process.argv[3]||'artifacts/testing/return-position';fs.mkdirSync(o
 const baseline=false;
 const report={baseline,server:fixture.serverVersion,physicalTV:false,cases:[],result:'RUNNING'};
 (async()=>{
- for(const old of [false,true]) {
-  assert(process.env.WATCHGUARD_CHROMIUM79,'Real Chromium 79 is required');
+ for(const old of process.env.WATCHGUARD_CHROMIUM79?[false,true]:[false]) {
+  if(old)assert(process.env.WATCHGUARD_CHROMIUM79,'Real Chromium 79 is required');
   const browser=old?await require('./browser79/node_modules/puppeteer-core').launch({executablePath:process.env.WATCHGUARD_CHROMIUM79,headless:true,args:['--no-sandbox']}):await require('./browser/node_modules/playwright').chromium.launch({headless:true});
   const engine=await browser.version();if(old)assert.match(engine,/\/79\./);
   try {for(const [layout,width] of [['desktop',1280],['mobile',390],['tv',1280]]) {
@@ -47,12 +47,14 @@ const report={baseline,server:fixture.serverVersion,physicalTV:false,cases:[],re
      const before=await page.evaluate(()=>{
       const panel=document.querySelector('.watchguard-page'),cards=panel.querySelectorAll('.watchguard-card'),link=cards[cards.length-3].querySelector('a');
       link.focus();panel.scrollTop+=link.getBoundingClientRect().top-panel.getBoundingClientRect().top-180;
-      window.wgReturnOriginal=panel;
+      window.wgReturnOriginal=panel;window.wgReturnDeparture=null;
+      panel.addEventListener('click',()=>{window.wgReturnDeparture={top:link.getBoundingClientRect().top-panel.getBoundingClientRect().top,scroll:panel.scrollTop};},{capture:true,once:true});
       return {href:link.getAttribute('href'),top:link.getBoundingClientRect().top-panel.getBoundingClientRect().top,scroll:panel.scrollTop,count:cards.length,state:JSON.stringify(history.state),length:history.length};
      });
      await page.screenshot({path:path.join(output,(old?'79':'current')+'-'+layout+'-'+depth+'-before.png')});
      await page.keyboard.press('Enter');
      await wait(()=>location.hash.indexOf('#/details?')===0&&!document.querySelector('.watchguard-page')&&!document.querySelector('.watchguard-outgoing'));
+     const departed=await page.evaluate(()=>window.wgReturnDeparture);assert(departed);before.measuredBeforeActivation={top:before.top,scroll:before.scroll};before.top=departed.top;before.scroll=departed.scroll;
      await page.goBack();await settled();
      const after=await page.evaluate(href=>{
       const panel=document.querySelector('.watchguard-page'),link=Array.from(panel.querySelectorAll('.watchguard-card a')).find(e=>e.getAttribute('href')===href);
@@ -63,8 +65,13 @@ const report={baseline,server:fixture.serverVersion,physicalTV:false,cases:[],re
      if(baseline){assert.equal(after.scroll,0);assert.equal(after.focused,false);if(depth>1)assert.equal(after.found,false);}
      else {assert.equal(after.found,true);assert.equal(after.focused,true);assert.ok(Math.abs(after.top-before.top)<5);}
      await page.screenshot({path:path.join(output,(old?'79':'current')+'-'+layout+'-'+depth+'-after.png')});
+     if(!baseline&&layout==='tv'){await page.keyboard.press('ArrowDown');assert(await page.evaluate(()=>!!document.activeElement.closest('.watchguard-card')),'Native remote navigation continues within the results');}
     }
-   } finally {await context.close();fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2)+'\n');}
+    if(!baseline&&((!old&&layout==='desktop')||(old&&layout==='tv'))){
+     const regression={engine,layout,cases:[]};if(!report.regressions)report.regressions=[];report.regressions.push(regression);
+     await require('./return-position-scenarios.cjs')(page,fixture,{old,wait,route,cases:regression.cases});
+    }
+   } catch(error){await page.screenshot({path:path.join(output,(old?'79':'current')+'-'+layout+'-failure.png')}).catch(()=>{});throw error;} finally {await context.close();fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2)+'\n');}
   }} finally {await browser.close();}
  }
  report.result='PASS';

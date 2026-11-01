@@ -139,7 +139,7 @@ def main():
 
             phases.phase('generate-media')
             movies = ['PoC Movie Detail', 'PoC Context Movie', 'PoC Bulk One', 'PoC Bulk Two', 'PoC Escape', 'PoC Modern Movie', 'PoC Zero', 'PoC Self', 'PoC Layout Legacy', 'PoC Layout Modern']
-            if options.return_position:
+            if options.return_position or options.navigation or options.browser79:
                 movies += ['Return Movie %03d' % number for number in range(85)]
             docker('exec', name, 'mkdir', '-p', '/tmp/poc-movies', '/tmp/poc-tv/PoC Series Detail/Season 01')
             docker('exec', name, '/usr/lib/jellyfin-ffmpeg/ffmpeg', '-hide_banner', '-loglevel', 'error',
@@ -269,6 +269,7 @@ def main():
             if options.browser79:
                 phases.phase('chromium79-native')
                 subprocess.run(['node',str(ROOT/'tests/browser79/native.cjs'),str(fixture)],check=True,timeout=600)
+                subprocess.run(['node',str(ROOT/'tests/return-position-browser.cjs'),str(fixture)],check=True,timeout=600)
             elif options.listing:
                 subprocess.run(['node', str(ROOT/'tests/catalog-listing-browser.cjs'), str(fixture)], check=True, timeout=240)
             elif options.measure:
@@ -303,6 +304,8 @@ def main():
                 subprocess.run(['node', str(ROOT/'tests/navigation-shell-browser.cjs'), str(fixture)], check=True, timeout=240)
                 subprocess.run(['node', str(ROOT/'tests/drawer-browser.cjs'), str(fixture)], check=True, timeout=300)
                 subprocess.run(['node', str(ROOT/'tests/navigation-browser.cjs'), str(fixture)], check=True, timeout=480)
+                if options.navigation:
+                    subprocess.run(['node',str(ROOT/'tests/return-position-browser.cjs'),str(fixture)],check=True,timeout=600)
             elif options.return_position:
                 subprocess.run(['node', str(ROOT/'tests/return-position-browser.cjs'), str(fixture)], check=True, timeout=600)
             elif options.serve:
