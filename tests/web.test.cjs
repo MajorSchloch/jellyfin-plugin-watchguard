@@ -335,15 +335,15 @@ test('Personal overview rejects cross-user payloads even with forged owner filte
     assert.match(page.children[4].textContent,/Viewing activity unavailable/);
 });
 
-function progressiveFixture(admin = true, preferences = false, owner = 'all', indexedActivity = false) {
+function progressiveFixture(admin = true, preferences = false, owner = 'all', indexedActivity = false, options = {}) {
     const f = documentFixture(), create = f.doc.createElement, calls = [];
     f.doc.createElement = tag => { const n = create(tag); n.replaceChildren = () => { for(const child of [...n.children]) child.remove(); }; n.classList = {add(){}}; return n; };
     let token = 'first';
-    const api = {getCurrentUser:async()=>({Name:'Me',Policy:{IsAdministrator:admin}}),getCurrentUserId:()=>me,accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/image',
+    const api = {getCurrentUser:options.account || (async()=>({Name:'Me',Policy:{IsAdministrator:admin}})),getCurrentUserId:()=>me,accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/image',
         ajax:o=>o.url==='WatchGuard/Users'?Promise.resolve(overviewItems[0].Users):new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
     const abort = new AbortController();
     const navigation=[];
-    const page = watchlistsPage(f.doc,api,abort.signal,owner,(...args)=>{navigation.push(args);page.updateFilters(...args);},{preferences,indexedActivity});
+    const page = watchlistsPage(f.doc,api,abort.signal,owner,(...args)=>{navigation.push(args);page.updateFilters(...args);},{preferences,indexedActivity,...options});
     return {page,calls,abort,navigation,document:f.doc,changeAccount(){token='second';}};
 }
 const turn = () => new Promise(resolve=>setImmediate(resolve));
@@ -1431,4 +1431,129 @@ test('Explicit Refresh preserves existing removal feedback through every loading
     const loading=refresh.onclick();assert.match(f.page.children[4].textContent,/Could not remove/);await turn();
     f.calls[3].resolve([overviewItems[0]]);await turn();assert.match(f.page.children[4].textContent,/Could not remove/);
     f.calls[4].resolve(automaticResult);await loading;assert.match(f.page.children[4].textContent,/Could not remove/);
+});
+
+test('Early Watched control finishes loading after deferred preferences',async t=>{
+    const f=progressiveFixture(true,true,null,true);t.after(()=>f.abort.abort());await turn();
+    assert.equal(f.calls[0].o.url,'WatchGuard/Preferences');
+    const watched=descendants(f.page).find(n=>n.type==='checkbox' && n.value==='watched');
+    watched.checked=true;watched.onchange();
+    f.calls[0].resolve({Owner:'all',Statuses:['watchlisted'],Sort:'recent'});await turn();
+    assert.equal(f.calls[1]?.o.url,'WatchGuard/Watchlist','Latest control view must start membership loading');
+    f.calls[1].resolve([]);await turn();
+    assert.match(f.calls[2].o.url,/ActivityBrowser.*statuses=.*watched/);
+    f.calls[2].resolve(indexedResult());await turn();
+    assert.equal(f.page.getAttribute('aria-busy'),'false');
+    assert.ok(f.calls.every(c=>c.o.type==='GET'));
+});
+
+const control=(f,label)=>descendants(f.page).find(n=>n.getAttribute('aria-label')===label);
+const deferred=()=>{let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});return {promise,resolve,reject};};
+for(const phase of ['account','preferences']) test('Rapid early controls keep latest intent during '+phase,async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const account=deferred();let accountRequests=0;
+    const f=progressiveFixture(true,true,null,true,{account:()=>{accountRequests++;return account.promise;}});
+    t.after(()=>f.abort.abort());
+    if(phase==='preferences'){account.resolve({Name:'Me',Policy:{IsAdministrator:true}});await turn();}
+    const sort=control(f,'Sort by'),range=control(f,'Activity range'),search=control(f,'Search titles');
+    sort.value='added';sort.onchange();range.value='7';range.onchange();
+    const watched=descendants(f.page).find(n=>n.type==='checkbox'&&n.value==='watched');watched.checked=true;watched.onchange();
+    if(phase==='preferences') {const owner=control(f,'Watchlist owner');assert.equal(owner.hidden,false);owner.value='all';owner.onchange();}
+    search.value='wrong';search.oninput();search.value='Latest';search.oninput();
+    t.mock.timers.tick(249);await turn();assert.equal(f.calls.length,phase==='account'?0:1);
+    t.mock.timers.tick(1);await turn();
+    if(phase==='account'){account.resolve({Name:'Me',Policy:{IsAdministrator:true}});await turn();}
+    assert.equal(accountRequests,1,'Early views share account initialization');
+    assert.equal(f.calls.length,1,'Early views share one preferences read');
+    f.calls[0].resolve({Owner:other,Statuses:['watchlisted'],Sort:'recent'});await turn();
+    assert.equal(f.calls[1].o.url,phase==='account'?'WatchGuard/Watchlist':'WatchGuard/Watchlists');
+    f.calls[1].resolve([]);await turn();
+    assert.match(f.calls[2].o.url,/days=7.*statuses=.*watched.*sort=added&search=Latest$/);
+    f.calls[2].resolve(indexedResult());await turn();
+    assert.equal(f.page.getAttribute('aria-busy'),'false');assert.equal(control(f,'Search titles'),search);
+    assert.equal(search.value,'Latest');assert.ok(f.calls.every(c=>c.o.type==='GET'));
+    const count=f.calls.length;t.mock.timers.tick(29999);await turn();assert.equal(f.calls.length,count);
+    t.mock.timers.tick(1);await turn();assert.equal(f.calls.length,count+1,'Only one 30-second poll');
+});
+
+test('Late preferences fill only missing URL fields after early range and search edits',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const f=progressiveFixture(true,true,'all',true,{interest:'none',sort:'added',days:'90',older:'false',search:'URL'});
+    t.after(()=>f.abort.abort());await turn();
+    const range=control(f,'Activity range');range.value='7';range.onchange();
+    const search=control(f,'Search titles');search.value='Edited';search.oninput();t.mock.timers.tick(250);await turn();
+    f.calls[0].resolve({Owner:'mine',Statuses:['watched'],Sort:'recent'});await turn();
+    assert.equal(f.calls[1].o.url,'WatchGuard/Watchlists');f.calls[1].resolve([]);await turn();
+    assert.match(f.calls[2].o.url,/owner=all&days=7&older=false&statuses=none&sort=added&search=Edited$/);
+    f.calls[2].resolve(indexedResult());await turn();assert.equal(f.page.getAttribute('aria-busy'),'false');
+});
+
+for(const phase of ['account','preferences','membership','activity']) for(const exit of ['abort','account'])
+test('Early controls fence '+phase+' completion after '+exit,async t=>{
+    const account=deferred(),f=progressiveFixture(true,true,null,true,{account:()=>account.promise});t.after(()=>f.abort.abort());
+    const sort=control(f,'Sort by');sort.value='added';sort.onchange();
+    if(phase!=='account'){account.resolve({Policy:{IsAdministrator:true}});await turn();}
+    if(['membership','activity'].includes(phase)){f.calls[0].resolve({Owner:'mine',Statuses:['watchlisted'],Sort:'title'});await turn();}
+    if(phase==='activity'){f.calls[1].resolve([]);await turn();}
+    const before=f.calls.length;
+    if(exit==='abort')f.abort.abort();else f.changeAccount();
+    if(phase==='account')account.resolve({Policy:{IsAdministrator:true}});
+    else f.calls.at(-1).resolve(phase==='preferences'?{Owner:'all',Statuses:['watched'],Sort:'recent'}:phase==='membership'?[overviewItems[0]]:indexedResult(overviewItems));
+    await turn();assert.equal(f.calls.length,before);assert.equal(f.page.children[5].children.length,0);
+});
+
+for(const failure of [new Error('offline'),{status:401},{status:403}])
+test('Early preferences failure settles without writes: '+(failure.status||'transport'),async t=>{
+    const f=progressiveFixture(true,true,null,true);t.after(()=>f.abort.abort());await turn();
+    const sort=control(f,'Sort by');sort.value='added';sort.onchange();f.calls[0].reject(failure);await turn();
+    if(failure.status){assert.equal(f.calls.length,1);assert.match(textOf(f.page),/Authorization denied/);}
+    else {assert.match(textOf(f.page),/Saved defaults unavailable/);f.calls[1].resolve([]);await turn();assert.match(f.calls[2].o.url,/sort=added/);f.calls[2].resolve(indexedResult());await turn();}
+    assert.equal(f.page.getAttribute('aria-busy'),'false');assert.ok(f.calls.every(c=>c.o.type==='GET'));
+});
+
+test('Early account failure settles and explicit Refresh can recover',async t=>{
+    let attempt=0;const account=deferred();
+    const f=progressiveFixture(true,true,null,true,{account:()=>++attempt===1?account.promise:Promise.resolve({Policy:{IsAdministrator:true}})});t.after(()=>f.abort.abort());
+    control(f,'Sort by').onchange();account.reject(new Error('account failed'));await turn();
+    assert.equal(f.page.getAttribute('aria-busy'),'false');assert.match(textOf(f.page),/Could not verify this account/);
+    control(f,'Refresh').onclick();await turn();f.calls[0].resolve({Owner:'mine',Statuses:['watched'],Sort:'recent'});await turn();
+    f.calls[1].resolve([]);await turn();f.calls[2].resolve(indexedResult());await turn();assert.equal(f.page.getAttribute('aria-busy'),'false');
+});
+
+test('Early changes fence stale data while the newest query remains serialized and retryable',async t=>{
+    const f=progressiveFixture(true,true,null,true);t.after(()=>f.abort.abort());await turn();
+    control(f,'Sort by').value='recent';control(f,'Sort by').onchange();
+    f.calls[0].resolve({Owner:'mine',Statuses:['watched'],Sort:'title'});await turn();
+    const oldMembership=f.calls[1];control(f,'Sort by').value='added';control(f,'Sort by').onchange();await turn();
+    oldMembership.resolve([overviewItems[0]]);await turn();assert.equal(f.page.children[5].children.length,0);
+    f.calls[2].resolve([]);await turn();const oldQuery=f.calls[3];
+    control(f,'Activity range').value='7';control(f,'Activity range').onchange();await turn();f.calls[4].resolve([]);await turn();
+    assert.equal(f.calls.length,5,'New query waits for the old activity request');
+    oldQuery.resolve(indexedResult(overviewItems));await turn();assert.equal(f.page.children[5].children.length,0);
+    assert.match(f.calls[5].o.url,/days=7.*sort=added/);f.calls[5].reject({status:503});await turn();
+    assert.equal(f.page.getAttribute('aria-busy'),'false');assert.match(textOf(f.page),/Viewing activity unavailable/);
+    control(f,'Refresh').onclick();await turn();f.calls[6].resolve([]);await turn();f.calls[7].resolve(indexedResult());await turn();
+    assert.equal(f.page.getAttribute('aria-busy'),'false');assert.ok(f.calls.every(c=>c.o.type==='GET'));
+});
+
+test('Before account resolution an unrelated control preserves explicit owner URL intent',async t=>{
+    const account=deferred();const f=progressiveFixture(true,true,'all',true,{account:()=>account.promise,interest:'none',sort:'added'});t.after(()=>f.abort.abort());
+    const range=control(f,'Activity range');range.value='90';range.onchange();
+    assert.equal(f.navigation[0][0],'all');
+    account.resolve({Policy:{IsAdministrator:true}});await turn();f.calls[0].resolve({Owner:'mine',Statuses:['watched'],Sort:'recent'});await turn();
+    assert.equal(f.calls[1].o.url,'WatchGuard/Watchlists');f.calls[1].resolve([]);await turn();
+    assert.match(f.calls[2].o.url,/owner=all&days=90.*statuses=none&sort=added/);f.calls[2].resolve(indexedResult());await turn();
+    assert.equal(f.page.getAttribute('aria-busy'),'false');
+});
+
+test('Preferences can finish inside the search debounce without stranding or issuing an old query',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const f=progressiveFixture(true,true,'all',true,{interest:'none',sort:'added'});t.after(()=>f.abort.abort());await turn();
+    const search=control(f,'Search titles');search.value='Latest';search.oninput();
+    f.calls[0].resolve({Owner:'mine',Statuses:['watched'],Sort:'recent'});await turn();
+    assert.equal(f.calls.length,1);t.mock.timers.tick(249);await turn();assert.equal(f.calls.length,1);
+    t.mock.timers.tick(1);await turn();assert.equal(f.calls[1].o.url,'WatchGuard/Watchlists');
+    f.calls[1].resolve([]);await turn();assert.match(f.calls[2].o.url,/owner=all.*statuses=none&sort=added&search=Latest$/);
+    f.calls[2].resolve(indexedResult());await turn();assert.equal(f.page.getAttribute('aria-busy'),'false');
+    assert.equal(search.value,'Latest');
 });

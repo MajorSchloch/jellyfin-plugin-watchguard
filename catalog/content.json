@@ -220,6 +220,13 @@
         "Keep native destination focus and recover safely when navigation fails or the account changes."
       ],
       "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.13.md"
+    },
+    "0.7.14.0": {
+      "summary": [
+        "Change Watchlists filters or search immediately after opening the page without leaving results stuck loading.",
+        "Keep your latest choices when saved defaults arrive, without saving filter changes automatically."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.14.md"
     }
   }
 }
