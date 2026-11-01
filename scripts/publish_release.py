@@ -2,6 +2,7 @@
 import argparse
 import base64
 import copy
+from datetime import datetime
 import json
 import os
 from pathlib import Path
@@ -20,18 +21,111 @@ def marker(record):
     return f"<!-- watchguard-qualified:{record['run']}:{record['attempt']}:{record['sourceCommit']}:{record['qualification']['packageSha256']} -->"
 
 
-def fingerprint(release):
+def snapshot(release):
     if release is None:
         return None
+    if not isinstance(release, dict):
+        return {'invalidRelease': True}
     # Downloads change counters, and GitHub does not promise asset list order.
     # Compare identity/integrity and provenance, not presentation or activity.
-    snapshot = {key: release[key] for key in ('id', 'tag_name', 'target_commitish', 'draft', 'prerelease', 'published_at')}
+    snapshot = {key: release.get(key) for key in ('id', 'tag_name', 'target_commitish', 'draft', 'prerelease', 'published_at')}
     snapshot['qualificationMarkers'] = sorted(re.findall(
-        r'<!--\s*watchguard-qualified\b.*?(?:-->|$)', release.get('body') or '', flags=re.DOTALL))
+        r'<!--\s*watchguard-qualified\b.*?(?:-->|$)', release.get('body') if isinstance(release.get('body'), str) else '', flags=re.DOTALL))
+    if not isinstance(release.get('assets'), list) or any(not isinstance(a, dict) for a in release['assets']):
+        snapshot['assets'] = '<invalid assets>'
+        return snapshot
     snapshot['assets'] = sorted(
         ({key: asset.get(key) for key in ('id', 'name', 'size', 'state', 'digest', 'browser_download_url')}
-         for asset in release['assets']), key=lambda asset: json.dumps(asset, sort_keys=True))
-    return json.dumps(snapshot, sort_keys=True)
+         for asset in release.get('assets', [])), key=lambda asset: (str(asset['name']), str(asset['id'])))
+    return snapshot
+
+
+def fingerprint(release):
+    return json.dumps(snapshot(release), sort_keys=True)
+
+
+def comparison(actual, expected, phase):
+    """Report field paths only. API values can contain credentials or signed URLs."""
+    fields = []
+    def compare(left, right, path='release'):
+        if type(left) is not type(right):
+            fields.append(path)
+        elif isinstance(left, dict):
+            for key in sorted(left.keys() | right.keys()):
+                compare(left.get(key), right.get(key), path + '.' + key)
+        elif isinstance(left, list):
+            if len(left) != len(right):
+                fields.append(path + '.length')
+            for index, (a, b) in enumerate(zip(left, right)):
+                compare(a, b, f'{path}[{index}]')
+        elif left != right:
+            fields.append(path)
+    compare(snapshot(actual), snapshot(expected))
+    return {'event': 'release_comparison_mismatch', 'phase': phase,
+            'fields': fields[:32], 'additionalFields': max(0, len(fields) - 32)}
+
+
+def mismatch(actual, expected, phase, message):
+    diagnostic = comparison(actual, expected, phase)
+    print(json.dumps(diagnostic, sort_keys=True))
+    error = Blocked(message)
+    error.comparison = diagnostic
+    raise error
+
+
+def same_release(actual, expected, phase, message):
+    if fingerprint(actual) != fingerprint(expected):
+        mismatch(actual, expected, phase, message)
+
+
+def publication_template(api, previous):
+    """Validate draft locations before PATCH; derive public URLs, never trust them."""
+    expected = copy.deepcopy(previous)
+    expected.update(draft=False, published_at=None)
+    for asset in expected['assets']:
+        prefix = f'https://github.com/{api.repo}/releases/download/'
+        public = prefix + previous['tag_name'] + '/' + asset['name']
+        old = asset.get('browser_download_url')
+        # GitHub can address draft downloads through an untagged location.
+        # Never accept another repository, filename, query string or host.
+        if old != public and not (isinstance(old, str) and re.fullmatch(
+                re.escape(prefix) + r'untagged-[0-9a-f]+/' + re.escape(asset['name']), old)):
+            valid = copy.deepcopy(previous)
+            next(a for a in valid['assets'] if a['id'] == asset['id'])['browser_download_url'] = public
+            mismatch(previous, valid, 'publication-draft-url', 'Unexpected draft asset URL. Inspect it; no publication is permitted.')
+        asset['browser_download_url'] = public
+    return expected
+
+
+def publication_response(published, expected, previous):
+    timestamp = published.get('published_at') if isinstance(published, dict) else None
+    valid_time = isinstance(timestamp, str) and re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|\+00:00)', timestamp)
+    if valid_time:
+        try:
+            datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        except ValueError:
+            valid_time = False
+    if not valid_time:
+        expected['published_at'] = '<UTC publication timestamp>'
+        mismatch(published, expected, 'publication-response', 'Publication response lacks a valid UTC timestamp. Inspect the retained release before resuming.')
+    expected['published_at'] = timestamp
+    publication_matches(published, expected, previous, 'publication-response')
+
+
+def publication_matches(actual, expected, previous, phase):
+    # A published response may retain a known draft download location while
+    # reads converge. All identity, provenance and integrity fields stay exact.
+    normalized = copy.deepcopy(actual)
+    if isinstance(normalized, dict) and isinstance(normalized.get('assets'), list):
+        old_assets = {a['id']: a for a in previous['assets']}
+        new_assets = {a['id']: a for a in expected['assets']}
+        for asset in normalized['assets']:
+            if not isinstance(asset, dict):
+                continue
+            old = old_assets.get(asset.get('id')) if type(asset.get('id')) is int else None
+            if old and asset.get('browser_download_url') == old.get('browser_download_url'):
+                asset['browser_download_url'] = new_assets[asset['id']]['browser_download_url']
+    same_release(normalized, expected, phase, 'Release changed concurrently during publication. Inspect the changed fields before resuming.')
 
 
 def verify_existing(api, record, archive, release):
@@ -52,14 +146,16 @@ def verify_existing(api, record, archive, release):
 
 
 def unchanged(api, version, previous):
-    require(fingerprint(api.release(version)) == fingerprint(previous), 'Release state changed concurrently. Inspect it, then resume explicitly.')
+    same_release(api.release(version), previous, 'before-write',
+                 'Release state changed concurrently. Inspect it, then resume explicitly.')
 
 
-def reconcile(api, version, expected, previous=None):
+def reconcile(api, version, expected, previous=None, publication=False):
     """Read our exact write back; tolerate only absence or its known prior state.
 
     Both the ID endpoint and complete authenticated inventory must converge.
-    A different object/marker/asset is a conflict, never a reason to retry.
+    Publication also permits known draft URLs pending canonical public URLs.
+    A different identity/marker/integrity value is a conflict, never retried.
     Four rounds, at most 20 seconds per API request and 90 seconds overall.
     """
     require(isinstance(expected, dict) and isinstance(expected.get('id'), int),
@@ -73,14 +169,20 @@ def reconcile(api, version, expected, previous=None):
             matches = [r for r in api.pages('releases') if r['tag_name'] == 'v' + version]
             require(len(matches) <= 1, 'Multiple releases use this tag. Inspect them manually.')
             listed = matches[0] if matches else None
-            for value in (exact, listed):
-                require(value is None or fingerprint(value) in (fingerprint(previous), fingerprint(expected)),
-                        'Release state changed concurrently during write reconciliation. No further writes were made.')
+            for endpoint, value in (('id', exact), ('inventory', listed)):
+                if value is None or fingerprint(value) == fingerprint(previous):
+                    continue
+                if publication:
+                    publication_matches(value, expected, previous, 'publication-readback-' + endpoint)
+                else:
+                    same_release(value, expected, 'write-readback-' + endpoint,
+                                 'Release state changed concurrently during write reconciliation. No further writes were made.')
             if all(value is not None and fingerprint(value) == fingerprint(expected) for value in (exact, listed)):
                 return exact
             if attempt < 3:
                 time.sleep(1 + attempt)
-        raise Blocked('Release write is not yet visible consistently. Re-run failed jobs; the intended draft and assets are retained.')
+        mismatch(exact if fingerprint(exact) != fingerprint(expected) else listed, expected, 'write-visibility-exhausted',
+                 'Release write is not yet visible consistently. Re-run failed jobs; the intended release and assets are retained.')
     finally:
         api.deadline = old_deadline
 
@@ -129,13 +231,11 @@ def resume(api, record, archive, write=False):
         actions.append('Publish the verified draft')
         if write:
             require(set(assets(release, version)) == {archive.name, archive.name + '.sha256'}, 'Draft assets are incomplete.')
+            expected = publication_template(api, release)
             unchanged(api, version, release)
             published = api.request(f"releases/{release['id']}", 'PATCH', {'draft': False})
-            require(isinstance(published, dict) and published.get('id') == release['id'] and published.get('draft') is False, 'Invalid publication response.')
-            expected = copy.deepcopy(release)
-            expected.update(draft=False, published_at=published.get('published_at'))
-            require(fingerprint(published) == fingerprint(expected), 'Release changed concurrently during publication.')
-            release = reconcile(api, version, published, release)
+            publication_response(published, expected, release)
+            release = reconcile(api, version, expected, release, publication=True)
             verify_existing(api, record, archive, release)
             summary('Published', 'Verify the public downloads, then update the catalog.', version=version)
     if release and not release['draft']:
@@ -256,6 +356,8 @@ def main():
         summary(result['state'], '\n'.join(result['actions']) or 'No writes are needed.', **details)
     except Exception as error:
         result.update(state='blocked', error=str(error))
+        if hasattr(error, 'comparison'):
+            result['comparison'] = error.comparison
         summary('Blocked', str(error) + '\nKeep the original failure evidence. After correction, use Re-run failed jobs on Publish WatchGuard. Missing or expired evidence requires qualification of the exact source commit again.')
         raise
     finally:

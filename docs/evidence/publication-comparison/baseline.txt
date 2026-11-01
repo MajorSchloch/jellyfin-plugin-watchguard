@@ -1,0 +1,19 @@
+test_publication_accepts_only_canonical_draft_url_transition (test_release_automation.ReleaseStateTests.test_publication_accepts_only_canonical_draft_url_transition) ... ERROR
+
+======================================================================
+ERROR: test_publication_accepts_only_canonical_draft_url_transition (test_release_automation.ReleaseStateTests.test_publication_accepts_only_canonical_draft_url_transition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repository>/tests/test_release_automation.py", line 270, in test_publication_accepts_only_canonical_draft_url_transition
+    self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<master publisher>", line 137, in resume
+    require(fingerprint(published) == fingerprint(expected), 'Release changed concurrently during publication.')
+  File "<repository>/scripts/release_state.py", line 22, in require
+    raise Blocked(message)
+release_state.Blocked: Release changed concurrently during publication.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (errors=1)

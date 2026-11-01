@@ -1,0 +1,20 @@
+{
+  "state": "already published and verified",
+  "actions": [],
+  "write": false,
+  "apiGetRequests": 20,
+  "qualificationRun": 41315324546,
+  "qualificationAttempt": 1,
+  "recordArtifactId": 13087583576,
+  "sourceCommit": "951eb522bd90ecd8b20e86f042fa7cf86d5c0b8f",
+  "packageArtifactId": 13086817591,
+  "packageSha256": "078fc17739634cd1a8a037dc5cfdb62e88aeee490eedd3f0473bbef402239850",
+  "runtimeSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
+  "releaseId": 430641593,
+  "tag": "v0.7.14",
+  "markerVerified": true,
+  "apiBytesVerified": true,
+  "anonymousPublicBytesVerified": true,
+  "catalogVerified": true,
+  "elapsedSeconds": 12.307
+}

@@ -1,0 +1,10 @@
+{
+  "qualificationRun": 41315324546,
+  "qualificationAttempt": 1,
+  "write": true,
+  "publicationRun": "41316998829",
+  "publicationAttempt": "1",
+  "state": "blocked",
+  "error": "Release changed concurrently during publication.",
+  "elapsedSeconds": 20.495
+}

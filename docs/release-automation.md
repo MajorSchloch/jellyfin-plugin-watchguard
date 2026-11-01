@@ -12,6 +12,8 @@ Inspection remains read-only. Before approval, **draft state unknown** is an acc
 
 Open the failed **Publish WatchGuard** run, read the failed step, correct the reported cause, and select **Re-run failed jobs**. Approve the release environment again if GitHub requests it. The publisher retains the original qualification run, attempt and record artifact ID. It reuses verified assets and performs only missing operations. It does not rebuild or repeat the compatibility matrix. Keep the original attempt and its diagnostics.
 
+For a comparison failure, inspect the `release_comparison_mismatch` event and `comparison` in the retained result artifact. They identify changed field paths without response values. See [comparison rules and the v0.7.14 investigation](publication-comparison.md).
+
 A conflicting draft, tag, asset, provenance marker or package stops publication. Do not delete or overwrite objects to bypass that check. Missing or expired qualification evidence requires a new complete **Qualify WatchGuard** run on the exact intended source commit. A partial qualification rerun cannot combine evidence from different attempts. Explicit run/attempt dispatch remains available for exceptional, reviewed recovery, but is not needed for ordinary publication retries.
 
 For validation without publication, manually run **Qualify WatchGuard** with `publish=false` and `proxy_matrix=true`. This also works for a published version. `inspect_only=true` checks release state without a build or matrix.
