@@ -296,3 +296,54 @@ test('Current candidates must retain removal feedback even with historical mode 
     assert.throws(()=>removalContract.classify(candidate,false,'0.7.13','0.7.13',''));
     assert.throws(()=>removalContract.classify(historicalIdentity,true,'0.7.13','0.3.1',''));
 });
+
+const nativeMovies=require('./native-movies.cjs');
+const vm=require('node:vm');
+const moviesRoute='#/movies?topParentId='+ 'a'.repeat(32)+'&collectionType=movies';
+function moviesFixture() {
+    const listeners={};
+    const view={hidden:false,visible:true,closest(){return this.hidden?{}:null;},getClientRects(){return this.visible?[{}]:[];}};
+    const home={id:'homePage'};
+    const context={URL,URLSearchParams,location:{href:'http://fixture/web/'+moviesRoute},
+        window:{},document:{querySelector:()=>view,addEventListener:(name,fn)=>listeners[name]=fn},
+        getComputedStyle:()=>({visibility:'visible'})};
+    vm.runInNewContext('('+nativeMovies.observeViews.toString()+')()',context);
+    const ready=()=>vm.runInNewContext('('+nativeMovies.moviesReady.toString()+')('+JSON.stringify(moviesRoute)+')',context);
+    return {context,view,home,listeners,ready};
+}
+test('Movies readiness requires matching route, library and visible active native view together',()=>{
+    const f=moviesFixture();
+    assert.equal(f.ready(),false,'A Movies DOM node alone does not establish native arrival');
+    f.listeners.viewshow({target:f.home});
+    assert.equal(f.ready(),false,'Home can contain the same item after the Movies URL changes');
+    f.listeners.viewshow({target:f.view});assert.equal(f.ready(),true);
+    for(const href of ['#/home',moviesRoute.replace('a'.repeat(32),'b'.repeat(32)),moviesRoute.replace('collectionType=movies','collectionType=tvshows')]) {
+        f.context.location.href='http://fixture/web/'+href;assert.equal(f.ready(),false);
+    }
+    f.context.location.href='http://fixture/web/'+moviesRoute;
+    f.view.hidden=true;assert.equal(f.ready(),false);f.view.hidden=false;
+    f.view.visible=false;assert.equal(f.ready(),false);f.view.visible=true;
+    f.context.getComputedStyle=()=>({visibility:'hidden'});assert.equal(f.ready(),false);
+    f.context.getComputedStyle=()=>({visibility:'visible'});
+    f.listeners.viewbeforehide({target:f.home});assert.equal(f.ready(),true,'Unrelated hidden view does not clear active Movies');
+    f.listeners.viewbeforehide({target:f.view});assert.equal(f.ready(),false,'Leaving Movies invalidates subsequent actions');
+});
+test('Movie card lookup stays inside active Movies and rejects wrong identity or route changes',async()=>{
+    const id='c'.repeat(32),serverId='d'.repeat(32),title='Shared Home and Movies title';
+    const valid={id,server:serverId,type:'Movie',links:['#/details?id='+id+'&serverId='+serverId]};
+    for(const fault of [null,'id','server','type','link','count','route']) {
+        const actual={...valid};if(['id','server','type'].includes(fault))actual[fault]='wrong';
+        if(fault==='link')actual.links=['#/details?id=wrong&serverId='+serverId];
+        let scoped=false;
+        const node={waitFor:async()=>{},count:async()=>fault==='count'?2:1,
+            getByText:(value,options)=>{assert.equal(value,title);assert.equal(options.exact,true);return {waitFor:async()=>{}};},
+            evaluate:async()=>actual};
+        const page={waitForFunction:async(fn,route)=>{assert.equal(fn,nativeMovies.moviesReady);assert.equal(route,moviesRoute);},
+            locator:selector=>{assert.equal(selector,'#moviesPage:visible');return {locator:selector=>{
+                scoped=true;assert.equal(selector,'.card[data-id="'+id+'"]');return node;
+            }};},evaluate:async()=>fault!=='route'};
+        const result=nativeMovies.card(page,moviesRoute,{items:{[title]:id},serverId},title);
+        if(fault)await assert.rejects(result);else assert.equal(await result,node);
+        assert.equal(scoped,true,'Global Home cards must not be candidates');
+    }
+});
