@@ -1,4 +1,4 @@
-"""Publication evidence must cover all three hosts using the exact same runtime."""
+"""Publication evidence must cover every required host/suite using the exact same runtime."""
 import copy
 import importlib.util
 from pathlib import Path
@@ -13,34 +13,33 @@ spec.loader.exec_module(qualification)
 class QualificationTests(unittest.TestCase):
     def reports(self):
         return [dict(schemaVersion=2, jellyfinVersion=version, suite=suite, shard=qualification.SUITE_SHARD[suite], status='PASS', commit='commit',
-                     packageSha256='zip', runtimeSha256='dll', attempts=[dict(scenario=s['id'],command=s['command'],environment=s['env'],exitCode=0,retry=False) for s in qualification.PLAN[suite]])
-                for version in qualification.VERSIONS for suite in qualification.SUITES]
+                     packageSha256='zip', runtimeSha256='dll', upgradeBaseline=dict(result='PASS',candidateSha256='zip',previous={'sha256':'baseline'},previousDllSha256='old-dll'), attempts=[dict(scenario=s['id'],command=s['command'],environment=s['env'],exitCode=0,retry=False) for s in qualification.PLAN[suite]])
+                for version,suite in qualification.PAIRS]
 
     def verify(self, reports):
         return qualification.verify(reports, 'commit', 'zip', 'dll')
 
-    def test_original_scenario_inventory_is_preserved(self):
-        # Baseline 40557055801's command inventory, with only the activity
-        # browser moved into a second fixture. Independent of plan iteration.
-        expected = {'standalone-catalog-upgrades-preferences-caddy', 'injector-migration',
-                    'basepath-full-browser', 'basepath-native-catalog',
-                    'basepath-drawer-navigation', 'basepath-startup',
-                    'legacy-catalog', 'legacy-browser', 'caddy-websocket-measure',
-                    'activity-native-comparisons', 'activity-native-browser-polling',
-                    'discovery-v045', 'verification-default', 'verification-policies',
-                    'discovery-v047', 'enforcement-official-proxies',
-                    'enforcement-basepath', 'enforcement-linuxserver'}
-        actual = [s['id'] for suite in qualification.PLAN.values() for s in suite]
-        self.assertEqual(expected, set(actual))
-        self.assertEqual(len(expected), len(actual))
+    def test_explicit_policy_retains_required_behavior_and_retires_old_ladders(self):
+        self.assertEqual({'12.4':'full','12.3':'core'}, {k:v['level'] for k,v in qualification.POLICY['hosts'].items()})
+        self.assertEqual('12.2.0.0', qualification.POLICY['minimumAbi'])
+        self.assertEqual({'activity-index','activity-browser','basepath','basepath-navigation',
+                          'server-enforcement','server-enforcement-basepath','server-enforcement-linuxserver',
+                          'upgrade','browser79'}, set(qualification.SUITES))
+        self.assertEqual({'basepath','server-enforcement','upgrade'}, {s for v,s in qualification.PAIRS if v=='12.3'})
+        self.assertTrue(any('--previous-stable' in c['command'] for c in qualification.PLAN['upgrade']))
+        self.assertTrue(any('--browser79' in c['command'] for c in qualification.PLAN['browser79']))
+        ids=[c['id'] for commands in qualification.PLAN.values() for c in commands]
+        self.assertEqual(len(ids),len(set(ids)))
+        self.assertNotIn('legacy',qualification.SUITES)
+        self.assertNotIn('migration',qualification.SUITES)
 
     def test_complete_identical_package_matrix(self):
-        self.assertEqual(39, len(self.reports()))
+        self.assertEqual(12, len(self.reports()))
         self.assertEqual('PASS', self.verify(self.reports())['result'])
 
     def test_one_host_or_missing_duplicate_or_extra_suite_cannot_publish(self):
         reports = self.reports()
-        for invalid in (reports[:11], reports[:22], reports[:-1], reports + [reports[0]],
+        for invalid in (reports[:11], reports[:3], reports[:-1], reports + [reports[0]],
                         reports + [dict(reports[0], jellyfinVersion='12.5')]):
             with self.subTest(count=len(invalid)), self.assertRaises(ValueError):
                 self.verify(invalid)
@@ -82,14 +81,11 @@ class QualificationTests(unittest.TestCase):
                 qualification.verify(incomplete, 'commit', 'zip', 'dll', True)
 
     def test_workflow_requires_full_matrix_and_reuses_build_artifact(self):
-        # Keep the gate's expected matrix synchronized with the dispatch workflow.
-        import re
         source = (ROOT / '.github/workflows/release.yaml').read_text()
-        matrix = source.split('      matrix:', 1)[1].split('    steps:', 1)[0]
-        for field, expected in [('jellyfin_version', qualification.VERSIONS), ('shard', tuple(qualification.SHARDS))]:
-            values = re.search(rf'{field}: \[(.+)\]', matrix).group(1)
-            actual = [v.strip().strip("'\"") for v in values.split(',')]
-            self.assertEqual(list(expected), actual)
+        self.assertIn('matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}',source.split('  integration:',1)[1])
+        self.assertIn('matrix: ${{ steps.matrix.outputs.matrix }}',source.split('  build:',1)[0])
+        self.assertIn('qualification_policy.py --matrix',source)
+        self.assertIn('qualification_policy.py --suites',source)
         publication = (ROOT / '.github/workflows/publish.yaml').read_text()
         self.assertIn('needs: inspect', publication)
         self.assertIn('environment: release', publication)
@@ -106,5 +102,6 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual(source.count('name: WatchGuard-package-attempt-${{ github.run_attempt }}'), 3)
         self.assertIn("artifact_name('package', attempt)", (ROOT / 'scripts/release_provenance.py').read_text())
         self.assertIn('WatchGuard-evidence-${{ matrix.jellyfin_version }}-${{ matrix.shard }}-attempt-${{ github.run_attempt }}', source)
-        self.assertIn('paths: [Directory.Build.props]', source)
+        self.assertIn('paths-ignore:', source)
+        self.assertNotIn('paths: [Directory.Build.props]', source)
         self.assertIn('--validate-branch --verify-record', source)

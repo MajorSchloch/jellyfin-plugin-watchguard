@@ -59,12 +59,12 @@ def extract(api, asset, names):
 
 def expected_evidence(attempt):
     return [artifact_name(f'evidence-{host}-{shard}', attempt)
-            for host in qualification.VERSIONS for shard in qualification.SHARDS]
+            for row in qualification.MATRIX for host, shard in [(row['jellyfin_version'], row['shard'])]]
 
 
 def verify_jobs(api, run, attempt, include_gate):
     jobs = api.pages(f"actions/runs/{run['id']}/attempts/{attempt}/jobs", 'jobs')
-    required = ['build'] + [f'Integration / {host} / {shard}' for host in qualification.VERSIONS for shard in qualification.SHARDS]
+    required = ['build'] + [f'Integration / {host} / {shard}' for row in qualification.MATRIX for host, shard in [(row['jellyfin_version'], row['shard'])]]
     if include_gate:
         required.append('Verify complete compatibility evidence')
     for name in required:
@@ -86,9 +86,27 @@ def seal(api, result, package_id, attempt, publish_requested):
                 'Suite evidence comes from another run or attempt.')
     return dict(schemaVersion=1, repository=api.repo, sourceCommit=run['head_sha'], run=run['id'], attempt=attempt,
                 workflow=WORKFLOW, version=candidate(), publishRequested=publish_requested,
-                supportedHosts=list(qualification.VERSIONS), suiteInventory=qualification.PLAN,
+                supportedHosts=list(qualification.VERSIONS), suiteInventory=qualification.PLAN, qualificationPolicy=qualification.POLICY,
                 proxyMatrix=all(r.get('proxyMatrix') for r in result['suites'] if r['suite'] == 'server-enforcement'),
                 packageArtifact=package, evidenceArtifacts=evidence, qualification=result)
+
+
+def sealed_attempt(api, run_id):
+    """Select the sole sealed record in this exact run, never another run/latest.
+
+    A publisher retry has its own attempt number. It cannot replace the
+    qualification attempt or assemble evidence from jobs rerun in isolation.
+    """
+    import re
+    inventory = api.pages(f'actions/runs/{run_id}/artifacts', 'artifacts')
+    records = [(a, re.fullmatch(r'WatchGuard-qualification-attempt-(\d+)', a['name'])) for a in inventory]
+    records = [(a, m) for a, m in records if m]
+    require(len(records) == 1, 'No unique sealed qualification record for this run. '
+            'If evidence expired or qualification never completed, run Qualify WatchGuard on the exact source commit. '
+            'If multiple complete records exist, inspect them and use the explicit recovery dispatch; never select latest.')
+    asset, match = records[0]
+    require(not asset['expired'], 'Sealed qualification record expired. Run Qualify WatchGuard on the exact source commit.')
+    return int(match[1]), asset['id']
 
 
 def load(api, run_id, attempt, folder, allow_branch=False, allow_validation=False):
@@ -101,7 +119,7 @@ def load(api, run_id, attempt, folder, allow_branch=False, allow_validation=Fals
     require(record['schemaVersion'] == 1 and record['repository'] == api.repo and record['sourceCommit'] == run['head_sha'] and
             record['run'] == run_id and record['attempt'] == attempt and record['workflow'] == WORKFLOW,
             'Qualification record provenance mismatch.')
-    require(record['supportedHosts'] == list(qualification.VERSIONS) and record['suiteInventory'] == qualification.PLAN,
+    require(record['supportedHosts'] == list(qualification.VERSIONS) and record['suiteInventory'] == qualification.PLAN and record.get('qualificationPolicy') == qualification.POLICY,
             'Qualification inventory differs from the required matrix.')
     require_proxy = not (allow_validation and record.get('publishRequested') is False)
     require(not require_proxy or record['proxyMatrix'] is True, 'Publication requires the full proxy matrix. Run validation with proxy_matrix=true.')

@@ -26,17 +26,14 @@ DOCS = [
 class RepositoryHygieneTests(unittest.TestCase):
     def test_current_release_metadata_matches_public_catalog(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        match = re.search(r"Current release:\s*\[v(\d+\.\d+\.\d+)\]", readme)
-        self.assertIsNotNone(match, "README must state the latest published release")
-        self.assertEqual(CURRENT_VERSION, match.group(1) + ".0")
-        self.assertTrue(CURRENT_RELEASE_DOC.is_file(), "Current catalog release notes must exist")
-        notes = CURRENT_RELEASE_DOC.read_text(encoding="utf-8")
-        self.assertTrue(notes.startswith(f"# WatchGuard v{RELEASE_VERSION} —"))
-        self.assertIn("**Published ", notes)
-        for name in ["docs/README.md", "docs/validation.md"]:
-            with self.subTest(document=name):
-                source = (ROOT / name).read_text(encoding="utf-8")
-                self.assertRegex(source, rf"Current published version:.*\[.*v{re.escape(RELEASE_VERSION)}\]")
+        self.assertIn('Current release: [latest published release](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/latest)',readme)
+        self.assertTrue(CURRENT_RELEASE_DOC.is_file(), 'Current catalog release notes must exist')
+        # Publication changes the catalog. These links resolve current state
+        # without creating a second version string that immediately goes stale.
+        for name in ['docs/README.md','docs/validation.md']:
+            source=(ROOT/name).read_text()
+            self.assertIn('Current published version: see the [public catalog](../manifest.json)',source)
+            self.assertIn('qualification-policy.md',source)
 
     def test_candidate_metadata_and_notes_are_separate_from_published_release(self):
         for field in ["AssemblyVersion", "FileVersion"]:

@@ -5,17 +5,23 @@ import json
 from pathlib import Path
 import zipfile
 
-VERSIONS = ('12.2', '12.3', '12.4')
-PLAN = json.loads(Path(__file__).with_name('qualification-plan.json').read_text())
+POLICY = json.loads(Path(__file__).with_name('qualification-policy.json').read_text())
+VERSIONS = tuple(POLICY['hosts'])
+PLAN = POLICY['suites']
 SUITES = tuple(PLAN)
-SHARDS = json.loads(Path(__file__).with_name('qualification-shards.json').read_text())
+SHARDS = POLICY['shards']
 SUITE_SHARD = {suite: shard for shard, suites in SHARDS.items() for suite in suites}
 if set(SUITE_SHARD) != set(SUITES) or sum(map(len, SHARDS.values())) != len(SUITES):
-    raise ValueError('Shard plan must assign every suite exactly once')
+    raise ValueError('Policy must assign every suite exactly once')
+MATRIX = [dict(jellyfin_version=host, shard=shard)
+          for host, config in POLICY['hosts'].items() for shard in config['shards']]
+PAIRS = [(row['jellyfin_version'], suite) for row in MATRIX for suite in SHARDS[row['shard']]]
+if len(PAIRS) != len(set(PAIRS)):
+    raise ValueError('Policy contains duplicate host/suite assignments')
 
 
 def verify(reports, commit, package_sha256, runtime_sha256, require_proxy=False):
-    expected = {(version, suite) for version in VERSIONS for suite in SUITES}
+    expected = set(PAIRS)
     seen = set()
     for report in reports:
         key = (report['jellyfinVersion'], report['suite'])
@@ -33,6 +39,12 @@ def verify(reports, commit, package_sha256, runtime_sha256, require_proxy=False)
             raise ValueError('Incomplete or failed suite: ' + str(key))
         if report['commit'] != commit or report['packageSha256'] != package_sha256 or report['runtimeSha256'] != runtime_sha256:
             raise ValueError('Mixed commit or package: ' + str(key))
+        if report['suite'] == 'upgrade':
+            baseline=report.get('upgradeBaseline',{})
+            if baseline.get('result') != 'PASS' or baseline.get('candidateSha256') != package_sha256:
+                raise ValueError('Missing or mismatched direct-upgrade evidence: ' + str(key))
+            if not baseline.get('previous',{}).get('sha256') or not baseline.get('previousDllSha256'):
+                raise ValueError('Missing previous stable package identity: ' + str(key))
         if require_proxy and report['suite'] == 'server-enforcement' and report.get('proxyMatrix') is not True:
             raise ValueError('Required proxy matrix was not exercised: ' + str(key))
         seen.add(key)
@@ -56,4 +68,4 @@ if __name__ == '__main__':
     reports = [json.loads(p.read_text()) for p in sorted(args.evidence.rglob('suite.json'))]
     result = verify(reports, args.commit, package_sha256, runtime_sha256, args.proxy_matrix == 'true')
     args.output.write_text(json.dumps(result, indent=2) + '\n')
-    print(f'PASS: {len(reports)} suites, all three supported hosts, package {package_sha256}')
+    print(f'PASS: {len(reports)} suites, all required host/suite pairs, package {package_sha256}')

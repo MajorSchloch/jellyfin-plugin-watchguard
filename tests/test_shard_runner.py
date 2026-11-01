@@ -30,7 +30,7 @@ class ShardRunnerTests(unittest.TestCase):
         def run(command,**kwargs):
             calls.append((command,kwargs))
             return type('Result',(),{'returncode':7 if 'tests/run_suite.py' in command else 0})()
-        with patch('sys.argv',['run_shard.py','enforcement-legacy']),patch.object(run_shard.subprocess,'run',side_effect=run),patch.object(run_shard,'archive_suite') as archive,patch.dict('os.environ',{'WATCHGUARD_REQUIRE_PROXY_MATRIX':'1'}):
+        with patch('sys.argv',['run_shard.py','enforcement']),patch.object(run_shard.subprocess,'run',side_effect=run),patch.object(run_shard,'archive_suite') as archive,patch.dict('os.environ',{'WATCHGUARD_REQUIRE_PROXY_MATRIX':'1'}):
             with self.assertRaises(SystemExit) as error:run_shard.main()
             self.assertEqual(error.exception.code,7)
             self.assertEqual(len(calls),2)

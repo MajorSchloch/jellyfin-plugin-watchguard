@@ -7,7 +7,7 @@ import shutil
 import subprocess
 
 ROOT=Path(__file__).resolve().parents[1]
-SHARDS=json.loads((ROOT/'scripts/qualification-shards.json').read_text())
+SHARDS=json.loads((ROOT/'scripts/qualification-policy.json').read_text())['shards']
 
 
 def archive_suite(artifacts, suite):

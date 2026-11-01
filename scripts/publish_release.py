@@ -1,6 +1,7 @@
 """Resume publication from an explicit qualification run. Read-only unless --write is set."""
 import argparse
 import base64
+import copy
 import json
 import os
 from pathlib import Path
@@ -53,6 +54,36 @@ def unchanged(api, version, previous):
     require(fingerprint(api.release(version)) == fingerprint(previous), 'Release state changed concurrently. Inspect it, then resume explicitly.')
 
 
+def reconcile(api, version, expected, previous=None):
+    """Read our exact write back; tolerate only absence or its known prior state.
+
+    Both the ID endpoint and complete authenticated inventory must converge.
+    A different object/marker/asset is a conflict, never a reason to retry.
+    Four rounds, at most 20 seconds per API request and 90 seconds overall.
+    """
+    require(isinstance(expected, dict) and isinstance(expected.get('id'), int),
+            'GitHub did not return the intended release. Re-run failed jobs to inspect it; do not recreate it.')
+    deadline = time.monotonic() + 90
+    old_deadline = getattr(api, 'deadline', None)
+    api.deadline = deadline
+    try:
+        for attempt in range(4):
+            exact = api.request(f"releases/{expected['id']}", missing=True)
+            matches = [r for r in api.pages('releases') if r['tag_name'] == 'v' + version]
+            require(len(matches) <= 1, 'Multiple releases use this tag. Inspect them manually.')
+            listed = matches[0] if matches else None
+            for value in (exact, listed):
+                require(value is None or fingerprint(value) in (fingerprint(previous), fingerprint(expected)),
+                        'Release state changed concurrently during write reconciliation. No further writes were made.')
+            if all(value is not None and fingerprint(value) == fingerprint(expected) for value in (exact, listed)):
+                return exact
+            if attempt < 3:
+                time.sleep(1 + attempt)
+        raise Blocked('Release write is not yet visible consistently. Re-run failed jobs; the intended draft and assets are retained.')
+    finally:
+        api.deadline = old_deadline
+
+
 def resume(api, record, archive, write=False):
     require(not write or api.writable, 'Publication requires explicit write authority.')
     require(not write or api.can_see_drafts(), 'Cannot inspect all drafts with this token. Use the approved publisher with contents:write.')
@@ -73,10 +104,11 @@ def resume(api, record, archive, write=False):
         if write:
             notes, _ = api.file(f'docs/releases/v{version}.md', record['sourceCommit'])
             unchanged(api, version, release)
-            api.request('releases', 'POST', {'tag_name': 'v' + version, 'target_commitish': record['sourceCommit'],
+            release = api.request('releases', 'POST', {'tag_name': 'v' + version, 'target_commitish': record['sourceCommit'],
                         'name': 'WatchGuard v' + version, 'body': notes.decode() + '\n\n' + marker(record), 'draft': True})
-            release = api.release(version)
+            require(release is not None and release.get('draft') is True and release.get('tag_name') == 'v' + version, 'Invalid draft creation response.')
             verify_existing(api, record, archive, release)
+            release = reconcile(api, version, release)
     files = assets(release, version) if release else {}
     for name in (archive.name, archive.name + '.sha256'):
         if name in files:
@@ -86,18 +118,23 @@ def resume(api, record, archive, write=False):
         if write:
             unchanged(api, version, release)
             # GitHub rejects duplicate names; this targets the verified ID.
-            api.upload(release['id'], archive.parent / name)
-            current = api.release(version)
-            require(current['id'] == release['id'] and current['draft'], 'Release identity changed during upload.')
-            release = current
+            uploaded = api.upload(release['id'], archive.parent / name)
+            require(isinstance(uploaded, dict) and uploaded.get('name') == name, 'Invalid asset upload response. Re-run failed jobs to inspect the retained draft.')
+            expected = copy.deepcopy(release)
+            expected['assets'].append(uploaded)
+            release = reconcile(api, version, expected, release)
             verify_existing(api, record, archive, release)
     if release is None or release['draft']:
         actions.append('Publish the verified draft')
         if write:
             require(set(assets(release, version)) == {archive.name, archive.name + '.sha256'}, 'Draft assets are incomplete.')
             unchanged(api, version, release)
-            api.request(f"releases/{release['id']}", 'PATCH', {'draft': False})
-            release = api.release(version)
+            published = api.request(f"releases/{release['id']}", 'PATCH', {'draft': False})
+            require(isinstance(published, dict) and published.get('id') == release['id'] and published.get('draft') is False, 'Invalid publication response.')
+            expected = copy.deepcopy(release)
+            expected.update(draft=False, published_at=published.get('published_at'))
+            require(fingerprint(published) == fingerprint(expected), 'Release changed concurrently during publication.')
+            release = reconcile(api, version, published, release)
             verify_existing(api, record, archive, release)
             summary('Published', 'Verify the public downloads, then update the catalog.', version=version)
     if release and not release['draft']:
@@ -127,7 +164,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repo', default=os.environ.get('GITHUB_REPOSITORY', 'MajorSchloch/jellyfin-plugin-watchguard'))
     parser.add_argument('--run', type=int, required=True)
-    parser.add_argument('--attempt', type=int, required=True)
+    parser.add_argument('--attempt', type=int, help='Original qualification attempt; automatic handoff resolves the sole sealed record')
+    parser.add_argument('--record-id', type=int, help='Pinned record artifact ID from read-only inspection')
     parser.add_argument('--write', action='store_true')
     parser.add_argument('--automatic', action='store_true')
     parser.add_argument('--verify-record', action='store_true', help='Verify the exact artifact even when the public release is complete')
@@ -135,10 +173,24 @@ def main():
     parser.add_argument('--output', type=Path, default=Path('artifacts/publication-result.json'))
     args = parser.parse_args()
     started = time.monotonic()
-    result = {'run': args.run, 'attempt': args.attempt, 'write': args.write}
+    result = {'qualificationRun': args.run, 'qualificationAttempt': args.attempt, 'write': args.write,
+              'publicationRun': os.environ.get('GITHUB_RUN_ID'), 'publicationAttempt': os.environ.get('GITHUB_RUN_ATTEMPT')}
     try:
         require(not (args.write and args.validate_branch), 'Branch rehearsals cannot publish.')
         api = GitHub(args.repo, writable=args.write)
+        if args.automatic and args.attempt is None:
+            event_run = api.request(f'actions/runs/{args.run}')
+            jobs = api.pages(f"actions/runs/{args.run}/attempts/{event_run['run_attempt']}/jobs", 'jobs')
+            if not any(j['name'] == 'Verify complete compatibility evidence' and j['conclusion'] == 'success' for j in jobs):
+                result.update(state='checked', actions=['No sealed qualification completed. No publication writes.'])
+                outputs(publish=False)
+                return
+        if args.attempt is None:
+            require(args.automatic, 'Explicit recovery requires the original qualification attempt.')
+            args.attempt, resolved_id = release_provenance.sealed_attempt(api, args.run)
+            require(args.record_id in (None, resolved_id), 'Sealed record identity changed.')
+            args.record_id = resolved_id
+        result['qualificationAttempt'] = args.attempt
         # Resolve the requested version from the explicit source run, not latest.
         run = api.request(f'actions/runs/{args.run}/attempts/{args.attempt}')
         repo = release_provenance.check_run(api, run, args.attempt, args.validate_branch)
@@ -166,6 +218,8 @@ def main():
         else:
             with tempfile.TemporaryDirectory() as temp:
                 record, archive = release_provenance.load(api, args.run, args.attempt, Path(temp), args.validate_branch, allow_validation=args.automatic)
+                require(args.record_id in (None, record['recordArtifactId']), 'Sealed qualification record identity changed.')
+                outputs(qualification_run=args.run, qualification_attempt=args.attempt, record_id=record['recordArtifactId'])
                 if args.automatic and not record['publishRequested']:
                     result.update(state='qualified', actions=['Validation-only run. No publication was requested.'])
                     outputs(publish=False)
@@ -183,11 +237,11 @@ def main():
                     outputs(publish=state != 'already published and verified' and not args.validate_branch)
         result['preservedDrafts'] = getattr(api, 'preserved_drafts', [])
         result['draftVisibility'] = api.can_see_drafts()
-        details = {key: result[key] for key in ('run', 'attempt', 'version', 'commit', 'packageSha256', 'recordArtifactId') if key in result}
+        details = {key: result[key] for key in ('qualificationRun', 'qualificationAttempt', 'publicationRun', 'publicationAttempt', 'version', 'commit', 'packageSha256', 'recordArtifactId') if key in result}
         summary(result['state'], '\n'.join(result['actions']) or 'No writes are needed.', **details)
     except Exception as error:
         result.update(state='blocked', error=str(error))
-        summary('Blocked', str(error) + '\nInspect the retained evidence. Resume with the explicit run and attempt after correction.')
+        summary('Blocked', str(error) + '\nKeep the original failure evidence. After correction, use Re-run failed jobs on Publish WatchGuard. Missing or expired evidence requires qualification of the exact source commit again.')
         raise
     finally:
         result['elapsedSeconds'] = round(time.monotonic() - started, 3)
