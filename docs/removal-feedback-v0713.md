@@ -49,7 +49,20 @@ The candidate retains the error after activity completion, with two cards and on
 
 The reviewed runtime, package hashes and v0.7.13 version remain unchanged. The policy adds negative tests for missing, changed and duplicate deployment identities; version mismatches; unknown ZIPs/DLLs; candidate error loss; and unexpected historical feedback. It retains every catalog, migration and rollback scenario.
 
-The full fast suite now includes 228 JavaScript tests, 100 Python tests and eight catalog tests. Focused native results for both identities are recorded after the runs finish. Original failure evidence remains above and in the earlier validation record.
+The full fast suite now includes 228 JavaScript tests, 100 Python tests and eight catalog tests. [Fast CI run 41257503859](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41257503859), attempt 1, passed in 40 seconds on test-policy commit `e607c9b27edacb445d4722c89aa3f9c458cf7af8`. Its package artifact `13063932563` is byte-identical to the reviewed candidate. The backend suite also passed all 376 tests in that run.
+
+Both focused Jellyfin Server/Web 12.3.0 fixtures completed:
+
+| Runtime | Removal feedback | Remaining required checks | Recorded browser paths | Total seconds |
+|---|---|---|---:|---:|
+| v0.7.13 candidate | PASS: error retained | PASS | 32 | 398.282 |
+| Exact published v0.3.1 | KNOWN_LIMITATION: empty error | PASS | 24 | 99.732 |
+
+Both runs asserted one failed DELETE, unchanged cards/membership, successful explicit retry, permissions, deletion protection, account isolation and cleanup. Both recorded zero ordering violations. The historical run continued through its native menus, bulk cancellation/approval and final non-admin permission checks. The candidate reported zero limitations.
+
+[Accepted-policy summary](evidence/removal-feedback-v0713/accepted-policy.json) · [Actual historical identity and all remaining paths](evidence/removal-feedback-v0713/historical-verified.json) · [Candidate identity and strict results](evidence/removal-feedback-v0713/candidate-verified.json).
+
+Original failure evidence remains above and in the earlier validation record. Its historical blocking status describes the investigation before this accepted policy, not the current outcome.
 
 ## Qualification after merge
 

@@ -1,0 +1,53 @@
+{
+  "testCommit": "e607c9b27edacb445d4722c89aa3f9c458cf7af8",
+  "runtimeUnchanged": true,
+  "version": "0.7.13",
+  "fastChecks": {
+    "javascript": 228,
+    "python": 100,
+    "catalog": 8,
+    "backend": 376,
+    "result": "PASS"
+  },
+  "ci": {
+    "run": 41257503859,
+    "attempt": 1,
+    "seconds": 40,
+    "result": "PASS",
+    "packageArtifact": 13063932563,
+    "identicalToReviewedPackage": true
+  },
+  "candidate": {
+    "requiredChecks": "PASS",
+    "removalFeedback": "PASS",
+    "recordedPaths": 32,
+    "knownLimitations": 0,
+    "seconds": 398.282,
+    "identity": {
+      "version": "0.7.13",
+      "packageSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+      "dllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+      "deployedDllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+      "activeVersion": "0.7.13.0",
+      "reportedVersion": "0.7.13"
+    }
+  },
+  "historical": {
+    "requiredChecks": "PASS",
+    "removalFeedback": "KNOWN_LIMITATION",
+    "recordedPaths": 24,
+    "knownLimitations": 1,
+    "seconds": 99.732,
+    "identity": {
+      "version": "0.3.1",
+      "packageSha256": "c4ac915c3f35a28e6737bd68580f712cd0e0e113735a6d399c2a889c7ae7b2f2",
+      "dllSha256": "a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7",
+      "deployedDllSha256": "a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7",
+      "activeVersion": "0.3.1.0",
+      "reportedVersion": "0.3.1"
+    }
+  },
+  "qualificationGateUnchanged": true,
+  "fullBranchMatrixRun": false,
+  "publicationAuthorized": false
+}
