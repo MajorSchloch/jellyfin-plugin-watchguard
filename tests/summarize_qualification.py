@@ -40,6 +40,13 @@ if browser.exists():
     lines += ['', '### Native activity browser phases (within browser fixture time)', '', '| Scenario | Seconds |', '|---|---:|']
     for row in json.loads(browser.read_text()).get('phaseTimings', []):
         lines.append(f"| {row['phase']} | {row['seconds']:.3f} |")
+limitations=[]
+for file in sorted(Path('artifacts/v049').rglob('removal-race.json')):
+    data=json.loads(file.read_text())
+    if data.get('status')=='KNOWN_LIMITATION':
+        identity=data['identity']
+        limitations.append(f"- KNOWN_LIMITATION: {data['limitation']}. Package `{identity['packageSha256']}`; deployed DLL `{identity['deployedDllSha256']}`. Remaining assertions are mandatory.")
+if limitations: lines+=['','### Historical limitations (not passes)','',*limitations]
 text='\n'.join(details+lines)+'\n'
 print(text)
 if os.environ.get('GITHUB_STEP_SUMMARY'):

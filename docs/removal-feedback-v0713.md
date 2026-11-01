@@ -18,9 +18,15 @@ The shared browser regression now forces this order:
 4. Release activity, wait for its loading state to finish, then check the error and both cards.
 5. Retry successfully and verify removal feedback clears.
 
-There are no sleeps, automatic retries, longer timeouts or relaxed assertions. The legacy package fails at step 4: its alert becomes empty. This is a deterministic reproduction of its existing defect. A source correction cannot change those published bytes. The historical failure remains blocking; it is not counted as a pass or silently skipped. A separate decision about historical-fixture policy is required before full qualification can pass this new assertion.
+There are no sleeps, automatic retries, longer timeouts or relaxed assertions. The legacy package fails at step 4: its alert becomes empty. This is a deterministic reproduction of its existing defect. A source correction cannot change those published bytes. The original reproduction failed and remains in the evidence below. The accepted historical policy now records this exact loss as **KNOWN_LIMITATION**, then continues all remaining historical assertions. It does not count the lost error as passing.
 
-## Focused validation
+The fixture verifies the published ZIP hash, its DLL hash and the actual container DLL hash before the browser starts. Native plugin enumeration must show exactly one active WatchGuard with the expected assembly version. Integration status must report that version both during deployment verification and during the browser scenario. The browser independently checks those identity fields against the pinned v0.3.1 identity. A legacy-mode flag alone cannot enable the exception.
+
+Published v0.3.1 DLL SHA-256: `a03f3a566823a9a37c9b92f0f00365ade5cdbf780c4e3a4c6b3feb9b843a73d7`.
+
+Only an empty post-completion alert in that exact package receives the limitation outcome. A candidate must retain its error. Unknown or mismatched package/DLL identity, changed live version, unexpected feedback, extra DELETEs, changed cards/membership or any failed retry still fails. The historical outcome appears separately in browser JSON, console output and the qualification summary. The gate and suite inventory are unchanged.
+
+## Initial focused validation
 
 Runtime/test commit: `25f91bfe522fd45189c5f66a9f004a30f70b826c`.
 
@@ -39,6 +45,12 @@ The candidate retains the error after activity completion, with two cards and on
 
 [Historical lost error](evidence/removal-feedback-v0713/published-v031-error-lost.png) · [Candidate retained error](evidence/removal-feedback-v0713/candidate-error-retained.png) · [Historical observations](evidence/removal-feedback-v0713/published-v031.json) · [Candidate observations](evidence/removal-feedback-v0713/candidate.json)
 
+## Accepted historical policy validation
+
+The reviewed runtime, package hashes and v0.7.13 version remain unchanged. The policy adds negative tests for missing, changed and duplicate deployment identities; version mismatches; unknown ZIPs/DLLs; candidate error loss; and unexpected historical feedback. It retains every catalog, migration and rollback scenario.
+
+The full fast suite now includes 228 JavaScript tests, 100 Python tests and eight catalog tests. Focused native results for both identities are recorded after the runs finish. Original failure evidence remains above and in the earlier validation record.
+
 ## Qualification after merge
 
 Do not reuse run 41245891354 or the failed run 41252629663 as publication authority for the changed package. No full branch matrix was run for this correction.
@@ -49,4 +61,4 @@ After merge, manually dispatch **Qualify WatchGuard** on `master` with `publish=
 gh workflow run release.yaml --ref master -f publish=true -f proxy_matrix=true
 ```
 
-This command is an operator instruction; it was not executed during this work. `Directory.Build.props` is unchanged, so the automatic push trigger will not fire. The historical failure described above still needs resolution. Fresh master qualification must validate the changed package, and release-environment approval remains required before publication.
+This command is an operator instruction; it was not executed during this work. `Directory.Build.props` is unchanged, so the automatic push trigger will not fire. Fresh master qualification must validate the changed package, and release-environment approval remains required before publication.
