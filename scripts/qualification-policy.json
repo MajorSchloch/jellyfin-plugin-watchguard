@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "minimumAbi": "12.2.0.0",
+  "hosts": {
+    "12.4": {
+      "level": "full",
+      "shards": [
+        "activity-native",
+        "activity-browser",
+        "navigation",
+        "browser",
+        "enforcement",
+        "platforms",
+        "upgrade",
+        "browser79",
+        "visibility"
+      ]
+    },
+    "12.3": {
+      "level": "core",
+      "shards": [
+        "browser",
+        "enforcement",
+        "upgrade"
+      ]
+    }
+  },
+  "shards": {
+    "activity-native": [
+      "activity-index"
+    ],
+    "activity-browser": [
+      "activity-browser"
+    ],
+    "navigation": [
+      "basepath-navigation"
+    ],
+    "browser": [
+      "basepath"
+    ],
+    "enforcement": [
+      "server-enforcement"
+    ],
+    "platforms": [
+      "server-enforcement-basepath",
+      "server-enforcement-linuxserver"
+    ],
+    "upgrade": [
+      "upgrade"
+    ],
+    "browser79": [
+      "browser79"
+    ],
+    "visibility": [
+      "verification"
+    ]
+  },
+  "suites": {
+    "activity-index": [
+      {
+        "id": "activity-current-query-contracts",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "activity-index"
+        ],
+        "env": {
+          "WATCHGUARD_CURRENT_ONLY": "1"
+        }
+      }
+    ],
+    "activity-browser": [
+      {
+        "id": "activity-native-browser-polling",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "activity-browser"
+        ],
+        "env": {}
+      }
+    ],
+    "basepath": [
+      {
+        "id": "basepath-full-browser",
+        "command": [
+          "tests/docker-smoke.py",
+          "--base-path",
+          "/jellyfin",
+          "--proxy"
+        ],
+        "env": {}
+      }
+    ],
+    "basepath-navigation": [
+      {
+        "id": "basepath-native-catalog",
+        "command": [
+          "tests/docker-smoke.py",
+          "--listing",
+          "--base-path",
+          "/jellyfin",
+          "--proxy"
+        ],
+        "env": {}
+      },
+      {
+        "id": "basepath-startup-drawer-navigation",
+        "command": [
+          "tests/docker-smoke.py",
+          "--navigation-startup",
+          "--base-path",
+          "/jellyfin",
+          "--proxy"
+        ],
+        "env": {}
+      }
+    ],
+    "server-enforcement": [
+      {
+        "id": "enforcement-official-proxies",
+        "command": [
+          "tests/server-enforcement.py"
+        ],
+        "env": {}
+      }
+    ],
+    "server-enforcement-basepath": [
+      {
+        "id": "enforcement-basepath",
+        "command": [
+          "tests/server-enforcement.py",
+          "--base-path",
+          "/jellyfin"
+        ],
+        "env": {}
+      }
+    ],
+    "server-enforcement-linuxserver": [
+      {
+        "id": "enforcement-linuxserver",
+        "command": [
+          "tests/server-enforcement.py",
+          "--linuxserver"
+        ],
+        "env": {}
+      }
+    ],
+    "upgrade": [
+      {
+        "id": "previous-stable-upgrade-caddy",
+        "command": [
+          "tests/docker-smoke.py",
+          "--linuxserver",
+          "--caddy",
+          "--previous-stable"
+        ],
+        "env": {}
+      }
+    ],
+    "browser79": [
+      {
+        "id": "chromium79-native",
+        "command": [
+          "tests/docker-smoke.py",
+          "--browser79"
+        ],
+        "env": {}
+      }
+    ],
+    "verification": [
+      {
+        "id": "current-native-visibility-policies",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "verification"
+        ],
+        "env": {
+          "WATCHGUARD_CURRENT_ONLY": "1",
+          "WATCHGUARD_VERIFICATION_POLICIES": "1",
+          "WATCHGUARD_VERIFICATION_OUTPUT": "artifacts/verification-current-policies.json"
+        }
+      }
+    ]
+  },
+  "retired": [
+    "Jellyfin 12.2 native qualification (minimum ABI stays 12.2)",
+    "Published Injector v0.3.0/v0.3.1 and Injector migration/rollback ladders",
+    "v0.4.x/v0.5.x preference rollback and catalog upgrade ladders",
+    "v0.4.5/v0.4.7 discovery and verification performance comparisons",
+    "v0.5.2/v0.6.0 activity performance comparisons",
+    "Repeated default large-library benchmark; current native episode/folder/tag/rating policy checks remain mandatory on 12.4"
+  ]
+}

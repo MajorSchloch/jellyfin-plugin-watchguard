@@ -33,6 +33,18 @@ class TimingTests(unittest.TestCase):
         run.update(run_attempt=2,run_started_at='2026-10-28T00:10:00Z')
         self.assertEqual(timings.summarize(run,[job('plan','10','15')])['elapsedSeconds'],300)
 
+    def test_inconsistent_job_timestamps_are_not_false_zero_speedups(self):
+        run=dict(id=1,head_sha='abc',status='completed',conclusion='success',created_at='2026-11-01T09:51:34Z',updated_at='2026-11-01T09:13:31Z')
+        jobs=[dict(name='build',id=2,started_at='2026-11-01T09:55:53Z',completed_at='2026-11-01T09:09:38Z',conclusion='success',
+                   steps=[dict(name='fixture',conclusion='success',started_at='2026-11-01T08:57:04Z',completed_at='2026-11-01T09:09:32Z')])]
+        result=timings.summarize(run,jobs)
+        self.assertIsNone(result['elapsedSeconds'])
+        self.assertIsNone(result['combinedJobExecutionSeconds'])
+        self.assertEqual(result['combinedStepExecutionSeconds'],748)
+        self.assertEqual(result['workflowStepSpanSeconds'],748)
+        self.assertEqual(len(result['timestampAnomalies']),2)
+        self.assertEqual(result['jobs'][0]['rawTimes']['completedAt'],jobs[0]['completed_at'])
+
     def test_running_job_excluded_and_identified(self):
         run=dict(id=1,head_sha='abc',status='in_progress',conclusion=None,created_at='2026-10-28T00:00:00Z',updated_at='2026-10-28T00:01:00Z')
         result=timings.summarize(run,[dict(name='build',completed_at=None)])

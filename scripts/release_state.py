@@ -53,8 +53,12 @@ class GitHub:
             args += ['-H', 'Accept: application/octet-stream']
         if data is not None:
             args += ['--input', '-']
+        timeout = 60
+        if getattr(self, 'deadline', None) is not None:
+            timeout = min(20, self.deadline - time.monotonic())
+            require(timeout > 0, 'Release readback deadline reached. Re-run failed jobs; existing objects are retained.')
         result = subprocess.run(args, input=json.dumps(data).encode() if data is not None else None,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
         if result.returncode:
             if missing and b'HTTP 404' in result.stderr:
                 return None
@@ -68,8 +72,9 @@ class GitHub:
         # Address the verified release ID. A tag lookup could select a different
         # draft if an external writer creates one after the state check.
         url = f'https://uploads.github.com/repos/{self.repo}/releases/{release_id}/assets?name={path.name}'
-        subprocess.run(['gh', 'api', url, '--method', 'POST', '-H', 'Content-Type: application/octet-stream',
+        result = subprocess.run(['gh', 'api', url, '--method', 'POST', '-H', 'Content-Type: application/octet-stream',
                         '--input', str(path)], check=True, stdout=subprocess.PIPE, timeout=60)
+        return json.loads(result.stdout)
 
     def can_see_drafts(self):
         if self._draft_visibility is None:
@@ -109,8 +114,9 @@ class GitHub:
                 return rows
         raise Blocked('API inventory exceeds the bounded page limit: ' + path)
 
-    def file(self, path, ref):
-        value = self.request(f'contents/{path}?ref={ref}')
+    def file(self, path, ref, missing=False):
+        value = self.request(f'contents/{path}?ref={ref}', missing=missing)
+        if value is None: return None, None
         return base64.b64decode(value['content']), value['sha']
 
     def tag(self, tag):

@@ -1,5 +1,6 @@
 """Native index qualification; invoked only by the disposable docker-smoke owner."""
 import hashlib
+import os
 import json
 from pathlib import Path
 import statistics
@@ -15,35 +16,39 @@ def run(call, restart, docker, name, plugins, token, phases):
     repo = Path(__file__).resolve().parents[1]
     evidence = repo / 'artifacts/activity-index' / name
     evidence.mkdir(parents=True)
-    phases.phase('historical-v052-download')
-    baseline = evidence / 'published-v052.zip'
-    subprocess.run(['curl','--fail','--location','--retry','3','--max-time','60',
-        'https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.5.2/Jellyfin.Plugin.WatchGuard-v0.5.2.zip',
-        '-o',str(baseline)],check=True)
-    assert hashlib.sha256(baseline.read_bytes()).hexdigest() == BASELINE_SHA
+    historical = os.environ.get('WATCHGUARD_CURRENT_ONLY') != '1'
+    if historical:
+        phases.phase('historical-v052-download')
+        baseline = evidence / 'published-v052.zip'
+        subprocess.run(['curl','--fail','--location','--retry','3','--max-time','60',
+            'https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.5.2/Jellyfin.Plugin.WatchGuard-v0.5.2.zip',
+            '-o',str(baseline)],check=True)
+        assert hashlib.sha256(baseline.read_bytes()).hexdigest() == BASELINE_SHA
     phases.phase('activity-index-fixture-seed')
     from activity_fixture import seed
     owners, movies, series = seed(call, docker, name, token)
     dll = plugins / 'WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
     candidate = dll.read_bytes()
-    with zipfile.ZipFile(baseline) as archive: previous = archive.read('Jellyfin.Plugin.WatchGuard.dll')
-    result = {'baselineSha256': BASELINE_SHA, 'fixture': {'users': 7, 'completedMovies': 120, 'seriesEpisodes': 300}, 'measurements': {}}
+    if historical:
+        with zipfile.ZipFile(baseline) as archive: previous = archive.read('Jellyfin.Plugin.WatchGuard.dll')
+    result = {'baselineSha256': BASELINE_SHA if historical else None, 'fixture': {'users': 7, 'completedMovies': 120, 'seriesEpisodes': 300}, 'measurements': {}}
     scopes = [('single', owners[0]), ('all', 'all')]
     old_results = {}
     def normalized(items):
         return {i['ItemId'].replace('-', ''): {u['UserId'].replace('-', ''): {k:v for k,v in u.items() if k not in ('UserId', 'DisplayName')}
                 for u in i['Users']} for i in items}
     try:
-        phases.phase('historical-v052-comparison')
-        docker('stop', name); dll.write_bytes(previous); restart()
-        for scope, owner in scopes:
-            route = '/WatchGuard/ActivityOverview' + ('/Users/' + owner if owner != 'all' else '')
-            call(route, token=token, timeout=120)  # warm-up
-            samples = []
-            for _ in range(3):
-                start = time.perf_counter(); value = call(route, token=token, timeout=120); samples.append((time.perf_counter()-start)*1000)
-            old_results[scope] = normalized(value['Items'])
-            result['measurements']['v052-' + scope] = {'milliseconds': samples, 'medianMs': statistics.median(samples), 'items': len(value['Items']), 'diagnostics': value['Diagnostics'], 'causes': value['Coverage']['Causes']}
+        if historical:
+            phases.phase('historical-v052-comparison')
+            docker('stop', name); dll.write_bytes(previous); restart()
+            for scope, owner in scopes:
+                route = '/WatchGuard/ActivityOverview' + ('/Users/' + owner if owner != 'all' else '')
+                call(route, token=token, timeout=120)  # warm-up
+                samples = []
+                for _ in range(3):
+                    start = time.perf_counter(); value = call(route, token=token, timeout=120); samples.append((time.perf_counter()-start)*1000)
+                old_results[scope] = normalized(value['Items'])
+                result['measurements']['v052-' + scope] = {'milliseconds': samples, 'medianMs': statistics.median(samples), 'items': len(value['Items']), 'diagnostics': value['Diagnostics'], 'causes': value['Coverage']['Causes']}
         phases.phase('current-index-cold-population')
         docker('stop', name); dll.write_bytes(candidate)
         # Remove only rebuildable state, never personal data, for cold qualification.
@@ -74,7 +79,7 @@ def run(call, restart, docker, name, plugins, token, phases):
             actual = normalized(all_items)
             assert len(actual) == len(all_items), 'Duplicate cards across stable pages'
             assert len(actual) == 121, (scope, len(actual), first['Coverage'])
-            for item, people in old_results[scope].items(): assert actual[item] == people, (scope, item, actual[item], people)
+            for item, people in old_results.get(scope, {}).items(): assert actual[item] == people, (scope, item, actual[item], people)
             result['measurements']['index-' + scope] = {'milliseconds': samples[1:], 'medianMs': statistics.median(samples[1:]), 'firstPageItems': len(first['Items']), 'totalItems':len(actual),'allPagesMs': samples[-1]+(time.perf_counter()-page_started)*1000,'allPagesVisibilityQueries': visibility_queries,'freshness':first['Freshness']}
         # Native manual unplayed event removes a completed movie without any Refresh request.
         target = movies[0]['Id']; owner = owners[0]

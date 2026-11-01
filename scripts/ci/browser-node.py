@@ -23,6 +23,10 @@ def command(args, node, workspace, ca=None):
         if not path.is_relative_to(Path('/tmp').resolve()) and not path.is_relative_to(workspace):
             raise ValueError('Proxy CA must belong to the disposable fixture')
         result += ['-e', 'NODE_EXTRA_CA_CERTS=' + str(path)]
+    if os.environ.get('WATCHGUARD_CHROMIUM79'):
+        old = Path(os.environ['WATCHGUARD_CHROMIUM79']).resolve()
+        if not old.is_relative_to(Path('/tmp')): raise ValueError('Old engine must be a disposable /tmp input')
+        result += ['-e', 'WATCHGUARD_CHROMIUM79=' + str(old)]
     return result + [IMAGE, str(node), *args]
 
 if __name__ == '__main__':

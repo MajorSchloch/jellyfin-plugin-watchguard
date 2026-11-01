@@ -1,0 +1,55 @@
+{
+  "environment": "macOS-27.0.1-arm64-arm-64bit",
+  "version": "0.7.13",
+  "packageSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+  "samples": [
+    {
+      "sample": 1,
+      "publicCheckSeconds": 1.984,
+      "localCatalogRecoverySeconds": 0.498
+    },
+    {
+      "sample": 2,
+      "publicCheckSeconds": 1.394,
+      "localCatalogRecoverySeconds": 0.292
+    },
+    {
+      "sample": 3,
+      "publicCheckSeconds": 1.425,
+      "localCatalogRecoverySeconds": 0.353
+    }
+  ],
+  "publicCheckMedianSeconds": 1.425,
+  "localCatalogRecoveryMedianSeconds": 0.353,
+  "limitations": "Local network samples. Recovery writes a temporary manifest only. No release upload, remote catalog commit, approval wait or matrix speedup is measured.",
+  "preservedReleases": [
+    {
+      "id": 430293213,
+      "tag_name": "v0.7.13",
+      "target_commitish": "b0503ca16b9ee2216e310eb1d5aa373041abbd20",
+      "draft": false,
+      "prerelease": false,
+      "published_at": "2026-11-01T07:49:59Z",
+      "bodySha256": "e05883605088bcd86fceb90d440953d7dddd1a4e106aec1f0fcb258ef7937fda",
+      "assets": [
+        {
+          "id": 697684872,
+          "name": "Jellyfin.Plugin.WatchGuard-v0.7.13.zip",
+          "size": 595525,
+          "digest": "sha256:7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+          "created_at": "2026-11-01T07:49:53Z",
+          "updated_at": "2026-11-01T07:49:54Z"
+        },
+        {
+          "id": 697684954,
+          "name": "Jellyfin.Plugin.WatchGuard-v0.7.13.zip.sha256",
+          "size": 105,
+          "digest": "sha256:a9fa38124bacead989269767552d1c2a710451c306c87e6c6eec16c1894ed095",
+          "created_at": "2026-11-01T07:49:56Z",
+          "updated_at": "2026-11-01T07:49:56Z"
+        }
+      ]
+    }
+  ],
+  "publicCatalogUnchanged": true
+}

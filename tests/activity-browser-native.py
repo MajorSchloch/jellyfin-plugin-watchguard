@@ -1,6 +1,7 @@
 """v0.7 native query comparison. Disposable fixture owner calls this; never production."""
 from datetime import datetime
 import hashlib
+import os
 import json
 from pathlib import Path
 import re
@@ -96,21 +97,23 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series, pha
     repo = Path(__file__).resolve().parents[1]
     output = repo / 'artifacts/activity-browser' / name
     output.mkdir(parents=True)
-    phases.phase('historical-v060-download')
-    baseline = output / 'published-v060.zip'
-    subprocess.run(['curl', '--fail', '--location', '--retry', '3', '--max-time', '60',
-                    'https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.6.0/Jellyfin.Plugin.WatchGuard-v0.6.0.zip', '-o', str(baseline)], check=True)
-    assert hashlib.sha256(baseline.read_bytes()).hexdigest() == BASELINE_SHA
-    with zipfile.ZipFile(baseline) as archive:
-        old = archive.read('Jellyfin.Plugin.WatchGuard.dll')
+    historical = os.environ.get('WATCHGUARD_CURRENT_ONLY') != '1'
+    if historical:
+        phases.phase('historical-v060-download')
+        baseline = output / 'published-v060.zip'
+        subprocess.run(['curl', '--fail', '--location', '--retry', '3', '--max-time', '60',
+                        'https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.6.0/Jellyfin.Plugin.WatchGuard-v0.6.0.zip', '-o', str(baseline)], check=True)
+        assert hashlib.sha256(baseline.read_bytes()).hexdigest() == BASELINE_SHA
+        with zipfile.ZipFile(baseline) as archive:
+            old = archive.read('Jellyfin.Plugin.WatchGuard.dll')
     dll = plugins / 'WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
     candidate = dll.read_bytes()
-    report = {'baselineSha256': BASELINE_SHA, 'candidateDllSha256': hashlib.sha256(candidate).hexdigest(),
+    report = {'baselineSha256': BASELINE_SHA if historical else None, 'candidateDllSha256': hashlib.sha256(candidate).hexdigest(),
               'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
               'fixture': {'users': 7, 'movies': 120, 'series': 1, 'episodes': 300,
                           'explicitMemberships': 6, 'liveOwners': 1},
               'limitations': ['Known fixture only; no exhaustive-library claim.',
-                             'v0.6 client semantics require collecting all pages to filter/sort globally; its raw first page is recorded separately.',
+                             ('v0.6 historical comparison' if historical else 'Current indexed/membership reference') + ' collects authorized rows to check combined-query membership, owners, reasons and order.',
                              'Candidate preparation can span requests; first ordered page includes preparation cost.',
                              'Three warm samples, sequential native requests, no concurrency/load claim.'], 'measurements': {}}
     explicit = next(i for i in call('/Items?Recursive=true&IncludeItemTypes=Movie&Limit=1000', token=token)['Items'] if not i['Name'].startswith('Index Movie'))
@@ -173,9 +176,13 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series, pha
                  ('live', 'all', 'playing', '', 'title')]
     expected = {}
     try:
-        for label, payload in [('v060', old), ('v0713', candidate)]:
+        for label, payload in ([('v060', old)] if historical else [('current-reference', candidate)]) + [('candidate', candidate)]:
             phases.phase(label + '-query-population')
-            docker('stop', name); dll.write_bytes(payload); restart(); report[label + 'SettleMs'] = settle()
+            if historical:
+                docker('stop', name); dll.write_bytes(payload); restart()
+            # Current reference and combined query use the same deployed DLL.
+            # Cold rebuild is already asserted by activity-index-native.py.
+            report[label + 'SettleMs'] = settle()
             live_user = call('/Users/AuthenticateByName', 'POST', {'Username': 'IndexUser0', 'Pw': 'DisposableIndex123!'})
             call('/Sessions/Playing', 'POST', {'ItemId': movies[1]['Id'], 'PlayMethod': 'DirectPlay', 'PositionTicks': 10000}, live_user['AccessToken'], expected=204)
             settle()
@@ -184,7 +191,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series, pha
                 samples = []
                 before_work = call('/WatchGuard/ActivityIndex/Status?owner=all', token=token)['Freshness']
                 for sample in range(4):
-                    if label == 'v060':
+                    if label in ('v060', 'current-reference'):
                         start = time.perf_counter()
                         members = call('/WatchGuard/Watchlists' + ('/' + owner if owner != 'all' else ''), token=token)
                         members = [{**i, 'Users': [{**u, 'Reasons': ['Watchlisted'], 'LastPlayedDate': None} for u in i['Users']]} for i in members]
@@ -200,7 +207,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series, pha
                     assert_global_order(data, statuses, search, sort, output, scenario, sample, label, owner)
                     ids = [i['ItemId'] for i in data]
                     # Native playback events can update dates between versions; compare membership and title order for deterministic text cases.
-                    if label == 'v060': expected[scenario] = data
+                    if label in ('v060', 'current-reference'): expected[scenario] = data
                     else:
                         assert set(ids) == {i['ItemId'] for i in expected[scenario]}, (scenario, ids, expected[scenario])
                         if sort == 'title': assert ids == [i['ItemId'] for i in expected[scenario]]

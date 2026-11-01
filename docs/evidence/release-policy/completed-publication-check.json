@@ -1,0 +1,16 @@
+{
+  "qualificationRun": 41258353082,
+  "qualificationAttempt": 1,
+  "write": false,
+  "publicationRun": null,
+  "publicationAttempt": null,
+  "packageSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+  "runtimeSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+  "recordArtifactId": 13064678954,
+  "state": "already published and verified",
+  "version": "0.7.13",
+  "actions": [],
+  "preservedDrafts": [],
+  "draftVisibility": true,
+  "elapsedSeconds": 7.287
+}

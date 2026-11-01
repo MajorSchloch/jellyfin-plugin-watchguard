@@ -11,14 +11,14 @@ import subprocess
 import time
 import uuid
 
-PLAN=json.loads((Path(__file__).resolve().parents[1]/'scripts/qualification-plan.json').read_text())
+PLAN=json.loads((Path(__file__).resolve().parents[1]/'scripts/qualification-policy.json').read_text())['suites']
 parser=argparse.ArgumentParser()
 parser.add_argument('suite',choices=PLAN)
 parser.add_argument('--injector-dll',default='/tmp/watchguard-injector/Jellyfin.Plugin.JavaScriptInjector/bin/Release/net10.0/Jellyfin.Plugin.JavaScriptInjector.dll')
 a=parser.parse_args()
 output=Path('artifacts/testing')/a.suite/uuid.uuid4().hex[:10]
 output.mkdir(parents=True,exist_ok=True)
-report={'schemaVersion':2,'jellyfinVersion':fixture_images.version(), 'image':fixture_images.image(a.suite in ('standalone-caddy','migration','websocket','server-enforcement-linuxserver')), 'suite':a.suite,'attempts':[],'status':'RUNNING','python':platform.python_version(),'node':subprocess.check_output(['node','--version'],text=True).strip(),'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
+report={'schemaVersion':2,'jellyfinVersion':fixture_images.version(), 'image':fixture_images.image(a.suite in ('standalone-caddy','migration','websocket','server-enforcement-linuxserver','upgrade')), 'suite':a.suite,'attempts':[],'status':'RUNNING','python':platform.python_version(),'node':subprocess.check_output(['node','--version'],text=True).strip(),'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
 package=next(Path('artifacts').glob('Jellyfin.Plugin.WatchGuard-v'+ET.parse('Directory.Build.props').findtext('./PropertyGroup/Version')+'.zip'))
 report['packageSha256']=hashlib.sha256(package.read_bytes()).hexdigest()
 report['runtimeSha256']=hashlib.sha256(Path('artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll').read_bytes()).hexdigest()
@@ -45,4 +45,5 @@ for scenario in PLAN[a.suite]:
     if result.returncode:
         report['status']='FAIL';save();raise SystemExit(result.returncode)
     save()
+if a.suite=='upgrade': report['upgradeBaseline']=json.loads(Path('artifacts/previous-stable-upgrade.json').read_text())
 report['status']='PASS';save()

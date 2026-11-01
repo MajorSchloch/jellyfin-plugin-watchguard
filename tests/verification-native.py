@@ -85,17 +85,21 @@ done''')
         # Explicit membership is preserved independently of automatic results.
         call('/WatchGuard/Watchlist/'+series[0]['Id'],'PUT',token=token,expected=204)
     repo = Path(__file__).resolve().parents[1]
-    baseline = repo/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip'
-    assert hashlib.sha256(baseline.read_bytes()).hexdigest() == '8046bbd611ba3e17bf003160e32d8bffdf07a22038f06863bd8414e78c08b6e0'
+    historical = os.environ.get('WATCHGUARD_CURRENT_ONLY') != '1'
+    if historical:
+        baseline = repo/'artifacts/Jellyfin.Plugin.WatchGuard-v0.4.7.zip'
+        assert hashlib.sha256(baseline.read_bytes()).hexdigest() == '8046bbd611ba3e17bf003160e32d8bffdf07a22038f06863bd8414e78c08b6e0'
     dll = plugins/'WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
     candidate = dll.read_bytes()
-    with zipfile.ZipFile(baseline) as archive:
-        previous = archive.read('Jellyfin.Plugin.WatchGuard.dll')
+    if historical:
+        with zipfile.ZipFile(baseline) as archive:
+            previous = archive.read('Jellyfin.Plugin.WatchGuard.dll')
     results = []
     snapshots = {}
     try:
-        for label, assembly in [('published-v047', previous), ('candidate-v048', candidate)]:
-            docker('stop',name); dll.write_bytes(assembly); restart()
+        for label, assembly in ([('published-v047', previous)] if historical else []) + [('candidate', candidate)]:
+            if historical:
+                docker('stop',name); dll.write_bytes(assembly); restart()
             for scope, route in [('single-user','/WatchGuard/ActivityOverview/Users/'+owners[0]),
                                  ('all-users','/WatchGuard/ActivityOverview')]:
                 # The published baseline can exceed 15 seconds on contended CI runners.
@@ -128,7 +132,8 @@ done''')
                                     'coverage':response['Coverage']})
                 results.append({'version':label,'scope':scope,'samples':samples,'medianMs':statistics.median(s['httpMs'] for s in samples)})
     finally:
-        docker('stop',name); dll.write_bytes(candidate); restart()
+        if historical:
+            docker('stop',name); dll.write_bytes(candidate); restart()
     output = {'kind':'synthetic-native-verification','series':100,'episodesPerSeries':24,'enabledUsers':7,
               'variants':['continuing','ended','unfinished','alternate-versions','missing-air-date','blocked-tags']+(['episode-tags','parental-rating','restricted-library-folders','allowed-tags','future-episode','explicit-membership'] if policies else []), 'results':results}
     path = Path(os.environ.get('WATCHGUARD_VERIFICATION_OUTPUT','artifacts/verification-native-v048.json'))

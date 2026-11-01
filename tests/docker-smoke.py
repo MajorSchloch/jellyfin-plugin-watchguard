@@ -36,14 +36,17 @@ def main():
     parser.add_argument('--legacy-injector', action='store_true', help='Retained published v0.3.1 regression only')
     parser.add_argument('--qualification-upgrade', action='store_true')
     parser.add_argument('--preference-roundtrip', action='store_true', help='Qualify saved added sort against published v0.5.0/v0.4.10')
+    parser.add_argument('--previous-stable', action='store_true', help='Direct previous stable upgrade, data preservation and TLS/WebSocket checks')
     parser.add_argument('--standalone-catalog', action='store_true')
     parser.add_argument('--artifact', type=Path)
     parser.add_argument('--base-path', default='')
     parser.add_argument('--proxy',action='store_true')
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--listing', action='store_true', help='Verify native plugin catalog and installed details.')
+    mode.add_argument('--browser79', action='store_true', help='Actual pinned Chromium 79 native flows')
     mode.add_argument('--serve', action='store_true')
     mode.add_argument('--startup', action='store_true', help='Observe initial document rendering and startup recovery.')
+    mode.add_argument('--navigation-startup', action='store_true', help='Independent startup and navigation browser contexts in one native fixture')
     mode.add_argument('--navigation', action='store_true', help='Observe real filter routing transitions and browser history.')
     mode.add_argument('--measure', action='store_true')
     mode.add_argument('--migration', action='store_true')
@@ -180,6 +183,9 @@ def main():
                                  ROOT/'artifacts/testing'/name/'inventory.json')
             phases.phase('installation-and-regressions')
             installed_folder = plugins/'WatchGuard'
+            if options.previous_stable:
+                phases.phase('previous-stable-direct-upgrade')
+                installed_folder = runpy.run_path(str(ROOT/'tests/previous_stable_upgrade.py'))['run'](call,restart,docker,name,root,plugins,token,items)
             if options.listing:
                 phases.phase('native-catalog-install-and-browser')
                 listing = runpy.run_path(str(ROOT/'tests/catalog-listing-fixture.py'))['prepare'](call,restart,root,plugins,token,artifact,
@@ -254,7 +260,13 @@ def main():
             fixture.chmod(0o600)
             if caddy: os.environ['NODE_EXTRA_CA_CERTS'] = str(caddy.ca)
             print('READY fixture=' + str(fixture), flush=True)
-            if options.listing:
+            if options.previous_stable:
+                phases.phase('current-tls-websocket')
+                subprocess.run(['node',str(ROOT/'tests/socket-browser.cjs'),str(fixture)],check=True,timeout=600)
+            if options.browser79:
+                phases.phase('chromium79-native')
+                subprocess.run(['node',str(ROOT/'tests/browser79/native.cjs'),str(fixture)],check=True,timeout=600)
+            elif options.listing:
                 subprocess.run(['node', str(ROOT/'tests/catalog-listing-browser.cjs'), str(fixture)], check=True, timeout=240)
             elif options.measure:
                 subprocess.run(['node', str(ROOT/'tests/socket-browser.cjs'), str(fixture)], check=True,timeout=600)
@@ -279,7 +291,9 @@ def main():
                 runpy.run_path(str(ROOT/'tests/verification-native.py'))['run'](call, restart, docker, name, plugins, token)
             elif options.startup:
                 subprocess.run(['node', str(ROOT/'tests/startup-browser.cjs'), str(fixture)], check=True, timeout=600)
-            elif options.navigation:
+            elif options.navigation or options.navigation_startup:
+                if options.navigation_startup:
+                    subprocess.run(['node',str(ROOT/'tests/startup-browser.cjs'),str(fixture)],check=True,timeout=600)
                 subprocess.run(['node', str(ROOT/'tests/outgoing-browser.cjs'), str(fixture)], check=True, timeout=240)
                 subprocess.run(['node', str(ROOT/'tests/native-controls-browser.cjs'), str(fixture)], check=True, timeout=360)
                 subprocess.run(['node', str(ROOT/'tests/navigation-arrival-browser.cjs'), str(fixture)], check=True, timeout=360)

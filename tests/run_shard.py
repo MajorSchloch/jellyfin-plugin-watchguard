@@ -7,7 +7,7 @@ import shutil
 import subprocess
 
 ROOT=Path(__file__).resolve().parents[1]
-SHARDS=json.loads((ROOT/'scripts/qualification-shards.json').read_text())
+SHARDS=json.loads((ROOT/'scripts/qualification-policy.json').read_text())['shards']
 
 
 def archive_suite(artifacts, suite):
@@ -16,7 +16,7 @@ def archive_suite(artifacts, suite):
     # Candidate/historical input ZIPs and the extracted Injector rollback DLL
     # remain available. Everything else belongs to this suite's evidence.
     for path in list(artifacts.iterdir()):
-        if path.name in ('suites','WatchGuard','RollbackV031') or path.name.endswith(('.zip','.sha256')):
+        if path.name in ('suites','WatchGuard','RollbackV031','previous-stable') or path.name.endswith(('.zip','.sha256')):
             continue
         shutil.move(str(path),str(destination/path.name))
 

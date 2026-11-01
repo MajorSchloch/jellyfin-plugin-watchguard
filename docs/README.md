@@ -1,6 +1,6 @@
 # WatchGuard documentation index
 
-**Current published version: [v0.7.12](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/tag/v0.7.12)** · Qualified target: Jellyfin Server/Web 12.2.0, 12.3.0 and 12.4.0, .NET 10.
+Current published version: see the [public catalog](../manifest.json) and [published release](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/latest). Current CI policy: [required qualification](qualification-policy.md).
 
 **Published activity browser:** [v0.7.0 notes](release-v070.md). **Published usability:** [v0.7.1 notes](release-v071.md). **Published navigation:** [v0.7.2 notes](release-v072.md), [qualification](navigation-validation-v072.md). **Published compatibility:** [v0.7.3 notes](release-v073.md), [qualification](compatibility-v073.md). **Published startup:** [v0.7.4 notes](release-v074.md), [qualification](startup-validation-v074.md). **Published drawer/qualification:** [v0.7.5 notes](release-v075.md), [qualification](drawer-qualification-v075.md). **Published capabilities:** [v0.7.6 notes](release-v076.md), [qualification](qualification-v076.md), [compatibility policy](compatibility-capabilities.md). **Published listing:** [v0.7.7 notes](release-v077.md), [native catalog qualification](catalog-listing-v077.md). **Published v0.7.8:** [release notes](release-v078.md), [12.4 and action verification](compatibility-v078.md).
 

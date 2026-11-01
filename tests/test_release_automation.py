@@ -19,6 +19,8 @@ import publish_release as publisher
 import qualification
 import release_provenance as provenance
 import release_state as state
+import release_plan
+import previous_stable
 
 REPO = 'Fixture/WatchGuard'
 COMMIT = 'a' * 40
@@ -54,7 +56,7 @@ class FakeGitHub(state.GitHub):
             return Path(path).read_bytes(), 'metadata'
         return b'# Release notes\n', 'notes'
 
-    def request(self, path, method='GET', data=None, binary=False):
+    def request(self, path, method='GET', data=None, binary=False, missing=False):
         state.require(method == 'GET' or self.writable, 'Read-only execution cannot write to GitHub.')
         if path == 'releases/generate-notes' and method == 'POST':
             self.probes.append(copy.deepcopy(data))
@@ -78,6 +80,8 @@ class FakeGitHub(state.GitHub):
             asset['download_count'] += 1
             self.downloads['api'] += 1
             return self.asset_content[ident]
+        if path == 'releases/9' and method == 'GET':
+            return copy.deepcopy(self.current)
         if method == 'PATCH':
             self.current.update(draft=False, published_at='2026-10-30T13:57:38Z')
             self.tag_commit = COMMIT
@@ -102,7 +106,7 @@ class FakeGitHub(state.GitHub):
         self.current['assets'].append(dict(id=ident, name=path.name, size=len(content), state='uploaded',
             digest='sha256:' + state.digest(content), download_count=0,
             browser_download_url=f'https://github.com/{REPO}/releases/download/v{VERSION}/{path.name}'))
-        return None
+        return copy.deepcopy(self.current['assets'][-1])
 
     def download(self, url, path, **kwargs):
         if '/releases/tags/' in url:
@@ -113,6 +117,21 @@ class FakeGitHub(state.GitHub):
             self.downloads['public'] += 1
             content = self.asset_content[asset['id']]
         Path(path).write_bytes(content)
+
+
+class CandidatePlanTests(unittest.TestCase):
+    def test_version_and_published_runtime_mistakes_stop_before_build(self):
+        manifest=[{'versions':[{'version':'0.7.13.0'}]}]
+        with self.assertRaisesRegex(state.Blocked,'older'): release_plan.validate_version('0.7.12',manifest,'pending')
+        with self.assertRaisesRegex(state.Blocked,'Prepare a new version'):
+            release_plan.validate_version('0.7.13',manifest,'complete',['Jellyfin.Plugin.WatchGuard/Web/watchguard.js'])
+        for changed in ['scripts/browser/build.cjs','scripts/browser/package-lock.json','global.json']:
+            with self.assertRaisesRegex(state.Blocked,'Prepare a new version'):
+                release_plan.validate_version('0.7.13',manifest,'complete',[changed])
+        release_plan.validate_version('0.7.13',manifest,'complete',['scripts/publish_release.py','docs/release-automation.md'])
+        release_plan.validate_version('0.7.14',manifest,'unpublished',['Jellyfin.Plugin.WatchGuard/Web/watchguard.js'])
+        self.assertEqual(previous_stable.previous(manifest,'0.7.14')['version'],'0.7.13.0')
+        with self.assertRaises(state.Blocked): previous_stable.previous(manifest,'0.7.13')
 
 
 class ReleaseStateTests(unittest.TestCase):
@@ -363,6 +382,95 @@ class ReleaseStateTests(unittest.TestCase):
         with self.assertRaises(state.Blocked):
             state.inspect(self.api, VERSION, json.loads(self.api.manifest))
 
+    def test_post_response_survives_delayed_id_and_inventory_visibility(self):
+        original = self.api.request
+        reads = {'id': 0, 'list': 0}
+        def delayed(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if self.api.current and self.api.current['draft'] and not self.api.current['assets']:
+                key = 'id' if path == 'releases/9' else 'list' if path.startswith('releases?') else None
+                if key:
+                    reads[key] += 1
+                    if reads[key] <= 1: return None if key == 'id' else []
+            return value
+        with patch.object(self.api, 'request', side_effect=delayed), patch.object(publisher.time, 'sleep'):
+            self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+        self.assertEqual(self.api.writes.count(('POST', 'releases')), 1)
+
+    def test_upload_and_publish_readback_accept_only_the_known_prior_snapshot(self):
+        request, upload = self.api.request, self.api.upload
+        stale = {'value':None,'reads':0}
+        def delayed(path, *args, **kwargs):
+            if args and args[0]=='PATCH':
+                stale.update(value=copy.deepcopy(self.api.current),reads=2)
+            value=request(path,*args,**kwargs)
+            if stale['reads'] and (path=='releases/9' and not args or path.startswith('releases?')):
+                stale['reads']-=1
+                return copy.deepcopy(stale['value']) if path=='releases/9' else [copy.deepcopy(stale['value'])]
+            return value
+        def delayed_upload(*args):
+            stale.update(value=copy.deepcopy(self.api.current),reads=2)
+            return upload(*args)
+        with patch.object(self.api,'request',side_effect=delayed),patch.object(self.api,'upload',side_effect=delayed_upload),patch.object(publisher.time,'sleep'):
+            self.assertEqual(publisher.resume(self.api,self.record,self.archive,True)[0],'catalog updated')
+        self.assertEqual([op for op,_ in self.api.writes],['POST','UPLOAD','UPLOAD','PATCH','PUT'])
+
+    def test_failed_publisher_retry_keeps_qualification_attempt_and_record_id(self):
+        record={**self.record,'recordArtifactId':99}
+        run=dict(id=123,run_attempt=2,head_sha=COMMIT)
+        request=self.api.request
+        def api_request(path,*args,**kwargs):
+            if path=='actions/runs/123/attempts/2': return run
+            return request(path,*args,**kwargs)
+        output=self.root/'publication.json'
+        args=['publish_release.py','--repo',REPO,'--run','123','--attempt','2','--record-id','99','--verify-record','--write','--output',str(output)]
+        with patch('sys.argv',args),patch.dict(os.environ,{'GITHUB_RUN_ID':'456','GITHUB_RUN_ATTEMPT':'7'}),patch.object(publisher,'GitHub',return_value=self.api),patch.object(self.api,'request',side_effect=api_request),patch.object(provenance,'check_run',return_value=self.api.repository),patch.object(provenance,'load',return_value=(record,self.archive)) as load:
+            self.api.fail_catalog=True
+            with self.assertRaisesRegex(state.Blocked,'Simulated failure'): publisher.main()
+            failed=json.loads(output.read_text())
+            self.assertEqual((failed['qualificationRun'],failed['qualificationAttempt']),(123,2))
+            self.assertEqual((failed['publicationRun'],failed['publicationAttempt']),('456','7'))
+            self.assertFalse(self.api.current['draft'])
+            self.api.fail_catalog=False;self.api.writes.clear()
+            with patch.dict(os.environ,{'GITHUB_RUN_ATTEMPT':'8'}): publisher.main()
+            self.assertEqual(self.api.writes,[('PUT','contents/manifest.json')])
+            self.assertEqual(json.loads(output.read_text())['qualificationAttempt'],2)
+            self.assertTrue(all(call.args[1:3]==(123,2) for call in load.call_args_list))
+            self.api.writes.clear();self.api.probes.clear();self.api._draft_visibility=None;self.api.notes_permission=False
+            publisher.main()
+            self.assertEqual(self.api.probes,[])
+            self.assertEqual(json.loads(output.read_text())['state'],'already published and verified')
+            self.assertEqual(self.api.writes,[])
+            args[args.index('--record-id')+1]='100'
+            with self.assertRaisesRegex(state.Blocked,'record identity changed'): publisher.main()
+            self.assertEqual(self.api.writes,[])
+            args[args.index('--record-id')+1]='99';args.remove('--verify-record')
+            with patch.object(provenance,'completed_expectation',return_value=dict(packageSha256='b'*64,runtimeSha256='c'*64,recordArtifactId=99)),self.assertRaisesRegex(state.Blocked,'conflicts with the completed public release'):
+                publisher.main()
+            self.assertEqual(self.api.writes,[])
+
+    def test_readback_exhaustion_retains_draft_for_explicit_retry(self):
+        original = self.api.request
+        def delayed(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            return None if path == 'releases/9' else value
+        with patch.object(self.api, 'request', side_effect=delayed), patch.object(publisher.time, 'sleep'), self.assertRaisesRegex(state.Blocked, 'Re-run failed jobs'):
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(self.api.writes, [('POST', 'releases')])
+        self.api.writes.clear()
+        publisher.resume(self.api, self.record, self.archive, True)
+        self.assertNotIn(('POST', 'releases'), self.api.writes)
+
+    def test_changed_post_response_readback_is_not_treated_as_visibility_delay(self):
+        original = self.api.request
+        def changed(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if path == 'releases/9': value['body'] = 'another qualification'
+            return value
+        with patch.object(self.api, 'request', side_effect=changed), self.assertRaisesRegex(state.Blocked, 'concurrently'):
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(self.api.writes, [('POST', 'releases')])
+
     def test_interrupted_draft_creation_can_resume_without_recreation(self):
         with patch.object(self.api, 'upload', side_effect=state.Blocked('upload interrupted')):
             with self.assertRaisesRegex(state.Blocked, 'upload interrupted'):
@@ -385,7 +493,7 @@ class ReleaseStateTests(unittest.TestCase):
         api = state.GitHub(REPO)
         with self.assertRaises(state.Blocked): api.upload(9, self.archive)
         api.writable = True
-        with patch.object(state.subprocess, 'run') as request:
+        with patch.object(state.subprocess, 'run', return_value=subprocess.CompletedProcess([],0,stdout=b'{}')) as request:
             api.upload(9, self.archive)
             command = request.call_args.args[0]
             self.assertIn(f'https://uploads.github.com/repos/{REPO}/releases/9/assets?name={self.archive.name}', command)
@@ -535,8 +643,17 @@ class ProvenanceTests(unittest.TestCase):
             with self.assertRaises(state.Blocked): provenance.extract(self.api,asset,['other.zip'])
             with self.assertRaises(state.Blocked): provenance.extract(self.api,self.asset,['package.zip'])
 
+    def test_publisher_retry_resolves_only_the_original_sealed_attempt(self):
+        asset={'id':99,'name':'WatchGuard-qualification-attempt-2','expired':False}
+        with patch.object(self.api,'pages',return_value=[asset]):
+            with patch.dict(os.environ,{'GITHUB_RUN_ATTEMPT':'7'}):
+                self.assertEqual(provenance.sealed_attempt(self.api,123),(2,99))
+        for rows in ([],[dict(asset,expired=True)],[asset,dict(asset,id=100,name='WatchGuard-qualification-attempt-3')],[asset,asset]):
+            with patch.object(self.api,'pages',return_value=rows),self.assertRaises(state.Blocked):
+                provenance.sealed_attempt(self.api,123)
+
     def test_failed_or_previous_attempt_job_is_not_reused(self):
-        names = ['build','Verify complete compatibility evidence'] + [f'Integration / {v} / {s}' for v in qualification.VERSIONS for s in qualification.SHARDS]
+        names = ['build','Verify complete compatibility evidence'] + [f'Integration / {v} / {s}' for row in qualification.MATRIX for v,s in [(row['jellyfin_version'],row['shard'])]]
         jobs = [dict(name=n,conclusion='success',run_attempt=2) for n in names]
         with patch.object(self.api, 'pages', return_value=jobs): provenance.verify_jobs(self.api,self.run,2,True)
         for change in ({'conclusion':'failure'}, {'run_attempt':1}):
@@ -560,17 +677,20 @@ class QualificationRecordTests(unittest.TestCase):
         self.package_files = {name:package, name+'.sha256':f'{state.digest(package)}  {name}\n'.encode()}
         self.blobs = {10:self.zip(self.package_files)}
         self.inventory = [self.asset(10,provenance.artifact_name('package',2),self.blobs[10])]
+        self.previous_asset=self.asset(11,provenance.artifact_name('previous-stable',2),b'previous-stable')
+        self.inventory.append(self.previous_asset)
         self.inventory += [self.asset(i,n,b'evidence') for i,n in enumerate(provenance.expected_evidence(2),20)]
         reports = [dict(schemaVersion=2,jellyfinVersion=v,suite=s,shard=qualification.SUITE_SHARD[s],status='PASS',commit=COMMIT,
-                       packageSha256=state.digest(package),runtimeSha256=state.digest(runtime),proxyMatrix=s=='server-enforcement',
+                       packageSha256=state.digest(package),runtimeSha256=state.digest(runtime),upgradeBaseline=dict(result='PASS',candidateSha256=state.digest(package),previous={'sha256':'baseline'},previousDllSha256='old-dll'),proxyMatrix=s=='server-enforcement',
                        origin={'repository':REPO,'run':123,'attempt':2},
                        attempts=[dict(scenario=c['id'],command=c['command'],environment=c['env'],exitCode=0,retry=False) for c in qualification.PLAN[s]])
-                   for v in qualification.VERSIONS for s in qualification.SUITES]
+                   for v,s in qualification.PAIRS]
         result=qualification.verify(reports,COMMIT,state.digest(package),state.digest(runtime),True)
+        self.source_policy=copy.deepcopy(qualification.POLICY)
         self.record=dict(schemaVersion=1,repository=REPO,sourceCommit=COMMIT,run=123,attempt=2,workflow=provenance.WORKFLOW,
-                         version=VERSION,publishRequested=True,supportedHosts=list(qualification.VERSIONS),suiteInventory=qualification.PLAN,
-                         proxyMatrix=True,packageArtifact=copy.deepcopy(self.inventory[0]),evidenceArtifacts=copy.deepcopy(self.inventory[1:]),qualification=result)
-        names=['build','Verify complete compatibility evidence']+[f'Integration / {v} / {s}' for v in qualification.VERSIONS for s in qualification.SHARDS]
+                         version=VERSION,publishRequested=True,supportedHosts=list(qualification.VERSIONS),suiteInventory=qualification.PLAN,qualificationPolicy=qualification.POLICY,
+                         proxyMatrix=True,packageArtifact=copy.deepcopy(self.inventory[0]),previousStableArtifact=copy.deepcopy(self.previous_asset),evidenceArtifacts=copy.deepcopy(self.inventory[2:]),qualification=result)
+        names=['build','Verify complete compatibility evidence']+[f'Integration / {v} / {s}' for row in qualification.MATRIX for v,s in [(row['jellyfin_version'],row['shard'])]]
         self.jobs=[dict(name=n,conclusion='success',run_attempt=2) for n in names]
 
     @staticmethod
@@ -595,14 +715,59 @@ class QualificationRecordTests(unittest.TestCase):
             raise AssertionError(path)
         def pages(path,key): return self.jobs if '/jobs' in path else inventory
         with patch.object(self.api,'request',side_effect=request), patch.object(self.api,'pages',side_effect=pages), \
-             patch.object(self.api,'file',return_value=(Path('Directory.Build.props').read_bytes(),'metadata')):
+             patch.object(self.api,'file',side_effect=lambda path,ref,**kwargs: (json.dumps(self.source_policy).encode(),'policy') if path=='scripts/qualification-policy.json' else (Path('Directory.Build.props').read_bytes(),'metadata')):
             return provenance.load(self.api,123,2,self.folder,allow_validation=allow_validation)
 
-    def test_full_record_consumes_exact_zip_and_rechecks_all_39_suites(self):
+    def test_completed_release_compares_original_seal_without_requalifying_old_policy(self):
+        self.record['supportedHosts']=['historical-host']
+        self.record.pop('qualificationPolicy')
+        blob=self.zip({'qualification-record.json':json.dumps(self.record).encode()})
+        asset=self.asset(99,provenance.artifact_name('qualification',2),blob)
+        with patch.object(self.api,'pages',return_value=[asset]),patch.object(self.api,'request',return_value=blob):
+            expected=provenance.completed_expectation(self.api,self.run,2,7,VERSION)
+            self.assertEqual(expected['packageSha256'],state.digest(self.package))
+            self.assertEqual(expected['recordArtifactId'],99)
+        for rows in ([],[dict(asset,expired=True)]):
+            with patch.object(self.api,'pages',return_value=rows):
+                self.assertIsNone(provenance.completed_expectation(self.api,self.run,2,7,VERSION))
+        with patch.object(self.api,'pages',return_value=[asset,asset]),self.assertRaises(state.Blocked):
+            provenance.completed_expectation(self.api,self.run,2,7,VERSION)
+        for field,value in [('run',124),('repository','Other/Repo'),('sourceCommit','b'*40),('version','0.0.0')]:
+            wrong=self.zip({'qualification-record.json':json.dumps({**self.record,field:value}).encode()})
+            wrong_asset=self.asset(99,provenance.artifact_name('qualification',2),wrong)
+            with patch.object(self.api,'pages',return_value=[wrong_asset]),patch.object(self.api,'request',return_value=wrong),self.assertRaises(state.Blocked):
+                provenance.completed_expectation(self.api,self.run,2,7,VERSION)
+        # The same retired policy cannot authorize a new publication.
+        with self.assertRaises(state.Blocked): self.load()
+
+    def test_full_record_consumes_exact_zip_and_rechecks_all_required_suites(self):
         record, archive=self.load()
         self.assertEqual(record['recordArtifactId'],99)
         self.assertEqual(archive.read_bytes(),self.package)
-        self.assertEqual(len(record['qualification']['suites']),39)
+        self.assertEqual(len(record['qualification']['suites']),len(qualification.PAIRS))
+
+    def test_legacy_source_policy_is_read_without_executing_source(self):
+        old_plan=json.loads(Path('scripts/qualification-plan-historical.json').read_text())
+        old_shards=json.loads(Path('scripts/qualification-shards-historical.json').read_text())
+        files={'scripts/qualification-policy.json':None,
+               'scripts/qualification.py':b"VERSIONS = ('12.2', '12.3', '12.4')\nraise RuntimeError('must not execute')",
+               'scripts/qualification-plan.json':json.dumps(old_plan).encode(),
+               'scripts/qualification-shards.json':json.dumps(old_shards).encode()}
+        with patch.object(self.api,'file',side_effect=lambda path,ref,**kwargs:(files[path],None)):
+            policy,legacy=provenance.source_policy(self.api,COMMIT)
+        self.assertTrue(legacy)
+        self.assertEqual(len(qualification.inventory(policy)[5]),39)
+        self.assertEqual(policy['suites'],old_plan)
+
+    def test_publisher_uses_qualified_source_policy_after_a_later_policy_edit(self):
+        # Simulate a later publisher adding a host. The original source remains
+        # sealed; it is not a new qualification of that simulated host.
+        later=copy.deepcopy(qualification.POLICY)
+        later['hosts']['simulated-future']={'level':'simulation','shards':['enforcement']}
+        with patch.object(qualification,'POLICY',later),patch.object(qualification,'MATRIX',qualification.inventory(later)[4]):
+            record,archive=self.load()
+        self.assertEqual(record['qualificationPolicy'],qualification.POLICY)
+        self.assertEqual(archive.read_bytes(),self.package)
 
     def test_record_missing_or_mixed_evidence_is_rejected(self):
         original=copy.deepcopy(self.record)

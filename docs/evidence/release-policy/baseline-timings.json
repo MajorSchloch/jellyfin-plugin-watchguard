@@ -1,0 +1,3687 @@
+{
+  "runId": 41258353082,
+  "runAttempt": 1,
+  "commit": "b0503ca16b9ee2216e310eb1d5aa373041abbd20",
+  "status": "completed",
+  "conclusion": "success",
+  "elapsedSeconds": 1968.0,
+  "rawTimes": {
+    "origin": "2026-11-01T00:48:22Z",
+    "end": "2026-11-01T01:21:10Z"
+  },
+  "timestampAnomalies": [],
+  "workflowStepSpanSeconds": 1960.0,
+  "combinedStepExecutionSeconds": 22126.0,
+  "stepDefinition": "Step execution sums recorded step intervals; workflow step span is first recorded step to last completed step. Neither substitutes for end-to-end elapsed/queue time when job timestamps are inconsistent.",
+  "combinedJobExecutionSeconds": 22209.0,
+  "combinedReadyToStartSeconds": 50.0,
+  "queueDefinition": "Dependency-ready to job start; includes scheduler/runner provisioning and, for publication, environment approval. GitHub does not expose an exact runner queue timestamp.",
+  "elapsedDefinition": "First attempt: workflow creation to completion. Later attempts: attempt start to completion.",
+  "executionDefinition": "Sum of completed non-skipped job intervals, including setup and cleanup; overlapping jobs count separately.",
+  "incompleteJobs": [],
+  "jobs": [
+    {
+      "name": "plan",
+      "id": 124706225171,
+      "conclusion": "success",
+      "executionSeconds": 9.0,
+      "stepSpanSeconds": 6.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:48:25Z",
+        "completedAt": "2026-11-01T00:48:34Z",
+        "dependencyReadyAt": "2026-11-01T00:48:22Z"
+      },
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:48:26Z",
+          "completedAt": "2026-11-01T00:48:26Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:48:26Z",
+          "completedAt": "2026-11-01T00:48:28Z"
+        },
+        {
+          "name": "Run python3 scripts/release_plan.py --publish 'true' --inspect-only 'false'",
+          "category": "other",
+          "seconds": 3.0,
+          "startedAt": "2026-11-01T00:48:28Z",
+          "completedAt": "2026-11-01T00:48:31Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:48:31Z",
+          "completedAt": "2026-11-01T00:48:32Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:48:32Z",
+          "completedAt": "2026-11-01T00:48:32Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:48:32Z",
+          "completedAt": "2026-11-01T00:48:32Z"
+        }
+      ]
+    },
+    {
+      "name": "build",
+      "id": 124706264186,
+      "conclusion": "success",
+      "executionSeconds": 72.0,
+      "stepSpanSeconds": 67.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:48:36Z",
+        "completedAt": "2026-11-01T00:49:48Z",
+        "dependencyReadyAt": "2026-11-01T00:48:34Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:48:37Z",
+          "completedAt": "2026-11-01T00:48:38Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:48:38Z",
+          "completedAt": "2026-11-01T00:48:40Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:48:40Z",
+          "completedAt": "2026-11-01T00:48:49Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 11.0,
+          "startedAt": "2026-11-01T00:48:49Z",
+          "completedAt": "2026-11-01T00:49:00Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:49:00Z",
+          "completedAt": "2026-11-01T00:49:05Z"
+        },
+        {
+          "name": "Run python3 scripts/build-release.py",
+          "category": "other",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:05Z",
+          "completedAt": "2026-11-01T00:49:14Z"
+        },
+        {
+          "name": "Run dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore --logger trx --results-directory artifacts/testing/backend",
+          "category": "other",
+          "seconds": 12.0,
+          "startedAt": "2026-11-01T00:49:14Z",
+          "completedAt": "2026-11-01T00:49:26Z"
+        },
+        {
+          "name": "Run node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/startup.test.cjs tests/server-enforcement.test.cjs tests/browser-readiness.test.cjs",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:26Z",
+          "completedAt": "2026-11-01T00:49:26Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:26Z",
+          "completedAt": "2026-11-01T00:49:27Z"
+        },
+        {
+          "name": "Run python3 -m unittest discover -s tests -p 'test_*.py'",
+          "category": "other",
+          "seconds": 3.0,
+          "startedAt": "2026-11-01T00:49:27Z",
+          "completedAt": "2026-11-01T00:49:30Z"
+        },
+        {
+          "name": "Run python3 scripts/check-release-notes.py",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:30Z",
+          "completedAt": "2026-11-01T00:49:30Z"
+        },
+        {
+          "name": "Run python3 tests/catalog_test.py",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:30Z",
+          "completedAt": "2026-11-01T00:49:30Z"
+        },
+        {
+          "name": "Protect published installation metadata",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:30Z",
+          "completedAt": "2026-11-01T00:49:30Z"
+        },
+        {
+          "name": "Run python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.13.zip",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:30Z",
+          "completedAt": "2026-11-01T00:49:30Z"
+        },
+        {
+          "name": "Compare identical models with published v0.4.7",
+          "category": "other",
+          "seconds": 4.0,
+          "startedAt": "2026-11-01T00:49:30Z",
+          "completedAt": "2026-11-01T00:49:34Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:34Z",
+          "completedAt": "2026-11-01T00:49:36Z"
+        },
+        {
+          "name": "Rebuild and verify determinism",
+          "category": "other",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:49:36Z",
+          "completedAt": "2026-11-01T00:49:41Z"
+        },
+        {
+          "name": "Retain build and backend test diagnostics",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:41Z",
+          "completedAt": "2026-11-01T00:49:42Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:42Z",
+          "completedAt": "2026-11-01T00:49:44Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:44Z",
+          "completedAt": "2026-11-01T00:49:44Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:44Z",
+          "completedAt": "2026-11-01T00:49:44Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:44Z",
+          "completedAt": "2026-11-01T00:49:44Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:44Z",
+          "completedAt": "2026-11-01T00:49:44Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:44Z",
+          "completedAt": "2026-11-01T00:49:44Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / activity-native",
+      "id": 124706528335,
+      "conclusion": "success",
+      "executionSeconds": 1136.0,
+      "stepSpanSeconds": 1133.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:08:46Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:52Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:50:03Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0,
+          "startedAt": "2026-11-01T00:50:03Z",
+          "completedAt": "2026-11-01T00:50:10Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:10Z",
+          "completedAt": "2026-11-01T00:50:15Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:15Z",
+          "completedAt": "2026-11-01T00:50:15Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:15Z",
+          "completedAt": "2026-11-01T00:50:15Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:15Z",
+          "completedAt": "2026-11-01T00:50:16Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0,
+          "startedAt": "2026-11-01T00:50:16Z",
+          "completedAt": "2026-11-01T00:50:42Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:42Z",
+          "completedAt": "2026-11-01T00:50:42Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 15.0,
+          "startedAt": "2026-11-01T00:50:42Z",
+          "completedAt": "2026-11-01T00:50:57Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:57Z",
+          "completedAt": "2026-11-01T00:50:58Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1064.0,
+          "startedAt": "2026-11-01T00:50:58Z",
+          "completedAt": "2026-11-01T01:08:42Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:08:42Z",
+          "completedAt": "2026-11-01T01:08:43Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:43Z",
+          "completedAt": "2026-11-01T01:08:43Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:43Z",
+          "completedAt": "2026-11-01T01:08:43Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:43Z",
+          "completedAt": "2026-11-01T01:08:43Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:08:43Z",
+          "completedAt": "2026-11-01T01:08:44Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:44Z",
+          "completedAt": "2026-11-01T01:08:44Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / verification-navigation",
+      "id": 124706528350,
+      "conclusion": "success",
+      "executionSeconds": 1559.0,
+      "stepSpanSeconds": 1555.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:15:49Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 8.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:50:02Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:50:02Z",
+          "completedAt": "2026-11-01T00:50:11Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:11Z",
+          "completedAt": "2026-11-01T00:50:16Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:16Z",
+          "completedAt": "2026-11-01T00:50:16Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:16Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 31.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:48Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:48Z",
+          "completedAt": "2026-11-01T00:50:49Z"
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:49Z",
+          "completedAt": "2026-11-01T00:50:49Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 21.0,
+          "startedAt": "2026-11-01T00:50:49Z",
+          "completedAt": "2026-11-01T00:51:10Z"
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:10Z",
+          "completedAt": "2026-11-01T00:51:10Z"
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:10Z",
+          "completedAt": "2026-11-01T00:51:10Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:10Z",
+          "completedAt": "2026-11-01T00:51:11Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1473.0,
+          "startedAt": "2026-11-01T00:51:11Z",
+          "completedAt": "2026-11-01T01:15:44Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:15:44Z",
+          "completedAt": "2026-11-01T01:15:46Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:15:46Z",
+          "completedAt": "2026-11-01T01:15:46Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:15:46Z",
+          "completedAt": "2026-11-01T01:15:46Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:15:46Z",
+          "completedAt": "2026-11-01T01:15:46Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:15:46Z",
+          "completedAt": "2026-11-01T01:15:46Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:15:46Z",
+          "completedAt": "2026-11-01T01:15:46Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / activity-browser",
+      "id": 124706528353,
+      "conclusion": "success",
+      "executionSeconds": 1087.0,
+      "stepSpanSeconds": 1082.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:51Z",
+        "completedAt": "2026-11-01T01:07:58Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:50:05Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:05Z",
+          "completedAt": "2026-11-01T00:50:11Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:11Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:45Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:45Z",
+          "completedAt": "2026-11-01T00:50:45Z"
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:45Z",
+          "completedAt": "2026-11-01T00:50:50Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 32.0,
+          "startedAt": "2026-11-01T00:50:50Z",
+          "completedAt": "2026-11-01T00:51:22Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:22Z",
+          "completedAt": "2026-11-01T00:51:23Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 989.0,
+          "startedAt": "2026-11-01T00:51:23Z",
+          "completedAt": "2026-11-01T01:07:52Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:52Z",
+          "completedAt": "2026-11-01T01:07:53Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:53Z",
+          "completedAt": "2026-11-01T01:07:54Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:54Z",
+          "completedAt": "2026-11-01T01:07:54Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:54Z",
+          "completedAt": "2026-11-01T01:07:54Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:54Z",
+          "completedAt": "2026-11-01T01:07:54Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:54Z",
+          "completedAt": "2026-11-01T01:07:54Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / standalone-discovery",
+      "id": 124706528359,
+      "conclusion": "success",
+      "executionSeconds": 1211.0,
+      "stepSpanSeconds": 1207.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:10:01Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:50:04Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:50:04Z",
+          "completedAt": "2026-11-01T00:50:13Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:13Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:20Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:20Z",
+          "completedAt": "2026-11-01T00:50:20Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:20Z",
+          "completedAt": "2026-11-01T00:50:20Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 30.0,
+          "startedAt": "2026-11-01T00:50:20Z",
+          "completedAt": "2026-11-01T00:50:50Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:50Z",
+          "completedAt": "2026-11-01T00:50:51Z"
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:51Z",
+          "completedAt": "2026-11-01T00:50:56Z"
+        },
+        {
+          "name": "Download and verify standalone rollback fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:56Z",
+          "completedAt": "2026-11-01T00:50:56Z"
+        },
+        {
+          "name": "Download and verify v0.4.1 production baseline",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:56Z",
+          "completedAt": "2026-11-01T00:50:57Z"
+        },
+        {
+          "name": "Download and verify v0.4.2 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:57Z",
+          "completedAt": "2026-11-01T00:50:57Z"
+        },
+        {
+          "name": "Download and verify v0.4.3 production baseline",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:57Z",
+          "completedAt": "2026-11-01T00:50:58Z"
+        },
+        {
+          "name": "Download and verify v0.4.4 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:58Z",
+          "completedAt": "2026-11-01T00:50:58Z"
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:58Z",
+          "completedAt": "2026-11-01T00:50:58Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 37.0,
+          "startedAt": "2026-11-01T00:50:58Z",
+          "completedAt": "2026-11-01T00:51:35Z"
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:35Z",
+          "completedAt": "2026-11-01T00:51:35Z"
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:35Z",
+          "completedAt": "2026-11-01T00:51:35Z"
+        },
+        {
+          "name": "Download and verify published v0.4.8",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:35Z",
+          "completedAt": "2026-11-01T00:51:35Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:35Z",
+          "completedAt": "2026-11-01T00:51:36Z"
+        },
+        {
+          "name": "Download and verify published v0.5.0 preference rollback baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:36Z",
+          "completedAt": "2026-11-01T00:51:36Z"
+        },
+        {
+          "name": "Download and verify immutable published v0.4.10 rollback baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:36Z",
+          "completedAt": "2026-11-01T00:51:36Z"
+        },
+        {
+          "name": "Download and verify published v0.5.2 rollback baseline",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:36Z",
+          "completedAt": "2026-11-01T00:51:37Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1099.0,
+          "startedAt": "2026-11-01T00:51:37Z",
+          "completedAt": "2026-11-01T01:09:56Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:09:56Z",
+          "completedAt": "2026-11-01T01:09:58Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:09:58Z",
+          "completedAt": "2026-11-01T01:09:58Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:09:58Z",
+          "completedAt": "2026-11-01T01:09:58Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:09:58Z",
+          "completedAt": "2026-11-01T01:09:58Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:09:58Z",
+          "completedAt": "2026-11-01T01:09:58Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:09:58Z",
+          "completedAt": "2026-11-01T01:09:58Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / enforcement-legacy",
+      "id": 124706528368,
+      "conclusion": "success",
+      "executionSeconds": 1057.0,
+      "stepSpanSeconds": 1054.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:07:27Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:50:03Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 17.0,
+          "startedAt": "2026-11-01T00:50:03Z",
+          "completedAt": "2026-11-01T00:50:20Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:20Z",
+          "completedAt": "2026-11-01T00:50:25Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:25Z",
+          "completedAt": "2026-11-01T00:50:26Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:26Z",
+          "completedAt": "2026-11-01T00:50:26Z"
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:26Z",
+          "completedAt": "2026-11-01T00:50:32Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:32Z",
+          "completedAt": "2026-11-01T00:50:33Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 23.0,
+          "startedAt": "2026-11-01T00:50:33Z",
+          "completedAt": "2026-11-01T00:50:56Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:56Z",
+          "completedAt": "2026-11-01T00:50:57Z"
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:57Z",
+          "completedAt": "2026-11-01T00:51:02Z"
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:02Z",
+          "completedAt": "2026-11-01T00:51:03Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 26.0,
+          "startedAt": "2026-11-01T00:51:03Z",
+          "completedAt": "2026-11-01T00:51:29Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:29Z",
+          "completedAt": "2026-11-01T00:51:29Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 953.0,
+          "startedAt": "2026-11-01T00:51:29Z",
+          "completedAt": "2026-11-01T01:07:22Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:07:22Z",
+          "completedAt": "2026-11-01T01:07:24Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:24Z",
+          "completedAt": "2026-11-01T01:07:24Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:24Z",
+          "completedAt": "2026-11-01T01:07:24Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:24Z",
+          "completedAt": "2026-11-01T01:07:24Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:24Z",
+          "completedAt": "2026-11-01T01:07:25Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:25Z",
+          "completedAt": "2026-11-01T01:07:25Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / standalone-discovery",
+      "id": 124706528372,
+      "conclusion": "success",
+      "executionSeconds": 1272.0,
+      "stepSpanSeconds": 1267.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:51Z",
+        "completedAt": "2026-11-01T01:11:03Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:50:05Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 8.0,
+          "startedAt": "2026-11-01T00:50:05Z",
+          "completedAt": "2026-11-01T00:50:13Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:13Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:20Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:20Z",
+          "completedAt": "2026-11-01T00:50:20Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:20Z",
+          "completedAt": "2026-11-01T00:50:21Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0,
+          "startedAt": "2026-11-01T00:50:21Z",
+          "completedAt": "2026-11-01T00:50:47Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:47Z",
+          "completedAt": "2026-11-01T00:50:48Z"
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:48Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Download and verify standalone rollback fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Download and verify v0.4.1 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Download and verify v0.4.2 production baseline",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:54Z"
+        },
+        {
+          "name": "Download and verify v0.4.3 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:54Z",
+          "completedAt": "2026-11-01T00:50:54Z"
+        },
+        {
+          "name": "Download and verify v0.4.4 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:54Z",
+          "completedAt": "2026-11-01T00:50:54Z"
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:54Z",
+          "completedAt": "2026-11-01T00:50:54Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 30.0,
+          "startedAt": "2026-11-01T00:50:54Z",
+          "completedAt": "2026-11-01T00:51:24Z"
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:24Z",
+          "completedAt": "2026-11-01T00:51:24Z"
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:24Z",
+          "completedAt": "2026-11-01T00:51:24Z"
+        },
+        {
+          "name": "Download and verify published v0.4.8",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:24Z",
+          "completedAt": "2026-11-01T00:51:25Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:25Z",
+          "completedAt": "2026-11-01T00:51:25Z"
+        },
+        {
+          "name": "Download and verify published v0.5.0 preference rollback baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:25Z",
+          "completedAt": "2026-11-01T00:51:25Z"
+        },
+        {
+          "name": "Download and verify immutable published v0.4.10 rollback baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:25Z",
+          "completedAt": "2026-11-01T00:51:25Z"
+        },
+        {
+          "name": "Download and verify published v0.5.2 rollback baseline",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:25Z",
+          "completedAt": "2026-11-01T00:51:26Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1170.0,
+          "startedAt": "2026-11-01T00:51:26Z",
+          "completedAt": "2026-11-01T01:10:56Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:10:56Z",
+          "completedAt": "2026-11-01T01:10:58Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:10:58Z",
+          "completedAt": "2026-11-01T01:10:58Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:10:58Z",
+          "completedAt": "2026-11-01T01:10:59Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:10:59Z",
+          "completedAt": "2026-11-01T01:10:59Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:10:59Z",
+          "completedAt": "2026-11-01T01:10:59Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:10:59Z",
+          "completedAt": "2026-11-01T01:10:59Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / migration-browser",
+      "id": 124706528380,
+      "conclusion": "success",
+      "executionSeconds": 1095.0,
+      "stepSpanSeconds": 1091.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:08:05Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:50:04Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0,
+          "startedAt": "2026-11-01T00:50:04Z",
+          "completedAt": "2026-11-01T00:50:11Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:11Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:27Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:27Z",
+          "completedAt": "2026-11-01T00:50:27Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 34.0,
+          "startedAt": "2026-11-01T00:50:27Z",
+          "completedAt": "2026-11-01T00:51:01Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:01Z",
+          "completedAt": "2026-11-01T00:51:01Z"
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:02Z",
+          "completedAt": "2026-11-01T00:51:03Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 37.0,
+          "startedAt": "2026-11-01T00:51:03Z",
+          "completedAt": "2026-11-01T00:51:40Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:40Z",
+          "completedAt": "2026-11-01T00:51:41Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 978.0,
+          "startedAt": "2026-11-01T00:51:41Z",
+          "completedAt": "2026-11-01T01:07:59Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:07:59Z",
+          "completedAt": "2026-11-01T01:08:01Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:01Z",
+          "completedAt": "2026-11-01T01:08:01Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:01Z",
+          "completedAt": "2026-11-01T01:08:01Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:01Z",
+          "completedAt": "2026-11-01T01:08:01Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:08:01Z",
+          "completedAt": "2026-11-01T01:08:02Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:02Z",
+          "completedAt": "2026-11-01T01:08:02Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / enforcement-legacy",
+      "id": 124706528382,
+      "conclusion": "success",
+      "executionSeconds": 1039.0,
+      "stepSpanSeconds": 1036.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:07:09Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:52Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:50:03Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:50:03Z",
+          "completedAt": "2026-11-01T00:50:12Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:12Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 7.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:24Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:24Z",
+          "completedAt": "2026-11-01T00:50:24Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 23.0,
+          "startedAt": "2026-11-01T00:50:24Z",
+          "completedAt": "2026-11-01T00:50:47Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:47Z",
+          "completedAt": "2026-11-01T00:50:48Z"
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:48Z",
+          "completedAt": "2026-11-01T00:50:54Z"
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:54Z",
+          "completedAt": "2026-11-01T00:50:55Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 25.0,
+          "startedAt": "2026-11-01T00:50:55Z",
+          "completedAt": "2026-11-01T00:51:20Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:20Z",
+          "completedAt": "2026-11-01T00:51:20Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 945.0,
+          "startedAt": "2026-11-01T00:51:20Z",
+          "completedAt": "2026-11-01T01:07:05Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:05Z",
+          "completedAt": "2026-11-01T01:07:06Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:06Z",
+          "completedAt": "2026-11-01T01:07:06Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:06Z",
+          "completedAt": "2026-11-01T01:07:06Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:06Z",
+          "completedAt": "2026-11-01T01:07:06Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:06Z",
+          "completedAt": "2026-11-01T01:07:07Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:07Z",
+          "completedAt": "2026-11-01T01:07:07Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / verification-navigation",
+      "id": 124706528387,
+      "conclusion": "success",
+      "executionSeconds": 1843.0,
+      "stepSpanSeconds": 1838.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:20:33Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 3.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:50:05Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 10.0,
+          "startedAt": "2026-11-01T00:50:05Z",
+          "completedAt": "2026-11-01T00:50:15Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:15Z",
+          "completedAt": "2026-11-01T00:50:21Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:21Z",
+          "completedAt": "2026-11-01T00:50:22Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:22Z",
+          "completedAt": "2026-11-01T00:50:22Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:22Z",
+          "completedAt": "2026-11-01T00:50:23Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 33.0,
+          "startedAt": "2026-11-01T00:50:23Z",
+          "completedAt": "2026-11-01T00:50:56Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:56Z",
+          "completedAt": "2026-11-01T00:50:56Z"
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:56Z",
+          "completedAt": "2026-11-01T00:50:57Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 21.0,
+          "startedAt": "2026-11-01T00:50:57Z",
+          "completedAt": "2026-11-01T00:51:18Z"
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:18Z",
+          "completedAt": "2026-11-01T00:51:19Z"
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:19Z",
+          "completedAt": "2026-11-01T00:51:19Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:19Z",
+          "completedAt": "2026-11-01T00:51:19Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1747.0,
+          "startedAt": "2026-11-01T00:51:19Z",
+          "completedAt": "2026-11-01T01:20:26Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:20:26Z",
+          "completedAt": "2026-11-01T01:20:28Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:20:28Z",
+          "completedAt": "2026-11-01T01:20:29Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:29Z",
+          "completedAt": "2026-11-01T01:20:29Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:29Z",
+          "completedAt": "2026-11-01T01:20:29Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:29Z",
+          "completedAt": "2026-11-01T01:20:29Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:29Z",
+          "completedAt": "2026-11-01T01:20:29Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / activity-browser",
+      "id": 124706528401,
+      "conclusion": "success",
+      "executionSeconds": 1083.0,
+      "stepSpanSeconds": 1081.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:07:53Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:52Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:50:03Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 10.0,
+          "startedAt": "2026-11-01T00:50:03Z",
+          "completedAt": "2026-11-01T00:50:13Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:13Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 24.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:43Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:43Z",
+          "completedAt": "2026-11-01T00:50:44Z"
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 11.0,
+          "startedAt": "2026-11-01T00:50:44Z",
+          "completedAt": "2026-11-01T00:50:55Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 27.0,
+          "startedAt": "2026-11-01T00:50:55Z",
+          "completedAt": "2026-11-01T00:51:22Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:22Z",
+          "completedAt": "2026-11-01T00:51:22Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 988.0,
+          "startedAt": "2026-11-01T00:51:22Z",
+          "completedAt": "2026-11-01T01:07:50Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:50Z",
+          "completedAt": "2026-11-01T01:07:51Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:51Z",
+          "completedAt": "2026-11-01T01:07:51Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:51Z",
+          "completedAt": "2026-11-01T01:07:51Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:51Z",
+          "completedAt": "2026-11-01T01:07:51Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:51Z",
+          "completedAt": "2026-11-01T01:07:51Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:51Z",
+          "completedAt": "2026-11-01T01:07:52Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / activity-native",
+      "id": 124706528403,
+      "conclusion": "success",
+      "executionSeconds": 1138.0,
+      "stepSpanSeconds": 1134.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:08:48Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:50:04Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0,
+          "startedAt": "2026-11-01T00:50:04Z",
+          "completedAt": "2026-11-01T00:50:11Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:11Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 32.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:51Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:51Z",
+          "completedAt": "2026-11-01T00:50:52Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 22.0,
+          "startedAt": "2026-11-01T00:50:52Z",
+          "completedAt": "2026-11-01T00:51:14Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:14Z",
+          "completedAt": "2026-11-01T00:51:14Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1049.0,
+          "startedAt": "2026-11-01T00:51:14Z",
+          "completedAt": "2026-11-01T01:08:43Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:08:43Z",
+          "completedAt": "2026-11-01T01:08:44Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:44Z",
+          "completedAt": "2026-11-01T01:08:44Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:44Z",
+          "completedAt": "2026-11-01T01:08:44Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:08:44Z",
+          "completedAt": "2026-11-01T01:08:45Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:45Z",
+          "completedAt": "2026-11-01T01:08:45Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:45Z",
+          "completedAt": "2026-11-01T01:08:45Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / migration-browser",
+      "id": 124706528404,
+      "conclusion": "success",
+      "executionSeconds": 1024.0,
+      "stepSpanSeconds": 1020.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:06:54Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:52Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 8.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:50:02Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 8.0,
+          "startedAt": "2026-11-01T00:50:02Z",
+          "completedAt": "2026-11-01T00:50:10Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 4.0,
+          "startedAt": "2026-11-01T00:50:10Z",
+          "completedAt": "2026-11-01T00:50:14Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:14Z",
+          "completedAt": "2026-11-01T00:50:15Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:15Z",
+          "completedAt": "2026-11-01T00:50:15Z"
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:15Z",
+          "completedAt": "2026-11-01T00:50:20Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:20Z",
+          "completedAt": "2026-11-01T00:50:20Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 32.0,
+          "startedAt": "2026-11-01T00:50:20Z",
+          "completedAt": "2026-11-01T00:50:52Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:52Z",
+          "completedAt": "2026-11-01T00:50:52Z"
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:52Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 33.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:51:26Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:26Z",
+          "completedAt": "2026-11-01T00:51:27Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 922.0,
+          "startedAt": "2026-11-01T00:51:27Z",
+          "completedAt": "2026-11-01T01:06:49Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:06:49Z",
+          "completedAt": "2026-11-01T01:06:51Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:06:51Z",
+          "completedAt": "2026-11-01T01:06:51Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:06:51Z",
+          "completedAt": "2026-11-01T01:06:51Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:06:51Z",
+          "completedAt": "2026-11-01T01:06:51Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:06:51Z",
+          "completedAt": "2026-11-01T01:06:51Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:06:51Z",
+          "completedAt": "2026-11-01T01:06:51Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / activity-browser",
+      "id": 124706528405,
+      "conclusion": "success",
+      "executionSeconds": 1085.0,
+      "stepSpanSeconds": 1080.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:51Z",
+        "completedAt": "2026-11-01T01:07:56Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:50:04Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:50:04Z",
+          "completedAt": "2026-11-01T00:50:13Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:13Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:21Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:21Z",
+          "completedAt": "2026-11-01T00:50:21Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:21Z",
+          "completedAt": "2026-11-01T00:50:21Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0,
+          "startedAt": "2026-11-01T00:50:21Z",
+          "completedAt": "2026-11-01T00:50:47Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:47Z",
+          "completedAt": "2026-11-01T00:50:48Z"
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:48Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 30.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:51:23Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:23Z",
+          "completedAt": "2026-11-01T00:51:23Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 987.0,
+          "startedAt": "2026-11-01T00:51:23Z",
+          "completedAt": "2026-11-01T01:07:50Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:50Z",
+          "completedAt": "2026-11-01T01:07:51Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:51Z",
+          "completedAt": "2026-11-01T01:07:52Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:52Z",
+          "completedAt": "2026-11-01T01:07:52Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:52Z",
+          "completedAt": "2026-11-01T01:07:52Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:52Z",
+          "completedAt": "2026-11-01T01:07:52Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:52Z",
+          "completedAt": "2026-11-01T01:07:52Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / enforcement-legacy",
+      "id": 124706528406,
+      "conclusion": "success",
+      "executionSeconds": 1063.0,
+      "stepSpanSeconds": 1059.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:51Z",
+        "completedAt": "2026-11-01T01:07:34Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:50:04Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0,
+          "startedAt": "2026-11-01T00:50:04Z",
+          "completedAt": "2026-11-01T00:50:11Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:11Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:27Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:27Z",
+          "completedAt": "2026-11-01T00:50:28Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 25.0,
+          "startedAt": "2026-11-01T00:50:28Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:54Z"
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:54Z",
+          "completedAt": "2026-11-01T00:50:59Z"
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:59Z",
+          "completedAt": "2026-11-01T00:51:00Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 29.0,
+          "startedAt": "2026-11-01T00:51:00Z",
+          "completedAt": "2026-11-01T00:51:29Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:29Z",
+          "completedAt": "2026-11-01T00:51:29Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 959.0,
+          "startedAt": "2026-11-01T00:51:29Z",
+          "completedAt": "2026-11-01T01:07:28Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:07:28Z",
+          "completedAt": "2026-11-01T01:07:30Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:30Z",
+          "completedAt": "2026-11-01T01:07:30Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:07:30Z",
+          "completedAt": "2026-11-01T01:07:31Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:31Z",
+          "completedAt": "2026-11-01T01:07:31Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:31Z",
+          "completedAt": "2026-11-01T01:07:31Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:07:31Z",
+          "completedAt": "2026-11-01T01:07:31Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / activity-native",
+      "id": 124706528408,
+      "conclusion": "success",
+      "executionSeconds": 1120.0,
+      "stepSpanSeconds": 1117.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:08:30Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:53Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:50:03Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:50:03Z",
+          "completedAt": "2026-11-01T00:50:12Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:12Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:44Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:44Z",
+          "completedAt": "2026-11-01T00:50:44Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 15.0,
+          "startedAt": "2026-11-01T00:50:44Z",
+          "completedAt": "2026-11-01T00:50:59Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:59Z",
+          "completedAt": "2026-11-01T00:50:59Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1047.0,
+          "startedAt": "2026-11-01T00:50:59Z",
+          "completedAt": "2026-11-01T01:08:26Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:08:26Z",
+          "completedAt": "2026-11-01T01:08:27Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:27Z",
+          "completedAt": "2026-11-01T01:08:27Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:27Z",
+          "completedAt": "2026-11-01T01:08:27Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:27Z",
+          "completedAt": "2026-11-01T01:08:27Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:08:27Z",
+          "completedAt": "2026-11-01T01:08:28Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:28Z",
+          "completedAt": "2026-11-01T01:08:28Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / verification-navigation",
+      "id": 124706528420,
+      "conclusion": "success",
+      "executionSeconds": 1851.0,
+      "stepSpanSeconds": 1848.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:20:41Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:52Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:50:03Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:50:03Z",
+          "completedAt": "2026-11-01T00:50:12Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:12Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 25.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:43Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:43Z",
+          "completedAt": "2026-11-01T00:50:44Z"
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:44Z",
+          "completedAt": "2026-11-01T00:50:44Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 15.0,
+          "startedAt": "2026-11-01T00:50:44Z",
+          "completedAt": "2026-11-01T00:50:59Z"
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:59Z",
+          "completedAt": "2026-11-01T00:50:59Z"
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:59Z",
+          "completedAt": "2026-11-01T00:50:59Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:59Z",
+          "completedAt": "2026-11-01T00:50:59Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1778.0,
+          "startedAt": "2026-11-01T00:50:59Z",
+          "completedAt": "2026-11-01T01:20:37Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:20:37Z",
+          "completedAt": "2026-11-01T01:20:38Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:20:38Z",
+          "completedAt": "2026-11-01T01:20:39Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:39Z",
+          "completedAt": "2026-11-01T01:20:39Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:39Z",
+          "completedAt": "2026-11-01T01:20:39Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:39Z",
+          "completedAt": "2026-11-01T01:20:39Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:39Z",
+          "completedAt": "2026-11-01T01:20:39Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / standalone-discovery",
+      "id": 124706528467,
+      "conclusion": "success",
+      "executionSeconds": 1306.0,
+      "stepSpanSeconds": 1303.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:50Z",
+        "completedAt": "2026-11-01T01:11:36Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:51Z",
+          "completedAt": "2026-11-01T00:49:52Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:50:03Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:50:03Z",
+          "completedAt": "2026-11-01T00:50:12Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0,
+          "startedAt": "2026-11-01T00:50:12Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:17Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:17Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 23.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:41Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:41Z",
+          "completedAt": "2026-11-01T00:50:42Z"
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 10.0,
+          "startedAt": "2026-11-01T00:50:42Z",
+          "completedAt": "2026-11-01T00:50:52Z"
+        },
+        {
+          "name": "Download and verify standalone rollback fixture",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:52Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Download and verify v0.4.1 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Download and verify v0.4.2 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Download and verify v0.4.3 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Download and verify v0.4.4 production baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:54Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 25.0,
+          "startedAt": "2026-11-01T00:50:54Z",
+          "completedAt": "2026-11-01T00:51:19Z"
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:19Z",
+          "completedAt": "2026-11-01T00:51:19Z"
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:19Z",
+          "completedAt": "2026-11-01T00:51:19Z"
+        },
+        {
+          "name": "Download and verify published v0.4.8",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:19Z",
+          "completedAt": "2026-11-01T00:51:19Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:19Z",
+          "completedAt": "2026-11-01T00:51:19Z"
+        },
+        {
+          "name": "Download and verify published v0.5.0 preference rollback baseline",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:51:19Z",
+          "completedAt": "2026-11-01T00:51:20Z"
+        },
+        {
+          "name": "Download and verify immutable published v0.4.10 rollback baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:20Z",
+          "completedAt": "2026-11-01T00:51:20Z"
+        },
+        {
+          "name": "Download and verify published v0.5.2 rollback baseline",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:20Z",
+          "completedAt": "2026-11-01T00:51:20Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1212.0,
+          "startedAt": "2026-11-01T00:51:20Z",
+          "completedAt": "2026-11-01T01:11:32Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:11:32Z",
+          "completedAt": "2026-11-01T01:11:33Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:11:33Z",
+          "completedAt": "2026-11-01T01:11:34Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:11:34Z",
+          "completedAt": "2026-11-01T01:11:34Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:11:34Z",
+          "completedAt": "2026-11-01T01:11:34Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:11:34Z",
+          "completedAt": "2026-11-01T01:11:34Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:11:34Z",
+          "completedAt": "2026-11-01T01:11:34Z"
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / migration-browser",
+      "id": 124706528523,
+      "conclusion": "success",
+      "executionSeconds": 1135.0,
+      "stepSpanSeconds": 1131.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T00:49:51Z",
+        "completedAt": "2026-11-01T01:08:46Z",
+        "dependencyReadyAt": "2026-11-01T00:49:48Z"
+      },
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T00:49:52Z",
+          "completedAt": "2026-11-01T00:49:54Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:49:54Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:49:55Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T00:49:55Z",
+          "completedAt": "2026-11-01T00:50:04Z"
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 8.0,
+          "startedAt": "2026-11-01T00:50:04Z",
+          "completedAt": "2026-11-01T00:50:12Z"
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0,
+          "startedAt": "2026-11-01T00:50:12Z",
+          "completedAt": "2026-11-01T00:50:18Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:18Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:19Z"
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 7.0,
+          "startedAt": "2026-11-01T00:50:19Z",
+          "completedAt": "2026-11-01T00:50:26Z"
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:26Z",
+          "completedAt": "2026-11-01T00:50:27Z"
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 25.0,
+          "startedAt": "2026-11-01T00:50:27Z",
+          "completedAt": "2026-11-01T00:50:52Z"
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:52Z",
+          "completedAt": "2026-11-01T00:50:53Z"
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T00:50:53Z",
+          "completedAt": "2026-11-01T00:50:54Z"
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 30.0,
+          "startedAt": "2026-11-01T00:50:54Z",
+          "completedAt": "2026-11-01T00:51:24Z"
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T00:51:24Z",
+          "completedAt": "2026-11-01T00:51:24Z"
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1035.0,
+          "startedAt": "2026-11-01T00:51:24Z",
+          "completedAt": "2026-11-01T01:08:39Z"
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 3.0,
+          "startedAt": "2026-11-01T01:08:39Z",
+          "completedAt": "2026-11-01T01:08:42Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:42Z",
+          "completedAt": "2026-11-01T01:08:42Z"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:42Z",
+          "completedAt": "2026-11-01T01:08:42Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:42Z",
+          "completedAt": "2026-11-01T01:08:42Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:08:42Z",
+          "completedAt": "2026-11-01T01:08:42Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:08:42Z",
+          "completedAt": "2026-11-01T01:08:43Z"
+        }
+      ]
+    },
+    {
+      "name": "Verify complete compatibility evidence",
+      "id": 124713173207,
+      "conclusion": "success",
+      "executionSeconds": 20.0,
+      "stepSpanSeconds": 19.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T01:20:43Z",
+        "completedAt": "2026-11-01T01:21:03Z",
+        "dependencyReadyAt": "2026-11-01T01:20:41Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:20:43Z",
+          "completedAt": "2026-11-01T01:20:44Z"
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:20:44Z",
+          "completedAt": "2026-11-01T01:20:46Z"
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0,
+          "startedAt": "2026-11-01T01:20:46Z",
+          "completedAt": "2026-11-01T01:20:55Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:55Z",
+          "completedAt": "2026-11-01T01:20:55Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:20:55Z",
+          "completedAt": "2026-11-01T01:20:57Z"
+        },
+        {
+          "name": "Require every host and suite to have tested this exact package",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:20:57Z",
+          "completedAt": "2026-11-01T01:20:57Z"
+        },
+        {
+          "name": "Seal the exact run and artifact provenance",
+          "category": "other",
+          "seconds": 2.0,
+          "startedAt": "2026-11-01T01:20:57Z",
+          "completedAt": "2026-11-01T01:20:59Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:20:59Z",
+          "completedAt": "2026-11-01T01:21:00Z"
+        },
+        {
+          "name": "Qualified; publication requires separate environment approval",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:21:00Z",
+          "completedAt": "2026-11-01T01:21:00Z"
+        },
+        {
+          "name": "Report execution and queue timing separately",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:21:00Z",
+          "completedAt": "2026-11-01T01:21:00Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:21:00Z",
+          "completedAt": "2026-11-01T01:21:01Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:21:01Z",
+          "completedAt": "2026-11-01T01:21:01Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0,
+          "startedAt": "2026-11-01T01:21:01Z",
+          "completedAt": "2026-11-01T01:21:02Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:21:02Z",
+          "completedAt": "2026-11-01T01:21:02Z"
+        }
+      ]
+    },
+    {
+      "name": "status",
+      "id": 124713250004,
+      "conclusion": "success",
+      "executionSeconds": 4.0,
+      "stepSpanSeconds": 0.0,
+      "rawTimes": {
+        "startedAt": "2026-11-01T01:21:05Z",
+        "completedAt": "2026-11-01T01:21:09Z",
+        "dependencyReadyAt": "2026-11-01T01:21:03Z"
+      },
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:21:06Z",
+          "completedAt": "2026-11-01T01:21:06Z"
+        },
+        {
+          "name": "State the result and next action",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:21:06Z",
+          "completedAt": "2026-11-01T01:21:06Z"
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0.0,
+          "startedAt": "2026-11-01T01:21:06Z",
+          "completedAt": "2026-11-01T01:21:06Z"
+        }
+      ]
+    }
+  ]
+}

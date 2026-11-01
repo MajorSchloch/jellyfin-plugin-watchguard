@@ -29,9 +29,12 @@ jobs:
     timeout-minutes: 10
     outputs:
       publish: ${{ steps.inspect.outputs.publish }}
+      qualification_run: ${{ steps.inspect.outputs.qualification_run }}
+      qualification_attempt: ${{ steps.inspect.outputs.qualification_attempt }}
+      record_id: ${{ steps.inspect.outputs.record_id }}
     env:
       QUALIFICATION_RUN: ${{ inputs.run_id || github.event.workflow_run.id }}
-      QUALIFICATION_ATTEMPT: ${{ inputs.attempt || github.event.workflow_run.run_attempt }}
+      QUALIFICATION_ATTEMPT: ${{ inputs.attempt }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -45,9 +48,10 @@ jobs:
           AUTOMATIC: ${{ github.event_name == 'workflow_run' }}
         run: |
           args=()
+          if [ -n "$QUALIFICATION_ATTEMPT" ]; then args+=(--attempt "$QUALIFICATION_ATTEMPT"); fi
           if [ "$VALIDATION_ONLY" = true ]; then args+=(--validate-branch --verify-record); fi
           if [ "$AUTOMATIC" = true ]; then args+=(--automatic); fi
-          python3 scripts/publish_release.py --run "$QUALIFICATION_RUN" --attempt "$QUALIFICATION_ATTEMPT" "${args[@]}"
+          python3 scripts/publish_release.py --run "$QUALIFICATION_RUN" "${args[@]}"
       - uses: actions/upload-artifact@v6
         if: always()
         with:
@@ -68,8 +72,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     env:
-      QUALIFICATION_RUN: ${{ inputs.run_id || github.event.workflow_run.id }}
-      QUALIFICATION_ATTEMPT: ${{ inputs.attempt || github.event.workflow_run.run_attempt }}
+      QUALIFICATION_RUN: ${{ needs.inspect.outputs.qualification_run }}
+      QUALIFICATION_ATTEMPT: ${{ needs.inspect.outputs.qualification_attempt }}
+      QUALIFICATION_RECORD: ${{ needs.inspect.outputs.record_id }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -77,7 +82,7 @@ jobs:
       - name: Recheck after approval and resume only missing operations
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/publish_release.py --run "$QUALIFICATION_RUN" --attempt "$QUALIFICATION_ATTEMPT" --write
+        run: python3 scripts/publish_release.py --run "$QUALIFICATION_RUN" --attempt "$QUALIFICATION_ATTEMPT" --record-id "$QUALIFICATION_RECORD" --write
       - uses: actions/upload-artifact@v6
         if: always()
         with:

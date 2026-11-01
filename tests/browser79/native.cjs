@@ -13,7 +13,7 @@ report.packageSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
 report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll')).digest('hex');
 (async () => {
     assert(process.env.WATCHGUARD_CHROMIUM79, 'Set the actual Chromium 79 executable path');
-    const browser = await puppeteer.launch({executablePath:process.env.WATCHGUARD_CHROMIUM79, headless:true});
+    const browser = await puppeteer.launch({executablePath:process.env.WATCHGUARD_CHROMIUM79, headless:true,args:process.platform==='linux'?['--no-sandbox']:[]});
     report.engine = await browser.version(); assert.match(report.engine, /\/79\./);
     const page = await browser.newPage(); page.setDefaultTimeout(15000);
     await page.evaluateOnNewDocument(() => {
