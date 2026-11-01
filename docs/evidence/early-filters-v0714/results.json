@@ -1,0 +1,273 @@
+{
+  "sourceCommit": "6e0d3d533f723bff12952435afeb30da659ad6b4",
+  "baseCommit": "7812c06",
+  "candidate": "0.7.14",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "node": "v25.9.0",
+  "fastChecks": {
+    "javascript": 249,
+    "python": 111,
+    "backend": 376,
+    "catalog": 8,
+    "deterministicPackages": 2,
+    "packagedEs2019": "PASS",
+    "releaseNotes": "PASS",
+    "qualificationPolicy": "PASS",
+    "publicManifestUnchanged": true
+  },
+  "packageSha256": "066c3662a02229b893795818c5e76c86e93d5702393e391c7aebddcaff6606aa",
+  "dllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
+  "native": [
+    {
+      "fixture": "watchguard-poc-d41f82b3a9",
+      "native": {
+        "serverVersion": "12.4.0",
+        "webVersion": "12.4.0",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771"
+      },
+      "result": "PASS",
+      "deployedPackage": {
+        "version": "0.7.14",
+        "packageSha256": "066c3662a02229b893795818c5e76c86e93d5702393e391c7aebddcaff6606aa",
+        "dllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
+        "deployedDllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
+        "activeVersion": "0.7.14.0",
+        "reportedVersion": "0.7.14"
+      },
+      "scenario": "basepath-full-browser",
+      "elapsedSeconds": 398.346,
+      "nativeChecks": 32,
+      "orderingViolations": 0,
+      "knownLimitations": [],
+      "earlyFilters": {
+        "engine": "current Chromium",
+        "cases": [
+          {
+            "width": 1280,
+            "result": "PASS",
+            "state": {
+              "frames": 31,
+              "replacements": 0,
+              "home": 0,
+              "focus": "Search titles",
+              "disclosure": true
+            },
+            "preferencesReads": 1,
+            "query": {
+              "owner": "mine",
+              "days": "7",
+              "older": "false",
+              "statuses": "watched",
+              "sort": "added",
+              "search": "PoC"
+            }
+          },
+          {
+            "width": 390,
+            "result": "PASS",
+            "state": {
+              "frames": 33,
+              "replacements": 0,
+              "home": 0,
+              "focus": "Search titles",
+              "disclosure": true
+            },
+            "preferencesReads": 1,
+            "query": {
+              "owner": "mine",
+              "days": "7",
+              "older": "false",
+              "statuses": "watched",
+              "sort": "added",
+              "search": "PoC"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "watchguard-poc-db61a057b7",
+      "native": {
+        "serverVersion": "12.3.0",
+        "webVersion": "12.3.0",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5"
+      },
+      "result": "PASS",
+      "deployedPackage": {
+        "version": "0.7.14",
+        "packageSha256": "066c3662a02229b893795818c5e76c86e93d5702393e391c7aebddcaff6606aa",
+        "dllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
+        "deployedDllSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
+        "activeVersion": "0.7.14.0",
+        "reportedVersion": "0.7.14"
+      },
+      "scenario": "basepath-full-browser",
+      "elapsedSeconds": 399.465,
+      "nativeChecks": 32,
+      "orderingViolations": 0,
+      "knownLimitations": [],
+      "earlyFilters": {
+        "engine": "current Chromium",
+        "cases": [
+          {
+            "width": 1280,
+            "result": "PASS",
+            "state": {
+              "frames": 32,
+              "replacements": 0,
+              "home": 0,
+              "focus": "Search titles",
+              "disclosure": true
+            },
+            "preferencesReads": 1,
+            "query": {
+              "owner": "mine",
+              "days": "7",
+              "older": "false",
+              "statuses": "watched",
+              "sort": "added",
+              "search": "PoC"
+            }
+          },
+          {
+            "width": 390,
+            "result": "PASS",
+            "state": {
+              "frames": 30,
+              "replacements": 0,
+              "home": 0,
+              "focus": "Search titles",
+              "disclosure": true
+            },
+            "preferencesReads": 1,
+            "query": {
+              "owner": "mine",
+              "days": "7",
+              "older": "false",
+              "statuses": "watched",
+              "sort": "added",
+              "search": "PoC"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "chromium79": {
+    "result": "PASS",
+    "engine": "HeadlessChrome/79.0.3945.0",
+    "server": "12.4.0",
+    "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+    "packageSha256": "066c3662a02229b893795818c5e76c86e93d5702393e391c7aebddcaff6606aa",
+    "runtimeSha256": "d95695acb9c7ce0a35f1defae492f5c51ef6b1b136d8d13171fcebb56fe42f80",
+    "earlyFilters": [
+      {
+        "width": 1280,
+        "result": "PASS",
+        "state": {
+          "frames": 46,
+          "replacements": 0,
+          "home": 0,
+          "focus": "Search titles",
+          "disclosure": true
+        },
+        "preferencesReads": 1,
+        "query": {
+          "owner": "mine",
+          "days": "7",
+          "older": "false",
+          "statuses": "watched",
+          "sort": "added",
+          "search": "PoC"
+        }
+      },
+      {
+        "width": 390,
+        "result": "PASS",
+        "state": {
+          "frames": 37,
+          "replacements": 0,
+          "home": 0,
+          "focus": "Search titles",
+          "disclosure": true
+        },
+        "preferencesReads": 1,
+        "query": {
+          "owner": "mine",
+          "days": "7",
+          "older": "false",
+          "statuses": "watched",
+          "sort": "added",
+          "search": "PoC"
+        }
+      }
+    ],
+    "layouts": [
+      {
+        "layout": "tv",
+        "remoteTraversal": [
+          {
+            "tag": "SELECT",
+            "label": "Sort by",
+            "text": "TitlePlayback recencyRecently added"
+          },
+          {
+            "tag": "SUMMARY",
+            "label": "Status filters (3 selected)",
+            "text": "filter_listStatus \u00b7 3"
+          },
+          {
+            "tag": "SELECT",
+            "label": "Watchlist owner",
+            "text": "My listAll usersWatchGuardPoCTest"
+          },
+          {
+            "tag": "INPUT",
+            "label": "Search titles",
+            "text": ""
+          },
+          {
+            "tag": "SUMMARY",
+            "label": null,
+            "text": "Activity: 30 days \u00b7 older interest included"
+          }
+        ],
+        "secondaryArrowsAndBack": "PASS",
+        "selectChoicesAndBack": "PASS",
+        "filtersAndFocus": "PASS",
+        "membershipAndFocus": "PASS",
+        "dialogCancelAndFocus": "PASS"
+      },
+      {
+        "layout": "desktop-legacy",
+        "filtersAndFocus": "PASS",
+        "posterRatio": 1.5,
+        "membershipAndFocus": "PASS",
+        "dialogCancelAndFocus": "PASS"
+      },
+      {
+        "layout": "mobile-legacy",
+        "filtersAndFocus": "PASS",
+        "posterRatio": 1.4999557952435683,
+        "membershipAndFocus": "PASS",
+        "dialogCancelAndFocus": "PASS"
+      },
+      {
+        "layout": "modern",
+        "filtersAndFocus": "PASS",
+        "posterRatio": 1.5,
+        "membershipAndFocus": "PASS",
+        "dialogCancelAndFocus": "PASS"
+      }
+    ],
+    "errors": []
+  },
+  "qualification": "Focused branch validation only; full qualification runs automatically on the final master package after merge.",
+  "playwright": "1.56.1",
+  "currentBrowser": {
+    "name": "chromium",
+    "revision": "1194",
+    "installByDefault": true,
+    "browserVersion": "141.0.7390.37"
+  }
+}

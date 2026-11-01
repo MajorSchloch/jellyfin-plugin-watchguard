@@ -1,0 +1,45 @@
+{
+  "engine": "Chromium 79",
+  "cases": [
+    {
+      "width": 1280,
+      "result": "PASS",
+      "state": {
+        "frames": 46,
+        "replacements": 0,
+        "home": 0,
+        "focus": "Search titles",
+        "disclosure": true
+      },
+      "preferencesReads": 1,
+      "query": {
+        "owner": "mine",
+        "days": "7",
+        "older": "false",
+        "statuses": "watched",
+        "sort": "added",
+        "search": "PoC"
+      }
+    },
+    {
+      "width": 390,
+      "result": "PASS",
+      "state": {
+        "frames": 37,
+        "replacements": 0,
+        "home": 0,
+        "focus": "Search titles",
+        "disclosure": true
+      },
+      "preferencesReads": 1,
+      "query": {
+        "owner": "mine",
+        "days": "7",
+        "older": "false",
+        "statuses": "watched",
+        "sort": "added",
+        "search": "PoC"
+      }
+    }
+  ]
+}
