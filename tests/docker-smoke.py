@@ -44,6 +44,7 @@ def main():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--listing', action='store_true', help='Verify native plugin catalog and installed details.')
     mode.add_argument('--browser79', action='store_true', help='Actual pinned Chromium 79 native flows')
+    mode.add_argument('--return-position', action='store_true', help='Native Watchlists history, position and focus regression')
     mode.add_argument('--serve', action='store_true')
     mode.add_argument('--startup', action='store_true', help='Observe initial document rendering and startup recovery.')
     mode.add_argument('--navigation-startup', action='store_true', help='Independent startup and navigation browser contexts in one native fixture')
@@ -138,6 +139,8 @@ def main():
 
             phases.phase('generate-media')
             movies = ['PoC Movie Detail', 'PoC Context Movie', 'PoC Bulk One', 'PoC Bulk Two', 'PoC Escape', 'PoC Modern Movie', 'PoC Zero', 'PoC Self', 'PoC Layout Legacy', 'PoC Layout Modern']
+            if options.return_position:
+                movies += ['Return Movie %03d' % number for number in range(85)]
             docker('exec', name, 'mkdir', '-p', '/tmp/poc-movies', '/tmp/poc-tv/PoC Series Detail/Season 01')
             docker('exec', name, '/usr/lib/jellyfin-ffmpeg/ffmpeg', '-hide_banner', '-loglevel', 'error',
                    '-f', 'lavfi', '-i', 'color=c=black:s=64x64:d=2', '-c:v', 'libx264', '-y', '/tmp/fixture.mp4')
@@ -300,6 +303,8 @@ def main():
                 subprocess.run(['node', str(ROOT/'tests/navigation-shell-browser.cjs'), str(fixture)], check=True, timeout=240)
                 subprocess.run(['node', str(ROOT/'tests/drawer-browser.cjs'), str(fixture)], check=True, timeout=300)
                 subprocess.run(['node', str(ROOT/'tests/navigation-browser.cjs'), str(fixture)], check=True, timeout=480)
+            elif options.return_position:
+                subprocess.run(['node', str(ROOT/'tests/return-position-browser.cjs'), str(fixture)], check=True, timeout=600)
             elif options.serve:
                 while True: time.sleep(1)
             else:

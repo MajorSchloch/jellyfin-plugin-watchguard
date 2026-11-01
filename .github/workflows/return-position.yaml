@@ -1,0 +1,41 @@
+name: Watchlists return-position regression
+on:
+  pull_request:
+    paths:
+      - 'Jellyfin.Plugin.WatchGuard/Web/watchguard.js'
+      - 'tests/return-position-browser.cjs'
+      - 'tests/docker-smoke.py'
+      - '.github/workflows/return-position.yaml'
+permissions:
+  contents: read
+jobs:
+  native-return:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12.0'
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24.22.0'
+      - run: python3 scripts/build-release.py
+      - run: npm ci --prefix tests/browser && npm ci --prefix tests/browser79
+      - run: bash scripts/ci/setup-browser.sh
+      - run: node tests/browser-environment.cjs
+      - name: Verified Chromium 79
+        run: |
+          curl --fail --location --connect-timeout 15 --max-time 120 https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/706915/chrome-linux.zip -o /tmp/chromium79.zip
+          echo '647c9f1a9be953a7bdbcb59ec52fece3ef192945a674443114572e98b56b7e59  /tmp/chromium79.zip' | sha256sum -c -
+          unzip -q /tmp/chromium79.zip -d /tmp/watchguard-browser79
+          echo 'WATCHGUARD_CHROMIUM79=/tmp/watchguard-browser79/chrome-linux/chrome' >> "$GITHUB_ENV"
+      - run: python3 tests/docker-smoke.py --return-position --base-path /jellyfin --proxy
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: Watchlists-return-position
+          path: artifacts/testing/
