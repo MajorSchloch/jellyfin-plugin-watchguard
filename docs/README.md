@@ -10,6 +10,8 @@ Start with the repository [README](../README.md) for features, installation, lim
 
 ## Current reference material
 
+Unpublished v0.7.15: [Watchlists return position and focus](return-position-v0715.md), [preparation record](release-v0715.md).
+
 Unpublished compatibility work: [older browsers, Chromium 79 validation and TV test procedure](browser-compatibility.md).
 
 | Question | Reference |

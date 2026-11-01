@@ -1,0 +1,27 @@
+[
+  {
+    "file": "arrival.json.gz",
+    "uncompressedSha256": "e86d44d7c1b50c764aa0517fb0fbcb1e75a1d487131943a1625bf6d780d470df",
+    "uncompressedBytes": 1191030
+  },
+  {
+    "file": "outgoing.json.gz",
+    "uncompressedSha256": "6f56a0ea4dcdda7e63de3f7684676479cb629570d579377f0aa057da46ec5ecc",
+    "uncompressedBytes": 124388
+  },
+  {
+    "file": "navigation.json.gz",
+    "uncompressedSha256": "29097f68034089ec70664fd0c8f0650a84f950c46859acd55f4cefd459db3d2d",
+    "uncompressedBytes": 63054
+  },
+  {
+    "file": "controls.json.gz",
+    "uncompressedSha256": "0e6a8957a25a7bf10ca276d6ca4e7738cf01acb7c83accbfc2b89726f23dcc54",
+    "uncompressedBytes": 57052
+  },
+  {
+    "file": "drawer.json.gz",
+    "uncompressedSha256": "ce588e57a74488e854904e0971b90f28d9cdef54ac1c156e5bbd364d9839e87e",
+    "uncompressedBytes": 37758
+  }
+]

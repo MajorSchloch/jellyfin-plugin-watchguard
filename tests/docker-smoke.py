@@ -147,6 +147,15 @@ def main():
                 docker('exec', name, 'mkdir', '-p', '/tmp/poc-movies/' + title)
                 docker('exec', name, 'cp', '/tmp/fixture.mp4', f'/tmp/poc-movies/{title}/{title}.mp4')
                 docker('exec', name, 'cp', '/tmp/poster.jpg', f'/tmp/poc-movies/{title}/poster.jpg')
+            if options.navigation or options.navigation_startup or options.browser79 or options.serve:
+                # Real native continuation pages for return-position checks. One
+                # isolated fixture operation; no larger general-purpose library.
+                docker('exec', name, 'sh', '-c',
+                       'i=1; while [ "$i" -le 32 ]; do title=$(printf "Return Position %02d" "$i"); '
+                       'folder="/tmp/poc-movies/$title"; mkdir -p "$folder"; '
+                       'cp /tmp/fixture.mp4 "$folder/$title.mp4"; '
+                       'cp /tmp/poster.jpg "$folder/poster.jpg"; i=$((i+1)); done')
+                movies.extend(f'Return Position {number:02d}' for number in range(1, 33))
             for number in (1, 2):
                 docker('exec', name, 'cp', '/tmp/fixture.mp4', f'/tmp/poc-tv/PoC Series Detail/Season 01/PoC Series Detail S01E0{number}.mp4')
             for title in ('PoC Parent Interested', 'PoC Parent Clear'):
@@ -327,7 +336,7 @@ def main():
                 # background projection may legitimately checkpoint until the
                 # loaded plugin stops; snapshot it at that lifecycle boundary.
                 saved = {p:p.read_bytes() for p in data_folder.glob('*.json') if p != derived}
-                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.14.0','DELETE',token=token,expected=204)
+                call('/Plugins/a3c6bc84-783d-4ba8-a0db-89bfb83ab486/0.7.15.0','DELETE',token=token,expected=204)
                 docker('stop', name)
                 if derived_present:
                     assert derived.exists(), 'Uninstall must retain the derived index'

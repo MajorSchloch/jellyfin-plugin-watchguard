@@ -1,0 +1,65 @@
+{
+  "elapsedSeconds": 624.013,
+  "phases": [
+    {
+      "phase": "workspace",
+      "status": "PASS",
+      "seconds": 0.002
+    },
+    {
+      "phase": "container-start",
+      "status": "PASS",
+      "seconds": 7.523
+    },
+    {
+      "phase": "native-setup-authentication",
+      "status": "PASS",
+      "seconds": 0.569
+    },
+    {
+      "phase": "background-tasks",
+      "status": "PASS",
+      "seconds": 4.671
+    },
+    {
+      "phase": "generate-media",
+      "status": "PASS",
+      "seconds": 1.974
+    },
+    {
+      "phase": "configure-libraries",
+      "status": "PASS",
+      "seconds": 2.535
+    },
+    {
+      "phase": "media-indexing",
+      "status": "PASS",
+      "seconds": 3.359
+    },
+    {
+      "phase": "installation-and-regressions",
+      "status": "PASS",
+      "seconds": 0.085
+    },
+    {
+      "phase": "current-backend-contracts",
+      "status": "PASS",
+      "seconds": 2.467
+    },
+    {
+      "phase": "proxy-and-browser-setup",
+      "status": "PASS",
+      "seconds": 596.566
+    },
+    {
+      "phase": "native-uninstall-and-retained-data",
+      "status": "PASS",
+      "seconds": 3.693
+    },
+    {
+      "phase": "teardown",
+      "status": "PASS",
+      "seconds": 0.567
+    }
+  ]
+}

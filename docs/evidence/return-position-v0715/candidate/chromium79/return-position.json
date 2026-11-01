@@ -1,0 +1,163 @@
+{
+  "engine": "Chromium 79",
+  "physicalTV": false,
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "deployedPackage": {
+    "version": "0.7.15",
+    "packageSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+    "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+    "deployedDllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+    "activeVersion": "0.7.15.0",
+    "reportedVersion": "0.7.15"
+  },
+  "cases": [
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "kind": "first-movie",
+      "before": {
+        "top": 290.203125,
+        "scroll": 1060,
+        "count": 25
+      },
+      "after": {
+        "found": true,
+        "top": 290.203125,
+        "scroll": 1060,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 39,
+        "homeExposures": 0
+      },
+      "remoteAfterReturn": "PASS",
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "kind": "deep-movie",
+      "before": {
+        "top": 289.796875,
+        "scroll": 2379,
+        "count": 45
+      },
+      "after": {
+        "found": true,
+        "top": 289.796875,
+        "scroll": 2379,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        },
+        {
+          "continuation": true,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 35,
+        "homeExposures": 0
+      },
+      "remoteAfterReturn": "PASS",
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "kind": "series",
+      "before": {
+        "top": 289.671875,
+        "scroll": 621,
+        "count": 25
+      },
+      "after": {
+        "found": true,
+        "top": 289.671875,
+        "scroll": 621,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored"
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 34,
+        "homeExposures": 0
+      },
+      "remoteAfterReturn": "PASS",
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "tv",
+      "kind": "removed-membership",
+      "result": "PASS"
+    },
+    {
+      "layout": "tv",
+      "kind": "native-expired-continuation",
+      "status": 409,
+      "result": "PASS"
+    },
+    {
+      "layout": "tv",
+      "kind": "interaction-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "tv",
+      "kind": "navigation-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "tv",
+      "kind": "fresh-entry",
+      "result": "PASS"
+    },
+    {
+      "kind": "detail-authorization-denial",
+      "status": 401,
+      "injectedFailure": true,
+      "result": "PASS"
+    },
+    {
+      "kind": "detail-authorization-denial",
+      "status": 403,
+      "injectedFailure": true,
+      "result": "PASS"
+    },
+    {
+      "kind": "account-change-during-return",
+      "result": "PASS"
+    }
+  ],
+  "browserVersion": "HeadlessChrome/79.0.3945.0",
+  "result": "PASS"
+}

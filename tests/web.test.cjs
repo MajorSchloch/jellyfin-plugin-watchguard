@@ -1,4 +1,5 @@
 const { test } = require('node:test');
+require('./return-position.test.cjs');
 const assert = require('node:assert/strict');
 const { createAdapter, confirmDeletion, message } = require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
 
@@ -158,7 +159,7 @@ test('outside-dismiss listener is removed on abort without listener AbortSignal 
         f.doc.addEventListener=(name,handler,options)=>{assert.equal(options,undefined);listeners.set(name,handler);};
         f.doc.removeEventListener=(name,handler)=>{assert.equal(listeners.get(name),handler);listeners.delete(name);};
         const controller=new AbortController();if(preAborted)controller.abort();
-        const api={getCurrentUserId:()=>me,accessToken:()=> 'token',getCurrentUser:()=>new Promise(()=>{})};
+        const api={getCurrentUserId:()=>me,accessToken:()=> 'token',serverId:()=> 'server',getCurrentUser:()=>new Promise(()=>{})};
         watchlistsPage(f.doc,api,controller.signal,'mine',()=>{});
         assert.equal(listeners.size,preAborted?0:1);controller.abort();assert.equal(listeners.size,0);
     }
@@ -201,7 +202,7 @@ test('self-only and combined interest warn for every supported target without ex
     for (const type of ['Movie','Series','Season','Episode']) for (const reason of ['Watchlisted','InProgress','CurrentlyPlaying','CaughtUp']) {
         for (const approved of [false,true]) {
             let calls=0, checks=0, lookups=0;
-            const api={getCurrentUserId:()=> 'self',accessToken:()=> 'token',getUrl:p=>p,
+            const api={getCurrentUserId:()=> 'self',accessToken:()=> 'token',serverId:()=> 'server',getUrl:p=>p,
                 getItem:async(u,id)=>{lookups++;return id==='parent'?{Id:id,Type:'Series',Name:'Parent'}:{Id:id,Type:type,SeriesId:'parent'};},
                 ajax:async()=>{checks++;return {ItemId:['Season','Episode'].includes(type)?'parent':'target',HasInterest:true,HasOtherInterestedUsers:false,Users:[{UserId:'self',DisplayName:'Me',Reasons:[reason]}]};},
                 deleteItem:async(...args)=>{calls++;assert.deepEqual(args,['target',42]);return 'native-result';}};
@@ -327,7 +328,7 @@ test('Overview renders text literally, distinguishes reasons and offers only exp
 test('Personal overview rejects cross-user payloads even with forged owner filter',async()=>{
     const f=documentFixture(),create=f.doc.createElement;
     f.doc.createElement=tag=>{const n=create(tag);n.replaceChildren=()=>{n.children=[];};return n;};
-    const api={getCurrentUser:async()=>({Policy:{IsAdministrator:false}}),getCurrentUserId:()=>me,accessToken:()=> 'token',getUrl:p=>p,
+    const api={getCurrentUser:async()=>({Policy:{IsAdministrator:false}}),getCurrentUserId:()=>me,accessToken:()=> 'token',serverId:()=> 'server',getUrl:p=>p,
         ajax:async o=>o.url==='WatchGuard/Watchlist' ? [] : {Items:overviewItems,IsComplete:false,LimitReached:false,Notice:'Not exhaustive'}};
     const page=watchlistsPage(f.doc,api,new AbortController().signal,'all',()=>{});
     await new Promise(resolve=>setImmediate(resolve));
@@ -338,6 +339,7 @@ test('Personal overview rejects cross-user payloads even with forged owner filte
 function progressiveFixture(admin = true, preferences = false, owner = 'all', indexedActivity = false, options = {}) {
     const f = documentFixture(), create = f.doc.createElement, calls = [];
     f.doc.createElement = tag => { const n = create(tag); n.replaceChildren = () => { for(const child of [...n.children]) child.remove(); }; n.classList = {add(){}}; return n; };
+    options.setupDocument?.(f.doc);
     let token = 'first';
     const api = {getCurrentUser:options.account || (async()=>({Name:'Me',Policy:{IsAdministrator:admin}})),getCurrentUserId:()=>me,accessToken:()=>token,getUrl:p=>p,serverId:()=> 'server',getImageUrl:()=> '/image',
         ajax:o=>o.url==='WatchGuard/Users'?Promise.resolve(overviewItems[0].Users):new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
@@ -483,7 +485,7 @@ test('Shared personal membership helper coalesces reads and rejects stale accoun
 test('Detail-origin membership writes invalidate cached reads without suppressing other entry points',async()=>{
     const {createMembership}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
     const changes=[],calls=[];let entries=[];
-    const api={getCurrentUserId:()=>me,accessToken:()=> 'token',getUrl:p=>p,ajax:async o=>{calls.push(o);return entries;}};
+    const api={getCurrentUserId:()=>me,accessToken:()=> 'token',serverId:()=> 'server',getUrl:p=>p,ajax:async o=>{calls.push(o);return entries;}};
     const helper=createMembership(api,new AbortController().signal,(...args)=>changes.push(args));
     await helper.read();entries=[{ItemId:other}];
     await helper.set(other,true,false); // The detail button owns this render.
@@ -1611,4 +1613,141 @@ test('Equivalent sort events retain a pending indexed poll and one poll timer',a
     f.calls[2].resolve(indexedResult());await turn();assert.equal(f.page.getAttribute('aria-busy'),'false');
     t.mock.timers.tick(29999);await turn();assert.equal(f.calls.length,3);
     t.mock.timers.tick(1);await turn();assert.equal(f.calls.length,4);
+});
+
+// Minimal layout model: test fresh query ordering, input cancellation and focus,
+// without relying on browser timing or retaining any old authorized rows.
+const returnItem = (id, name = 'Title ' + id) => ({ItemId:id.repeat(32),Name:name,Users:[{UserId:me,DisplayName:'Me',Reasons:['Watchlisted'],AddedAtUtc:null}]});
+function returningFixture(changes = {}, options = {}) {
+    const input = new Map(), focus = [];
+    const restore = {itemId:'b'.repeat(32),offset:120,depth:2,ordinal:1,action:'title',focus:true,
+        view:JSON.stringify(['all',['watchlisted','watching','playing'],'title',30,true,'']),...changes};
+    const f = progressiveFixture(true,false,'all',true,{restore,...options,setupDocument(doc) {
+        const create=doc.createElement;
+        doc.addEventListener=(name,fn)=>{if(!input.has(name))input.set(name,new Set());input.get(name).add(fn);};
+        doc.removeEventListener=(name,fn)=>input.get(name)?.delete(fn);
+        doc.createElement=tag=>{
+            const node=create(tag);node.scrollTop=0;node.contains=target=>descendants(node).includes(target);
+            node.focus=()=>{doc.activeElement=node;focus.push(node);};
+            node.getBoundingClientRect=()=>({top:tag==='section'?64:264+300*(node.parent?.children.indexOf(node)||0)-(doc.page?.scrollTop||0)});
+            return node;
+        };
+    }});
+    f.document.page=f.page;
+    return {...f,focus,input: name=>{for(const fn of [...(input.get(name)||[])])fn({target:f.page});},listeners:input};
+}
+async function returnFirst(f,items=[returnItem('a')],cursor='page2') {
+    await turn();f.calls[0].resolve([returnItem('b')]);await turn();
+    assert.equal(f.page.getAttribute('data-return-state'),'restoring');
+    assert.equal(f.focus.length,0,'Preliminary membership must not authorize restoration');
+    f.calls[1].resolve(indexedResult(items,cursor));await turn();
+}
+
+test('Return uses fresh combined first-page data and restores the selected title and viewport offset',async t=>{
+    const f=returningFixture({depth:1,ordinal:0});t.after(()=>f.abort.abort());
+    await returnFirst(f,[returnItem('b')],null);
+    const card=f.page.children[5].children[0];
+    assert.equal(f.page.getAttribute('data-return-state'),'restored');assert.equal(f.document.activeElement,card.children[0]);
+    assert.equal(card.getBoundingClientRect().top-f.page.getBoundingClientRect().top,120);
+    assert.equal(f.calls.length,2);assert.equal(f.page.getAttribute('aria-busy'),'false');
+    assert.equal([...f.listeners.values()].reduce((n,s)=>n+s.size,0),1,'Only ordinary disclosure dismissal remains');
+    const hint=f.page.captureReturn(card.children[0]);assert.equal(hint.itemId,'b'.repeat(32));assert.equal(hint.depth,1);assert.equal(hint.action,'title');
+});
+
+test('Return follows fresh continuations, preserves page-one nodes and restores an available focused action',async t=>{
+    const f=returningFixture({action:'remove'});t.after(()=>f.abort.abort());await returnFirst(f);
+    const first=f.page.children[5].children[0];assert.equal(f.calls.length,3);assert.match(f.calls[2].o.url,/continuation=page2$/);
+    f.calls[2].resolve(indexedResult([returnItem('b')],'page3'));await turn();
+    const card=f.page.children[5].children[1];assert.equal(f.page.children[5].children[0],first);
+    assert.equal(f.document.activeElement,card.children.at(-1));assert.equal(f.page.getAttribute('data-return-state'),'restored');
+    assert.equal(f.calls.length,3);assert.equal(f.page.children.at(-1).hidden,false,'Ordinary pagination remains manual');
+});
+
+test('Return accepts current changed ordering, without replaying the old order or depth',async t=>{
+    const f=returningFixture({depth:90,ordinal:80});t.after(()=>f.abort.abort());await returnFirst(f,[returnItem('b'),returnItem('a')],'page2');
+    assert.equal(f.page.getAttribute('data-return-state'),'moved');assert.equal(f.calls.length,2);
+    assert.deepEqual(f.page.children[5].children.map(n=>n.getAttribute('data-watchguard-item')),['b'.repeat(32),'a'.repeat(32)]);
+});
+
+test('Return stops at two extra requests and three pages, leaving normal Load more available',async t=>{
+    const f=returningFixture({depth:100,ordinal:99});t.after(()=>f.abort.abort());await returnFirst(f);
+    f.calls[2].resolve(indexedResult([returnItem('c')],'page3'));await turn();
+    f.calls[3].resolve(indexedResult([returnItem('d')],'page4'));await turn();
+    assert.equal(f.calls.length,4);assert.equal(f.page.getAttribute('data-return-state'),'fallback');
+    assert.equal(f.document.activeElement,f.page.children[0]);assert.equal(f.page.children[5].children.length,3);
+    assert.equal(f.page.children.at(-1).textContent,'Load more results');assert.equal(f.page.children.at(-1).disabled,false);
+});
+
+for(const depth of [1,2]) test('Unavailable return anchor stops within saved depth '+depth,async t=>{
+    const f=returningFixture({depth});t.after(()=>f.abort.abort());await returnFirst(f,[returnItem('a')],depth===1?'page2':null);
+    assert.equal(f.calls.length,2);assert.equal(f.page.getAttribute('data-return-state'),'fallback');assert.equal(f.page.scrollTop,0);
+    assert.equal(f.document.activeElement,f.page.children[0]);assert.ok(!textOf(f.page).includes('Title b'),'No remembered title text is disclosed');
+});
+
+for(const failure of ['expired','repeated','transport']) test('Return stops on '+failure+' continuation without looping',async t=>{
+    const f=returningFixture();t.after(()=>f.abort.abort());await returnFirst(f);
+    if(failure==='repeated')f.calls[2].resolve(indexedResult([], 'page2'));
+    else f.calls[2].reject({status:failure==='expired'?409:503});
+    await turn();assert.equal(f.calls.length,3);assert.equal(f.page.getAttribute('data-return-state'),'fallback');
+    assert.equal(f.page.children[5].children.length,1);assert.equal(f.page.getAttribute('aria-busy'),'false');
+    if(failure!=='transport')assert.equal(f.page.children.at(-1).textContent,'Refresh this view');
+});
+
+test('Return does not extend the four-request preparation budget',async t=>{
+    const f=returningFixture({depth:100});t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([returnItem('b')]);await turn();
+    for(let i=1;i<=4;i++){f.calls[i].resolve({...indexedResult([], 'prep'+i),Preparing:true});await turn();}
+    assert.equal(f.calls.length,5);assert.equal(f.page.getAttribute('data-return-state'),'fallback');assert.equal(f.page.getAttribute('data-view-state'),'paused');
+    assert.equal(f.page.children.at(-1).textContent,'Continue loading');assert.equal(f.page.children[5].children.length,1);
+});
+
+for(const event of ['pointerdown','touchstart','wheel','keydown']) test('User '+event+' stops late return motion and further page requests',async t=>{
+    const f=returningFixture({depth:3});t.after(()=>f.abort.abort());await returnFirst(f);
+    f.input(event);f.page.scrollTop=71;const sort=control(f,'Sort by');sort.focus();const focusCount=f.focus.length;
+    f.calls[2].resolve(indexedResult([returnItem('b')],'page3'));await turn();
+    assert.equal(f.page.getAttribute('data-return-state'),'cancelled');assert.equal(f.page.scrollTop,71);assert.equal(f.document.activeElement,sort);
+    assert.equal(f.focus.length,focusCount);assert.equal(f.calls.length,3);assert.equal(f.page.children[5].children.length,2);
+});
+
+for(const exit of ['abort','account','route','entry']) test('Return response cannot affect a different '+exit,async t=>{
+    let same=true;const f=returningFixture({}, {returnCurrent:()=>same});t.after(()=>f.abort.abort());await returnFirst(f);
+    if(exit==='abort')f.abort.abort();else if(exit==='account')f.changeAccount();else same=false;
+    const oldCards=[...f.page.children[5].children];f.calls[2].resolve(indexedResult([returnItem('b')],'page3'));await turn();
+    assert.equal(f.focus.length,0);assert.equal(f.page.scrollTop,0);assert.equal(f.calls.length,3);assert.deepEqual(f.page.children[5].children,oldCards);
+    if(exit==='route'||exit==='entry'){assert.equal(f.page.getAttribute('aria-busy'),'false');assert.equal(f.page.children.at(-1).disabled,false,'History changes cannot leave current loading controls busy');}
+});
+
+for(const status of [401,403]) test('Return authorization denial clears rows and all saved return context: '+status,async t=>{
+    let cleared=0;const f=returningFixture({}, {authorizationDenied:()=>cleared++});t.after(()=>f.abort.abort());await returnFirst(f);
+    f.calls[2].reject({status});await turn();assert.ok(cleared>=1,'Authorization clearing is idempotent across request and view guards');assert.equal(f.page.children[5].children.length,0);
+    assert.equal(f.focus.length,0);assert.equal(f.page.getAttribute('data-return-state'),'cancelled');assert.match(textOf(f.page),/Authorization denied/);
+});
+
+test('Changed controls cancel return while preserving replacement loading and focus',async t=>{
+    const f=returningFixture();t.after(()=>f.abort.abort());await returnFirst(f);
+    const sort=control(f,'Sort by');sort.focus();sort.value='added';sort.onchange();await turn();
+    f.calls[3].resolve([]);await turn();assert.equal(f.calls.length,4,'Query replacement waits for the serialized old query');
+    f.calls[2].resolve(indexedResult([returnItem('b')],'page3'));await turn();assert.match(f.calls[4].o.url,/sort=added/);
+    f.calls[4].resolve(indexedResult([returnItem('c')],null));await turn();
+    assert.equal(f.page.getAttribute('data-return-state'),'cancelled');assert.equal(f.document.activeElement,sort);assert.equal(f.page.getAttribute('aria-busy'),'false');
+    assert.equal(f.page.children[5].children[0].getAttribute('data-watchguard-item'),'c'.repeat(32));
+});
+
+test('Late preferences cannot apply a saved position to a different effective query',async t=>{
+    const f=returningFixture({}, {preferences:true});t.after(()=>f.abort.abort());await turn();
+    f.calls[0].resolve({Owner:'all',Statuses:['watched'],Sort:'added'});await turn();f.calls[1].resolve([]);await turn();
+    f.calls[2].resolve(indexedResult([returnItem('b')],'page2'));await turn();
+    assert.equal(f.page.getAttribute('data-return-state'),'fallback');assert.equal(f.focus.length,0);assert.equal(f.page.scrollTop,0);assert.equal(f.calls.length,3);
+});
+
+test('Return account lookup failure settles without an endless returning indicator',async t=>{
+    const account=deferred(),f=returningFixture({}, {account:()=>account.promise});t.after(()=>f.abort.abort());account.reject(new Error('offline'));await turn();
+    assert.equal(f.page.getAttribute('data-return-state'),'fallback');assert.equal(f.page.getAttribute('aria-busy'),'false');assert.equal(f.calls.length,0);
+});
+
+test('An authorized preliminary card can record a hint without authorizing return before combined data',async t=>{
+    const f=returningFixture();t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([returnItem('b')]);await turn();
+    const card=f.page.children[5].children[0],hint=f.page.captureReturn(card.children[0]);
+    assert.equal(hint.itemId,'b'.repeat(32));assert.equal(hint.depth,1);assert.equal(f.focus.length,0);
+    f.calls[1].resolve(indexedResult([],null));await turn();
+    assert.equal(f.page.getAttribute('data-return-state'),'fallback');assert.equal(f.page.children[5].children.length,0,'Preliminary membership is not restored if current query excludes it');
 });

@@ -1,0 +1,47 @@
+{
+  "scope": "Focused branch validation; not a publication qualification record",
+  "runtimeCommit": "acaa2741a06eb096038f32df05515fb8aab6b071",
+  "version": "0.7.15",
+  "zipSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+  "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+  "packageRebuildsIdentical": true,
+  "fastChecks": {
+    "javascript": 294,
+    "backend": 376,
+    "python": 120,
+    "catalog": 8,
+    "packagedBrowserAssets": "ES2019 parse passed: five assets, settings inline and startup concatenation",
+    "releaseMetadata": "PASS",
+    "qualificationPolicy": "unchanged",
+    "githubRun": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41334971057",
+    "linuxPackageMatchesNativeTestedPackage": true
+  },
+  "native": {
+    "chromium79": {
+      "result": "PASS",
+      "report": "candidate/chromium79/report.json"
+    },
+    "jellyfin124NavigationProxy": {
+      "result": "PASS",
+      "navigationTransitions": 72,
+      "returnCases": 27,
+      "outgoingCases": 10,
+      "report": "candidate/current/navigation.json",
+      "returns": "candidate/current/return-position.json",
+      "outgoing": "candidate/current/outgoing.json"
+    },
+    "jellyfin123BrowserProxy": {
+      "result": "PASS",
+      "report": "candidate/jellyfin123/report.json",
+      "phases": "candidate/jellyfin123/phases.json"
+    }
+  },
+  "physicalTV": "Not tested",
+  "qualification": "Full current-policy qualification is required on exact merged master before publication.",
+  "preCleanupEvidence": {
+    "runtimeCommit": "5a0185c352689cfb1da5f358ab82cf9bfe436837",
+    "zipSha256": "49f749bdae23d0b1dca9bd0c2d8f045f1df659f2ad6aaa5c7198017c11b3cb44",
+    "directory": "pre-cleanup",
+    "scope": "Full startup/arrival/drawer/control suite before the final history-marker busy-state cleanup; final navigation, return, outgoing and old-engine suites repeated separately."
+  }
+}
