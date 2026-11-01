@@ -1,0 +1,78 @@
+{
+  "engine": "141.0.7390.37",
+  "runtimeSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
+  "cases": [
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "before": {
+        "top": 272.4375,
+        "scrollY": 0,
+        "panelScroll": 493,
+        "focused": true,
+        "count": 13,
+        "history": {
+          "keys": [],
+          "idx": null,
+          "key": null
+        }
+      },
+      "detail": {
+        "keys": [],
+        "idx": null,
+        "key": null
+      },
+      "after": {
+        "found": true,
+        "top": 765.4375,
+        "scrollY": 0,
+        "panelScroll": 0,
+        "focused": false,
+        "focusLabel": null,
+        "focusTag": "BODY",
+        "count": 13,
+        "history": {
+          "keys": [],
+          "idx": null,
+          "key": null
+        }
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "before": {
+        "top": 257.859375,
+        "scrollY": 0,
+        "panelScroll": 2242,
+        "focused": true,
+        "count": 13,
+        "history": {
+          "keys": [],
+          "idx": null,
+          "key": null
+        }
+      },
+      "detail": {
+        "keys": [],
+        "idx": null,
+        "key": null
+      },
+      "after": {
+        "found": true,
+        "top": 2499.859375,
+        "scrollY": 0,
+        "panelScroll": 0,
+        "focused": false,
+        "focusLabel": null,
+        "focusTag": "BODY",
+        "count": 13,
+        "history": {
+          "keys": [],
+          "idx": null,
+          "key": null
+        }
+      }
+    }
+  ]
+}

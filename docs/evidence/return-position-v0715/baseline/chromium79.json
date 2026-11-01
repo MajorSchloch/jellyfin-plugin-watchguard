@@ -1,0 +1,42 @@
+{
+  "engine": "HeadlessChrome/79.0.3945.0",
+  "runtimeSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
+  "cases": [
+    {
+      "layout": "tv",
+      "width": 1280,
+      "before": {
+        "top": 289.671875,
+        "scrollY": 0,
+        "panelScroll": 621,
+        "focused": true,
+        "count": 13,
+        "history": {
+          "keys": [],
+          "idx": null,
+          "key": null
+        }
+      },
+      "detail": {
+        "keys": [],
+        "idx": null,
+        "key": null
+      },
+      "after": {
+        "found": true,
+        "top": 910.671875,
+        "scrollY": 0,
+        "panelScroll": 0,
+        "focused": false,
+        "focusLabel": null,
+        "focusTag": "BODY",
+        "count": 13,
+        "history": {
+          "keys": [],
+          "idx": null,
+          "key": null
+        }
+      }
+    }
+  ]
+}

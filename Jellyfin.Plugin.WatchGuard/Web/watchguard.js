@@ -689,6 +689,44 @@
         outline.append(icon); label.append(input, caption, outline); return label;
     }
 
+    // Navigation hints only: no cards, owner rows, dates, cursors or storage.
+    function createReturnMemory(now = Date.now) {
+        const entries = new Map();
+        const trim = () => { for (const [id, entry] of entries) if (now() - entry.at >= 600000) entries.delete(id); };
+        return {
+            clear() { entries.clear(); },
+            remember(id, query, identity, value) {
+                trim();
+                if (typeof id !== 'string' || id.length > 128 || typeof query !== 'string' || query.length > 2048 ||
+                    !Array.isArray(identity) || !value || typeof value.itemId !== 'string' || !/^[a-f0-9]{32}$/i.test(value.itemId)) return;
+                const bounded = (n, min, max) => Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : min;
+                const context = {itemId: value.itemId.toLowerCase(), offset: bounded(value.offset, -10000, 10000),
+                    depth: Math.floor(bounded(value.depth, 1, 100)), ordinal: Math.floor(bounded(value.ordinal, 0, 100000)),
+                    action: value.action === 'remove' ? 'remove' : 'title', focus: value.focus === true};
+                if (typeof value.view === 'string' && value.view.length <= 2048) context.view = value.view;
+                entries.delete(id); entries.set(id, {query, identity: [...identity], context, at: now()});
+                while (entries.size > 4) entries.delete(entries.keys().next().value);
+            },
+            read(id, query, identity) {
+                trim(); const entry = entries.get(id);
+                return entry && entry.query === query && entry.identity.length === identity.length &&
+                    entry.identity.every((value, index) => value === identity[index]) ? {...entry.context} : null;
+            }
+        };
+    }
+    let returnSequence = 0;
+    const returnNamespace = 'watchguardReturnEntry';
+    function returnEntry(history, url, fresh = false) {
+        const state = history.state;
+        // Preserve all router-owned fields. Unsupported state shapes disable
+        // restoration instead of replacing native history data.
+        if (state !== null && (typeof state !== 'object' || ![Object.prototype, null].includes(Object.getPrototypeOf(state)))) return null;
+        if (!fresh && typeof state?.[returnNamespace] === 'string') return state[returnNamespace];
+        const id = 'wg-' + Date.now().toString(36) + '-' + (++returnSequence);
+        try { history.replaceState({...state, [returnNamespace]: id}, '', url); return id; }
+        catch { return null; }
+    }
+
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
         let raw = {owner: filter, interest: options.interest, sort: options.sort};
         let range = [7,30,90].includes(Number(options.days)) ? Number(options.days) : 30, includeOlder = options.older !== 'false';
@@ -705,7 +743,7 @@
         let sort = ['title', 'recent', 'added'].includes(options.sort) ? options.sort : 'title';
         const page = document.createElement('section'); page.className = 'watchguard-page backgroundContainer padded-left padded-right';
         page.setAttribute('role', 'region'); page.setAttribute('aria-label', 'Watchlists');
-        const heading = document.createElement('h1'); heading.className = 'sectionTitle'; heading.textContent = 'Watchlists';
+        const heading = document.createElement('h1'); heading.tabIndex = -1; heading.className = 'sectionTitle'; heading.textContent = 'Watchlists';
         const toolbar = document.createElement('div'); toolbar.className = 'watchguard-toolbar';
         function dropdown(label, choices) {
             const select = document.createElement('select'); select.className = 'emby-select emby-select-withcolor'; select.setAttribute('aria-label', label);
@@ -818,13 +856,98 @@
         page.append(heading, toolbar, status, notice, error, grid, preferenceMessage);
         page.append(announcement);
         if (options.indexedActivity) { status.after?.(freshness); page.append(updates, more); }
-        const user = api.getCurrentUserId(), token = api.accessToken();
-        const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
+        const user = api.getCurrentUserId(), token = api.accessToken(), server = api.serverId();
+        const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token && api.serverId() === server;
         let directory = [], loadedScope, viewSignature, viewGeneration, ownerChoices;
         const requestedView = () => JSON.stringify([filter, kind, sort, range, includeOlder, searchText]);
         let polling = false;
         let generation = 0, admin = false, accountKnown = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, coverageInfo = null, failures = [];
         const cards = new Map();
+        let returning = options.restore || null;
+        const returnNotice = document.createElement('p'); returnNotice.className = 'watchguard-notice'; returnNotice.setAttribute('role', 'status');
+        notice.append(returnNotice);
+        const inputEvents = ['pointerdown', 'touchstart', 'wheel', 'keydown'];
+        let listeningForReturn = false;
+        function stopReturnInput() {
+            if (!listeningForReturn) return;
+            listeningForReturn = false;
+            for (const name of inputEvents) document.removeEventListener?.(name, cancelReturn, true);
+        }
+        function returnState(state, text = '') {
+            page.setAttribute('data-return-state', state); setText(returnNotice, text); returnNotice.hidden = !text;
+            if (state !== 'restoring') stopReturnInput();
+        }
+        returnState(returning ? 'restoring' : 'none', returning ? 'Returning to your place…' : '');
+        function cancelReturn() { if (returning) { returning = null; returnState('cancelled'); } }
+        page.cancelReturn = cancelReturn;
+        if (returning && !signal.aborted) {
+            listeningForReturn = true;
+            for (const name of inputEvents) document.addEventListener?.(name, cancelReturn, true);
+        }
+        signal.addEventListener('abort', () => { returning = null; stopReturnInput(); }, {once:true});
+        page.captureReturn = target => {
+            if (!active()) return null;
+            const record = [...cards.values()].find(r => r.card.contains?.(target));
+            if (!record || ![...grid.children].includes(record.card)) return null;
+            return {itemId: record.id, offset: record.card.getBoundingClientRect().top - page.getBoundingClientRect().top,
+                ordinal: [...grid.children].indexOf(record.card), depth: combined ? loadedPages : 1, view: requestedView(),
+                action: target === record.remove ? 'remove' : 'title', focus: true};
+        };
+        page.addEventListener('click', event => {
+            if (event.button > 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+            const link = event.target.closest?.('a');
+            if (!link || !page.contains?.(link)) return;
+            const context = page.captureReturn(link);
+            if (context) options.remember?.(context);
+        }, true);
+        async function restorePosition(revision) {
+            const current = () => {
+                if (options.returnCurrent && !options.returnCurrent()) { cancelReturn(); return false; }
+                return active() && revision === generation;
+            };
+            const seen = new Set(); let requests = 0;
+            while (returning && current()) {
+                if (!combined || preparing || requiresRefresh || queryFailed || failures.length || returning.view !== requestedView()) break;
+                const record = cards.get(returning.itemId);
+                if (record && [...grid.children].includes(record.card)) {
+                    const context = returning; returning = null;
+                    const moved = [...grid.children].indexOf(record.card) !== context.ordinal;
+                    returnState(moved ? 'moved' : 'restored', moved ? 'Results changed. Returned to this title in the current list.' : '');
+                    if (context.focus) (context.action === 'remove' && record.remove && !record.remove.disabled ? record.remove : record.link).focus({preventScroll:true});
+                    page.scrollTop += record.card.getBoundingClientRect().top - page.getBoundingClientRect().top - context.offset;
+                    return;
+                }
+                // Do not extend the four-request initial preparation budget.
+                // Replay at most two result requests and three loaded pages,
+                // and never exceed the depth of the originating view.
+                if (!continuation || requests >= 2 || loadedPages >= Math.min(returning.depth, 3)) break;
+                if (seen.has(continuation)) { queryFailure({status:409}); break; }
+                const cursor = continuation; seen.add(cursor); requests++;
+                pending = true; render();
+                try {
+                    const result = await queryRequest(indexRoute(loadedScope, cursor), revision);
+                    if (!current()) return;
+                    validateBrowser(result);
+                    if (result.Preparing || (result.Continuation && seen.has(result.Continuation))) {
+                        queryFailure({status:409}); break;
+                    }
+                    const merged = mergeInterest(automatic, result.Items);
+                    indexState(result); automatic = merged; loadedPages++;
+                    coverage = result.Notice; coverageLimited = result.LimitReached; coverageInfo = result.Coverage;
+                } catch (failure) {
+                    if (authorizationDenied(failure) || !current()) return;
+                    queryFailure(failure); failures.push('Could not continue this view; loaded results are retained. Use Refresh to retry.'); break;
+                } finally { if (current()) { pending = false; render(); } }
+            }
+            if (returning && current()) {
+                returning = null;
+                returnState('fallback', 'Your previous place could not be restored. Use the filters or loading controls.');
+                // Current authorized results remain usable. No remembered title
+                // text or membership is disclosed when an anchor is unavailable.
+                heading.focus({preventScroll:true});
+            }
+        }
+
         // Action feedback survives data refreshes. A retry clears only its title;
         // a changed filter context or page/account teardown clears all feedback.
         const removalFailures = new Set(), removals = new Set();
@@ -896,7 +1019,7 @@
             for (const [position, entry] of selected.entries()) {
                 let record = cards.get(key(entry.ItemId));
                 if (!record) {
-                    const card = document.createElement('article'); card.className = 'watchguard-card';
+                    const card = document.createElement('article'); card.className = 'watchguard-card'; card.setAttribute('data-watchguard-item', key(entry.ItemId));
                     const link = document.createElement('a'); link.className = 'button-link';
                     link.href = '#/details?id=' + encodeURIComponent(entry.ItemId) + '&serverId=' + encodeURIComponent(api.serverId());
                     const image = document.createElement('img'); image.alt = ''; image.loading = 'lazy';
@@ -912,7 +1035,7 @@
                     const otherOwners = disclosure(document); otherOwners.className = 'watchguard-more-owners';
                     const otherSummary = remoteSummary(document); otherOwners.append(otherSummary);
                     const extraOwners = document.createElement('div'); otherOwners.append(extraOwners);
-                    card.append(ownersText, otherOwners); record = { card, name, ownersText, otherOwners, otherSummary, extraOwners, rows: new Map() }; cards.set(key(entry.ItemId), record);
+                    card.append(ownersText, otherOwners); record = { id: key(entry.ItemId), card, link, name, ownersText, otherOwners, otherSummary, extraOwners, rows: new Map() }; cards.set(key(entry.ItemId), record);
                 }
                 record.name.textContent = entry.Name; record.name.title = entry.Name;
                 const staleLive = options.indexedActivity && (liveStale || loadedPages > 1);
@@ -960,6 +1083,7 @@
         }
         function authorizationDenied(failure) {
             if (!active() || ![401, 403].includes(failure?.status)) return false;
+            cancelReturn(); options.authorizationDenied?.();
             // Even a superseded request's denial invalidates this captured
             // account's protected view. No concurrent response may restore it.
             generation++;
@@ -1068,6 +1192,7 @@
                 if (!current() || !account) return;
                 const scope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
                 loadedScope = scope; viewSignature = requestedView();
+                if (returning && returning.view !== viewSignature) { returning = null; returnState('fallback', 'Your saved view changed. Showing current results.'); }
                 if (admin && !directory.length) {
                     const owners = await request(api, 'Users');
                     if (!current()) return;
@@ -1105,7 +1230,8 @@
                     failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.');
                 }
                 pending = false; render();
-            } catch (failure) { if (authorizationDenied(failure)) return; if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; directory = []; continuation = null; render(); } }
+                if (options.indexedActivity) await restorePosition(revision);
+            } catch (failure) { if (authorizationDenied(failure)) return; if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; directory = []; continuation = null; render(); if (returning) await restorePosition(revision); } }
             finally { if (current()) { refresh.setAttribute('aria-disabled', 'false'); schedulePoll(); } }
         }
         function indexRoute(scope, cursor, prioritize = false) {
@@ -1190,14 +1316,14 @@
             raw = {owner, interest, sort: sorting};
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
-            if (previousView !== JSON.stringify([filter, kind, sort, range, includeOlder, searchText])) clearRemovalFeedback();
+            if (previousView !== JSON.stringify([filter, kind, sort, range, includeOlder, searchText])) { cancelReturn(); clearRemovalFeedback(); }
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
             if (options.indexedActivity ? viewGeneration !== generation || viewSignature !== requestedView() : !loadedScope || nextScope !== loadedScope || timeChanged) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false; loadedPages = 1; pending = true; render(); load(); } else render();
         };
-        const change = () => { if (active()) { const args = [accountKnown ? select.value || 'mine' : filter, kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
+        const change = () => { if (active()) { cancelReturn(); const args = [accountKnown ? select.value || 'mine' : filter, kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
         search.oninput = () => {
             if (!active()) return;
-            generation++; clearRemovalFeedback(); if (searchTimer) clearTimeout(searchTimer);
+            cancelReturn(); generation++; clearRemovalFeedback(); if (searchTimer) clearTimeout(searchTimer);
             continuation = null; polling = false; pending = true; refresh.setAttribute('aria-disabled', 'false'); render();
             searchTimer = setTimeout(() => { searchTimer = null; if (search.value === searchText) load(); else change(); }, 250);
         };
@@ -1426,13 +1552,14 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { createDeparture, detailHandoffReady, tvChoices, browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
+        module.exports = { createReturnMemory, returnEntry, createDeparture, detailHandoffReady, tvChoices, browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
     let diagnostic = /*WATCHGUARD_DIAGNOSTICS*/false;
     let identity, panel, detailButton, refreshDetailMembership, signature, membership, epoch = 0;
-    let pagePanel, pageSignature, pageLifetime;
+    let pagePanel, pageSignature, pageLifetime, freshReturnEntry = false;
+    const returnMemory = createReturnMemory();
     const departure = createDeparture(document, root, () => {
         const api = root.ApiClient;
         return [api, api?.getCurrentUserId?.(), api?.accessToken?.(), api?.serverId?.()];
@@ -1442,11 +1569,11 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     let lifetime = new AbortController();
     function syncIdentity() {
         const api = root.ApiClient;
-        const next = [api, api?.getCurrentUserId?.(), api?.accessToken?.()];
+        const next = [api, api?.getCurrentUserId?.(), api?.accessToken?.(), api?.serverId?.()];
         if (!identity || next.some((v, i) => v !== identity[i])) {
             lifetime.abort(); lifetime = new AbortController();
             panel?.remove(); detailButton?.remove(); panel = null; refreshDetailMembership = null; signature = null; epoch++;
-            departure.clear(); syncNavigation(); closePage();
+            returnMemory.clear(); departure.clear(); syncNavigation(); closePage();
             identity = next;
             membership = next[1] && next[2] ? createMembership(api, lifetime.signal, (id, present) => {
                 // A native menu can change the same title. Refresh its state without
@@ -1732,6 +1859,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             pageSignature = hash; return;
         }
         closePage(); pageSignature = hash;
+        const entry = returnEntry(root.history, root.location.href, freshReturnEntry); freshReturnEntry = false;
+        const restore = returnMemory.read(entry, hash, identity);
         pageLifetime = new AbortController();
         pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner'), (owner, interest, sort, days = 30, older = 'true', search = '') => {
             // Filters edit this view, not Jellyfin's route. Keep its history state
@@ -1740,9 +1869,13 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             // replaceState emits no navigation event, so apply the view ourselves.
             root.history.replaceState(root.history.state, '', '#/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort) + '&days=' + encodeURIComponent(days) + '&older=' + encodeURIComponent(older) + '&search=' + encodeURIComponent(search));
             updateNavigation();
-        }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), search: params.get('search'), indexedActivity: true, preferences: true});
+        }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), search: params.get('search'), indexedActivity: true, preferences: true, restore,
+            authorizationDenied: () => returnMemory.clear(),
+            returnCurrent: () => root.location.hash === hash && root.history.state?.[returnNamespace] === entry,
+            remember: context => { if (root.location.hash === pageSignature) returnMemory.remember(returnEntry(root.history, root.location.href), pageSignature, identity, context); }
+        });
         document.body.classList.add('watchguard-page-open'); document.body.append(pagePanel);
-        if (document.documentElement.classList.contains('layout-tv')) pagePanel.querySelector('select,button,input')?.focus();
+        if (!restore && document.documentElement.classList.contains('layout-tv')) pagePanel.querySelector('select,button,input')?.focus();
         root.WatchGuardStartup?.finish();
     }
 
@@ -1762,6 +1895,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         if (!route) return;
         const user = api.getCurrentUserId();
         const current = () => valid(api, user) && revision === epoch && root.location.hash === hash;
+        const forgetDeniedReturn = failure => { if (current() && [401,403].includes(failure?.status)) returnMemory.clear(); };
         try {
             const { item, scope } = await resolveScope(api, id, user);
             if (!current()) return;
@@ -1811,7 +1945,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                         if (series) renderSeriesActivity(document, interest, status, scopeId, user, seriesLabel);
                         else for (const owner of status.Users) interest.append(userLine(document, owner));
                     }
-                } catch { if (current()) interest.textContent = 'WatchGuard: Interest status unavailable.'; }
+                } catch (failure) { forgetDeniedReturn(failure); if (current()) interest.textContent = 'WatchGuard: Interest status unavailable.'; }
                 finally { if (current()) interest.setAttribute('aria-busy', 'false'); }
             }
             toggle.onclick = async () => {
@@ -1827,8 +1961,8 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
                     await membership.set(scopeId, desired, false);
                     if (!current()) return;
                     writing = false; member = desired; render(); restoreFocus();
-                    try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
-                } catch {
+                    try { await refreshInterest(); } catch (failure) { forgetDeniedReturn(failure); if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
+                } catch (failure) { forgetDeniedReturn(failure);
                     if (current()) { writing = false; error.textContent = 'WatchGuard: Could not update your watchlist. Please retry.'; toggle.setAttribute('aria-busy', 'false'); toggle.disabled = false; }
                 } finally {
                     // Do not steal focus after the user navigates or focuses another control.
@@ -1838,16 +1972,16 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             refreshDetailMembership = async (changedId, present) => {
                 if (!current() || key(changedId) !== key(scopeId)) return;
                 member = present; error.textContent = ''; render();
-                try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
+                try { await refreshInterest(); } catch (failure) { forgetDeniedReturn(failure); if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
             };
             try {
                 const entries = await membership.read(true);
                 if (!Array.isArray(entries)) throw new Error('Invalid watchlist');
                 if (!current()) return;
                 member = entries.some(e => key(e.ItemId) === key(scopeId)); render();
-            } catch { if (current()) { label.textContent = 'Watchlist unavailable'; error.textContent = 'WatchGuard: Could not load your watchlist. Reopen this page to retry.'; } }
-            try { await refreshInterest(); } catch { if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
-        } catch { /* Native item lookup failed; do not attach controls to an unverified item. */ }
+            } catch (failure) { forgetDeniedReturn(failure); if (current()) { label.textContent = 'Watchlist unavailable'; error.textContent = 'WatchGuard: Could not load your watchlist. Reopen this page to retry.'; } }
+            try { await refreshInterest(); } catch (failure) { forgetDeniedReturn(failure); if (current()) interest.textContent = 'WatchGuard: Could not verify this account.'; }
+        } catch (failure) { forgetDeniedReturn(failure); /* Native item lookup failed; do not attach controls to an unverified item. */ }
     }
     // Pinned 12.2: native dialogHelper emits capture-observable `open`; no module patch.
     // The sheet carries commands, not its item ID. Only accept an unambiguous native trigger.
@@ -1913,6 +2047,9 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         if (index === '0' || index === '1') root.location.hash = '/home' + (index === '1' ? '?tab=1' : '');
     });
 
+    document.addEventListener('click', event => {
+        if (!pagePanel && !event.defaultPrevented && event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && event.target.closest?.('.watchguard-nav')) freshReturnEntry = true;
+    }, true);
     const bind = () => { syncIdentity(); adapter.install(root.ApiClient); };
     bind(); updateNavigation(); updateDetail();
     root.WatchGuardNavigation?.connect(updateNavigation);

@@ -159,6 +159,7 @@ const report = {serverVersion:fixture.serverVersion, image:fixture.image, result
    report.travel.push(hash+' / Back');
   }
   await page.unroute('**/WatchGuard/ActivityBrowser?**',delay);
+  report.returnPosition=await require('./return-position-browser.cjs')(page,fixture,output);
   report.result='PASS';
  } catch(error) {
   report.result='FAIL';report.error=String(error.message);

@@ -38,6 +38,7 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
         await page.waitForFunction(() => location.hash === '#/home' && window.WatchGuardPoc && WatchGuardPoc.isInstalled());
         report.nativeLogin = 'PASS';
         report.earlyFilters=await require('../early-filters-browser.cjs')(page,fixture,output,true);
+        report.returnPosition=await require('../return-position-browser.cjs')(page,fixture,output,true);
         report.pluginVersion=await page.evaluate(async()=> (await ApiClient.ajax({url:ApiClient.getUrl('WatchGuard/IntegrationStatus'),type:'GET',dataType:'json'})).PluginVersion);
         assert.equal(report.pluginVersion,version);
         // Prove the released syntax gap using the original source in this engine.
