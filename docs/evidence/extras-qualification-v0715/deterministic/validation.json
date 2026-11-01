@@ -1,0 +1,92 @@
+{
+  "testedCommit": "297974b2fbdcc936b307f20368a4f319fbd9fdbe",
+  "scope": "Focused local validation; not a sealed release qualification record",
+  "originalCiCause": "Unconfirmed; original ActivityBrowser response unavailable",
+  "native": [
+    {
+      "version": "12.3",
+      "fixture": "watchguard-poc-d29b7f2cad",
+      "command": "WATCHGUARD_JELLYFIN_VERSION=12.3 python3 tests/docker-smoke.py --base-path /jellyfin --proxy",
+      "exitCode": 0,
+      "elapsedSeconds": 440.22,
+      "browserSeconds": 397.443,
+      "controlledPollSeconds": 30.034,
+      "controlledRefreshRequests": 1,
+      "controlledNativePollRequests": 1,
+      "ordinaryViewports": [
+        1280,
+        390
+      ],
+      "controlledViewport": 390,
+      "controlledResponse": "Synthetic empty pending Refresh; no native fetch or playback mutation",
+      "versions": {
+        "serverVersion": "12.3.0",
+        "webVersion": "12.3.0",
+        "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5"
+      },
+      "deployed": {
+        "version": "0.7.15",
+        "packageSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+        "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+        "deployedDllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+        "activeVersion": "0.7.15.0",
+        "reportedVersion": "0.7.15"
+      }
+    },
+    {
+      "version": "12.4",
+      "fixture": "watchguard-poc-e99b3623a5",
+      "command": "WATCHGUARD_JELLYFIN_VERSION=12.4 python3 tests/docker-smoke.py --base-path /jellyfin --proxy",
+      "exitCode": 0,
+      "elapsedSeconds": 439.47,
+      "browserSeconds": 397.104,
+      "controlledPollSeconds": 30.051,
+      "controlledRefreshRequests": 1,
+      "controlledNativePollRequests": 1,
+      "ordinaryViewports": [
+        1280,
+        390
+      ],
+      "controlledViewport": 390,
+      "controlledResponse": "Synthetic empty pending Refresh; no native fetch or playback mutation",
+      "versions": {
+        "serverVersion": "12.4.0",
+        "webVersion": "12.4.0",
+        "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771"
+      },
+      "deployed": {
+        "version": "0.7.15",
+        "packageSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+        "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+        "deployedDllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+        "activeVersion": "0.7.15.0",
+        "reportedVersion": "0.7.15"
+      }
+    }
+  ],
+  "fast": {
+    "javascript": 306,
+    "dotnet": 376,
+    "python": 120,
+    "catalog": 8,
+    "failed": 0,
+    "checks": [
+      "qualification policy",
+      "release notes and version metadata",
+      "published catalog installation metadata",
+      "deterministic packaging",
+      "packaged ES2019 scripts and inline startup/settings",
+      "ZIP and DLL unchanged",
+      "git diff --check"
+    ]
+  },
+  "packageUnchanged": true,
+  "zipSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+  "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+  "limits": [
+    "Original CI cause remains unconfirmed.",
+    "Controlled response validates browser pending handling, not native index invalidation.",
+    "Local Chromium 141 with Playwright 1.56.1; not physical TV or a new Chromium 79 run.",
+    "Unchanged full qualification remains required after merge."
+  ]
+}
