@@ -9,6 +9,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "0.7.15.0",
+        "changelog": "- Return from movie or series details to the selected Watchlists title and approximate scroll position.\n- Restore keyboard or TV remote focus when possible, with fresh authorized results and bounded loading.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.15.md)",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.15/Jellyfin.Plugin.WatchGuard-v0.7.15.zip",
+        "checksum": "2a7933975571f6e103c132ab978903d6",
+        "timestamp": "2026-11-01T22:40:11Z"
+      },
+      {
         "version": "0.7.14.0",
         "changelog": "- Change Watchlists filters or search immediately after opening the page without leaving results stuck loading.\n- Keep your latest choices when saved defaults arrive, without saving filter changes automatically.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.14.md)",
         "targetAbi": "12.2.0.0",
