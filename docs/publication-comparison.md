@@ -2,7 +2,7 @@
 
 ## Confirmed evidence
 
-[Publication run 41316998829, attempt 1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41316998829/attempts/1) failed after the publication PATCH returned. The comparison reported only `Release changed concurrently during publication.` Neither compared snapshot was retained.
+[Publication run 41316998829, attempt 1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41316998829/attempts/1) failed after the publication PATCH returned. The comparison reported only `Release changed concurrently during publication.` [Job 124879108421](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41316998829/job/124879108421) retained neither compared snapshot.
 
 GitHub published release `430641593`, tag `v0.7.14`, at `2026-11-01T14:36:44Z`. [Attempt 2](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41316998829/attempts/2) reports one action: `Update the catalog`. It reused qualification run `41315324546`, attempt `1`, record artifact `13087583576`.
 
@@ -34,7 +34,7 @@ Tests cover the supported URL transition, mixed visibility, exhausted visibility
 
 The [baseline](evidence/publication-comparison/baseline.txt) runs the new simulated transition against master `9579d76334348241c58bdc2efa73f31ade8a459f`. It fails at the original fingerprint assertion. The corrected publisher passes the same test.
 
-The ordinary read-only CLI rehearsal completed in 12.624 seconds. The explicit recovery-path rehearsal completed in 12.307 seconds with 20 authenticated GET calls and anonymous public downloads. Both returned `already published and verified`, with no actions. These measurements establish recovery behavior, not a publication speedup. See [validation results](evidence/publication-comparison/results.json).
+The ordinary read-only CLI rehearsal completed in 12.624 seconds. The explicit recovery-path rehearsal completed in 12.307 seconds with 20 authenticated GET calls and anonymous public downloads. Both returned `already published and verified`, with no actions. The final committed-tooling rehearsal completed in 12.127 seconds, also with no writes. These measurements establish recovery behavior, not a publication speedup. See [validation results](evidence/publication-comparison/results.json).
 
 No live release was created for testing. No native compatibility matrix was rerun. The actual next publication transition remains untested until an approved future release. Physical-server behavior is outside this tooling-only change.
 
