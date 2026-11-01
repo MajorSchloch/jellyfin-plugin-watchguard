@@ -1,0 +1,461 @@
+[
+  {
+    "width": 1280,
+    "event": "before-refresh",
+    "ui": {
+      "busy": "true",
+      "state": "loading",
+      "refreshDisabled": "true"
+    },
+    "index": {
+      "Freshness": {
+        "Revision": 278,
+        "Stored": 3,
+        "Validated": 3,
+        "Pending": 0,
+        "DiscoveryPages": 62,
+        "DiscoveryFinished": true,
+        "LastUpdate": "2026-11-01T21:33:31.8808005+00:00",
+        "Causes": [],
+        "EpisodeQueries": 19,
+        "EpisodeRows": 76,
+        "PlaybackBatches": 50,
+        "TitlesVerified": 44,
+        "StaleResultsDiscarded": 0,
+        "VerificationMs": 244.36769999999996,
+        "RetainedSerializedBytes": 1980
+      }
+    }
+  },
+  {
+    "width": 1280,
+    "at": "2026-11-01T21:33:42.492Z",
+    "query": {
+      "owner": "all",
+      "days": "30",
+      "older": "true",
+      "statuses": "watching",
+      "sort": "title",
+      "search": "",
+      "refresh": null,
+      "check": null
+    },
+    "status": 200,
+    "result": {
+      "Items": [
+        {
+          "ItemId": "16113371c48eb37108bd832a31e4fa16",
+          "Name": "PoC Parent Clear",
+          "Users": [
+            {
+              "UserId": "97106168889e43a4b71a4ce66a1262c7",
+              "DisplayName": "BrowserMember",
+              "Reasons": [
+                "CaughtUp"
+              ],
+              "LastPlayedDate": "2026-10-30T21:31:22.034Z",
+              "AvailableEpisodes": 3,
+              "WatchedEpisodes": 3,
+              "EpisodeProgress": {
+                "AiredAvailable": 3,
+                "AiredWatched": 3,
+                "ExtraEpisodes": [
+                  {
+                    "ItemId": "3655e38dfb504e5c1c87042df8aef42c",
+                    "SeasonNumber": 2,
+                    "EpisodeNumber": 2,
+                    "Name": "PoC Parent Clear S02E02",
+                    "PremiereDate": "2026-11-08T21:33:30.17Z",
+                    "ReleaseStatus": "Future",
+                    "Watched": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "Preparing": false,
+      "hasContinuation": false,
+      "Coverage": {
+        "Version": 1,
+        "ActivityWindowDays": 30,
+        "DiscoveryLimited": true,
+        "EpisodeMetadataIncomplete": false,
+        "VerificationLimited": false,
+        "ResultLimitReached": false,
+        "AdditionalPagesAvailable": false,
+        "Causes": [],
+        "Warnings": []
+      },
+      "Freshness": {
+        "PopulationPending": false,
+        "hasRevision": true
+      }
+    }
+  },
+  {
+    "width": 1280,
+    "at": "2026-11-01T21:33:42.557Z",
+    "query": {
+      "owner": "all",
+      "days": "30",
+      "older": "true",
+      "statuses": "watching",
+      "sort": "title",
+      "search": "",
+      "refresh": "true",
+      "check": null
+    },
+    "status": 200,
+    "result": {
+      "Items": [
+        {
+          "ItemId": "16113371c48eb37108bd832a31e4fa16",
+          "Name": "PoC Parent Clear",
+          "Users": [
+            {
+              "UserId": "97106168889e43a4b71a4ce66a1262c7",
+              "DisplayName": "BrowserMember",
+              "Reasons": [
+                "CaughtUp"
+              ],
+              "LastPlayedDate": "2026-10-30T21:31:22.034Z",
+              "AvailableEpisodes": 3,
+              "WatchedEpisodes": 3,
+              "EpisodeProgress": {
+                "AiredAvailable": 3,
+                "AiredWatched": 3,
+                "ExtraEpisodes": [
+                  {
+                    "ItemId": "3655e38dfb504e5c1c87042df8aef42c",
+                    "SeasonNumber": 2,
+                    "EpisodeNumber": 2,
+                    "Name": "PoC Parent Clear S02E02",
+                    "PremiereDate": "2026-11-08T21:33:30.17Z",
+                    "ReleaseStatus": "Future",
+                    "Watched": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "Preparing": false,
+      "hasContinuation": false,
+      "Coverage": {
+        "Version": 1,
+        "ActivityWindowDays": 30,
+        "DiscoveryLimited": true,
+        "EpisodeMetadataIncomplete": false,
+        "VerificationLimited": false,
+        "ResultLimitReached": false,
+        "AdditionalPagesAvailable": false,
+        "Causes": [],
+        "Warnings": []
+      },
+      "Freshness": {
+        "PopulationPending": false,
+        "hasRevision": true
+      }
+    }
+  },
+  {
+    "width": 1280,
+    "event": "after-card-wait",
+    "index": {
+      "Freshness": {
+        "Revision": 279,
+        "Stored": 3,
+        "Validated": 3,
+        "Pending": 3,
+        "DiscoveryPages": 62,
+        "DiscoveryFinished": true,
+        "LastUpdate": "2026-11-01T21:33:31.8808005+00:00",
+        "Causes": [],
+        "EpisodeQueries": 19,
+        "EpisodeRows": 76,
+        "PlaybackBatches": 50,
+        "TitlesVerified": 44,
+        "StaleResultsDiscarded": 0,
+        "VerificationMs": 244.36769999999996,
+        "RetainedSerializedBytes": 1980
+      }
+    },
+    "freshOwner": {
+      "UserId": "97106168889e43a4b71a4ce66a1262c7",
+      "DisplayName": "BrowserMember",
+      "Reasons": [
+        "CaughtUp"
+      ],
+      "LastPlayedDate": "2026-10-30T21:31:22.034Z",
+      "AvailableEpisodes": 3,
+      "WatchedEpisodes": 3,
+      "EpisodeProgress": {
+        "AiredAvailable": 3,
+        "AiredWatched": 3,
+        "ExtraEpisodes": [
+          {
+            "ItemId": "3655e38dfb504e5c1c87042df8aef42c",
+            "SeasonNumber": 2,
+            "EpisodeNumber": 2,
+            "Name": "PoC Parent Clear S02E02",
+            "PremiereDate": "2026-11-08T21:33:30.17Z",
+            "ReleaseStatus": "Future",
+            "Watched": false
+          }
+        ]
+      }
+    },
+    "series": [
+      {
+        "UserId": "97106168889e43a4b71a4ce66a1262c7",
+        "DisplayName": "BrowserMember",
+        "Reasons": [
+          "CaughtUp"
+        ],
+        "AvailableEpisodes": 3,
+        "WatchedEpisodes": 3,
+        "LastPlayedDate": "2026-10-30T21:31:22.034Z",
+        "CoverageComplete": true,
+        "EpisodeProgress": {
+          "AiredAvailable": 3,
+          "AiredWatched": 3,
+          "ExtraEpisodes": [
+            {
+              "ItemId": "3655e38dfb504e5c1c87042df8aef42c",
+              "SeasonNumber": 2,
+              "EpisodeNumber": 2,
+              "Name": "PoC Parent Clear S02E02",
+              "PremiereDate": "2026-11-08T21:33:30.17Z",
+              "ReleaseStatus": "Future",
+              "Watched": false
+            }
+          ]
+        },
+        "Watchlisted": false,
+        "CurrentlyPlaying": false
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "event": "before-refresh",
+    "ui": {
+      "busy": "true",
+      "state": "loading",
+      "refreshDisabled": "true"
+    },
+    "index": {
+      "Freshness": {
+        "Revision": 279,
+        "Stored": 3,
+        "Validated": 3,
+        "Pending": 3,
+        "DiscoveryPages": 62,
+        "DiscoveryFinished": true,
+        "LastUpdate": "2026-11-01T21:33:31.8808005+00:00",
+        "Causes": [],
+        "EpisodeQueries": 19,
+        "EpisodeRows": 76,
+        "PlaybackBatches": 50,
+        "TitlesVerified": 44,
+        "StaleResultsDiscarded": 0,
+        "VerificationMs": 244.36769999999996,
+        "RetainedSerializedBytes": 1980
+      }
+    }
+  },
+  {
+    "width": 390,
+    "at": "2026-11-01T21:33:43.151Z",
+    "query": {
+      "owner": "all",
+      "days": "30",
+      "older": "true",
+      "statuses": "watching",
+      "sort": "title",
+      "search": "",
+      "refresh": null,
+      "check": null
+    },
+    "status": 200,
+    "result": {
+      "Items": [
+        {
+          "ItemId": "16113371c48eb37108bd832a31e4fa16",
+          "Name": "PoC Parent Clear",
+          "Users": [
+            {
+              "UserId": "97106168889e43a4b71a4ce66a1262c7",
+              "DisplayName": "BrowserMember",
+              "Reasons": [
+                "CaughtUp"
+              ],
+              "LastPlayedDate": "2026-10-30T21:31:22.034Z",
+              "AvailableEpisodes": 3,
+              "WatchedEpisodes": 3,
+              "EpisodeProgress": {
+                "AiredAvailable": 3,
+                "AiredWatched": 3,
+                "ExtraEpisodes": [
+                  {
+                    "ItemId": "3655e38dfb504e5c1c87042df8aef42c",
+                    "SeasonNumber": 2,
+                    "EpisodeNumber": 2,
+                    "Name": "PoC Parent Clear S02E02",
+                    "PremiereDate": "2026-11-08T21:33:30.17Z",
+                    "ReleaseStatus": "Future",
+                    "Watched": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "Preparing": false,
+      "hasContinuation": false,
+      "Coverage": {
+        "Version": 1,
+        "ActivityWindowDays": 30,
+        "DiscoveryLimited": true,
+        "EpisodeMetadataIncomplete": false,
+        "VerificationLimited": false,
+        "ResultLimitReached": false,
+        "AdditionalPagesAvailable": false,
+        "Causes": [],
+        "Warnings": []
+      },
+      "Freshness": {
+        "PopulationPending": false,
+        "hasRevision": true
+      }
+    }
+  },
+  {
+    "width": 390,
+    "at": "2026-11-01T21:33:43.209Z",
+    "query": {
+      "owner": "all",
+      "days": "30",
+      "older": "true",
+      "statuses": "watching",
+      "sort": "title",
+      "search": "",
+      "refresh": "true",
+      "check": null
+    },
+    "status": 200,
+    "result": {
+      "Items": [],
+      "Preparing": false,
+      "hasContinuation": false,
+      "Coverage": {
+        "Version": 1,
+        "ActivityWindowDays": 30,
+        "DiscoveryLimited": true,
+        "EpisodeMetadataIncomplete": false,
+        "VerificationLimited": false,
+        "ResultLimitReached": false,
+        "AdditionalPagesAvailable": false,
+        "Causes": [
+          "PendingVerification"
+        ],
+        "Warnings": [
+          "Some visible activity is awaiting background verification."
+        ]
+      },
+      "Freshness": {
+        "PopulationPending": true,
+        "hasRevision": true
+      }
+    }
+  },
+  {
+    "width": 390,
+    "event": "controlled-native-invalidation",
+    "status": 200,
+    "target": [],
+    "populationPending": true
+  },
+  {
+    "width": 390,
+    "event": "after-card-wait",
+    "index": {
+      "Freshness": {
+        "Revision": 296,
+        "Stored": 3,
+        "Validated": 3,
+        "Pending": 0,
+        "DiscoveryPages": 67,
+        "DiscoveryFinished": false,
+        "LastUpdate": "2026-11-01T21:33:44.1024305+00:00",
+        "Causes": [],
+        "EpisodeQueries": 20,
+        "EpisodeRows": 80,
+        "PlaybackBatches": 52,
+        "TitlesVerified": 47,
+        "StaleResultsDiscarded": 0,
+        "VerificationMs": 251.63839999999996,
+        "RetainedSerializedBytes": 1979
+      }
+    },
+    "freshOwner": {
+      "UserId": "97106168889e43a4b71a4ce66a1262c7",
+      "DisplayName": "BrowserMember",
+      "Reasons": [
+        "CaughtUp"
+      ],
+      "LastPlayedDate": "2026-10-30T21:31:22.034Z",
+      "AvailableEpisodes": 3,
+      "WatchedEpisodes": 3,
+      "EpisodeProgress": {
+        "AiredAvailable": 3,
+        "AiredWatched": 3,
+        "ExtraEpisodes": [
+          {
+            "ItemId": "3655e38dfb504e5c1c87042df8aef42c",
+            "SeasonNumber": 2,
+            "EpisodeNumber": 2,
+            "Name": "PoC Parent Clear S02E02",
+            "PremiereDate": "2026-11-08T21:33:30.17Z",
+            "ReleaseStatus": "Future",
+            "Watched": false
+          }
+        ]
+      }
+    },
+    "series": [
+      {
+        "UserId": "97106168889e43a4b71a4ce66a1262c7",
+        "DisplayName": "BrowserMember",
+        "Reasons": [
+          "CaughtUp"
+        ],
+        "AvailableEpisodes": 3,
+        "WatchedEpisodes": 3,
+        "LastPlayedDate": "2026-10-30T21:31:22.034Z",
+        "CoverageComplete": true,
+        "EpisodeProgress": {
+          "AiredAvailable": 3,
+          "AiredWatched": 3,
+          "ExtraEpisodes": [
+            {
+              "ItemId": "3655e38dfb504e5c1c87042df8aef42c",
+              "SeasonNumber": 2,
+              "EpisodeNumber": 2,
+              "Name": "PoC Parent Clear S02E02",
+              "PremiereDate": "2026-11-08T21:33:30.17Z",
+              "ReleaseStatus": "Future",
+              "Watched": false
+            }
+          ]
+        },
+        "Watchlisted": false,
+        "CurrentlyPlaying": false
+      }
+    ]
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "sourceCommit": "7c63b26afb2215130c12a479915ffb361abfd8bc",
+  "qualification": {
+    "run": 41336407691,
+    "attempt": 1,
+    "job": 124937483105,
+    "failureArtifact": 13095637537,
+    "packageArtifact": 13094943539
+  },
+  "baseline": {
+    "fixture": "watchguard-poc-8a81b348f0",
+    "result": "PASS",
+    "interpretation": "Uncontrolled desktop/mobile sequence passed; both refresh=true requests reached the server."
+  },
+  "controlledBaseline": {
+    "fixture": "watchguard-poc-507d7af6ff",
+    "result": "EXPECTED_FAILURE",
+    "intervention": "Native idempotent series metadata update invalidated the index before Refresh; no ActivityBrowser payload was fabricated.",
+    "failure": "10000ms wait for BrowserMember extras button; accepted response HTTP 200, target absent, PendingVerification, PopulationPending=true.",
+    "freshClassification": "CaughtUp, 3/3 aired, one Future Unwatched extra."
+  },
+  "uncertainty": "Original CI trace has no activity response. Its screenshot says No matches; the controlled omission explicitly reports pending verification. The original remote cause is not established.",
+  "developmentFailure": {
+    "fixture": "watchguard-poc-5efe7c89f3",
+    "result": "FAIL",
+    "failure": "route.fulfill: Route is already handled",
+    "correction": "Remove the interceptor only after the controlled response and poll have completed; not inside its pending handler.",
+    "alsoAffectedFixture": "watchguard-poc-d0255686f4"
+  }
+}

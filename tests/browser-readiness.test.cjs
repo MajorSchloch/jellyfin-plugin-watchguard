@@ -347,3 +347,91 @@ test('Movie card lookup stays inside active Movies and rejects wrong identity or
         assert.equal(scoped,true,'Global Home cards must not be candidates');
     }
 });
+
+const extrasActivity=require('./extras-activity.cjs');
+const extraTitle='a'.repeat(32),extraUser='b'.repeat(32);
+const extrasResult=()=>({Preparing:false,Continuation:null,Items:[{ItemId:extraTitle,Name:'Target',Users:[{
+    UserId:extraUser,DisplayName:'Member',Reasons:['CaughtUp'],AvailableEpisodes:3,WatchedEpisodes:3,
+    EpisodeProgress:{AiredAvailable:3,AiredWatched:3,ExtraEpisodes:[{ReleaseStatus:'Future',Watched:false}]}
+}]}],Coverage:{Causes:[]},Freshness:{PopulationPending:false}});
+const extrasResponse=(value,refresh=true,status=200)=>({status:()=>status,json:async()=>value,
+    url:()=>`http://localhost/jellyfin/WatchGuard/ActivityBrowser?owner=all&days=30&older=true&statuses=watching&sort=title&search=${refresh?'&refresh=true':''}&api_key=credential&continuation_secret=cursor`});
+const deferred=()=>{let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};};
+const nextTurn=()=>new Promise(resolve=>setImmediate(resolve));
+function extrasFixture() {
+    const ready=deferred(),responses=[],records=[];let clicks=0;
+    const page={waitForFunction:async fn=>{assert.equal(fn,extrasActivity.refreshReady);await ready.promise;},
+        waitForResponse:(predicate,options)=>{const response=deferred();responses.push({predicate,options,...response});return response.promise;}};
+    const region={getByRole:()=>({click:async()=>{clicks++;}})};
+    return {ready,responses,records,clicks:()=>clicks,
+        run:()=>extrasActivity.refreshExtras(page,region,{itemId:extraTitle,userId:extraUser,record:r=>records.push(r),inspect:async event=>records.push({inspection:event})})};
+}
+test('Extras refresh waits for initialization, observes refresh=true, and accepts strict target progress',async()=>{
+    const f=extrasFixture(),work=f.run();await nextTurn();assert.equal(f.clicks(),0);assert.equal(f.responses.length,0);
+    f.ready.resolve();await nextTurn();assert.equal(f.clicks(),1);
+    const response=extrasResponse(extrasResult());
+    assert.equal(f.responses[0].predicate(response),true);
+    assert.equal(f.responses[0].predicate(extrasResponse(extrasResult(),false)),false);
+    f.responses[0].resolve(response);await work;
+    assert.equal(f.responses.length,1);assert.ok(f.records.some(r=>r.inspection==='accepted-refresh'));
+});
+test('Pending native verification waits for exactly one ordinary poll, not another Refresh',async()=>{
+    const f=extrasFixture();f.ready.resolve();const work=f.run();await nextTurn();
+    const pending={...extrasResult(),Items:[],Coverage:{Causes:['PendingVerification']},Freshness:{PopulationPending:true}};
+    f.responses[0].resolve(extrasResponse(pending));await nextTurn();
+    assert.equal(f.clicks(),1);assert.equal(f.responses.length,2);
+    assert.equal(f.responses[1].options.timeout,45000,'Bound covers one unchanged 30-second UI poll');
+    assert.equal(f.responses[1].predicate(extrasResponse(extrasResult())),false);
+    assert.equal(f.responses[1].predicate(extrasResponse(extrasResult(),false)),true);
+    f.responses[1].resolve(extrasResponse(extrasResult(),false));await work;
+    assert.equal(f.clicks(),1);assert.equal(f.responses.length,2);
+});
+for(const fault of ['empty','wrong-member','wrong-progress','future-watched','status','pending-flag-only','pending-cause-only']) {
+    test('Extras contract rejects '+fault+' without a retry',async()=>{
+        const f=extrasFixture();f.ready.resolve();const work=f.run(),rejected=assert.rejects(work);await nextTurn();
+        const value=extrasResult();let status=200;
+        if(fault==='empty')value.Items=[];
+        if(fault==='wrong-member')value.Items[0].Users[0].UserId='c'.repeat(32);
+        if(fault==='wrong-progress')value.Items[0].Users[0].EpisodeProgress.AiredWatched=2;
+        if(fault==='future-watched')value.Items[0].Users[0].EpisodeProgress.ExtraEpisodes[0].Watched=true;
+        if(fault==='status')status=503;
+        if(fault==='pending-flag-only'){value.Items=[];value.Freshness.PopulationPending=true;}
+        if(fault==='pending-cause-only'){value.Items=[];value.Coverage.Causes=['PendingVerification'];}
+        f.responses[0].resolve(extrasResponse(value,true,status));await rejected;
+        assert.equal(f.responses.length,1);assert.equal(f.clicks(),1);
+        assert.ok(f.records.some(r=>r.event==='accepted-refresh'),'Failure evidence precedes assertions');
+    });
+}
+test('First poll omission remains a failure; no repeat-until-success loop',async()=>{
+    const f=extrasFixture();f.ready.resolve();const work=f.run(),rejected=assert.rejects(work);await nextTurn();
+    const pending={...extrasResult(),Items:[],Coverage:{Causes:['PendingVerification']},Freshness:{PopulationPending:true}};
+    f.responses[0].resolve(extrasResponse(pending));await nextTurn();
+    f.responses[1].resolve(extrasResponse(pending,false));await rejected;
+    assert.equal(f.responses.length,2);assert.equal(f.clicks(),1);
+});
+test('Extras evidence records query/coverage and only target data; credentials and opaque values are omitted',()=>{
+    const value=extrasResult();value.Items.push({ItemId:'c'.repeat(32),Name:'Unrelated private title'});
+    value.Continuation='private cursor';value.Freshness.Revision='private revision';
+    value.Token='secret';value.Items[0].Users[0].AccessToken='secret';
+    const evidence=extrasActivity.sample(extrasResponse(value),value,extraTitle),text=JSON.stringify(evidence);
+    assert.equal(evidence.query.refresh,'true');assert.equal(evidence.target.length,1);
+    assert.equal(evidence.hasContinuation,true);assert.equal(evidence.Freshness.hasRevision,true);
+    assert.doesNotMatch(text,/credential|private|secret|Unrelated|AccessToken|api_key/);
+    assert.equal(extrasActivity.matches({url:()=>extrasResponse(value).url()+'&check=true'},true),false);
+    assert.equal(extrasActivity.matches({url:()=>extrasResponse(value).url()+'&continuation=opaque'},true),false);
+});
+
+test('Controlled pending response does not depend on native worker state or fetch a replacement',async()=>{
+    let fulfilled;
+    await extrasActivity.fulfillPending({fetch:()=>assert.fail('No native timing dependency'),
+        fulfill:async response=>{assert.equal(fulfilled,undefined,'One controlled response');fulfilled=response;}});
+    assert.equal(fulfilled.status,200);
+    assert.deepEqual(fulfilled.json.Items,[]);
+    assert.equal(fulfilled.json.Freshness.PopulationPending,true);
+    assert.deepEqual(fulfilled.json.Coverage.Causes,['PendingVerification']);
+    const response={...extrasResponse(fulfilled.json),headers:()=>fulfilled.headers};
+    assert.equal(extrasActivity.sample(response,fulfilled.json,extraTitle).source,'test-controlled');
+    assert.equal(extrasActivity.sample(extrasResponse(extrasResult(),false),extrasResult(),extraTitle).source,'native');
+    // An already-settled native result remains valid in the ordinary path.
+    extrasActivity.assertExtras(extrasResult(),extraTitle,extraUser);
+});

@@ -1,0 +1,77 @@
+{
+  "elapsedSeconds": 231.306,
+  "phases": [
+    {
+      "phase": "workspace",
+      "status": "PASS",
+      "seconds": 0.004
+    },
+    {
+      "phase": "container-start",
+      "status": "PASS",
+      "seconds": 7.457
+    },
+    {
+      "phase": "native-setup-authentication",
+      "status": "PASS",
+      "seconds": 0.428
+    },
+    {
+      "phase": "background-tasks",
+      "status": "PASS",
+      "seconds": 3.742
+    },
+    {
+      "phase": "generate-media",
+      "status": "PASS",
+      "seconds": 1.759
+    },
+    {
+      "phase": "configure-libraries",
+      "status": "PASS",
+      "seconds": 2.592
+    },
+    {
+      "phase": "media-indexing",
+      "status": "PASS",
+      "seconds": 2.282
+    },
+    {
+      "phase": "installation-and-regressions",
+      "status": "PASS",
+      "seconds": 0.077
+    },
+    {
+      "phase": "current-backend-contracts",
+      "status": "PASS",
+      "seconds": 2.168
+    },
+    {
+      "phase": "proxy-and-browser-setup",
+      "status": "PASS",
+      "seconds": 0.083
+    },
+    {
+      "phase": "browser-standalone",
+      "status": "PASS",
+      "seconds": 2.263
+    },
+    {
+      "phase": "browser-settings",
+      "status": "PASS",
+      "seconds": 12.239
+    },
+    {
+      "phase": "browser-actions-and-permissions",
+      "status": "FAIL",
+      "seconds": 195.663,
+      "exceptionType": "CalledProcessError",
+      "message": "Command '['node', 'tests/browser-poc.cjs', '/var/folders/7g/56cjc1k978n1zdr5lpgv4ff40000gn/T/watchguard-poc-z1g5tcht/fixture.json']' returned non-zero exit status 1."
+    },
+    {
+      "phase": "teardown",
+      "status": "PASS",
+      "seconds": 0.456
+    }
+  ]
+}
