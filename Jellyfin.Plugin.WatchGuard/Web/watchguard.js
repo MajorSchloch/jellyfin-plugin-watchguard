@@ -937,7 +937,11 @@
                 } catch (failure) {
                     if (authorizationDenied(failure) || !current()) return;
                     queryFailure(failure); failures.push('Could not continue this view; loaded results are retained. Use Refresh to retry.'); break;
-                } finally { if (current()) { pending = false; render(); } }
+                } finally {
+                    // A changed history marker cancels restoration, not this
+                    // page's loading controls. Never settle another generation.
+                    if (active() && revision === generation) { pending = false; render(); }
+                }
             }
             if (returning && current()) {
                 returning = null;

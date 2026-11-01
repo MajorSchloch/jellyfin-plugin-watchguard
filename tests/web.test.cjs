@@ -1713,6 +1713,7 @@ for(const exit of ['abort','account','route','entry']) test('Return response can
     if(exit==='abort')f.abort.abort();else if(exit==='account')f.changeAccount();else same=false;
     const oldCards=[...f.page.children[5].children];f.calls[2].resolve(indexedResult([returnItem('b')],'page3'));await turn();
     assert.equal(f.focus.length,0);assert.equal(f.page.scrollTop,0);assert.equal(f.calls.length,3);assert.deepEqual(f.page.children[5].children,oldCards);
+    if(exit==='route'||exit==='entry'){assert.equal(f.page.getAttribute('aria-busy'),'false');assert.equal(f.page.children.at(-1).disabled,false,'History changes cannot leave current loading controls busy');}
 });
 
 for(const status of [401,403]) test('Return authorization denial clears rows and all saved return context: '+status,async t=>{
