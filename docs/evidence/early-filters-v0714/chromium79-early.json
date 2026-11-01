@@ -1,0 +1,131 @@
+{
+  "engine": "Chromium 79",
+  "cases": [
+    {
+      "width": 1280,
+      "result": "PASS",
+      "state": {
+        "frames": 60,
+        "replacements": 0,
+        "home": 0,
+        "focus": "Search titles",
+        "disclosure": true
+      },
+      "preferencesReads": 1,
+      "query": {
+        "owner": "mine",
+        "days": "7",
+        "older": "false",
+        "statuses": "watched",
+        "sort": "added",
+        "search": "PoC"
+      },
+      "roundTrips": [
+        {
+          "via": "control",
+          "sort": "title",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        },
+        {
+          "via": "history",
+          "sort": "title",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        },
+        {
+          "via": "equivalent",
+          "sort": "added",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        }
+      ],
+      "transition": {
+        "frames": 111,
+        "replacements": 0,
+        "home": 0
+      }
+    },
+    {
+      "width": 390,
+      "result": "PASS",
+      "state": {
+        "frames": 48,
+        "replacements": 0,
+        "home": 0,
+        "focus": "Search titles",
+        "disclosure": true
+      },
+      "preferencesReads": 1,
+      "query": {
+        "owner": "mine",
+        "days": "7",
+        "older": "false",
+        "statuses": "watched",
+        "sort": "added",
+        "search": "PoC"
+      },
+      "roundTrips": [
+        {
+          "via": "control",
+          "sort": "title",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        },
+        {
+          "via": "history",
+          "sort": "title",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        },
+        {
+          "via": "equivalent",
+          "sort": "added",
+          "activityRequests": 1,
+          "retained": {
+            "panel": true,
+            "focus": "Sort by",
+            "disclosure": true,
+            "lookups": 1
+          },
+          "result": "PASS"
+        }
+      ],
+      "transition": {
+        "frames": 98,
+        "replacements": 0,
+        "home": 0
+      }
+    }
+  ]
+}

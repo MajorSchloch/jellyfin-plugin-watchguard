@@ -699,6 +699,8 @@
         let queryQueue = Promise.resolve();
         const automaticRequestBudget = 4;
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
+        let initialization = null;
+        filter = filter || 'mine';
         let kind = selectedStatuses(options.interest);
         let sort = ['title', 'recent', 'added'].includes(options.sort) ? options.sort : 'title';
         const page = document.createElement('section'); page.className = 'watchguard-page backgroundContainer padded-left padded-right';
@@ -818,9 +820,10 @@
         if (options.indexedActivity) { status.after?.(freshness); page.append(updates, more); }
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
-        let directory = [], loadedScope, viewSignature, ownerChoices;
+        let directory = [], loadedScope, viewSignature, viewGeneration, ownerChoices;
+        const requestedView = () => JSON.stringify([filter, kind, sort, range, includeOlder, searchText]);
         let polling = false;
-        let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, coverageInfo = null, failures = [];
+        let generation = 0, admin = false, accountKnown = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, coverageInfo = null, failures = [];
         const cards = new Map();
         // Action feedback survives data refreshes. A retry clears only its title;
         // a changed filter context or page/account teardown clears all feedback.
@@ -1017,30 +1020,54 @@
             liveStale = true;
             if (check) checkFailed = true; else queryFailed = true;
         }
+        // Account/preferences belong to the page lifetime, not a query generation.
+        // Early controls share this work; only the latest load may request data.
+        function initialize() {
+            if (initialization) return initialization;
+            const operation = (async () => {
+                const account = await api.getCurrentUser();
+                if (!active()) return null;
+                admin = account.Policy?.IsAdministrator === true; accountKnown = true;
+                if (options.indexedActivity) render();
+                if (options.preferences && !preferencesLoaded) {
+                    try {
+                        const result = await preferenceRequest(api);
+                        if (!active()) return null;
+                        if (!result || typeof result.Owner !== 'string' || !Array.isArray(result.Statuses) || result.Statuses.some(s => !activityFilters[s]) || !['title','recent','added'].includes(result.Sort)) throw new Error('Invalid preferences');
+                        saved = result;
+                    } catch (failure) {
+                        if (authorizationDenied(failure)) return null;
+                        if (active()) preferenceMessage.textContent = 'Saved defaults unavailable. Using URL or built-in defaults; stored data was not changed.';
+                    }
+                    if (!active()) return null;
+                    preferencesLoaded = true;
+                    // raw is the latest URL/control intent, including changes made
+                    // while this request was pending. Saved values fill gaps only.
+                    const view = preferenceView(saved, raw.owner, raw.interest, raw.sort);
+                    filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
+                }
+                return account;
+            })();
+            initialization = operation;
+            const finished = () => { if (initialization === operation) initialization = null; };
+            operation.then(finished, finished);
+            return operation;
+        }
         async function load(prioritize = false) {
             if (!active()) return;
             const revision = ++generation;
+            // Own the requested view before account/preferences initialization.
+            // A return to an earlier view must replace intervening work; an
+            // equivalent update must retain work that still owns this generation.
+            viewGeneration = revision; viewSignature = requestedView();
             const current = () => active() && revision === generation;
             polling = false; pending = true; failures = []; coverage = ''; coverageLimited = false; coverageInfo = null; notice.hidden = true; refresh.setAttribute('aria-disabled', 'true');
             status.textContent = 'Loading watchlists…'; spinner.hidden = false; status.append(spinner); page.setAttribute('aria-busy', 'true'); renderErrors();
             try {
-                const account = await api.getCurrentUser();
-                if (!current()) return;
-                admin = account.Policy?.IsAdministrator === true;
-                if (options.preferences && !preferencesLoaded) {
-                    try {
-                        const result = await preferenceRequest(api);
-                        if (!current()) return;
-                        if (!result || typeof result.Owner !== 'string' || !Array.isArray(result.Statuses) || result.Statuses.some(s => !activityFilters[s]) || !['title','recent','added'].includes(result.Sort)) throw new Error('Invalid preferences');
-                        saved = result;
-                    } catch (failure) { if (authorizationDenied(failure)) return; if (current()) preferenceMessage.textContent = 'Saved defaults unavailable. Using URL or built-in defaults; stored data was not changed.'; }
-                    if (!current()) return;
-                    preferencesLoaded = true;
-                    const view = preferenceView(saved, raw.owner, raw.interest, raw.sort);
-                    filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
-                }
+                const account = await initialize();
+                if (!current() || !account) return;
                 const scope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-                loadedScope = scope; viewSignature = JSON.stringify([scope, kind, sort, range, includeOlder, searchText]);
+                loadedScope = scope; viewSignature = requestedView();
                 if (admin && !directory.length) {
                     const owners = await request(api, 'Users');
                     if (!current()) return;
@@ -1165,9 +1192,9 @@
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
             if (previousView !== JSON.stringify([filter, kind, sort, range, includeOlder, searchText])) clearRemovalFeedback();
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
-            if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false; loadedPages = 1; pending = true; render(); load(); } else render();
+            if (options.indexedActivity ? viewGeneration !== generation || viewSignature !== requestedView() : !loadedScope || nextScope !== loadedScope || timeChanged) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false; loadedPages = 1; pending = true; render(); load(); } else render();
         };
-        const change = () => { if (active()) { if (options.indexedActivity) generation++; const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
+        const change = () => { if (active()) { const args = [accountKnown ? select.value || 'mine' : filter, kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
         search.oninput = () => {
             if (!active()) return;
             generation++; clearRemovalFeedback(); if (searchTimer) clearTimeout(searchTimer);
@@ -1176,7 +1203,7 @@
         };
         select.onchange = change; order.onchange = change; rangeSelect.onchange = change; olderToggle.onchange = change;
         refresh.onclick = () => { if (refresh.getAttribute('aria-disabled') !== 'true') return load(true); };
-        if (!signal.aborted) load();
+        if (!signal.aborted) { render(); load(); }
         return page;
     }
 
