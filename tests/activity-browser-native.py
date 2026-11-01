@@ -113,7 +113,7 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series, pha
               'fixture': {'users': 7, 'movies': 120, 'series': 1, 'episodes': 300,
                           'explicitMemberships': 6, 'liveOwners': 1},
               'limitations': ['Known fixture only; no exhaustive-library claim.',
-                             'v0.6 client semantics require collecting all pages to filter/sort globally; its raw first page is recorded separately.',
+                             ('v0.6 historical comparison' if historical else 'Current indexed/membership reference') + ' collects authorized rows to check combined-query membership, owners, reasons and order.',
                              'Candidate preparation can span requests; first ordered page includes preparation cost.',
                              'Three warm samples, sequential native requests, no concurrency/load claim.'], 'measurements': {}}
     explicit = next(i for i in call('/Items?Recursive=true&IncludeItemTypes=Movie&Limit=1000', token=token)['Items'] if not i['Name'].startswith('Index Movie'))
@@ -178,7 +178,11 @@ def run(call, restart, docker, name, plugins, token, owners, movies, series, pha
     try:
         for label, payload in ([('v060', old)] if historical else [('current-reference', candidate)]) + [('candidate', candidate)]:
             phases.phase(label + '-query-population')
-            docker('stop', name); dll.write_bytes(payload); restart(); report[label + 'SettleMs'] = settle()
+            if historical:
+                docker('stop', name); dll.write_bytes(payload); restart()
+            # Current reference and combined query use the same deployed DLL.
+            # Cold rebuild is already asserted by activity-index-native.py.
+            report[label + 'SettleMs'] = settle()
             live_user = call('/Users/AuthenticateByName', 'POST', {'Username': 'IndexUser0', 'Pw': 'DisposableIndex123!'})
             call('/Sessions/Playing', 'POST', {'ItemId': movies[1]['Id'], 'PlayMethod': 'DirectPlay', 'PositionTicks': 10000}, live_user['AccessToken'], expected=204)
             settle()

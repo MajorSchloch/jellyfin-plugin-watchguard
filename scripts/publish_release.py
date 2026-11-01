@@ -36,7 +36,7 @@ def fingerprint(release):
 def verify_existing(api, record, archive, release):
     if release is None:
         return
-    require(marker(record) in (release.get('body') or ''), 'Release lacks this qualification marker. Inspect provenance manually; no overwrite is permitted.')
+    require(re.findall(r'<!--\s*watchguard-qualified\b.*?(?:-->|$)', release.get('body') or '', flags=re.DOTALL) == [marker(record)], 'Release lacks this qualification marker. Inspect provenance manually; no overwrite is permitted.')
     require(release['target_commitish'] == record['sourceCommit'], 'Release target differs from the exact qualified commit.')
     tag = api.tag('v' + record['version'])
     require(tag in (None, record['sourceCommit']), 'Tag differs from the exact qualified commit.')
@@ -181,9 +181,13 @@ def main():
         if args.automatic and args.attempt is None:
             event_run = api.request(f'actions/runs/{args.run}')
             jobs = api.pages(f"actions/runs/{args.run}/attempts/{event_run['run_attempt']}/jobs", 'jobs')
-            if not any(j['name'] == 'Verify complete compatibility evidence' and j['conclusion'] == 'success' for j in jobs):
-                result.update(state='checked', actions=['No sealed qualification completed. No publication writes.'])
+            gates = [j for j in jobs if j['name'] == 'Verify complete compatibility evidence']
+            inventory = api.pages(f'actions/runs/{args.run}/artifacts', 'artifacts')
+            has_seal = any(re.fullmatch(r'WatchGuard-qualification-attempt-\d+', a['name']) for a in inventory)
+            if not has_seal and gates and all(j['conclusion'] == 'skipped' for j in gates):
+                result.update(state='checked', actions=['No qualification was requested. No publication writes.'])
                 outputs(publish=False)
+                summary('Checked', result['actions'][0])
                 return
         if args.attempt is None:
             require(args.automatic, 'Explicit recovery requires the original qualification attempt.')

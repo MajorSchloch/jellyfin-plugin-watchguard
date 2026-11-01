@@ -394,6 +394,46 @@ class ReleaseStateTests(unittest.TestCase):
             self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
         self.assertEqual(self.api.writes.count(('POST', 'releases')), 1)
 
+    def test_upload_and_publish_readback_accept_only_the_known_prior_snapshot(self):
+        request, upload = self.api.request, self.api.upload
+        stale = {'value':None,'reads':0}
+        def delayed(path, *args, **kwargs):
+            if args and args[0]=='PATCH':
+                stale.update(value=copy.deepcopy(self.api.current),reads=2)
+            value=request(path,*args,**kwargs)
+            if stale['reads'] and (path=='releases/9' and not args or path.startswith('releases?')):
+                stale['reads']-=1
+                return copy.deepcopy(stale['value']) if path=='releases/9' else [copy.deepcopy(stale['value'])]
+            return value
+        def delayed_upload(*args):
+            stale.update(value=copy.deepcopy(self.api.current),reads=2)
+            return upload(*args)
+        with patch.object(self.api,'request',side_effect=delayed),patch.object(self.api,'upload',side_effect=delayed_upload),patch.object(publisher.time,'sleep'):
+            self.assertEqual(publisher.resume(self.api,self.record,self.archive,True)[0],'catalog updated')
+        self.assertEqual([op for op,_ in self.api.writes],['POST','UPLOAD','UPLOAD','PATCH','PUT'])
+
+    def test_failed_publisher_retry_keeps_qualification_attempt_and_record_id(self):
+        record={**self.record,'recordArtifactId':99}
+        run=dict(id=123,run_attempt=2,head_sha=COMMIT)
+        request=self.api.request
+        def api_request(path,*args,**kwargs):
+            if path=='actions/runs/123/attempts/2': return run
+            return request(path,*args,**kwargs)
+        output=self.root/'publication.json'
+        args=['publish_release.py','--repo',REPO,'--run','123','--attempt','2','--record-id','99','--write','--output',str(output)]
+        with patch('sys.argv',args),patch.dict(os.environ,{'GITHUB_RUN_ID':'456','GITHUB_RUN_ATTEMPT':'7'}),patch.object(publisher,'GitHub',return_value=self.api),patch.object(self.api,'request',side_effect=api_request),patch.object(provenance,'check_run',return_value=self.api.repository),patch.object(provenance,'load',return_value=(record,self.archive)) as load:
+            self.api.fail_catalog=True
+            with self.assertRaisesRegex(state.Blocked,'Simulated failure'): publisher.main()
+            failed=json.loads(output.read_text())
+            self.assertEqual((failed['qualificationRun'],failed['qualificationAttempt']),(123,2))
+            self.assertEqual((failed['publicationRun'],failed['publicationAttempt']),('456','7'))
+            self.assertFalse(self.api.current['draft'])
+            self.api.fail_catalog=False;self.api.writes.clear()
+            with patch.dict(os.environ,{'GITHUB_RUN_ATTEMPT':'8'}): publisher.main()
+            self.assertEqual(self.api.writes,[('PUT','contents/manifest.json')])
+            self.assertEqual(json.loads(output.read_text())['qualificationAttempt'],2)
+            self.assertTrue(all(call.args[1:3]==(123,2) for call in load.call_args_list))
+
     def test_readback_exhaustion_retains_draft_for_explicit_retry(self):
         original = self.api.request
         def delayed(path, *args, **kwargs):
@@ -622,6 +662,8 @@ class QualificationRecordTests(unittest.TestCase):
         self.package_files = {name:package, name+'.sha256':f'{state.digest(package)}  {name}\n'.encode()}
         self.blobs = {10:self.zip(self.package_files)}
         self.inventory = [self.asset(10,provenance.artifact_name('package',2),self.blobs[10])]
+        self.previous_asset=self.asset(11,provenance.artifact_name('previous-stable',2),b'previous-stable')
+        self.inventory.append(self.previous_asset)
         self.inventory += [self.asset(i,n,b'evidence') for i,n in enumerate(provenance.expected_evidence(2),20)]
         reports = [dict(schemaVersion=2,jellyfinVersion=v,suite=s,shard=qualification.SUITE_SHARD[s],status='PASS',commit=COMMIT,
                        packageSha256=state.digest(package),runtimeSha256=state.digest(runtime),upgradeBaseline=dict(result='PASS',candidateSha256=state.digest(package),previous={'sha256':'baseline'},previousDllSha256='old-dll'),proxyMatrix=s=='server-enforcement',
@@ -631,7 +673,7 @@ class QualificationRecordTests(unittest.TestCase):
         result=qualification.verify(reports,COMMIT,state.digest(package),state.digest(runtime),True)
         self.record=dict(schemaVersion=1,repository=REPO,sourceCommit=COMMIT,run=123,attempt=2,workflow=provenance.WORKFLOW,
                          version=VERSION,publishRequested=True,supportedHosts=list(qualification.VERSIONS),suiteInventory=qualification.PLAN,qualificationPolicy=qualification.POLICY,
-                         proxyMatrix=True,packageArtifact=copy.deepcopy(self.inventory[0]),evidenceArtifacts=copy.deepcopy(self.inventory[1:]),qualification=result)
+                         proxyMatrix=True,packageArtifact=copy.deepcopy(self.inventory[0]),previousStableArtifact=copy.deepcopy(self.previous_asset),evidenceArtifacts=copy.deepcopy(self.inventory[2:]),qualification=result)
         names=['build','Verify complete compatibility evidence']+[f'Integration / {v} / {s}' for row in qualification.MATRIX for v,s in [(row['jellyfin_version'],row['shard'])]]
         self.jobs=[dict(name=n,conclusion='success',run_attempt=2) for n in names]
 

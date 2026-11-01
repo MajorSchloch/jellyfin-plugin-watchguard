@@ -1,0 +1,2601 @@
+{
+  "runId": 41258353082,
+  "runAttempt": 1,
+  "commit": "b0503ca16b9ee2216e310eb1d5aa373041abbd20",
+  "status": "completed",
+  "conclusion": "success",
+  "elapsedSeconds": 1968.0,
+  "combinedJobExecutionSeconds": 22209.0,
+  "combinedReadyToStartSeconds": 50.0,
+  "queueDefinition": "Dependency-ready to job start; includes scheduler/runner provisioning and, for publication, environment approval. GitHub does not expose an exact runner queue timestamp.",
+  "elapsedDefinition": "First attempt: workflow creation to completion. Later attempts: attempt start to completion.",
+  "executionDefinition": "Sum of completed non-skipped job intervals, including setup and cleanup; overlapping jobs count separately.",
+  "incompleteJobs": [],
+  "jobs": [
+    {
+      "name": "plan",
+      "id": 124706225171,
+      "conclusion": "success",
+      "executionSeconds": 9.0,
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run python3 scripts/release_plan.py --publish 'true' --inspect-only 'false'",
+          "category": "other",
+          "seconds": 3.0
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "build",
+      "id": 124706264186,
+      "conclusion": "success",
+      "executionSeconds": 72.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 11.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run python3 scripts/build-release.py",
+          "category": "other",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run dotnet test Jellyfin.Plugin.WatchGuard.slnx -c Release --no-restore --logger trx --results-directory artifacts/testing/backend",
+          "category": "other",
+          "seconds": 12.0
+        },
+        {
+          "name": "Run node --test tests/web.test.cjs tests/standalone-bootstrap.test.cjs tests/startup.test.cjs tests/server-enforcement.test.cjs tests/browser-readiness.test.cjs",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run python3 -m unittest discover -s tests -p 'test_*.py'",
+          "category": "other",
+          "seconds": 3.0
+        },
+        {
+          "name": "Run python3 scripts/check-release-notes.py",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run python3 tests/catalog_test.py",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Protect published installation metadata",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run python3 scripts/catalog.py --zip artifacts/Jellyfin.Plugin.WatchGuard-v0.7.13.zip",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Compare identical models with published v0.4.7",
+          "category": "other",
+          "seconds": 4.0
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Rebuild and verify determinism",
+          "category": "other",
+          "seconds": 5.0
+        },
+        {
+          "name": "Retain build and backend test diagnostics",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / activity-native",
+      "id": 124706528335,
+      "conclusion": "success",
+      "executionSeconds": 1136.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 15.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1064.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / verification-navigation",
+      "id": 124706528350,
+      "conclusion": "success",
+      "executionSeconds": 1559.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 8.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 31.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 21.0
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1473.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / activity-browser",
+      "id": 124706528353,
+      "conclusion": "success",
+      "executionSeconds": 1087.0,
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 32.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 989.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / standalone-discovery",
+      "id": 124706528359,
+      "conclusion": "success",
+      "executionSeconds": 1211.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 30.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Download and verify standalone rollback fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.1 production baseline",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify v0.4.2 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.3 production baseline",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify v0.4.4 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 37.0
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.8",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify published v0.5.0 preference rollback baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify immutable published v0.4.10 rollback baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.5.2 rollback baseline",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1099.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / enforcement-legacy",
+      "id": 124706528368,
+      "conclusion": "success",
+      "executionSeconds": 1057.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 17.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 23.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 26.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 953.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / standalone-discovery",
+      "id": 124706528372,
+      "conclusion": "success",
+      "executionSeconds": 1272.0,
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 8.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Download and verify standalone rollback fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.1 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.2 production baseline",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify v0.4.3 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.4 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 30.0
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.8",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.5.0 preference rollback baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify immutable published v0.4.10 rollback baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.5.2 rollback baseline",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1170.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / migration-browser",
+      "id": 124706528380,
+      "conclusion": "success",
+      "executionSeconds": 1095.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 34.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 37.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 978.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / enforcement-legacy",
+      "id": 124706528382,
+      "conclusion": "success",
+      "executionSeconds": 1039.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 7.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 23.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 25.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 945.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / verification-navigation",
+      "id": 124706528387,
+      "conclusion": "success",
+      "executionSeconds": 1843.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 3.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 33.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 21.0
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1747.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / activity-browser",
+      "id": 124706528401,
+      "conclusion": "success",
+      "executionSeconds": 1083.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 24.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 11.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 27.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 988.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 1.0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / activity-native",
+      "id": 124706528403,
+      "conclusion": "success",
+      "executionSeconds": 1138.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 32.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 22.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1049.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / migration-browser",
+      "id": 124706528404,
+      "conclusion": "success",
+      "executionSeconds": 1024.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 8.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 8.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 4.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 32.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 33.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 922.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / activity-browser",
+      "id": 124706528405,
+      "conclusion": "success",
+      "executionSeconds": 1085.0,
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 2.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 30.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 987.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / enforcement-legacy",
+      "id": 124706528406,
+      "conclusion": "success",
+      "executionSeconds": 1063.0,
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 7.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 25.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 29.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 959.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / activity-native",
+      "id": 124706528408,
+      "conclusion": "success",
+      "executionSeconds": 1120.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 26.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 15.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1047.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.3 / verification-navigation",
+      "id": 124706528420,
+      "conclusion": "success",
+      "executionSeconds": 1851.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 25.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 15.0
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1778.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.4 / standalone-discovery",
+      "id": 124706528467,
+      "conclusion": "success",
+      "executionSeconds": 1306.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 5.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 23.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Install zstd decoder where tested",
+          "category": "setup",
+          "seconds": 10.0
+        },
+        {
+          "name": "Download and verify standalone rollback fixture",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify v0.4.1 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.2 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.3 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.4 production baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify v0.4.5 production baseline",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 25.0
+        },
+        {
+          "name": "Download and verify published v0.4.6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.7",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.8",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.5.0 preference rollback baseline",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify immutable published v0.4.10 rollback baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Download and verify published v0.5.2 rollback baseline",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1212.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "Integration / 12.2 / migration-browser",
+      "id": 124706528523,
+      "conclusion": "success",
+      "executionSeconds": 1135.0,
+      "readyToStartSeconds": 3.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Resolve balanced suite plan",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/setup-dotnet@v5",
+          "category": "setup",
+          "seconds": 8.0
+        },
+        {
+          "name": "Run actions/setup-node@v5",
+          "category": "setup",
+          "seconds": 6.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Extract verified release candidate for Docker fixture",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Build Injector fixture (rollback/legacy only)",
+          "category": "other",
+          "seconds": 7.0
+        },
+        {
+          "name": "Run npm ci --prefix tests/browser",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Preinstalled browser setup",
+          "category": "setup",
+          "seconds": 25.0
+        },
+        {
+          "name": "Verify locked browser and diagnostic tools",
+          "category": "other",
+          "seconds": 1.0
+        },
+        {
+          "name": "Download and verify published legacy fixtures where needed",
+          "category": "download",
+          "seconds": 1.0
+        },
+        {
+          "name": "Pull pinned test image with registry backoff",
+          "category": "download",
+          "seconds": 30.0
+        },
+        {
+          "name": "Download and verify published v0.4.9",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Complete disposable regression suite",
+          "category": "fixtures-and-checks",
+          "seconds": 1035.0
+        },
+        {
+          "name": "Upload suite evidence",
+          "category": "evidence-and-cleanup",
+          "seconds": 3.0
+        },
+        {
+          "name": "Post Run actions/setup-node@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@v5",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 1.0
+        }
+      ]
+    },
+    {
+      "name": "Verify complete compatibility evidence",
+      "id": 124713173207,
+      "conclusion": "success",
+      "executionSeconds": 20.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Run actions/checkout@v6",
+          "category": "setup",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/setup-python@v6",
+          "category": "setup",
+          "seconds": 9.0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/download-artifact@v6",
+          "category": "download",
+          "seconds": 2.0
+        },
+        {
+          "name": "Require every host and suite to have tested this exact package",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Seal the exact run and artifact provenance",
+          "category": "other",
+          "seconds": 2.0
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Qualified; publication requires separate environment approval",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Report execution and queue timing separately",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Run actions/upload-artifact@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Post Run actions/setup-python@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 0
+        },
+        {
+          "name": "Post Run actions/checkout@v6",
+          "category": "evidence-and-cleanup",
+          "seconds": 1.0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "name": "status",
+      "id": 124713250004,
+      "conclusion": "success",
+      "executionSeconds": 4.0,
+      "readyToStartSeconds": 2.0,
+      "readyDelayIncludesApproval": false,
+      "steps": [
+        {
+          "name": "Set up job",
+          "category": "setup",
+          "seconds": 0
+        },
+        {
+          "name": "State the result and next action",
+          "category": "other",
+          "seconds": 0
+        },
+        {
+          "name": "Complete job",
+          "category": "other",
+          "seconds": 0
+        }
+      ]
+    }
+  ]
+}

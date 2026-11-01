@@ -12,7 +12,8 @@
         "enforcement",
         "platforms",
         "upgrade",
-        "browser79"
+        "browser79",
+        "visibility"
       ]
     },
     "12.3": {
@@ -49,6 +50,9 @@
     ],
     "browser79": [
       "browser79"
+    ],
+    "visibility": [
+      "verification"
     ]
   },
   "suites": {
@@ -163,6 +167,21 @@
         ],
         "env": {}
       }
+    ],
+    "verification": [
+      {
+        "id": "current-native-visibility-policies",
+        "command": [
+          "tests/docker-smoke.py",
+          "--profile",
+          "verification"
+        ],
+        "env": {
+          "WATCHGUARD_CURRENT_ONLY": "1",
+          "WATCHGUARD_VERIFICATION_POLICIES": "1",
+          "WATCHGUARD_VERIFICATION_OUTPUT": "artifacts/verification-current-policies.json"
+        }
+      }
     ]
   },
   "retired": [
@@ -171,6 +190,6 @@
     "v0.4.x/v0.5.x preference rollback and catalog upgrade ladders",
     "v0.4.5/v0.4.7 discovery and verification performance comparisons",
     "v0.5.2/v0.6.0 activity performance comparisons",
-    "Repeated large-library verification benchmark (backend policy/security tests retained)"
+    "Repeated default large-library benchmark; current native episode/folder/tag/rating policy checks remain mandatory on 12.4"
   ]
 }

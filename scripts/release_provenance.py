@@ -81,6 +81,7 @@ def seal(api, result, package_id, attempt, publish_requested):
     package = one_artifact(inventory, artifact_name('package', attempt), run, repo['id'])
     require(package['id'] == package_id, 'Build artifact ID changed.')
     evidence = [one_artifact(inventory, name, run, repo['id']) for name in expected_evidence(attempt)]
+    previous = one_artifact(inventory, artifact_name('previous-stable', attempt), run, repo['id'])
     for report in result['suites']:
         require(report.get('origin') == {'repository': api.repo, 'run': run['id'], 'attempt': attempt},
                 'Suite evidence comes from another run or attempt.')
@@ -88,7 +89,7 @@ def seal(api, result, package_id, attempt, publish_requested):
                 workflow=WORKFLOW, version=candidate(), publishRequested=publish_requested,
                 supportedHosts=list(qualification.VERSIONS), suiteInventory=qualification.PLAN, qualificationPolicy=qualification.POLICY,
                 proxyMatrix=all(r.get('proxyMatrix') for r in result['suites'] if r['suite'] == 'server-enforcement'),
-                packageArtifact=package, evidenceArtifacts=evidence, qualification=result)
+                packageArtifact=package, previousStableArtifact=previous, evidenceArtifacts=evidence, qualification=result)
 
 
 def sealed_attempt(api, run_id):
@@ -125,8 +126,8 @@ def load(api, run_id, attempt, folder, allow_branch=False, allow_validation=Fals
     require(not require_proxy or record['proxyMatrix'] is True, 'Publication requires the full proxy matrix. Run validation with proxy_matrix=true.')
     metadata, _ = api.file('Directory.Build.props', run['head_sha'])
     require(candidate(metadata) == record['version'], 'Qualified source version differs from record.')
-    expected = [artifact_name('package', attempt)] + expected_evidence(attempt)
-    recorded = [record['packageArtifact']] + record['evidenceArtifacts']
+    expected = [artifact_name('package', attempt), artifact_name('previous-stable', attempt)] + expected_evidence(attempt)
+    recorded = [record['packageArtifact'], record['previousStableArtifact']] + record['evidenceArtifacts']
     require([a['name'] for a in recorded] == expected, 'Artifact inventory is incomplete or duplicated.')
     for asset in recorded:
         current = one_artifact(inventory, asset['name'], run, repo['id'])

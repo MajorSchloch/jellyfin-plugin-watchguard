@@ -24,7 +24,7 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual('12.2.0.0', qualification.POLICY['minimumAbi'])
         self.assertEqual({'activity-index','activity-browser','basepath','basepath-navigation',
                           'server-enforcement','server-enforcement-basepath','server-enforcement-linuxserver',
-                          'upgrade','browser79'}, set(qualification.SUITES))
+                          'upgrade','browser79','verification'}, set(qualification.SUITES))
         self.assertEqual({'basepath','server-enforcement','upgrade'}, {s for v,s in qualification.PAIRS if v=='12.3'})
         self.assertTrue(any('--previous-stable' in c['command'] for c in qualification.PLAN['upgrade']))
         self.assertTrue(any('--browser79' in c['command'] for c in qualification.PLAN['browser79']))
@@ -34,7 +34,7 @@ class QualificationTests(unittest.TestCase):
         self.assertNotIn('migration',qualification.SUITES)
 
     def test_complete_identical_package_matrix(self):
-        self.assertEqual(12, len(self.reports()))
+        self.assertEqual(13, len(self.reports()))
         self.assertEqual('PASS', self.verify(self.reports())['result'])
 
     def test_one_host_or_missing_duplicate_or_extra_suite_cannot_publish(self):

@@ -14,11 +14,12 @@ One candidate ZIP is built and deterministically rebuilt. Every required job tes
 | 12.4 | full | platforms | server-enforcement-basepath, server-enforcement-linuxserver |
 | 12.4 | full | upgrade | upgrade |
 | 12.4 | full | browser79 | browser79 |
+| 12.4 | full | visibility | verification |
 | 12.3 | core | browser | basepath |
 | 12.3 | core | enforcement | server-enforcement |
 | 12.3 | core | upgrade | upgrade |
 
-11 integration jobs; 12 blocking host/suite reports. Current Chromium is Playwright 1.56.1; Chromium 79 uses an actual pinned executable, not user-agent emulation.
+12 integration jobs; 13 blocking host/suite reports. Current Chromium is Playwright 1.56.1; Chromium 79 uses an actual pinned executable, not user-agent emulation.
 
 ## Scenarios
 
@@ -33,6 +34,7 @@ One candidate ZIP is built and deterministically rebuilt. Every required job tes
 | server-enforcement-linuxserver | enforcement-linuxserver |
 | upgrade | previous-stable-upgrade-caddy |
 | browser79 | chromium79-native |
+| verification | current-native-visibility-policies |
 
 ## Retired mandatory coverage
 
@@ -41,7 +43,7 @@ One candidate ZIP is built and deterministically rebuilt. Every required job tes
 - v0.4.x/v0.5.x preference rollback and catalog upgrade ladders
 - v0.4.5/v0.4.7 discovery and verification performance comparisons
 - v0.5.2/v0.6.0 activity performance comparisons
-- Repeated large-library verification benchmark (backend policy/security tests retained)
+- Repeated default large-library benchmark; current native episode/folder/tag/rating policy checks remain mandatory on 12.4
 
 These fixtures remain available for explicit investigations. Their old evidence is historical, not current qualification. Data-format migrations and backend security assertions remain intact.
 
