@@ -31,6 +31,10 @@ Runtime/test commit: `25f91bfe522fd45189c5f66a9f004a30f70b826c`.
 - Candidate DLL SHA-256: `608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4`.
 - Native tests use Jellyfin Server/Web **12.3.0**, official image `jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5`, locked Playwright 1.56.1 and Chromium 141 on macOS. This is browser automation, not physical-TV validation.
 
+The full candidate fixture passed in 392.762 seconds, including 32 recorded browser paths and zero ordering violations. Its browser actions/permissions phase took 357.289 seconds. Removal retry, native history, permissions, account isolation, deletion checks and cleanup passed. [Native results](evidence/removal-feedback-v0713/native-candidate.json) retain the paths and phase timings.
+
+[Normal PR checks, run 41256467437](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/41256467437), attempt 1, passed in 42 seconds. Package artifact `13063516160` is byte-identical to the locally tested ZIP. [Validation summary](evidence/removal-feedback-v0713/validation.json) records the hashes and distinction between candidate success and historical failure.
+
 The candidate retains the error after activity completion, with two cards and one failed DELETE. The first candidate run passed this race but stopped at a new success assertion: an empty alert has no visible accessibility box. The assertion now reads its DOM text directly. No assertion or timeout was weakened. Original reports remain under `artifacts/v049/official/direct/standalone/watchguard-poc-9baa26f451` locally.
 
 [Historical lost error](evidence/removal-feedback-v0713/published-v031-error-lost.png) · [Candidate retained error](evidence/removal-feedback-v0713/candidate-error-retained.png) · [Historical observations](evidence/removal-feedback-v0713/published-v031.json) · [Candidate observations](evidence/removal-feedback-v0713/candidate.json)
