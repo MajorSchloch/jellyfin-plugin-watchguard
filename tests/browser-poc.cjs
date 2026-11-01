@@ -1,6 +1,7 @@
 const setNativeCheckbox=require('./native-checkbox.cjs');
 const readiness = require('./browser-readiness.cjs');
 const nativeMovies = require('./native-movies.cjs');
+const extrasActivity = require('./extras-activity.cjs');
 const removalContract = require('./removal-feedback-contract.cjs');
 /* Run only through docker-smoke.py, which owns a fresh server and synthetic media. */
 const { chromium } = require('./browser/node_modules/playwright');
@@ -84,23 +85,26 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
             report.deletes.push({ path: new URL(request.url()).pathname, phase: report.phase });
         }
     });
-    async function api(route, method = 'GET', body, token = fixture.token) {
+    async function api(route, method = 'GET', body, token = fixture.token, settle = true) {
         const response = await fetch(fixture.base + route, { method,
             headers: { Authorization: 'MediaBrowser Client="WatchGuardBrowser", Device="Disposable", DeviceId="browser-seed", Version="1", Token="' + token + '"', 'Content-Type': 'application/json' },
             body: body === undefined ? undefined : JSON.stringify(body) });
         assert.ok(response.ok, 'fixture API ' + method + ' ' + route + ': ' + response.status);
         const result = response.status === 204 ? undefined : await response.json();
-        if (fixture.activityIndex && method === 'POST' && /^\/(?:UserItems|Items)\//.test(route)) {
-            const deadline = Date.now() + 90000;
-            let state;
-            do {
-                state = await api('/WatchGuard/ActivityIndex/Status?owner=all');
-                if (state.Freshness.DiscoveryFinished && state.Freshness.Pending === 0 && state.Freshness.Stored === state.Freshness.Validated) break;
-                if (Date.now() >= deadline) throw new Error('Activity index did not settle: ' + JSON.stringify(state.Freshness));
-                await new Promise(resolve => setTimeout(resolve, 250));
-            } while (true);
+        if (settle && fixture.activityIndex && method === 'POST' && /^\/(?:UserItems|Items)\//.test(route)) {
+            await indexSettled();
         }
         return result;
+    }
+    async function indexSettled() {
+        const deadline = Date.now() + 90000;
+        let state;
+        do {
+            state = await api('/WatchGuard/ActivityIndex/Status?owner=all');
+            if (state.Freshness.DiscoveryFinished && state.Freshness.Pending === 0 && state.Freshness.Stored === state.Freshness.Validated) break;
+            if (Date.now() >= deadline) throw new Error('Activity index did not settle: ' + JSON.stringify(state.Freshness));
+            await new Promise(resolve => setTimeout(resolve, 250));
+        } while (true);
     }
     async function exists(id, expected = 200) {
         const response = await fetch(fixture.base + '/Items/' + id,
@@ -827,13 +831,85 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
             assert.equal(extraOwner.EpisodeProgress.ExtraEpisodes[0].Watched,false);
             const protectionBeforeExtras=await api('/WatchGuard/Protection/'+historySeries);
             const extraButton=scope=>scope.getByRole('button',{name:/BrowserMember: 1 additional available episodes/});
-            for(const width of [1280,390]) {
+            const extrasEvidence=[];
+            let extrasCase;
+            const recordExtras=sample=>{
+                extrasEvidence.push({...extrasCase,at:new Date().toISOString(),...sample});
+                fs.writeFileSync(path.join(output,'extras-activity.json'),JSON.stringify(extrasEvidence,null,2)+'\n');
+            };
+            const inspectExtras=async event=>{
+                // Target-only on-demand classification; never serialize URLs,
+                // credentials, cursors, opaque revisions or unrelated activity.
+                const results=await Promise.allSettled([
+                    api('/WatchGuard/ActivityIndex/Status?owner=all'),activity(),api('/WatchGuard/SeriesActivity/'+historySeries)
+                ]);
+                const ui=await myList().evaluate(p=>({busy:p.getAttribute('aria-busy'),state:p.dataset.viewState,
+                    refreshDisabled:p.querySelector('.watchguard-refresh').getAttribute('aria-disabled'),cards:p.querySelectorAll('.watchguard-card').length}));
+                if(event==='pending-presented')await page.screenshot({path:path.join(output,'extra-card-'+extrasCase.width+'-pending.png')});
+                recordExtras({event:'classification-'+event,ui,
+                    index:results[0].status==='fulfilled'?results[0].value.Freshness:{unavailable:true},
+                    overview:results[1].status==='fulfilled'?extrasActivity.target(results[1].value,historySeries):{unavailable:true},
+                    series:results[2].status==='fulfilled'?results[2].value.Users.map(extrasActivity.person):{unavailable:true}});
+            };
+            const responseTasks=new Set();
+            const observeExtras=response=>{
+                if(!new URL(response.url()).pathname.endsWith('/WatchGuard/ActivityBrowser'))return;
+                const sampleCase={...extrasCase};
+                const task=(async()=>{
+                    let value;try {value=await response.json();}catch {/* Status still identifies transport failures. */}
+                    recordExtras({...sampleCase,event:'response',...extrasActivity.sample(response,value,historySeries)});
+                })();
+                responseTasks.add(task);task.finally(()=>responseTasks.delete(task));
+            };
+            page.on('response',observeExtras);
+            try {for(const [width,controlled] of [[1280,false],[390,false],[390,true]]) {
+                extrasCase={width,controlled};
+                let releaseInitial,initialSeen,refreshRequests=0;
+                const gate=new Promise(resolve=>{releaseInitial=resolve;});
+                const seen=new Promise(resolve=>{initialSeen=resolve;});
+                const routePattern='**/WatchGuard/ActivityBrowser?**';
+                const delayActivity=async route=>{
+                    const refresh=new URL(route.request().url()).searchParams.get('refresh')==='true';
+                    if(!refresh) {
+                        const response=await route.fetch();initialSeen();await gate;
+                        return route.fulfill({response});
+                    }
+                    refreshRequests++;
+                    // Re-save identical native playback data. Classification must
+                    // stay 3/3 +1, but its indexed row now needs verification.
+                    await api('/UserItems/'+historyEpisodes[0].Id+'/UserData','POST',
+                        {Played:true,PlaybackPositionTicks:0,LastPlayedDate:activityDate},member.AccessToken,false);
+                    const response=await route.fetch(),value=await response.json();
+                    recordExtras({event:'controlled-pending-response',...extrasActivity.sample(response,value,historySeries)});
+                    assert.equal(value.Freshness.PopulationPending,true,'Native playback event must invalidate the indexed row');
+                    assert.equal(extrasActivity.target(value,historySeries).length,0);
+                    // Release only after fresh native verification. This response
+                    // still describes its earlier snapshot, not the current index.
+                    await indexSettled();
+                    await inspectExtras('controlled-release');
+                    await route.fulfill({response});
+                };
+                if(controlled)await page.route(routePattern,delayActivity);
                 await page.setViewportSize({width,height:900});
                 await page.goto(fixture.base+'/web/#/home?watchguard=watchlists&owner=all&interest=watching');
                 await myList().waitFor();
-                // Fixture metadata changed through native APIs; local filter changes deliberately do not rediscover activity.
-                await myList().getByRole('button',{name:'Refresh',exact:true}).click();
-                await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+                if(controlled) {
+                    await seen;
+                    const button=myList().getByRole('button',{name:'Refresh',exact:true});
+                    assert.equal(await button.getAttribute('aria-disabled'),'true');
+                    const b=await button.boundingBox();
+                    // A real pointer can activate aria-disabled buttons. Locator
+                    // click would wait for enabled state and hide this ordering.
+                    await page.mouse.click(b.x+b.width/2,b.y+b.height/2);
+                    assert.equal(await myList().getAttribute('aria-busy'),'true');
+                    recordExtras({event:'initial-refresh-ignored',refreshDisabled:await button.getAttribute('aria-disabled')});
+                    releaseInitial();
+                }
+                try {
+                    await extrasActivity.refreshExtras(page,myList(),{itemId:historySeries,userId:member.User.Id,record:recordExtras,inspect:inspectExtras});
+                } catch(error) {await inspectExtras('failure');throw error;}
+                finally {releaseInitial();if(controlled)await page.unroute(routePattern,delayActivity);}
+                if(controlled) {assert.equal(refreshRequests,1,'Early activation must not issue a second refresh');recordExtras({event:'controlled-complete',refreshRequests});}
                 const card=myList().locator('.watchguard-card').filter({hasText:'PoC Parent Clear'});
                 await extraButton(card).waitFor();
                 await card.getByRole('img',{name:'Caught up on aired episodes',exact:true}).waitFor();
@@ -843,7 +919,7 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
                 const extras=page.locator('.watchguard-extras-dialog');await extras.waitFor();
                 await extras.getByText(/Future-dated.*Unwatched/).waitFor();
                 assert.equal(await extras.evaluate(e=>e.scrollWidth<=e.clientWidth),true);
-                await page.screenshot({path:path.join(output,'extra-card-'+width+'.png')});
+                await page.screenshot({path:path.join(output,'extra-card-'+width+(controlled?'-delayed':'')+'.png')});
                 await page.keyboard.press('Escape');await extras.waitFor({state:'detached'});
                 assert.equal(await extraButton(card).evaluate(e=>e===document.activeElement),true);
                 assert.equal(await poster.evaluate(e=>e.isConnected),true);
@@ -852,11 +928,12 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
                 const panel=page.locator('.watchguard-series-activity');await panel.locator('summary').click();
                 await extraButton(panel).waitFor();await extraButton(panel).focus();await page.keyboard.press('Space');
                 await page.locator('.watchguard-extras-dialog').getByText(/Future-dated.*Unwatched/).waitFor();
-                await page.screenshot({path:path.join(output,'extra-series-'+width+'.png')});
+                await page.screenshot({path:path.join(output,'extra-series-'+width+(controlled?'-delayed':'')+'.png')});
                 await page.locator('.watchguard-extras-dialog').getByRole('button',{name:'Close',exact:true}).click();
                 assert.equal(await panel.evaluate(e=>e.scrollWidth<=e.clientWidth),true);
-                await page.screenshot({path:path.join(output,'extra-series-inline-'+width+'.png')});
+                await page.screenshot({path:path.join(output,'extra-series-inline-'+width+(controlled?'-delayed':'')+'.png')});
             }
+            } finally {page.off('response',observeExtras);await Promise.all(responseTasks);}
             await page.setViewportSize({width:1280,height:900});
             assert.deepEqual(await api('/WatchGuard/Protection/'+historySeries),protectionBeforeExtras);
             // Per-user watched flag updates, while the same available episode remains outside aired progress.
