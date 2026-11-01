@@ -13,10 +13,21 @@ function target(value,itemId) {
 }
 function sample(response,value,itemId) {
     const url=new URL(response.url());
-    return {query:Object.fromEntries(['owner','days','older','statuses','sort','search','refresh','check'].map(k=>[k,url.searchParams.get(k)])),
+    return {source:response.headers?.()['x-watchguard-test-response']==='extras-pending'?'test-controlled':'native',
+        query:Object.fromEntries(['owner','days','older','statuses','sort','search','refresh','check'].map(k=>[k,url.searchParams.get(k)])),
         status:response.status(),target:target(value,itemId),Preparing:value?.Preparing,hasContinuation:!!value?.Continuation,
         Coverage:pick(value?.Coverage,['Causes','VerificationLimited','EpisodeMetadataIncomplete','AdditionalPagesAvailable','ResultLimitReached']),
         Freshness:{PopulationPending:value?.Freshness?.PopulationPending,hasRevision:!!value?.Freshness?.Revision}};
+}
+// Only the separate controlled scenario calls this. It neither fetches a native
+// response nor writes playback data, so worker scheduling cannot decide its path.
+async function fulfillPending(route) {
+    await route.fulfill({status:200,headers:{'content-type':'application/json','x-watchguard-test-response':'extras-pending'},json:{
+        Items:[],Preparing:false,Continuation:null,IsComplete:false,LimitReached:false,
+        Notice:'Test-controlled pending verification response.',
+        Coverage:{Version:1,ActivityWindowDays:30,Causes:['PendingVerification'],Warnings:[]},
+        Freshness:{Revision:null,PopulationPending:true}
+    }});
 }
 function assertExtras(value,itemId,userId) {
     assert.equal(value.Preparing,false,'Small fixture query must finish preparation');
@@ -66,4 +77,4 @@ async function refreshExtras(page,region,{itemId,userId,record,inspect}) {
     assertExtras(result,itemId,userId);
     await page.waitForFunction(refreshReady);
 }
-module.exports={person,target,sample,assertExtras,refreshReady,matches,refreshExtras};
+module.exports={person,target,sample,fulfillPending,assertExtras,refreshReady,matches,refreshExtras};

@@ -386,7 +386,7 @@ test('Pending native verification waits for exactly one ordinary poll, not anoth
     f.responses[1].resolve(extrasResponse(extrasResult(),false));await work;
     assert.equal(f.clicks(),1);assert.equal(f.responses.length,2);
 });
-for(const fault of ['empty','wrong-member','wrong-progress','future-watched','status','pending-flag-only']) {
+for(const fault of ['empty','wrong-member','wrong-progress','future-watched','status','pending-flag-only','pending-cause-only']) {
     test('Extras contract rejects '+fault+' without a retry',async()=>{
         const f=extrasFixture();f.ready.resolve();const work=f.run(),rejected=assert.rejects(work);await nextTurn();
         const value=extrasResult();let status=200;
@@ -396,6 +396,7 @@ for(const fault of ['empty','wrong-member','wrong-progress','future-watched','st
         if(fault==='future-watched')value.Items[0].Users[0].EpisodeProgress.ExtraEpisodes[0].Watched=true;
         if(fault==='status')status=503;
         if(fault==='pending-flag-only'){value.Items=[];value.Freshness.PopulationPending=true;}
+        if(fault==='pending-cause-only'){value.Items=[];value.Coverage.Causes=['PendingVerification'];}
         f.responses[0].resolve(extrasResponse(value,true,status));await rejected;
         assert.equal(f.responses.length,1);assert.equal(f.clicks(),1);
         assert.ok(f.records.some(r=>r.event==='accepted-refresh'),'Failure evidence precedes assertions');
@@ -418,4 +419,19 @@ test('Extras evidence records query/coverage and only target data; credentials a
     assert.doesNotMatch(text,/credential|private|secret|Unrelated|AccessToken|api_key/);
     assert.equal(extrasActivity.matches({url:()=>extrasResponse(value).url()+'&check=true'},true),false);
     assert.equal(extrasActivity.matches({url:()=>extrasResponse(value).url()+'&continuation=opaque'},true),false);
+});
+
+test('Controlled pending response does not depend on native worker state or fetch a replacement',async()=>{
+    let fulfilled;
+    await extrasActivity.fulfillPending({fetch:()=>assert.fail('No native timing dependency'),
+        fulfill:async response=>{assert.equal(fulfilled,undefined,'One controlled response');fulfilled=response;}});
+    assert.equal(fulfilled.status,200);
+    assert.deepEqual(fulfilled.json.Items,[]);
+    assert.equal(fulfilled.json.Freshness.PopulationPending,true);
+    assert.deepEqual(fulfilled.json.Coverage.Causes,['PendingVerification']);
+    const response={...extrasResponse(fulfilled.json),headers:()=>fulfilled.headers};
+    assert.equal(extrasActivity.sample(response,fulfilled.json,extraTitle).source,'test-controlled');
+    assert.equal(extrasActivity.sample(extrasResponse(extrasResult(),false),extrasResult(),extraTitle).source,'native');
+    // An already-settled native result remains valid in the ordinary path.
+    extrasActivity.assertExtras(extrasResult(),extraTitle,extraUser);
 });

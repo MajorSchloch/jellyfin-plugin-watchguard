@@ -85,13 +85,13 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
             report.deletes.push({ path: new URL(request.url()).pathname, phase: report.phase });
         }
     });
-    async function api(route, method = 'GET', body, token = fixture.token, settle = true) {
+    async function api(route, method = 'GET', body, token = fixture.token) {
         const response = await fetch(fixture.base + route, { method,
             headers: { Authorization: 'MediaBrowser Client="WatchGuardBrowser", Device="Disposable", DeviceId="browser-seed", Version="1", Token="' + token + '"', 'Content-Type': 'application/json' },
             body: body === undefined ? undefined : JSON.stringify(body) });
         assert.ok(response.ok, 'fixture API ' + method + ' ' + route + ': ' + response.status);
         const result = response.status === 204 ? undefined : await response.json();
-        if (settle && fixture.activityIndex && method === 'POST' && /^\/(?:UserItems|Items)\//.test(route)) {
+        if (fixture.activityIndex && method === 'POST' && /^\/(?:UserItems|Items)\//.test(route)) {
             await indexSettled();
         }
         return result;
@@ -846,7 +846,7 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
                 const ui=await myList().evaluate(p=>({busy:p.getAttribute('aria-busy'),state:p.dataset.viewState,
                     refreshDisabled:p.querySelector('.watchguard-refresh').getAttribute('aria-disabled'),cards:p.querySelectorAll('.watchguard-card').length}));
                 if(event==='pending-presented')await page.screenshot({path:path.join(output,'extra-card-'+extrasCase.width+'-pending.png')});
-                recordExtras({event:'classification-'+event,ui,
+                recordExtras({event:'classification-'+event,classificationSource:'native-on-demand',ui,
                     index:results[0].status==='fulfilled'?results[0].value.Freshness:{unavailable:true},
                     overview:results[1].status==='fulfilled'?extrasActivity.target(results[1].value,historySeries):{unavailable:true},
                     series:results[2].status==='fulfilled'?results[2].value.Users.map(extrasActivity.person):{unavailable:true}});
@@ -864,30 +864,23 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
             page.on('response',observeExtras);
             try {for(const [width,controlled] of [[1280,false],[390,false],[390,true]]) {
                 extrasCase={width,controlled};
-                let releaseInitial,initialSeen,refreshRequests=0;
+                let releaseInitial,initialSeen,refreshRequests=0,pollRequests=0,initialRequest=true;
                 const gate=new Promise(resolve=>{releaseInitial=resolve;});
                 const seen=new Promise(resolve=>{initialSeen=resolve;});
                 const routePattern='**/WatchGuard/ActivityBrowser?**';
                 const delayActivity=async route=>{
                     const refresh=new URL(route.request().url()).searchParams.get('refresh')==='true';
                     if(!refresh) {
+                        if(!initialRequest) {pollRequests++;return route.continue();}
+                        initialRequest=false;
                         const response=await route.fetch();initialSeen();await gate;
                         return route.fulfill({response});
                     }
                     refreshRequests++;
-                    // Re-save identical native playback data. Classification must
-                    // stay 3/3 +1, but its indexed row now needs verification.
-                    await api('/UserItems/'+historyEpisodes[0].Id+'/UserData','POST',
-                        {Played:true,PlaybackPositionTicks:0,LastPlayedDate:activityDate},member.AccessToken,false);
-                    const response=await route.fetch(),value=await response.json();
-                    recordExtras({event:'controlled-pending-response',...extrasActivity.sample(response,value,historySeries)});
-                    assert.equal(value.Freshness.PopulationPending,true,'Native playback event must invalidate the indexed row');
-                    assert.equal(extrasActivity.target(value,historySeries).length,0);
-                    // Release only after fresh native verification. This response
-                    // still describes its earlier snapshot, not the current index.
-                    await indexSettled();
-                    await inspectExtras('controlled-release');
-                    await route.fulfill({response});
+                    // Test-controlled response, not a claim about native index
+                    // state. The next ordinary poll goes directly to Jellyfin.
+                    recordExtras({event:'inject-pending-response',source:'test-controlled'});
+                    await extrasActivity.fulfillPending(route);
                 };
                 if(controlled)await page.route(routePattern,delayActivity);
                 await page.setViewportSize({width,height:900});
@@ -909,7 +902,11 @@ const report = { deployedPackage:fixture.deployedPackage, knownLimitations:[], t
                     await extrasActivity.refreshExtras(page,myList(),{itemId:historySeries,userId:member.User.Id,record:recordExtras,inspect:inspectExtras});
                 } catch(error) {await inspectExtras('failure');throw error;}
                 finally {releaseInitial();if(controlled)await page.unroute(routePattern,delayActivity);}
-                if(controlled) {assert.equal(refreshRequests,1,'Early activation must not issue a second refresh');recordExtras({event:'controlled-complete',refreshRequests});}
+                if(controlled) {
+                    assert.equal(refreshRequests,1,'Early activation must not issue a second refresh');
+                    assert.equal(pollRequests,1,'Only one ordinary native poll is permitted');
+                    recordExtras({event:'controlled-complete',refreshRequests,pollRequests});
+                }
                 const card=myList().locator('.watchguard-card').filter({hasText:'PoC Parent Clear'});
                 await extraButton(card).waitFor();
                 await card.getByRole('img',{name:'Caught up on aired episodes',exact:true}).waitFor();
