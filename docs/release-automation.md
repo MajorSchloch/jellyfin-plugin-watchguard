@@ -32,6 +32,10 @@ gh workflow run release.yaml --ref master -f inspect_only=true
 # Preview an explicit publication or recovery. No writes.
 gh workflow run publish.yaml --ref master -f run_id=123456 -f attempt=1 -f validation_only=true
 
+# Qualify a merged runtime fix that keeps the existing unpublished version.
+# Directory.Build.props did not change, so no automatic push qualification starts.
+gh workflow run release.yaml --ref master -f publish=true -f proxy_matrix=true
+
 # Resume that exact qualification after review. Environment approval remains required.
 gh workflow run publish.yaml --ref master -f run_id=123456 -f attempt=1 -f validation_only=false
 ```

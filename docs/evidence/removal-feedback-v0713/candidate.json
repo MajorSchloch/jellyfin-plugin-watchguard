@@ -1,0 +1,6 @@
+{
+  "alert": "WatchGuard: Could not remove this entry. Please retry.",
+  "cards": 2,
+  "failedDeletes": 1,
+  "indexed": true
+}
