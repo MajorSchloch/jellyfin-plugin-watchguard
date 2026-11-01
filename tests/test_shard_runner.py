@@ -9,7 +9,7 @@ class ShardRunnerTests(unittest.TestCase):
     def test_evidence_is_isolated_while_inputs_remain_available(self):
         with tempfile.TemporaryDirectory() as temp:
             artifacts=Path(temp)
-            for name in ['WatchGuard','RollbackV031','testing']:
+            for name in ['WatchGuard','RollbackV031','previous-stable','testing']:
                 (artifacts/name).mkdir();(artifacts/name/'data').write_text('original')
             (artifacts/'candidate.zip').write_text('input')
             (artifacts/'candidate.zip.sha256').write_text('digest')
@@ -21,7 +21,7 @@ class ShardRunnerTests(unittest.TestCase):
             run_shard.archive_suite(artifacts,'second')
             self.assertEqual((artifacts/'suites/first/settings-validation.json').read_text(),'first')
             self.assertEqual((artifacts/'suites/second/settings-validation.json').read_text(),'second')
-            for name in ['WatchGuard/data','RollbackV031/data','candidate.zip','candidate.zip.sha256']:
+            for name in ['WatchGuard/data','RollbackV031/data','previous-stable/data','candidate.zip','candidate.zip.sha256']:
                 self.assertTrue((artifacts/name).is_file())
             with self.assertRaises(FileExistsError):run_shard.archive_suite(artifacts,'first')
 

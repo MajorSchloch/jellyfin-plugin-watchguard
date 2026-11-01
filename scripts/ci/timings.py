@@ -16,7 +16,8 @@ def timestamp(value):
 
 
 def duration(start, end):
-    return max(0, (timestamp(end)-timestamp(start)).total_seconds())
+    value = (timestamp(end)-timestamp(start)).total_seconds()
+    return value if value >= 0 else None
 
 
 def summarize(run, jobs):
@@ -28,6 +29,8 @@ def summarize(run, jobs):
     inspection = next((j for j in jobs if j['name'] == 'inspect'), None)
     origin = run.get('run_started_at', run['created_at']) if run.get('run_attempt', 1) > 1 else run['created_at']
     rows = []
+    all_steps = []
+    anomalies = []
     for job in completed:
         ready = origin
         if job['name'] == 'build' and plan and plan.get('completed_at'):
@@ -55,15 +58,31 @@ def summarize(run, jobs):
                 category = 'download'
             if name == 'Complete disposable regression suite': category = 'fixtures-and-checks'
             if 'upload' in name.lower() or 'post ' in name.lower(): category = 'evidence-and-cleanup'
-            steps.append(dict(name=name, category=category, seconds=duration(step['started_at'],step['completed_at'])))
+            seconds = duration(step['started_at'],step['completed_at'])
+            steps.append(dict(name=name, category=category, seconds=seconds, startedAt=step['started_at'], completedAt=step['completed_at']))
+            all_steps.append(steps[-1])
+            if seconds is None: anomalies.append(dict(job=job['name'], step=name, reason='Step completion precedes start'))
+        execution = duration(job['started_at'],job['completed_at'])
+        delay = duration(ready,job['started_at'])
+        if execution is None: anomalies.append(dict(job=job['name'], reason='Job completion precedes start'))
+        if delay is None: anomalies.append(dict(job=job['name'], reason='Job starts before dependency completion'))
+        step_span = duration(min(s['startedAt'] for s in steps),max(s['completedAt'] for s in steps)) if steps else None
         rows.append(dict(name=job['name'], id=job['id'], conclusion=job['conclusion'],
-                         executionSeconds=duration(job['started_at'],job['completed_at']),
-                         readyToStartSeconds=duration(ready,job['started_at']), readyDelayIncludesApproval=job['name'] == 'publish', steps=steps))
+                         executionSeconds=execution, stepSpanSeconds=step_span,
+                         rawTimes=dict(startedAt=job['started_at'],completedAt=job['completed_at'],dependencyReadyAt=ready),
+                         readyToStartSeconds=delay, readyDelayIncludesApproval=job['name'] == 'publish', steps=steps))
     end = run['updated_at'] if run['status'] == 'completed' else max((j['completed_at'] for j in completed), default=run['created_at'])
+    elapsed = duration(origin,end)
+    if elapsed is None: anomalies.append(dict(reason='Workflow completion precedes origin'))
+    def total(values):
+        return None if any(v is None for v in values) else sum(values)
     return dict(runId=run['id'],runAttempt=run.get('run_attempt', 1),commit=run['head_sha'],status=run['status'],conclusion=run['conclusion'],
-                elapsedSeconds=duration(origin,end),
-                combinedJobExecutionSeconds=sum(j['executionSeconds'] for j in rows),
-                combinedReadyToStartSeconds=sum(j['readyToStartSeconds'] for j in rows),
+                elapsedSeconds=elapsed, rawTimes=dict(origin=origin,end=end), timestampAnomalies=anomalies,
+                workflowStepSpanSeconds=duration(min(s['startedAt'] for s in all_steps),max(s['completedAt'] for s in all_steps)) if all_steps else None,
+                combinedStepExecutionSeconds=total([s['seconds'] for s in all_steps]),
+                stepDefinition='Step execution sums recorded step intervals; workflow step span is first recorded step to last completed step. Neither substitutes for end-to-end elapsed/queue time when job timestamps are inconsistent.',
+                combinedJobExecutionSeconds=total([j['executionSeconds'] for j in rows]),
+                combinedReadyToStartSeconds=total([j['readyToStartSeconds'] for j in rows]),
                 queueDefinition='Dependency-ready to job start; includes scheduler/runner provisioning and, for publication, environment approval. GitHub does not expose an exact runner queue timestamp.',
                 elapsedDefinition='First attempt: workflow creation to completion. Later attempts: attempt start to completion.',
                 executionDefinition='Sum of completed non-skipped job intervals, including setup and cleanup; overlapping jobs count separately.',
@@ -87,10 +106,13 @@ def main():
     report=summarize(run,jobs)
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(report,indent=2)+'\n')
+    show=lambda value: 'unavailable' if value is None else f'{value:.0f}s'
     text=(f"## Qualification timing ({report['status']})\n\n"
-          f"Elapsed: {report['elapsedSeconds']:.0f}s; combined completed-job execution: {report['combinedJobExecutionSeconds']:.0f}s.\n\n"
+          f"Elapsed: {show(report['elapsedSeconds'])}; combined completed-job execution: {show(report['combinedJobExecutionSeconds'])}.\n\n"
+          f"Recorded step span: {show(report['workflowStepSpanSeconds'])}; combined step execution: {show(report['combinedStepExecutionSeconds'])}.\n\n"
           + report['queueDefinition']+'\n\n| Job | Execution seconds | Ready-to-start seconds |\n|---|---:|---:|\n'
-          +'\n'.join(f"| {j['name']} | {j['executionSeconds']:.0f} | {j['readyToStartSeconds']:.0f} |" for j in report['jobs'])+'\n')
+          +'\n'.join(f"| {j['name']} | {show(j['executionSeconds'])} | {show(j['readyToStartSeconds'])} |" for j in report['jobs'])+'\n')
+    if report['timestampAnomalies']: text+='\nTimestamp anomalies: '+str(len(report['timestampAnomalies']))+'. Invalid intervals are unavailable, never clamped to zero. See retained raw times.\n'
     if report['incompleteJobs']: text+='\nStill running and excluded from execution totals: '+', '.join(report['incompleteJobs'])+'.\n'
     print(text)
     if os.environ.get('GITHUB_STEP_SUMMARY'):

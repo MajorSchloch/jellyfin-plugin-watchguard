@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import tempfile
 import time
+import zipfile
 
 import catalog
 import release_provenance
@@ -210,13 +211,19 @@ def main():
                 return
         raw, _ = api.file('manifest.json', repo['default_branch'])
         state = inspect(api, version, json.loads(raw))
-        recorded = []
         if state == 'complete' and not args.verify_record:
-            inventory = api.pages(f'actions/runs/{args.run}/artifacts', 'artifacts')
-            recorded = [a for a in inventory if a['name'] == release_provenance.artifact_name('qualification', args.attempt)]
-        if state == 'complete' and not args.verify_record and not recorded:
-            # Existing catalog + public bytes are enough for a no-write result.
-            # This does not qualify or promote any new source commit.
+            # A completed release does not have to requalify under a later policy.
+            # A retained original seal still supplies expected exact bytes.
+            expected = release_provenance.completed_expectation(api, run, args.attempt, repo['id'], version)
+            if expected:
+                require(args.record_id in (None, expected['recordArtifactId']), 'Sealed qualification record identity changed.')
+                with tempfile.TemporaryDirectory() as temp:
+                    public = public_package(api, api.release(version, public_only=True), version, Path(temp))
+                    with zipfile.ZipFile(public) as archive:
+                        runtime_sha = digest(archive.read(catalog.DLL))
+                    require(digest(public.read_bytes()) == expected['packageSha256'] and runtime_sha == expected['runtimeSha256'],
+                            'Qualified ZIP/DLL conflicts with the completed public release.')
+                result.update(expected)
             result.update(state='already published and verified', version=version, actions=[])
             outputs(publish=False)
         else:
@@ -240,7 +247,11 @@ def main():
                                   packageSha256=record['qualification']['packageSha256'], recordArtifactId=record['recordArtifactId'])
                     outputs(publish=state != 'already published and verified' and not args.validate_branch)
         result['preservedDrafts'] = getattr(api, 'preserved_drafts', [])
-        result['draftVisibility'] = api.can_see_drafts()
+        # A verified completed release needs no write-authority probe. Unknown
+        # draft visibility does not prevent a no-write result.
+        result['draftVisibility'] = (getattr(api, '_draft_visibility', None)
+                                     if args.write and result['state'] == 'already published and verified'
+                                     else api.can_see_drafts())
         details = {key: result[key] for key in ('qualificationRun', 'qualificationAttempt', 'publicationRun', 'publicationAttempt', 'version', 'commit', 'packageSha256', 'recordArtifactId') if key in result}
         summary(result['state'], '\n'.join(result['actions']) or 'No writes are needed.', **details)
     except Exception as error:

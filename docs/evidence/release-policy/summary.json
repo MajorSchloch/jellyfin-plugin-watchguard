@@ -1,0 +1,35 @@
+{
+  "result": "PASS",
+  "qualificationRun": 41290602965,
+  "qualificationAttempt": 1,
+  "testedCommit": "514d33349c82793b0d682d325c237b5210501e74",
+  "packageArtifact": 13076658146,
+  "recordArtifact": 13077184691,
+  "zipSha256": "7b1d029d0e0e35947b70154e1fa1ec1f9cfad87164d9609059331d18640f44df",
+  "dllSha256": "608ea2c650d64f3919db1adc09cdccea4216745aa8460ca433a4f83a8fa48fe4",
+  "requiredReports": 13,
+  "publicationRequested": false,
+  "baselineRun": 41258353082,
+  "measurements": {
+    "recordedStepSpanSeconds": {
+      "before": 1960.0,
+      "after": 1138.0
+    },
+    "combinedRecordedStepSeconds": {
+      "before": 22126.0,
+      "after": 6742.0
+    },
+    "finalWorkflowElapsedSeconds": null,
+    "finalCombinedJobExecutionSeconds": null,
+    "finalCombinedQueueSeconds": null
+  },
+  "limitations": [
+    "Final Actions job/workflow timestamps are inconsistent; invalid elapsed/job/queue totals are unavailable, not zero.",
+    "Step intervals are measured; their span excludes initial workflow queue time. No clock offset correction or end-to-end speedup is inferred.",
+    "One baseline run and one reduced-policy run; this is not a controlled repeated performance benchmark.",
+    "The preliminary run 41290244643 was cancelled after policy finalization and is not qualification evidence.",
+    "Publication recovery uses deterministic fake API tests and real read-only checks; no live release write.",
+    "Chromium 79 is a real Linux engine; no physical-TV or webOS-wrapper qualification.",
+    "Runtime/version/catalog/published release bytes are unchanged."
+  ]
+}

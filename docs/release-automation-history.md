@@ -1,5 +1,7 @@
 # Release operation
 
+Historical instructions and evidence from before the reduced qualification policy. Use [current release operation](release-automation.md) for new releases and recovery.
+
 This workflow change does not prepare a plugin release. The candidate version remains in `Directory.Build.props`. The public v0.7.11 assets and catalog stay unchanged.
 
 ## Normal operation

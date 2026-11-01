@@ -114,8 +114,9 @@ class GitHub:
                 return rows
         raise Blocked('API inventory exceeds the bounded page limit: ' + path)
 
-    def file(self, path, ref):
-        value = self.request(f'contents/{path}?ref={ref}')
+    def file(self, path, ref, missing=False):
+        value = self.request(f'contents/{path}?ref={ref}', missing=missing)
+        if value is None: return None, None
         return base64.b64decode(value['content']), value['sha']
 
     def tag(self, tag):

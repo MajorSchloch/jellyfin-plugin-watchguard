@@ -16,7 +16,7 @@ def archive_suite(artifacts, suite):
     # Candidate/historical input ZIPs and the extracted Injector rollback DLL
     # remain available. Everything else belongs to this suite's evidence.
     for path in list(artifacts.iterdir()):
-        if path.name in ('suites','WatchGuard','RollbackV031') or path.name.endswith(('.zip','.sha256')):
+        if path.name in ('suites','WatchGuard','RollbackV031','previous-stable') or path.name.endswith(('.zip','.sha256')):
             continue
         shutil.move(str(path),str(destination/path.name))
 

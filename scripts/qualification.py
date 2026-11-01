@@ -6,33 +6,39 @@ from pathlib import Path
 import zipfile
 
 POLICY = json.loads(Path(__file__).with_name('qualification-policy.json').read_text())
-VERSIONS = tuple(POLICY['hosts'])
-PLAN = POLICY['suites']
+def inventory(policy):
+    if policy.get('schemaVersion') != 1:
+        raise ValueError('Unsupported qualification policy schema')
+    versions, plan, shards = tuple(policy['hosts']), policy['suites'], policy['shards']
+    assignment = {suite: shard for shard, suites in shards.items() for suite in suites}
+    if set(assignment) != set(plan) or sum(map(len, shards.values())) != len(plan):
+        raise ValueError('Policy must assign every suite exactly once')
+    matrix = [dict(jellyfin_version=host, shard=shard)
+              for host, config in policy['hosts'].items() for shard in config['shards']]
+    pairs = [(row['jellyfin_version'], suite) for row in matrix for suite in shards[row['shard']]]
+    if len(pairs) != len(set(pairs)):
+        raise ValueError('Policy contains duplicate host/suite assignments')
+    return versions, plan, shards, assignment, matrix, pairs
+
+
+VERSIONS, PLAN, SHARDS, SUITE_SHARD, MATRIX, PAIRS = inventory(POLICY)
 SUITES = tuple(PLAN)
-SHARDS = POLICY['shards']
-SUITE_SHARD = {suite: shard for shard, suites in SHARDS.items() for suite in suites}
-if set(SUITE_SHARD) != set(SUITES) or sum(map(len, SHARDS.values())) != len(SUITES):
-    raise ValueError('Policy must assign every suite exactly once')
-MATRIX = [dict(jellyfin_version=host, shard=shard)
-          for host, config in POLICY['hosts'].items() for shard in config['shards']]
-PAIRS = [(row['jellyfin_version'], suite) for row in MATRIX for suite in SHARDS[row['shard']]]
-if len(PAIRS) != len(set(PAIRS)):
-    raise ValueError('Policy contains duplicate host/suite assignments')
 
 
-def verify(reports, commit, package_sha256, runtime_sha256, require_proxy=False):
-    expected = set(PAIRS)
+def verify(reports, commit, package_sha256, runtime_sha256, require_proxy=False, policy=None):
+    _, plan, _, assignment, _, pairs = inventory(POLICY if policy is None else policy)
+    expected = set(pairs)
     seen = set()
     for report in reports:
         key = (report['jellyfinVersion'], report['suite'])
         if key not in expected or key in seen:
             raise ValueError('Unexpected or duplicate suite: ' + str(key))
-        if report.get('shard') != SUITE_SHARD[key[1]]:
+        if report.get('shard') != assignment[key[1]]:
             raise ValueError('Mismatched shard assignment: ' + str(key))
         if report.get('schemaVersion') != 2:
             raise ValueError('Unsupported evidence schema: ' + str(key))
         actual = [(a.get('scenario'), a.get('command'), a.get('environment')) for a in report['attempts']]
-        required = [(s['id'], s['command'], s['env']) for s in PLAN[key[1]]]
+        required = [(s['id'], s['command'], s['env']) for s in plan[key[1]]]
         if actual != required:
             raise ValueError('Missing, duplicated, reordered or mismatched scenarios: ' + str(key))
         if report['status'] != 'PASS' or not report['attempts'] or any(a['exitCode'] != 0 or a['retry'] for a in report['attempts']):

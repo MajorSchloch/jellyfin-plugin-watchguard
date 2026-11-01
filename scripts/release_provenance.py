@@ -1,4 +1,5 @@
 """Bind qualification to one repository, source commit, run, attempt and artifact set."""
+import ast
 import io
 import json
 import os
@@ -57,14 +58,16 @@ def extract(api, asset, names):
         return {name: archive.read(name) for name in names}
 
 
-def expected_evidence(attempt):
+def expected_evidence(attempt, policy=None):
+    matrix = qualification.inventory(qualification.POLICY if policy is None else policy)[4]
     return [artifact_name(f'evidence-{host}-{shard}', attempt)
-            for row in qualification.MATRIX for host, shard in [(row['jellyfin_version'], row['shard'])]]
+            for row in matrix for host, shard in [(row['jellyfin_version'], row['shard'])]]
 
 
-def verify_jobs(api, run, attempt, include_gate):
+def verify_jobs(api, run, attempt, include_gate, policy=None):
+    matrix = qualification.inventory(qualification.POLICY if policy is None else policy)[4]
     jobs = api.pages(f"actions/runs/{run['id']}/attempts/{attempt}/jobs", 'jobs')
-    required = ['build'] + [f'Integration / {host} / {shard}' for row in qualification.MATRIX for host, shard in [(row['jellyfin_version'], row['shard'])]]
+    required = ['build'] + [f'Integration / {host} / {shard}' for row in matrix for host, shard in [(row['jellyfin_version'], row['shard'])]]
     if include_gate:
         required.append('Verify complete compatibility evidence')
     for name in required:
@@ -110,24 +113,69 @@ def sealed_attempt(api, run_id):
     return int(match[1]), asset['id']
 
 
+def completed_expectation(api, run, attempt, repository_id, version):
+    """Read an old seal only to compare already-public bytes; grants no authority.
+
+    Changing the required matrix cannot invalidate a completed release. If its
+    record is retained, it must still match. If expired, public asset/checksum/
+    catalog verification is sufficient for a no-write result, never publication.
+    """
+    name = artifact_name('qualification', attempt)
+    rows = [a for a in api.pages(f"actions/runs/{run['id']}/artifacts", 'artifacts') if a['name'] == name]
+    require(len(rows) <= 1, 'Duplicate sealed records for a completed release.')
+    if not rows or rows[0]['expired']:
+        return None
+    asset = rows[0]
+    check_artifact(asset, name, run, repository_id)
+    record = json.loads(extract(api, asset, ['qualification-record.json'])['qualification-record.json'])
+    require(record.get('schemaVersion') == 1 and record.get('repository') == api.repo and
+            record.get('sourceCommit') == run['head_sha'] and record.get('run') == run['id'] and
+            record.get('attempt') == attempt and record.get('workflow') == WORKFLOW and record.get('version') == version,
+            'Completed-release record provenance mismatch.')
+    result = record['qualification']
+    require(result['result'] == 'PASS' and result['commit'] == run['head_sha'], 'Completed-release record was not qualified.')
+    return dict(packageSha256=result['packageSha256'], runtimeSha256=result['runtimeSha256'], recordArtifactId=asset['id'])
+
+
+def source_policy(api, commit):
+    raw, _ = api.file('scripts/qualification-policy.json', commit, missing=True)
+    if raw is not None:
+        return json.loads(raw), False
+    # Pre-policy seals remain recoverable under their full original matrix.
+    # Parse only a literal version tuple; never execute downloaded Python.
+    source, _ = api.file('scripts/qualification.py', commit)
+    values = [ast.literal_eval(node.value) for node in ast.parse(source).body
+              if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'VERSIONS' for t in node.targets)]
+    require(len(values) == 1 and isinstance(values[0], tuple) and all(isinstance(v, str) for v in values[0]),
+            'Cannot read the original qualification host policy. Keep its record and inspect the source commit.')
+    plan, _ = api.file('scripts/qualification-plan.json', commit)
+    shards, _ = api.file('scripts/qualification-shards.json', commit)
+    shards = json.loads(shards)
+    return dict(schemaVersion=1, hosts={v:dict(level='historical', shards=list(shards)) for v in values[0]},
+                suites=json.loads(plan), shards=shards), True
+
+
 def load(api, run_id, attempt, folder, allow_branch=False, allow_validation=False):
     run = api.request(f'actions/runs/{run_id}/attempts/{attempt}')
     repo = check_run(api, run, attempt, allow_branch)
-    verify_jobs(api, run, attempt, include_gate=True)
     inventory = api.pages(f'actions/runs/{run_id}/artifacts', 'artifacts')
     record_asset = one_artifact(inventory, artifact_name('qualification', attempt), run, repo['id'])
     record = json.loads(extract(api, record_asset, ['qualification-record.json'])['qualification-record.json'])
     require(record['schemaVersion'] == 1 and record['repository'] == api.repo and record['sourceCommit'] == run['head_sha'] and
             record['run'] == run_id and record['attempt'] == attempt and record['workflow'] == WORKFLOW,
             'Qualification record provenance mismatch.')
-    require(record['supportedHosts'] == list(qualification.VERSIONS) and record['suiteInventory'] == qualification.PLAN and record.get('qualificationPolicy') == qualification.POLICY,
-            'Qualification inventory differs from the required matrix.')
+    policy, legacy = source_policy(api, run['head_sha'])
+    versions, plan, _, _, _, _ = qualification.inventory(policy)
+    require(record['supportedHosts'] == list(versions) and record['suiteInventory'] == plan and (record.get('qualificationPolicy') == policy if not legacy else 'qualificationPolicy' not in record),
+            'Qualification inventory differs from the exact source policy.')
+    verify_jobs(api, run, attempt, include_gate=True, policy=policy)
     require_proxy = not (allow_validation and record.get('publishRequested') is False)
     require(not require_proxy or record['proxyMatrix'] is True, 'Publication requires the full proxy matrix. Run validation with proxy_matrix=true.')
     metadata, _ = api.file('Directory.Build.props', run['head_sha'])
     require(candidate(metadata) == record['version'], 'Qualified source version differs from record.')
-    expected = [artifact_name('package', attempt), artifact_name('previous-stable', attempt)] + expected_evidence(attempt)
-    recorded = [record['packageArtifact'], record['previousStableArtifact']] + record['evidenceArtifacts']
+    require(('previousStableArtifact' in record) == (not legacy), 'Upgrade artifact does not match the source policy format.')
+    expected = [artifact_name('package', attempt)] + ([] if legacy else [artifact_name('previous-stable', attempt)]) + expected_evidence(attempt, policy)
+    recorded = [record['packageArtifact']] + ([] if legacy else [record['previousStableArtifact']]) + record['evidenceArtifacts']
     require([a['name'] for a in recorded] == expected, 'Artifact inventory is incomplete or duplicated.')
     for asset in recorded:
         current = one_artifact(inventory, asset['name'], run, repo['id'])
@@ -145,7 +193,7 @@ def load(api, run_id, attempt, folder, allow_branch=False, allow_validation=Fals
     result = record['qualification']
     require(result['result'] == 'PASS' and result['commit'] == run['head_sha'] and
             result['packageSha256'] == sha and result['runtimeSha256'] == dll, 'Qualified package hash mismatch.')
-    qualification.verify(result['suites'], run['head_sha'], sha, dll, require_proxy)
+    qualification.verify(result['suites'], run['head_sha'], sha, dll, require_proxy, policy=policy)
     for report in result['suites']:
         require(report.get('origin') == {'repository': api.repo, 'run': run_id, 'attempt': attempt}, 'Mixed suite provenance.')
     record['recordArtifactId'] = record_asset['id']

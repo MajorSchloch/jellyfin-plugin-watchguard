@@ -125,6 +125,9 @@ class CandidatePlanTests(unittest.TestCase):
         with self.assertRaisesRegex(state.Blocked,'older'): release_plan.validate_version('0.7.12',manifest,'pending')
         with self.assertRaisesRegex(state.Blocked,'Prepare a new version'):
             release_plan.validate_version('0.7.13',manifest,'complete',['Jellyfin.Plugin.WatchGuard/Web/watchguard.js'])
+        for changed in ['scripts/browser/build.cjs','scripts/browser/package-lock.json','global.json']:
+            with self.assertRaisesRegex(state.Blocked,'Prepare a new version'):
+                release_plan.validate_version('0.7.13',manifest,'complete',[changed])
         release_plan.validate_version('0.7.13',manifest,'complete',['scripts/publish_release.py','docs/release-automation.md'])
         release_plan.validate_version('0.7.14',manifest,'unpublished',['Jellyfin.Plugin.WatchGuard/Web/watchguard.js'])
         self.assertEqual(previous_stable.previous(manifest,'0.7.14')['version'],'0.7.13.0')
@@ -388,7 +391,7 @@ class ReleaseStateTests(unittest.TestCase):
                 key = 'id' if path == 'releases/9' else 'list' if path.startswith('releases?') else None
                 if key:
                     reads[key] += 1
-                    if reads[key] <= 2: return None if key == 'id' else []
+                    if reads[key] <= 1: return None if key == 'id' else []
             return value
         with patch.object(self.api, 'request', side_effect=delayed), patch.object(publisher.time, 'sleep'):
             self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
@@ -420,7 +423,7 @@ class ReleaseStateTests(unittest.TestCase):
             if path=='actions/runs/123/attempts/2': return run
             return request(path,*args,**kwargs)
         output=self.root/'publication.json'
-        args=['publish_release.py','--repo',REPO,'--run','123','--attempt','2','--record-id','99','--write','--output',str(output)]
+        args=['publish_release.py','--repo',REPO,'--run','123','--attempt','2','--record-id','99','--verify-record','--write','--output',str(output)]
         with patch('sys.argv',args),patch.dict(os.environ,{'GITHUB_RUN_ID':'456','GITHUB_RUN_ATTEMPT':'7'}),patch.object(publisher,'GitHub',return_value=self.api),patch.object(self.api,'request',side_effect=api_request),patch.object(provenance,'check_run',return_value=self.api.repository),patch.object(provenance,'load',return_value=(record,self.archive)) as load:
             self.api.fail_catalog=True
             with self.assertRaisesRegex(state.Blocked,'Simulated failure'): publisher.main()
@@ -433,6 +436,18 @@ class ReleaseStateTests(unittest.TestCase):
             self.assertEqual(self.api.writes,[('PUT','contents/manifest.json')])
             self.assertEqual(json.loads(output.read_text())['qualificationAttempt'],2)
             self.assertTrue(all(call.args[1:3]==(123,2) for call in load.call_args_list))
+            self.api.writes.clear();self.api.probes.clear();self.api._draft_visibility=None;self.api.notes_permission=False
+            publisher.main()
+            self.assertEqual(self.api.probes,[])
+            self.assertEqual(json.loads(output.read_text())['state'],'already published and verified')
+            self.assertEqual(self.api.writes,[])
+            args[args.index('--record-id')+1]='100'
+            with self.assertRaisesRegex(state.Blocked,'record identity changed'): publisher.main()
+            self.assertEqual(self.api.writes,[])
+            args[args.index('--record-id')+1]='99';args.remove('--verify-record')
+            with patch.object(provenance,'completed_expectation',return_value=dict(packageSha256='b'*64,runtimeSha256='c'*64,recordArtifactId=99)),self.assertRaisesRegex(state.Blocked,'conflicts with the completed public release'):
+                publisher.main()
+            self.assertEqual(self.api.writes,[])
 
     def test_readback_exhaustion_retains_draft_for_explicit_retry(self):
         original = self.api.request
@@ -671,6 +686,7 @@ class QualificationRecordTests(unittest.TestCase):
                        attempts=[dict(scenario=c['id'],command=c['command'],environment=c['env'],exitCode=0,retry=False) for c in qualification.PLAN[s]])
                    for v,s in qualification.PAIRS]
         result=qualification.verify(reports,COMMIT,state.digest(package),state.digest(runtime),True)
+        self.source_policy=copy.deepcopy(qualification.POLICY)
         self.record=dict(schemaVersion=1,repository=REPO,sourceCommit=COMMIT,run=123,attempt=2,workflow=provenance.WORKFLOW,
                          version=VERSION,publishRequested=True,supportedHosts=list(qualification.VERSIONS),suiteInventory=qualification.PLAN,qualificationPolicy=qualification.POLICY,
                          proxyMatrix=True,packageArtifact=copy.deepcopy(self.inventory[0]),previousStableArtifact=copy.deepcopy(self.previous_asset),evidenceArtifacts=copy.deepcopy(self.inventory[2:]),qualification=result)
@@ -699,14 +715,59 @@ class QualificationRecordTests(unittest.TestCase):
             raise AssertionError(path)
         def pages(path,key): return self.jobs if '/jobs' in path else inventory
         with patch.object(self.api,'request',side_effect=request), patch.object(self.api,'pages',side_effect=pages), \
-             patch.object(self.api,'file',return_value=(Path('Directory.Build.props').read_bytes(),'metadata')):
+             patch.object(self.api,'file',side_effect=lambda path,ref,**kwargs: (json.dumps(self.source_policy).encode(),'policy') if path=='scripts/qualification-policy.json' else (Path('Directory.Build.props').read_bytes(),'metadata')):
             return provenance.load(self.api,123,2,self.folder,allow_validation=allow_validation)
+
+    def test_completed_release_compares_original_seal_without_requalifying_old_policy(self):
+        self.record['supportedHosts']=['historical-host']
+        self.record.pop('qualificationPolicy')
+        blob=self.zip({'qualification-record.json':json.dumps(self.record).encode()})
+        asset=self.asset(99,provenance.artifact_name('qualification',2),blob)
+        with patch.object(self.api,'pages',return_value=[asset]),patch.object(self.api,'request',return_value=blob):
+            expected=provenance.completed_expectation(self.api,self.run,2,7,VERSION)
+            self.assertEqual(expected['packageSha256'],state.digest(self.package))
+            self.assertEqual(expected['recordArtifactId'],99)
+        for rows in ([],[dict(asset,expired=True)]):
+            with patch.object(self.api,'pages',return_value=rows):
+                self.assertIsNone(provenance.completed_expectation(self.api,self.run,2,7,VERSION))
+        with patch.object(self.api,'pages',return_value=[asset,asset]),self.assertRaises(state.Blocked):
+            provenance.completed_expectation(self.api,self.run,2,7,VERSION)
+        for field,value in [('run',124),('repository','Other/Repo'),('sourceCommit','b'*40),('version','0.0.0')]:
+            wrong=self.zip({'qualification-record.json':json.dumps({**self.record,field:value}).encode()})
+            wrong_asset=self.asset(99,provenance.artifact_name('qualification',2),wrong)
+            with patch.object(self.api,'pages',return_value=[wrong_asset]),patch.object(self.api,'request',return_value=wrong),self.assertRaises(state.Blocked):
+                provenance.completed_expectation(self.api,self.run,2,7,VERSION)
+        # The same retired policy cannot authorize a new publication.
+        with self.assertRaises(state.Blocked): self.load()
 
     def test_full_record_consumes_exact_zip_and_rechecks_all_required_suites(self):
         record, archive=self.load()
         self.assertEqual(record['recordArtifactId'],99)
         self.assertEqual(archive.read_bytes(),self.package)
         self.assertEqual(len(record['qualification']['suites']),len(qualification.PAIRS))
+
+    def test_legacy_source_policy_is_read_without_executing_source(self):
+        old_plan=json.loads(Path('scripts/qualification-plan-historical.json').read_text())
+        old_shards=json.loads(Path('scripts/qualification-shards-historical.json').read_text())
+        files={'scripts/qualification-policy.json':None,
+               'scripts/qualification.py':b"VERSIONS = ('12.2', '12.3', '12.4')\nraise RuntimeError('must not execute')",
+               'scripts/qualification-plan.json':json.dumps(old_plan).encode(),
+               'scripts/qualification-shards.json':json.dumps(old_shards).encode()}
+        with patch.object(self.api,'file',side_effect=lambda path,ref,**kwargs:(files[path],None)):
+            policy,legacy=provenance.source_policy(self.api,COMMIT)
+        self.assertTrue(legacy)
+        self.assertEqual(len(qualification.inventory(policy)[5]),39)
+        self.assertEqual(policy['suites'],old_plan)
+
+    def test_publisher_uses_qualified_source_policy_after_a_later_policy_edit(self):
+        # Simulate a later publisher adding a host. The original source remains
+        # sealed; it is not a new qualification of that simulated host.
+        later=copy.deepcopy(qualification.POLICY)
+        later['hosts']['simulated-future']={'level':'simulation','shards':['enforcement']}
+        with patch.object(qualification,'POLICY',later),patch.object(qualification,'MATRIX',qualification.inventory(later)[4]):
+            record,archive=self.load()
+        self.assertEqual(record['qualificationPolicy'],qualification.POLICY)
+        self.assertEqual(archive.read_bytes(),self.package)
 
     def test_record_missing_or_mixed_evidence_is_rejected(self):
         original=copy.deepcopy(self.record)

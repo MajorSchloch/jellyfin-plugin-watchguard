@@ -1,0 +1,24 @@
+Original source: c737bba (current master at branch creation). Deterministic fake GitHub; no live writes.
+test_post_response_survives_delayed_id_and_inventory_visibility (test_release_automation.ReleaseStateTests.test_post_response_survives_delayed_id_and_inventory_visibility) ... ERROR
+
+======================================================================
+ERROR: test_post_response_survives_delayed_id_and_inventory_visibility (test_release_automation.ReleaseStateTests.test_post_response_survives_delayed_id_and_inventory_visibility)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<workspace>/tests/test_release_automation.py", line 397, in test_post_response_survives_delayed_id_and_inventory_visibility
+    self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/watchguard-original-publisher.py", line 87, in resume
+    unchanged(api, version, release)
+  File "/tmp/watchguard-original-publisher.py", line 53, in unchanged
+    require(fingerprint(api.release(version)) == fingerprint(previous), 'Release state changed concurrently. Inspect it, then resume explicitly.')
+  File "<workspace>/scripts/release_state.py", line 22, in require
+    raise Blocked(message)
+release_state.Blocked: Release state changed concurrently. Inspect it, then resume explicitly.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=1)
+
+Confirmed: the first read misses the created draft; its later visibility is incorrectly reported as a concurrent change before the first asset upload.

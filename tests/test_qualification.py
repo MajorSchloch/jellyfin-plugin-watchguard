@@ -102,6 +102,9 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual(source.count('name: WatchGuard-package-attempt-${{ github.run_attempt }}'), 3)
         self.assertIn("artifact_name('package', attempt)", (ROOT / 'scripts/release_provenance.py').read_text())
         self.assertIn('WatchGuard-evidence-${{ matrix.jellyfin_version }}-${{ matrix.shard }}-attempt-${{ github.run_attempt }}', source)
-        self.assertIn('paths-ignore:', source)
+        ignored=source.split('    paths-ignore:',1)[1].split('  workflow_dispatch:',1)[0]
+        self.assertIn("- 'manifest.json'",ignored)
+        self.assertNotIn("- 'docs/**'",ignored)
+        self.assertNotIn("- 'README.md'",ignored)
         self.assertNotIn('paths: [Directory.Build.props]', source)
         self.assertIn('--validate-branch --verify-record', source)

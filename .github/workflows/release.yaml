@@ -3,10 +3,9 @@ on:
   push:
     branches: [master]
     paths-ignore:
-      - 'docs/**'
-      - 'README.md'
+      # Publication writes only this file. Other pushes get a read-only state
+      # check, so documentation fixes to an unpublished candidate can qualify.
       - 'manifest.json'
-      - 'assets/**'
   workflow_dispatch:
     inputs:
       publish:

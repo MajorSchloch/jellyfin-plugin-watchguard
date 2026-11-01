@@ -15,7 +15,8 @@ def validate_version(version, manifest, state, changed_files=()):
             'Candidate version is older than the published catalog. Correct Directory.Build.props before qualification.')
     if state == 'complete':
         runtime=[f for f in changed_files if f.startswith('Jellyfin.Plugin.WatchGuard/') or f in
-                 ('Directory.Build.props','Directory.Build.targets','LICENSE')]
+                 ('Directory.Build.props','Directory.Build.targets','global.json','LICENSE',
+                  'scripts/browser/build.cjs','scripts/browser/package.json','scripts/browser/package-lock.json')]
         require(not runtime, 'Published version has runtime/package changes: '+', '.join(runtime)+
                 '. Prepare a new version; existing release bytes cannot be replaced.')
 
@@ -47,7 +48,7 @@ def main():
             require(len(files)<300, 'Too many changed files to check published-version safety. Inspect the version manually.')
             validate_version(version,manifest,state,[f['filename'] for f in files])
         # Validation always remains available, even for published versions.
-        qualify = args.inspect_only == 'false' and (args.publish == 'false' or state in ('unpublished', 'unpublished-or-draft'))
+        qualify = args.inspect_only == 'false' and (args.publish == 'false' or state in ('unpublished', 'unpublished-or-draft', 'draft'))
         result.update(state=state, qualify=qualify, preservedDrafts=getattr(api, 'preserved_drafts', []), draftVisibility=api.can_see_drafts())
         outputs(qualify=qualify, state=state)
         action = {'unpublished-or-draft': 'No public release is visible. This token cannot list drafts. Draft state is unknown before approval. This exact merged commit will qualify; any existing conflicting draft will stop publication after approval.',
