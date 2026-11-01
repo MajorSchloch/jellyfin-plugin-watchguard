@@ -1,0 +1,18 @@
+{
+  "qualificationRun": 41315324546,
+  "qualificationAttempt": 1,
+  "write": true,
+  "publicationRun": "41316998829",
+  "publicationAttempt": "2",
+  "state": "catalog updated",
+  "actions": [
+    "Update the catalog"
+  ],
+  "version": "0.7.14",
+  "commit": "951eb522bd90ecd8b20e86f042fa7cf86d5c0b8f",
+  "packageSha256": "078fc17739634cd1a8a037dc5cfdb62e88aeee490eedd3f0473bbef402239850",
+  "recordArtifactId": 13087583576,
+  "preservedDrafts": [],
+  "draftVisibility": true,
+  "elapsedSeconds": 11.362
+}

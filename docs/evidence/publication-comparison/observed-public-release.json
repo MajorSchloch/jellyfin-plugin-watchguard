@@ -1,0 +1,24 @@
+{
+  "id": 430641593,
+  "tag_name": "v0.7.14",
+  "target_commitish": "951eb522bd90ecd8b20e86f042fa7cf86d5c0b8f",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-11-01T14:36:44Z",
+  "assets": [
+    {
+      "id": 698586561,
+      "name": "Jellyfin.Plugin.WatchGuard-v0.7.14.zip",
+      "size": 596037,
+      "state": "uploaded",
+      "digest": "sha256:078fc17739634cd1a8a037dc5cfdb62e88aeee490eedd3f0473bbef402239850"
+    },
+    {
+      "id": 698586655,
+      "name": "Jellyfin.Plugin.WatchGuard-v0.7.14.zip.sha256",
+      "size": 105,
+      "state": "uploaded",
+      "digest": "sha256:7f5963a79b2b56bc23683492ade1cbe17973bdf3e5f6bd8dd9130df83ab10594"
+    }
+  ]
+}

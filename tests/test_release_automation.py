@@ -45,6 +45,7 @@ class FakeGitHub(state.GitHub):
         self.fail_catalog = False
         self.change_before_write = False
         self.downloads = {'api': 0, 'public': 0}
+        self.draft_urls = False
 
     def tag(self, tag):
         return self.tag_commit
@@ -84,6 +85,9 @@ class FakeGitHub(state.GitHub):
             return copy.deepcopy(self.current)
         if method == 'PATCH':
             self.current.update(draft=False, published_at='2026-10-30T13:57:38Z')
+            if self.draft_urls:
+                for asset in self.current['assets']:
+                    asset['browser_download_url'] = f"https://github.com/{REPO}/releases/download/v{VERSION}/{asset['name']}"
             self.tag_commit = COMMIT
             return copy.deepcopy(self.current)
         if path == 'contents/manifest.json':
@@ -105,7 +109,7 @@ class FakeGitHub(state.GitHub):
         self.asset_content[ident] = content
         self.current['assets'].append(dict(id=ident, name=path.name, size=len(content), state='uploaded',
             digest='sha256:' + state.digest(content), download_count=0,
-            browser_download_url=f'https://github.com/{REPO}/releases/download/v{VERSION}/{path.name}'))
+            browser_download_url=f"https://github.com/{REPO}/releases/download/{'untagged-0123abc' if self.draft_urls else 'v'+VERSION}/{path.name}"))
         return copy.deepcopy(self.current['assets'][-1])
 
     def download(self, url, path, **kwargs):
@@ -260,6 +264,161 @@ class ReleaseStateTests(unittest.TestCase):
         self.assertGreater(self.api.downloads['api'], 0)
         self.assertGreater(self.api.downloads['public'], 0)
         self.assertTrue(all(a['download_count'] > 0 for a in self.api.current['assets']))
+
+    def test_publication_accepts_only_canonical_draft_url_transition(self):
+        self.api.draft_urls = True
+        self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+        self.assertEqual([op for op, _ in self.api.writes], ['POST', 'UPLOAD', 'UPLOAD', 'PATCH', 'PUT'])
+        self.assertGreater(self.api.downloads['api'], 0)
+        self.assertGreater(self.api.downloads['public'], 0)
+        self.api.writes.clear()
+        self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'already published and verified')
+        self.assertEqual(self.api.writes, [])
+
+    def test_publication_conflicts_report_fields_and_never_update_catalog(self):
+        cases = [('asset', k, v) for k, v in [('id', 999), ('name', 'other.zip'), ('size', 1),
+                 ('digest', 'sha256:'+'b'*64), ('state', 'starter'),
+                 ('browser_download_url', 'https://github.com/other/repo/releases/download/v1/file?token=SECRET')]]
+        cases += [('release', k, v) for k, v in [('id', 99), ('tag_name', 'v0.0.0'),
+                  ('target_commitish', 'b'*40), ('prerelease', True), ('draft', True),
+                  ('body', 'marker removed SECRET'), ('published_at', None), ('published_at', '2026-02-31T00:00:00Z')]]
+        cases += [('release', 'body', publisher.marker({**self.record, 'run': 456})),
+                  ('release', 'assets', []), ('release', 'assets', None)]
+        for target, key, value in cases:
+            with self.subTest(target=target, field=key, value=value):
+                self.draft(); self.api.asset_content.clear(); self.upload(); self.upload('.sha256'); self.api.writes.clear()
+                original = self.api.request
+                def conflict(path, method='GET', data=None, **kwargs):
+                    response = original(path, method, data=data, **kwargs)
+                    if method == 'PATCH':
+                        obj = response['assets'][0] if target == 'asset' else response
+                        obj[key] = value
+                    return response
+                output = io.StringIO()
+                with patch.object(self.api, 'request', side_effect=conflict), patch('sys.stdout', output), self.assertRaises(state.Blocked) as caught:
+                    publisher.resume(self.api, self.record, self.archive, True)
+                self.assertEqual(self.api.writes, [('PATCH', 'releases/9')])
+                self.assertEqual(self.api.manifest, b'[]\n')
+                diagnostic = caught.exception.comparison
+                self.assertEqual(diagnostic['phase'], 'publication-response')
+                wanted = 'qualificationMarkers' if key == 'body' else key
+                self.assertTrue(any(wanted in field for field in diagnostic['fields']), diagnostic)
+                self.assertNotIn('SECRET', output.getvalue())
+                self.assertNotIn('https://', output.getvalue())
+
+    def test_publication_visibility_waits_for_exact_public_locations(self):
+        self.api.draft_urls = True
+        original = self.api.request
+        old = None
+        reads = 0
+        def delayed(path, method='GET', data=None, **kwargs):
+            nonlocal old, reads
+            if method == 'PATCH': old = copy.deepcopy(self.api.current)
+            response = original(path, method, data=data, **kwargs)
+            if old is not None and (method == 'PATCH' or (method == 'GET' and (path == 'releases/9' or path.startswith('releases?')))):
+                reads += 1
+                if reads <= 3:
+                    # Published state/time, but known draft URLs until round two.
+                    value = response[0] if isinstance(response, list) else response
+                    for a in value['assets']:
+                        a['browser_download_url'] = next(p for p in old['assets'] if p['id']==a['id'])['browser_download_url']
+            return response
+        with patch.object(self.api, 'request', side_effect=delayed), patch.object(publisher.time, 'sleep') as sleep:
+            self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+        self.assertEqual(sleep.call_count, 1)
+        self.assertEqual(self.api.writes.count(('PATCH', 'releases/9')), 1)
+        self.assertGreater(self.api.downloads['public'], 0)
+
+    def test_publication_delay_exhaustion_recovers_catalog_only(self):
+        self.api.draft_urls = True
+        original = self.api.request
+        published = False
+        reads = 0
+        def invisible(path, method='GET', data=None, **kwargs):
+            nonlocal published, reads
+            response = original(path, method, data=data, **kwargs)
+            if method == 'PATCH': published = True
+            if published and method == 'GET' and (path == 'releases/9' or path.startswith('releases?')):
+                reads += 1
+                return None if path == 'releases/9' else []
+            return response
+        with patch.object(self.api, 'request', side_effect=invisible), patch.object(publisher.time, 'sleep') as sleep, self.assertRaisesRegex(state.Blocked, 'not yet visible'):
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(reads, 8); self.assertEqual(sleep.call_count, 3)
+        self.assertEqual(self.api.manifest, b'[]\n'); self.assertFalse(self.api.current['draft'])
+        self.api.writes.clear()
+        self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+        self.assertEqual(self.api.writes, [('PUT', 'contents/manifest.json')])
+
+    def test_interrupted_publication_with_partial_draft_recovers_without_upload(self):
+        self.api.draft_urls = True
+        self.draft(); self.upload(); self.api.writes.clear()
+        original = self.api.request
+        def interrupted(path, method='GET', data=None, **kwargs):
+            response = original(path, method, data=data, **kwargs)
+            if method == 'PATCH': raise state.Blocked('Connection lost after publication')
+            return response
+        with patch.object(self.api, 'request', side_effect=interrupted), self.assertRaisesRegex(state.Blocked, 'Connection lost'):
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual([op for op, _ in self.api.writes], ['UPLOAD', 'PATCH'])
+        self.assertEqual(self.api.manifest, b'[]\n')
+        self.api.writes.clear()
+        self.assertEqual(publisher.resume(self.api, self.record, self.archive, True)[0], 'catalog updated')
+        self.assertEqual(self.api.writes, [('PUT', 'contents/manifest.json')])
+
+    def test_comparison_details_persist_in_failure_artifact_without_values(self):
+        run = dict(id=123, run_attempt=2, head_sha=COMMIT)
+        self.draft(); expected = copy.deepcopy(self.api.current)
+        actual = copy.deepcopy(expected)
+        actual['target_commitish'] = 'SECRET-CREDENTIAL'
+        actual['assets'] = [{'id':1, 'browser_download_url':'https://signed.invalid/?token=SECRET'}]
+        output = self.root / 'comparison.json'
+        args = ['publish_release.py', '--repo', REPO, '--run', '123', '--attempt', '2', '--output', str(output)]
+        def failed(*args):
+            publisher.same_release(actual, expected, 'publication-response', 'Release changed concurrently during publication.')
+        with patch('sys.argv',args), patch.object(publisher,'GitHub',return_value=self.api), patch.object(self.api,'request',return_value=run), patch.object(provenance,'check_run',return_value=self.api.repository), patch.object(publisher,'inspect',side_effect=failed), patch('sys.stdout',io.StringIO()) as log:
+            with self.assertRaises(state.Blocked): publisher.main()
+        result = json.loads(output.read_text())
+        self.assertEqual(result['state'], 'blocked')
+        self.assertIn('release.target_commitish', result['comparison']['fields'])
+        self.assertIn('release.assets.length', result['comparison']['fields'])
+        for text in [output.read_text(), log.getvalue()]:
+            self.assertNotIn('SECRET',text); self.assertNotIn('https://',text)
+
+    def test_publication_timestamp_is_validated_then_pinned(self):
+        self.draft(); self.upload(); self.upload('.sha256')
+        before = copy.deepcopy(self.api.current)
+        for timestamp in ['2026-11-01T14:36:44Z', '2026-11-01T14:36:44.123Z', '2026-11-01T14:36:44+00:00']:
+            with self.subTest(timestamp=timestamp):
+                expected = publisher.publication_template(self.api, before)
+                published = {**copy.deepcopy(expected), 'published_at':timestamp}
+                publisher.publication_response(published, expected, before)
+                changed = {**published, 'published_at':'2026-11-01T14:36:45Z'}
+                with self.assertRaises(state.Blocked) as caught:
+                    publisher.publication_matches(changed, expected, before, 'publication-readback-id')
+                self.assertEqual(caught.exception.comparison['fields'], ['release.published_at'])
+
+    def test_publication_readback_conflict_does_not_retry(self):
+        original = self.api.request
+        published = False
+        def conflict(path, method='GET', data=None, **kwargs):
+            nonlocal published
+            response = original(path, method, data=data, **kwargs)
+            if method == 'PATCH': published = True
+            elif published and path == 'releases/9': response['assets'][0]['digest'] = 'sha256:'+'b'*64
+            return response
+        with patch.object(self.api, 'request', side_effect=conflict), patch.object(publisher.time, 'sleep') as sleep, self.assertRaises(state.Blocked) as caught:
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(caught.exception.comparison['phase'], 'publication-readback-id')
+        self.assertEqual(sleep.call_count, 0); self.assertEqual(self.api.manifest, b'[]\n')
+
+    def test_unknown_draft_locations_stop_before_publication(self):
+        self.draft(); self.upload(); self.upload('.sha256'); self.api.writes.clear()
+        self.api.current['assets'][0]['browser_download_url'] += '?token=SECRET'
+        with self.assertRaises(state.Blocked) as caught:
+            publisher.resume(self.api, self.record, self.archive, True)
+        self.assertEqual(caught.exception.comparison['phase'], 'publication-draft-url')
+        self.assertEqual(self.api.writes, [])
 
     def test_asset_order_and_presentation_changes_do_not_block_recovery(self):
         self.draft(); self.upload(); self.upload('.sha256'); self.api.writes.clear()

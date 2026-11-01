@@ -1,0 +1,49 @@
+{
+  "testedCommit": "0bf1f1336a463d80d4df5b7bce566d62d935bcbd",
+  "baseCommit": "9579d76334348241c58bdc2efa73f31ade8a459f",
+  "checks": {
+    "publicationAndProvenance": 56,
+    "python": 120,
+    "javascript": 260,
+    "backend": 376,
+    "catalog": 8,
+    "releaseNotes": "PASS",
+    "qualificationPolicy": "PASS",
+    "packagedEs2019": "PASS"
+  },
+  "packageSha256": "078fc17739634cd1a8a037dc5cfdb62e88aeee490eedd3f0473bbef402239850",
+  "runtimeSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
+  "publishedPackageUnchanged": true,
+  "pluginVersionUnchanged": "0.7.14",
+  "nativeMatrixRerun": false,
+  "livePublicationTest": false,
+  "readOnlyRehearsal": {
+    "state": "already published and verified",
+    "actions": [],
+    "write": false,
+    "apiGetRequests": 20,
+    "qualificationRun": 41315324546,
+    "qualificationAttempt": 1,
+    "recordArtifactId": 13087583576,
+    "sourceCommit": "951eb522bd90ecd8b20e86f042fa7cf86d5c0b8f",
+    "packageArtifactId": 13086817591,
+    "packageSha256": "078fc17739634cd1a8a037dc5cfdb62e88aeee490eedd3f0473bbef402239850",
+    "runtimeSha256": "1a0ceb832b36543d7c0217ebfe67038715a31d75a65a5727a84fec4c065e614e",
+    "releaseId": 430641593,
+    "tag": "v0.7.14",
+    "markerVerified": true,
+    "apiBytesVerified": true,
+    "anonymousPublicBytesVerified": true,
+    "catalogVerified": true,
+    "elapsedSeconds": 12.127
+  },
+  "limitations": [
+    "The original mismatched field is not recoverable from retained evidence.",
+    "The draft URL transition is a deterministic simulation, not a confirmed cause of run 41316998829.",
+    "No new live publication was performed."
+  ],
+  "initialCheckFailures": [
+    "Sandbox denied disposable localhost sockets; rerun with localhost access passed.",
+    "Master lacked docs/release-v0714.md after catalog publication; added the published release evidence record, then reran all fast checks."
+  ]
+}
