@@ -822,7 +822,13 @@
         let polling = false;
         let generation = 0, admin = false, explicit = [], automatic = [], pending = true, coverage = '', coverageLimited = false, coverageInfo = null, failures = [];
         const cards = new Map();
-        signal.addEventListener('abort', () => { generation++; if (pollTimer) clearTimeout(pollTimer); if (searchTimer) clearTimeout(searchTimer); cards.clear(); page.remove(); }, { once: true });
+        // Action feedback survives data refreshes. A retry clears only its title;
+        // a changed filter context or page/account teardown clears all feedback.
+        const removalFailures = new Set(), removals = new Set();
+        let removalContext = 0;
+        const clearRemovalFeedback = () => { removalFailures.clear(); removalContext++; };
+        const renderErrors = () => setText(error, [...failures, ...(removalFailures.size ? ['WatchGuard: Could not remove this entry. Please retry.'] : [])].join(' '));
+        signal.addEventListener('abort', () => { generation++; if (pollTimer) clearTimeout(pollTimer); if (searchTimer) clearTimeout(searchTimer); cards.clear(); clearRemovalFeedback(); removals.clear(); error.textContent = ''; page.remove(); }, { once: true });
         function render() {
             if (!active()) return;
             page.setAttribute('data-watchguard-scope', loadedScope || '');
@@ -881,7 +887,7 @@
             setText(coverageText, coverage); // Complete server explanation stays available.
             const warning = info.warning === 'Some visible activity is awaiting background verification.' ? '' : info.warning;
             setText(coverageWarning, warning); coverageWarning.hidden = !warning;
-            setText(error, failures.join(' '));
+            renderErrors();
             const visible = new Set(selected.map(e => key(e.ItemId)));
             for (const [id, record] of cards) if (!visible.has(id)) record.card.remove();
             for (const [position, entry] of selected.entries()) {
@@ -925,19 +931,27 @@
                     const icon = document.createElement('span'); icon.className = 'material-icons'; icon.textContent = 'bookmark_remove'; icon.setAttribute('aria-hidden', 'true'); remove.append(icon);
                     remove.title = 'Remove from Watchlist'; remove.setAttribute('aria-label', 'Remove ' + entry.Name + ' from Watchlist');
                     remove.onclick = async () => {
-                        if (!active()) return;
-                        const revision = generation;
-                        remove.disabled = true; error.textContent = '';
+                        const id = key(entry.ItemId);
+                        if (!active() || removals.has(id)) return;
+                        const revision = generation, context = removalContext;
+                        removals.add(id); removalFailures.delete(id);
+                        remove.disabled = true; renderErrors();
                         try {
                             await request(api, 'Watchlist/' + encodeURIComponent(entry.ItemId), 'DELETE');
                             if (!active() || revision !== generation) return;
                             explicit = explicit.map(e => key(e.ItemId) === key(entry.ItemId) ? { ...e, Users: e.Users.filter(u => key(u.UserId) !== key(user)) } : e).filter(e => e.Users.length);
-                            if (options.indexedActivity) load(true); else render();
-                        } catch { if (active() && revision === generation) { error.textContent = 'WatchGuard: Could not remove this entry. Please retry.'; remove.disabled = false; } }
+                            if (options.indexedActivity) await load(true); else render();
+                        } catch (failure) {
+                            if (authorizationDenied(failure)) return;
+                            if (active() && revision === generation && context === removalContext) { removalFailures.add(id); renderErrors(); }
+                        } finally {
+                            removals.delete(id);
+                            if (active()) remove.disabled = false;
+                        }
                     };
                     record.card.append(remove); record.remove = remove;
                 }
-                if (record.remove) record.remove.setAttribute('aria-label', 'Remove ' + entry.Name + ' from Watchlist');
+                if (record.remove) { record.remove.setAttribute('aria-label', 'Remove ' + entry.Name + ' from Watchlist'); record.remove.disabled = removals.has(key(entry.ItemId)); }
                 if (grid.children[position] !== record.card) grid.insertBefore(record.card, grid.children[position] || null); // Preserve unchanged nodes and focus.
             }
         }
@@ -951,7 +965,7 @@
             loadedPages = 1; indexPopulating = false; pending = false; combined = false; preparing = false; requiresRefresh = false;
             coverage = ''; coverageLimited = false; coverageInfo = null;
             freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false;
-            grid.textContent = ''; cards.clear(); freshness.textContent = '';
+            grid.textContent = ''; cards.clear(); clearRemovalFeedback(); freshness.textContent = '';
             failures = ['WatchGuard: Authorization denied. Reload or authenticate again before viewing activity.'];
             refresh.setAttribute('aria-disabled', 'false'); render();
             return true;
@@ -1008,7 +1022,7 @@
             const revision = ++generation;
             const current = () => active() && revision === generation;
             polling = false; pending = true; failures = []; coverage = ''; coverageLimited = false; coverageInfo = null; notice.hidden = true; refresh.setAttribute('aria-disabled', 'true');
-            status.textContent = 'Loading watchlists…'; spinner.hidden = false; status.append(spinner); page.setAttribute('aria-busy', 'true'); error.textContent = '';
+            status.textContent = 'Loading watchlists…'; spinner.hidden = false; status.append(spinner); page.setAttribute('aria-busy', 'true'); renderErrors();
             try {
                 const account = await api.getCurrentUser();
                 if (!current()) return;
@@ -1141,6 +1155,7 @@
         };
         page.updateFilters = (owner, interest, sorting, days, older, text = '') => {
             if (searchTimer) { clearTimeout(searchTimer); searchTimer = null; }
+            const previousView = JSON.stringify([filter, kind, sort, range, includeOlder, searchText]);
             searchText = text.slice(0, 120); if (search.value !== searchText) search.value = searchText;
             const nextRange = [7,30,90].includes(Number(days)) ? Number(days) : 30, nextOlder = older !== 'false';
             const timeChanged = range !== nextRange || includeOlder !== nextOlder;
@@ -1148,13 +1163,14 @@
             raw = {owner, interest, sort: sorting};
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
+            if (previousView !== JSON.stringify([filter, kind, sort, range, includeOlder, searchText])) clearRemovalFeedback();
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
             if (loadedScope && (nextScope !== loadedScope || timeChanged || (options.indexedActivity && viewSignature !== JSON.stringify([nextScope, kind, sort, range, includeOlder, searchText])))) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false; loadedPages = 1; pending = true; render(); load(); } else render();
         };
         const change = () => { if (active()) { if (options.indexedActivity) generation++; const args = [select.value || 'mine', kind.join(',') || 'none', order.value]; if (options.indexedActivity) args.push(rangeSelect.value, String(olderToggle.checked), search.value); navigate(...args); } };
         search.oninput = () => {
             if (!active()) return;
-            generation++; if (searchTimer) clearTimeout(searchTimer);
+            generation++; clearRemovalFeedback(); if (searchTimer) clearTimeout(searchTimer);
             continuation = null; polling = false; pending = true; refresh.setAttribute('aria-disabled', 'false'); render();
             searchTimer = setTimeout(() => { searchTimer = null; if (search.value === searchText) load(); else change(); }, 250);
         };

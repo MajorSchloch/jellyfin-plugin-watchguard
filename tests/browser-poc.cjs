@@ -314,7 +314,16 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
         await page.goForward();
         await page.waitForFunction(()=>document.querySelectorAll('.watchguard-card').length===2);
         if(fixture.activityIndex) assert.equal(page.url(),latestOwnerView,'Forward restores the latest owner view');
+        // Hold initial activity across a failed removal. Cards must be usable
+        // before activity completes; completion must not erase action feedback.
+        let releaseRemovalActivity, removalActivityStarted;
+        const removalActivityReady = new Promise(resolve => { removalActivityStarted = resolve; });
+        const removalActivityGate = new Promise(resolve => { releaseRemovalActivity = resolve; });
+        const holdRemovalActivity = async route => { removalActivityStarted(); await removalActivityGate; await route.continue(); };
+        await page.route(mineActivity, holdRemovalActivity);
         await page.reload(); await myList().getByRole('link',{name:'PoC Series Detail',exact:true}).waitFor();
+        await removalActivityReady;
+        assert.equal(await myList().getAttribute('aria-busy'),'true','Remove is available on preliminary cards');
         await page.screenshot({path:path.join(output,'my-watchlist.png')});
         const failedRemovalRequests = [];
         const removalMock = async route => {
@@ -336,12 +345,27 @@ const report = { target: 'Jellyfin '+fixture.serverVersion, paths: [], diagnosti
             }));
             throw error;
         }
+        await page.screenshot({path:path.join(output,'removal-error-before-activity.png')});
+        releaseRemovalActivity();
+        await page.waitForFunction(()=>document.querySelector('.watchguard-page')?.getAttribute('aria-busy')==='false');
+        await page.unroute(mineActivity,holdRemovalActivity);
+        const removalAfterActivity = {
+            alert:await myList().getByRole('alert').innerText(),
+            cards:await myList().locator('.watchguard-card').count(),
+            failedDeletes:failedRemovalRequests.length,
+            indexed:fixture.activityIndex === true
+        };
+        fs.writeFileSync(path.join(output,'removal-race.json'),JSON.stringify(removalAfterActivity,null,2)+'\n');
+        await page.screenshot({path:path.join(output,'removal-error-after-activity.png')});
+        assert.match(removalAfterActivity.alert,/Could not remove/,'Initial activity completion must retain removal feedback');
+        assert.equal(removalAfterActivity.cards,2,'A failed removal must retain both cards');
         assert.equal(failedRemovalRequests.length,1,'Exactly one failed removal should be intercepted');
         assert.equal(failedRemovalRequests[0].method,'DELETE','The failed removal should use DELETE');
         assert.equal(await myList().getByRole('link').count(),2);
         await page.unroute('**/WatchGuard/Watchlist/*',removalMock);
         await myList().getByRole('button',{name:'Remove PoC Movie Detail from Watchlist',exact:true}).click();
         await myList().getByRole('link',{name:'PoC Movie Detail',exact:true}).waitFor({state:'hidden'});
+        assert.doesNotMatch(await myList().locator('[role="alert"]').textContent(),/Could not remove/,'Successful retry clears removal feedback');
         await myList().getByRole('link',{name:'PoC Series Detail',exact:true}).click();
         await page.locator('#itemDetailPage').getByText('PoC Series Detail',{exact:true}).first().waitFor();
         await page.getByRole('link',{name:'Watchlists',exact:true}).click();

@@ -1350,3 +1350,85 @@ test('handoff preserves header focus and a retarget cannot extend the cleanup de
     const header=f.doc.createElement('button');header.focus();f.control.setAttribute('data-id','two');
     f.show({id:'two',serverId:'server'});assert.equal(f.doc.activeElement,header);f.dep.clear();
 });
+
+for (const indexed of [false, true]) test(`Removal feedback survives preliminary activity completion (${indexed ? 'indexed' : 'legacy'}) and successful retry`, async t => {
+    const f=progressiveFixture(true,false,'all',indexed);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    const grid=f.page.children[5],card=grid.children[0],remove=card.children.at(-1),alert=f.page.children[4];
+    const failed=remove.onclick();f.calls[2].reject({status:503});await failed;
+    assert.match(alert.textContent,/Could not remove/);assert.equal(remove.disabled,false);
+    f.calls[1].resolve(indexed?indexedResult([overviewItems[0]]):automaticResult);await turn();
+    assert.match(alert.textContent,/Could not remove/,'Activity completion must retain action feedback');
+    assert.equal(grid.children[0],card);assert.equal(card.children.at(-1),remove);
+    const retry=remove.onclick();assert.doesNotMatch(alert.textContent,/Could not remove/);
+    remove.onclick();assert.equal(f.calls.filter(c=>c.o.type==='DELETE').length,2,'One request per attempt');
+    assert.equal(remove.disabled,true);f.calls[3].resolve();await turn();
+    if(indexed){f.calls[4].resolve([{...overviewItems[0],Users:[overviewItems[0].Users[1]]}]);await turn();f.calls[5].resolve(indexedResult(automaticResult.Items));await turn();}
+    await retry;
+    assert.doesNotMatch(alert.textContent,/Could not remove/);assert.equal(grid.children[0],card);
+    assert.ok(!card.children.includes(remove),'Successful retry removes only this user’s membership control');
+});
+
+test('Indexed polling preserves removal errors and excludes duplicate pending writes',async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([overviewItems[0]]);await turn();f.calls[1].resolve(indexedResult([overviewItems[0]]));await turn();
+    const card=f.page.children[5].children[0],remove=card.children.at(-1),alert=f.page.children[4];
+    const attempt=remove.onclick();remove.onclick();assert.equal(f.calls.length,3);
+    t.mock.timers.tick(30000);await turn();f.calls[3].resolve(indexedResult([overviewItems[0]]));await turn();
+    assert.equal(remove.disabled,true);remove.onclick();assert.equal(f.calls.filter(c=>c.o.type==='DELETE').length,1);
+    f.calls[2].reject({status:503});await attempt;
+    t.mock.timers.tick(30000);await turn();f.calls[4].resolve(indexedResult([overviewItems[0]]));await turn();
+    assert.match(alert.textContent,/Could not remove/);assert.equal(f.page.children[5].children[0],card);assert.equal(remove.disabled,false);
+});
+
+for(const context of ['abort','account','filters','denial']) test(`Removal response cannot restore feedback after ${context}`,async t=>{
+    const f=progressiveFixture(true,false,'all',true);t.after(()=>f.abort.abort());
+    await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    const card=f.page.children[5].children[0],remove=card.children.at(-1),alert=f.page.children[4];
+    const attempt=remove.onclick();
+    if(context==='abort')f.abort.abort();
+    if(context==='account'){f.changeAccount();f.abort.abort();}
+    if(context==='filters')f.page.updateFilters('mine','watchlisted','title');
+    f.calls[2].reject({status:context==='denial'?403:503});await attempt;
+    assert.doesNotMatch(alert.textContent,/Could not remove/);
+    f.calls[1].resolve(indexedResult([overviewItems[0]]));await turn();
+    if(context==='denial'){assert.match(alert.textContent,/Authorization denied/);assert.equal(f.page.children[5].children.length,0);}
+});
+
+test('Removal feedback is independent of activity errors and clears on a new filter context',async t=>{
+    const f=progressiveFixture();t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    const remove=f.page.children[5].children[0].children.at(-1),alert=f.page.children[4];
+    const failed=remove.onclick();f.calls[2].reject({status:503});await failed;
+    f.calls[1].reject({status:503});await turn();assert.match(alert.textContent,/Could not remove/);assert.match(alert.textContent,/Viewing activity unavailable/);
+    const retry=remove.onclick();assert.doesNotMatch(alert.textContent,/Could not remove/);assert.match(alert.textContent,/Viewing activity unavailable/);
+    f.calls[3].reject({status:503});await retry;f.page.updateFilters('all','watchlisted','recent');
+    assert.doesNotMatch(alert.textContent,/Could not remove/);assert.match(alert.textContent,/Viewing activity unavailable/);
+});
+
+test('A successful removal does not clear another title’s failure or another owner’s membership',async t=>{
+    const f=progressiveFixture();t.after(()=>f.abort.abort());await turn();
+    const second={...overviewItems[0],ItemId:'d'.repeat(32),Name:'Beta'};
+    f.calls[0].resolve([overviewItems[0],second]);await turn();f.calls[1].resolve({...automaticResult,Items:[]});await turn();
+    const grid=f.page.children[5],first=grid.children[0].children.at(-1),next=grid.children[1].children.at(-1),alert=f.page.children[4];
+    const failure=first.onclick();f.calls[2].reject({status:503});await failure;
+    const success=next.onclick();f.calls[3].resolve();await success;
+    assert.match(alert.textContent,/Could not remove/);assert.equal(grid.children.length,2);
+    assert.equal(grid.children[1].children.includes(next),false);
+    assert.match(textOf(grid.children[1]),/Other/);
+});
+
+test('Legacy filter changes fence late removal failures even without a data reload',async t=>{
+    const f=progressiveFixture();t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([overviewItems[0]]);await turn();
+    const attempt=f.page.children[5].children[0].children.at(-1).onclick();
+    f.page.updateFilters('all','watchlisted','recent');f.calls[2].reject({status:503});await attempt;
+    f.calls[1].resolve(automaticResult);await turn();assert.doesNotMatch(f.page.children[4].textContent,/Could not remove/);
+});
+
+test('Explicit Refresh preserves existing removal feedback through every loading phase',async t=>{
+    const f=progressiveFixture();t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([overviewItems[0]]);await turn();f.calls[1].resolve(automaticResult);await turn();
+    const attempt=f.page.children[5].children[0].children.at(-1).onclick();f.calls[2].reject({status:503});await attempt;
+    const refresh=descendants(f.page).find(n=>n.className?.includes('watchguard-refresh'));
+    const loading=refresh.onclick();assert.match(f.page.children[4].textContent,/Could not remove/);await turn();
+    f.calls[3].resolve([overviewItems[0]]);await turn();assert.match(f.page.children[4].textContent,/Could not remove/);
+    f.calls[4].resolve(automaticResult);await loading;assert.match(f.page.children[4].textContent,/Could not remove/);
+});
