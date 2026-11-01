@@ -689,6 +689,46 @@
         outline.append(icon); label.append(input, caption, outline); return label;
     }
 
+    // Only scalar navigation hints live here: never rows, credentials, cursors or DOM.
+    // Hash navigation can have null state. Add one namespaced identifier without
+    // changing native keys/index/user state, the URL, or the history length.
+    function createReturnPositions(window, now = () => Date.now()) {
+        const records = new Map(), field = '__watchguardReturnV1';
+        const prefix = Math.random().toString(36).slice(2) + '-';
+        let sequence = 0;
+        const prune = () => { for (const [id, record] of records) if (now() - record.at > 15 * 60 * 1000) records.delete(id); };
+        return {
+            entry() {
+                try {
+                    let state = window.history.state;
+                    if (state !== null && (typeof state !== 'object' || Array.isArray(state))) return null;
+                    if (!state || !Object.prototype.hasOwnProperty.call(state, field)) {
+                        state = {...state, [field]: prefix + (++sequence)};
+                        window.history.replaceState(state, '', window.location.href);
+                    }
+                    if (typeof state[field] !== 'string' || state[field].length > 64) return null;
+                    return JSON.stringify([state[field], state.key, state.idx]);
+                } catch { return null; } // Unavailable history storage leaves a normal visit.
+            },
+            save(entry, hash, position) {
+                prune();
+                if (!entry || hash.length > 1024 || !position || !/^[0-9a-f]{32}$/.test(position.id) ||
+                    !Number.isFinite(position.top) || !Number.isFinite(position.scroll) || !Number.isFinite(position.pages) ||
+                    typeof position.view !== 'string' || position.view.length > 1024) return;
+                records.delete(entry);
+                records.set(entry, {hash, at: now(), position: {
+                    id: position.id, action: ['open', 'remove', 'owners'].includes(position.action) ? position.action : 'open',
+                    top: Math.max(0, Math.min(10000, position.top)), scroll: Math.max(0, Math.min(1000000, position.scroll)),
+                    pages: Math.max(1, Math.min(3, Math.floor(position.pages))), view: position.view
+                }});
+                while (records.size > 8) records.delete(records.keys().next().value);
+            },
+            read(entry, hash) { prune(); const record = records.get(entry); return record?.hash === hash ? {...record.position} : null; },
+            forget(entry) { records.delete(entry); },
+            clear() { records.clear(); }
+        };
+    }
+
     function watchlistsPage(document, api, signal, filter, navigate, options = {}) {
         let raw = {owner: filter, interest: options.interest, sort: options.sort};
         let range = [7,30,90].includes(Number(options.days)) ? Number(options.days) : 30, includeOlder = options.older !== 'false';
@@ -698,6 +738,20 @@
         let queryFailed = false, checkFailed = false;
         let queryQueue = Promise.resolve();
         const automaticRequestBudget = 4;
+        // At most three result pages / six activity requests, including the
+        // existing first-page preparation (still capped at four requests).
+        let restoration = options.returnPosition || null, restoreRequests = 0, restoreTimer;
+        const cancelRestoration = () => { restoration = null; if (restoreTimer) clearTimeout(restoreTimer); };
+        const interacted = () => { cancelRestoration(); options.forgetPosition?.(); };
+        const interactionEvents = ['keydown', 'pointerdown', 'touchstart', 'wheel'];
+        if (restoration && !signal.aborted) {
+            restoreTimer = setTimeout(cancelRestoration, 8000);
+            for (const type of interactionEvents) document.addEventListener?.(type, interacted, true);
+            signal.addEventListener('abort', () => {
+                cancelRestoration();
+                for (const type of interactionEvents) document.removeEventListener?.(type, interacted, true);
+            }, {once:true});
+        }
         let saved = {Owner: 'mine', Statuses: [...defaultFilters], Sort: 'title'}, preferencesLoaded = false;
         let initialization = null;
         filter = filter || 'mine';
@@ -706,6 +760,7 @@
         const page = document.createElement('section'); page.className = 'watchguard-page backgroundContainer padded-left padded-right';
         page.setAttribute('role', 'region'); page.setAttribute('aria-label', 'Watchlists');
         const heading = document.createElement('h1'); heading.className = 'sectionTitle'; heading.textContent = 'Watchlists';
+        heading.tabIndex = -1;
         const toolbar = document.createElement('div'); toolbar.className = 'watchguard-toolbar';
         function dropdown(label, choices) {
             const select = document.createElement('select'); select.className = 'emby-select emby-select-withcolor'; select.setAttribute('aria-label', label);
@@ -817,6 +872,8 @@
         const preferenceMessage = document.createElement('p'); preferenceMessage.setAttribute('role', 'status'); preferenceMessage.className = 'watchguard-notice';
         page.append(heading, toolbar, status, notice, error, grid, preferenceMessage);
         page.append(announcement);
+        const returnNotice = document.createElement('p'); returnNotice.className = 'watchguard-notice'; returnNotice.setAttribute('role', 'status'); returnNotice.hidden = true;
+        page.append(returnNotice);
         if (options.indexedActivity) { status.after?.(freshness); page.append(updates, more); }
         const user = api.getCurrentUserId(), token = api.accessToken();
         const active = () => !signal.aborted && api.getCurrentUserId() === user && api.accessToken() === token;
@@ -897,7 +954,7 @@
                 let record = cards.get(key(entry.ItemId));
                 if (!record) {
                     const card = document.createElement('article'); card.className = 'watchguard-card';
-                    const link = document.createElement('a'); link.className = 'button-link';
+                    const link = document.createElement('a'); link.className = 'button-link focusable';
                     link.href = '#/details?id=' + encodeURIComponent(entry.ItemId) + '&serverId=' + encodeURIComponent(api.serverId());
                     const image = document.createElement('img'); image.alt = ''; image.loading = 'lazy';
                     image.src = api.getImageUrl(entry.ItemId, { type: 'Primary', maxWidth: 360, quality: 90 });
@@ -912,7 +969,7 @@
                     const otherOwners = disclosure(document); otherOwners.className = 'watchguard-more-owners';
                     const otherSummary = remoteSummary(document); otherOwners.append(otherSummary);
                     const extraOwners = document.createElement('div'); otherOwners.append(extraOwners);
-                    card.append(ownersText, otherOwners); record = { card, name, ownersText, otherOwners, otherSummary, extraOwners, rows: new Map() }; cards.set(key(entry.ItemId), record);
+                    card.append(ownersText, otherOwners); record = { card, link, name, ownersText, otherOwners, otherSummary, extraOwners, rows: new Map() }; cards.set(key(entry.ItemId), record);
                 }
                 record.name.textContent = entry.Name; record.name.title = entry.Name;
                 const staleLive = options.indexedActivity && (liveStale || loadedPages > 1);
@@ -960,6 +1017,7 @@
         }
         function authorizationDenied(failure) {
             if (!active() || ![401, 403].includes(failure?.status)) return false;
+            cancelRestoration(); options.authorizationDenied?.();
             // Even a superseded request's denial invalidates this captured
             // account's protected view. No concurrent response may restore it.
             generation++;
@@ -976,6 +1034,7 @@
         function queryRequest(route, revision) {
             const operation = queryQueue.then(async () => {
                 if (!active() || revision !== generation) return null;
+                if (restoration) restoreRequests++;
                 try { return await request(api, route); }
                 catch (failure) { authorizationDenied(failure); throw failure; }
             });
@@ -1105,6 +1164,7 @@
                     failures.push('WatchGuard: Viewing activity unavailable. Results are incomplete; refresh to retry.');
                 }
                 pending = false; render();
+                await restorePosition(revision);
             } catch (failure) { if (authorizationDenied(failure)) return; if (current()) { pending = false; failures = ['WatchGuard: Could not verify this account.']; explicit = []; automatic = []; directory = []; continuation = null; render(); } }
             finally { if (current()) { refresh.setAttribute('aria-disabled', 'false'); schedulePoll(); } }
         }
@@ -1156,7 +1216,7 @@
             }, 30000);
             pollTimer.unref?.();
         }
-        more.onclick = async () => {
+        async function loadMore() {
             if (active() && !pending && requiresRefresh) return load(true);
             if (!active() || pending || !continuation) return;
             const revision = generation, cursor = continuation;
@@ -1179,7 +1239,42 @@
                 failures = ['Could not continue this view; loaded results are retained. Use Refresh to restart with the same filters.'];
             } }
             finally { if (active() && revision === generation) { pending = false; render(); schedulePoll(); } }
+        }
+        more.onclick = loadMore;
+        page.capturePosition = (target = document.activeElement) => {
+            if (!active() || !loadedScope || !grid.children.length) return null;
+            const visible = [...cards].filter(([, record]) => record.card.parentNode === grid);
+            const selected = visible.find(([, record]) => record.card.contains(target)) ||
+                visible.find(([, record]) => record.card.getBoundingClientRect().bottom > page.getBoundingClientRect().top);
+            if (!selected) return null;
+            const [id, record] = selected;
+            return {id, action: record.remove?.contains(target) ? 'remove' : record.otherSummary.contains(target) ? 'owners' : 'open',
+                top: record.link.getBoundingClientRect().top - page.getBoundingClientRect().top, scroll: page.scrollTop,
+                pages: combined ? loadedPages : Math.ceil((visible.indexOf(selected) + 1) / 25), view: indexRoute(loadedScope, null)};
         };
+        async function restorePosition(revision) {
+            const position = restoration;
+            const current = () => active() && generation === revision && restoration === position;
+            if (!position) return;
+            if (position.view !== indexRoute(loadedScope, null)) { cancelRestoration(); options.forgetPosition?.(); return; }
+            const title = () => combined && automatic.some(item => key(item.ItemId) === position.id) ? cards.get(position.id) : null;
+            while (current() && !title() && combined && !preparing && !requiresRefresh && !queryFailed && !failures.length &&
+                continuation && loadedPages < Math.min(3, position.pages) && restoreRequests < 6) {
+                await loadMore();
+            }
+            if (!current() || !page.isConnected) return;
+            const record = title();
+            const action = record ? (position.action === 'remove' && record.remove || position.action === 'owners' && !record.otherOwners.hidden && record.otherSummary || record.link) : heading;
+            cancelRestoration();
+            if (!record) {
+                returnNotice.textContent = 'Return position unavailable. Showing current results.'; returnNotice.hidden = false;
+                action.focus({preventScroll:true}); page.scrollTop = 0;
+            } else {
+                const top = Math.min(position.top, Math.max(0, page.clientHeight - 80));
+                const scroll = page.scrollTop + record.link.getBoundingClientRect().top - page.getBoundingClientRect().top - top;
+                action.focus({preventScroll:true}); page.scrollTop = scroll;
+            }
+        }
         page.updateFilters = (owner, interest, sorting, days, older, text = '') => {
             if (searchTimer) { clearTimeout(searchTimer); searchTimer = null; }
             const previousView = JSON.stringify([filter, kind, sort, range, includeOlder, searchText]);
@@ -1190,7 +1285,7 @@
             raw = {owner, interest, sort: sorting};
             const view = preferenceView(saved, owner, interest, sorting);
             filter = view.owner; kind = selectedStatuses(view.interest); sort = ['title', 'recent', 'added'].includes(view.sort) ? view.sort : 'title';
-            if (previousView !== JSON.stringify([filter, kind, sort, range, includeOlder, searchText])) clearRemovalFeedback();
+            if (previousView !== JSON.stringify([filter, kind, sort, range, includeOlder, searchText])) { interacted(); returnNotice.hidden = true; clearRemovalFeedback(); }
             const nextScope = !admin || filter === 'mine' || key(filter) === key(user) ? 'mine' : filter;
             if (options.indexedActivity ? viewGeneration !== generation || viewSignature !== requestedView() : !loadedScope || nextScope !== loadedScope || timeChanged) { generation++; explicit = []; automatic = []; continuation = null; combined = false; preparing = false; requiresRefresh = false; freshnessRevision = null; checkCursor = null; updatesAvailable = false; liveStale = false; queryFailed = false; checkFailed = false; loadedPages = 1; pending = true; render(); load(); } else render();
         };
@@ -1426,13 +1521,14 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     }
 
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { createDeparture, detailHandoffReady, tvChoices, browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
+        module.exports = { createReturnPositions, createDeparture, detailHandoffReady, tvChoices, browserCapabilities, episodeProgress, createServerAdapter, coveragePresentation, renderSeriesActivity, createAdapter, confirmDeletion, message, protectionCheck, validateStatus, describe, resolveScope, selectInterest, mergeInterest, activityText, selectedStatuses, userLine, watchlistsPage, createMembership, preferenceView };
         return;
     }
     if (root.WatchGuardPoc) return;
     let diagnostic = /*WATCHGUARD_DIAGNOSTICS*/false;
     let identity, panel, detailButton, refreshDetailMembership, signature, membership, epoch = 0;
-    let pagePanel, pageSignature, pageLifetime;
+    let pagePanel, pageSignature, pageLifetime, pageEntry, pageActivation;
+    const returnPositions = createReturnPositions(root);
     const departure = createDeparture(document, root, () => {
         const api = root.ApiClient;
         return [api, api?.getCurrentUserId?.(), api?.accessToken?.(), api?.serverId?.()];
@@ -1442,11 +1538,11 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     let lifetime = new AbortController();
     function syncIdentity() {
         const api = root.ApiClient;
-        const next = [api, api?.getCurrentUserId?.(), api?.accessToken?.()];
+        const next = [api, api?.getCurrentUserId?.(), api?.accessToken?.(), api?.serverId?.()];
         if (!identity || next.some((v, i) => v !== identity[i])) {
             lifetime.abort(); lifetime = new AbortController();
             panel?.remove(); detailButton?.remove(); panel = null; refreshDetailMembership = null; signature = null; epoch++;
-            departure.clear(); syncNavigation(); closePage();
+            returnPositions.clear(); departure.clear(); syncNavigation(); closePage();
             identity = next;
             membership = next[1] && next[2] ? createMembership(api, lifetime.signal, (id, present) => {
                 // A native menu can change the same title. Refresh its state without
@@ -1705,6 +1801,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
     }
     function closePage() {
         pageLifetime?.abort(); pageLifetime = null; pagePanel?.remove(); pagePanel = null; pageSignature = null;
+        pageEntry = null; pageActivation = null;
         document.body.classList.remove('watchguard-page-open');
     }
     function updateNavigation() {
@@ -1721,6 +1818,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         if (!open) {
             // Mount the neutral cover before revealing native layout. Abort the
             // live Watchlists view immediately; the cover owns no account data.
+            if (pagePanel?.isConnected) returnPositions.save(pageEntry, pageSignature, pageActivation || pagePanel.capturePosition());
             departure.route(hash, pagePanel?.isConnected ? pageSignature : null);
             closePage(); return;
         }
@@ -1729,9 +1827,11 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         if (header) document.body.style.setProperty('--watchguard-top', Math.max(0, header.getBoundingClientRect().bottom) + 'px');
         if (pagePanel?.isConnected) {
             if (pageSignature !== hash) pagePanel.updateFilters(params.get('owner'), params.get('interest'), params.get('sort'), params.get('days'), params.get('older'), params.get('search') || '');
-            pageSignature = hash; return;
+            pageSignature = hash; pageEntry = returnPositions.entry(); return;
         }
         closePage(); pageSignature = hash;
+        pageEntry = returnPositions.entry();
+        const entry = pageEntry, returnPosition = returnPositions.read(entry, hash);
         pageLifetime = new AbortController();
         pagePanel = watchlistsPage(document, api, pageLifetime.signal, params.get('owner'), (owner, interest, sort, days = 30, older = 'true', search = '') => {
             // Filters edit this view, not Jellyfin's route. Keep its history state
@@ -1740,9 +1840,19 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
             // replaceState emits no navigation event, so apply the view ourselves.
             root.history.replaceState(root.history.state, '', '#/home?watchguard=watchlists&owner=' + encodeURIComponent(owner) + '&interest=' + encodeURIComponent(interest) + '&sort=' + encodeURIComponent(sort) + '&days=' + encodeURIComponent(days) + '&older=' + encodeURIComponent(older) + '&search=' + encodeURIComponent(search));
             updateNavigation();
-        }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), search: params.get('search'), indexedActivity: true, preferences: true});
+        }, {interest: params.get('interest'), sort: params.get('sort'), days: params.get('days'), older: params.get('older'), search: params.get('search'), indexedActivity: true, preferences: true,
+            returnPosition, forgetPosition: () => returnPositions.forget(entry), authorizationDenied: () => returnPositions.clear()});
+        // Capture activation before Jellyfin's delegated click changes the route
+        // or its departure cover transfers focus away from the selected title.
+        const mounted = pagePanel;
+        mounted.addEventListener('click', event => {
+            if (pagePanel === mounted && root.location.hash === pageSignature && event.target.closest?.('.watchguard-card a')) {
+                pageActivation = mounted.capturePosition(event.target);
+                returnPositions.save(entry, pageSignature, pageActivation);
+            }
+        }, true);
         document.body.classList.add('watchguard-page-open'); document.body.append(pagePanel);
-        if (document.documentElement.classList.contains('layout-tv')) pagePanel.querySelector('select,button,input')?.focus();
+        if (!returnPosition && document.documentElement.classList.contains('layout-tv')) pagePanel.querySelector('select,button,input')?.focus();
         root.WatchGuardStartup?.finish();
     }
 

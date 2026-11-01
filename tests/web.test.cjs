@@ -343,6 +343,7 @@ function progressiveFixture(admin = true, preferences = false, owner = 'all', in
         ajax:o=>o.url==='WatchGuard/Users'?Promise.resolve(overviewItems[0].Users):new Promise((resolve,reject)=>calls.push({o,resolve,reject}))};
     const abort = new AbortController();
     const navigation=[];
+    options.documentSetup?.(f.doc);
     const page = watchlistsPage(f.doc,api,abort.signal,owner,(...args)=>{navigation.push(args);page.updateFilters(...args);},{preferences,indexedActivity,...options});
     return {page,calls,abort,navigation,document:f.doc,changeAccount(){token='second';}};
 }
@@ -1611,4 +1612,106 @@ test('Equivalent sort events retain a pending indexed poll and one poll timer',a
     f.calls[2].resolve(indexedResult());await turn();assert.equal(f.page.getAttribute('aria-busy'),'false');
     t.mock.timers.tick(29999);await turn();assert.equal(f.calls.length,3);
     t.mock.timers.tick(1);await turn();assert.equal(f.calls.length,4);
+});
+
+const {createReturnPositions}=require('../Jellyfin.Plugin.WatchGuard/Web/watchguard.js');
+test('Return entries preserve native history, isolate identical URLs, bound records and expire without storing rows',()=>{
+    let now=0,calls=0;
+    const native={key:'native-key',idx:3,usr:{native:['untouched']}};
+    const window={location:{href:'https://fixture/web/#/home?watchguard=watchlists'},history:{state:native,replaceState(state,title,url){calls++;this.state=state;assert.equal(url,window.location.href);}}};
+    const positions=createReturnPositions(window,()=>now),entry=positions.entry(),state=window.history.state;
+    assert.equal(state.usr,native.usr);assert.equal(state.key,native.key);assert.equal(state.idx,3);assert.equal(positions.entry(),entry);assert.equal(calls,1);
+    const hint={id:'a'.repeat(32),action:'remove',top:180,scroll:5000,pages:500,view:'query',rows:['must not retain'],Continuation:'old-secret'};
+    positions.save(entry,'route',hint);
+    assert.deepEqual(positions.read(entry,'route'),{id:hint.id,action:'remove',top:180,scroll:5000,pages:3,view:'query'});
+    assert.equal(positions.read(entry,'other-query'),null);
+    for(let i=0;i<8;i++){window.history.state=null;const next=positions.entry();assert.notEqual(next,entry);positions.save(next,'route',hint);}
+    assert.equal(positions.read(entry,'route'),null,'At most eight entries');
+    positions.save(entry,'route',hint);now=15*60*1000+1;assert.equal(positions.read(entry,'route'),null);
+    positions.save(entry,'route',hint);positions.clear();assert.equal(positions.read(entry,'route'),null);
+    for(const state of ['native primitive',42,[],true]){window.history.state=state;assert.equal(positions.entry(),null);assert.equal(window.history.state,state);}
+    window.history.state=null;window.history.replaceState=()=>{throw new Error('unavailable');};assert.equal(positions.entry(),null);
+});
+
+function returnFixture(overrides={}) {
+    const events=new Map(),focus=[],target='7'.repeat(32);
+    const position={id:target,action:'open',top:50,scroll:700,pages:3,view:'ActivityBrowser?owner=all&days=30&older=true&statuses=watchlisted%2Cwatching%2Cplaying&sort=title&search=',...overrides.position};
+    let forgotten=0,denied=0;
+    const f=progressiveFixture(true,false,'all',true,{returnPosition:position,forgetPosition:()=>forgotten++,authorizationDenied:()=>denied++,documentSetup:doc=>{
+        const create=doc.createElement;doc.createElement=tag=>{const n=create(tag);n.contains=target=>n===target||n.children.some(c=>c.contains?.(target));return n;};
+        doc.addEventListener=(type,fn)=>{if(!events.has(type))events.set(type,new Set());events.get(type).add(fn);};doc.removeEventListener=(type,fn)=>{events.get(type)?.delete(fn);if(!events.get(type)?.size)events.delete(type);};
+    }});
+    f.page.isConnected=true;f.page.clientHeight=900;f.page.scrollTop=0;f.page.getBoundingClientRect=()=>({top:0});
+    f.page.children[0].focus=()=>{focus.push('heading');f.document.activeElement=f.page.children[0];};
+    const create=f.document.createElement;
+    f.document.createElement=tag=>{
+        const n=create(tag);Object.defineProperty(n,'parentNode',{get:()=>n.parent});
+        n.contains=target=>n===target||n.children.some(c=>c.contains?.(target));
+        n.getBoundingClientRect=()=>({top:100-f.page.scrollTop,bottom:450-f.page.scrollTop});
+        n.focus=()=>{focus.push(n);f.document.activeElement=n;};return n;
+    };
+    const item=id=>({...overviewItems[0],ItemId:id,Name:id,Users:[overviewItems[0].Users[0]]});
+    return {...f,target,position,events,focus,item,forgotten:()=>forgotten,denied:()=>denied};
+}
+async function returnFirst(f,items,cursor=null){await turn();f.calls[0].resolve([]);await turn();f.calls[1].resolve(indexedResult(items,cursor));await turn();}
+test('Return refetches authorized pages, anchors the current title and restores its action once',async t=>{
+    const f=returnFixture({position:{action:'remove'}});t.after(()=>f.abort.abort());
+    await returnFirst(f,[f.item('6'.repeat(32))],'fresh-second');
+    assert.equal(f.focus.length,0);assert.match(f.calls[2].o.url,/continuation=fresh-second/);
+    f.calls[2].resolve(indexedResult([f.item(f.target)],'fresh-third'));await turn();
+    assert.equal(f.focus.length,1);assert.equal(f.focus[0].className,'emby-button button-flat watchguard-remove');assert.equal(f.page.scrollTop,50);
+    assert.equal(f.calls.length,3,'Stop as soon as the title is currently available');
+    assert.equal(f.page.children.at(-1).hidden,false,'Manual pagination remains available');
+    assert.equal(f.page.capturePosition(f.focus[0]).action,'remove');
+});
+test('Return uses the current title order and falls back from a disappeared action to its link',async t=>{
+    const f=returnFixture({position:{action:'remove'}});t.after(()=>f.abort.abort());
+    const item={...f.item(f.target),Users:[{...overviewItems[0].Users[1],Reasons:['InProgress']}]};
+    await returnFirst(f,[item],'later');assert.equal(f.focus.length,1);assert.equal(f.focus[0].tag,'a');assert.equal(f.calls.length,2);
+});
+test('Return missing title has a finite three-page budget and normal loading fallback',async t=>{
+    const f=returnFixture();t.after(()=>f.abort.abort());
+    await returnFirst(f,[f.item('1'.repeat(32))],'second');
+    f.calls[2].resolve(indexedResult([f.item('2'.repeat(32))],'third'));await turn();
+    f.calls[3].resolve(indexedResult([f.item('3'.repeat(32))],'fourth'));await turn();
+    assert.equal(f.calls.length,4);assert.deepEqual(f.focus,['heading']);assert.equal(f.page.scrollTop,0);
+    assert.equal(f.page.children.at(-1).hidden,false);assert.equal(f.page.children.at(-1).disabled,false);
+    assert.match(textOf(f.page),/Return position unavailable/);
+    const more=f.page.children.at(-1).onclick();await turn();f.calls[4].resolve(indexedResult([f.item(f.target)]));await more;
+    assert.equal(f.focus.length,1,'Manual loading never restarts restoration');
+});
+test('Return counts preparation within its six-request ceiling and retains four-request preparation pause',async t=>{
+    for(const ready of [true,false]){
+        const f=returnFixture();t.after(()=>f.abort.abort());await turn();f.calls[0].resolve([]);await turn();
+        for(let n=1;n<=4;n++){
+            f.calls[n].resolve(ready&&n===4?indexedResult([f.item('1'.repeat(32))],'second'):{...indexedResult([],'prepare-'+n),Preparing:true});await turn();
+        }
+        if(ready){f.calls[5].resolve(indexedResult([f.item('2'.repeat(32))],'third'));await turn();f.calls[6].resolve(indexedResult([f.item('3'.repeat(32))],'fourth'));await turn();}
+        assert.equal(f.calls.length,ready?7:5);assert.deepEqual(f.focus,['heading']);
+        assert.equal(f.page.children.at(-1).textContent,ready?'Load more results':'Continue loading');
+    }
+});
+for(const reason of ['keydown','pointerdown','touchstart','wheel','abort','account','query','deadline'])test('Return never moves focus or scroll after '+reason,async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});const f=returnFixture();t.after(()=>f.abort.abort());
+    await returnFirst(f,[f.item('1'.repeat(32))],'second');assert.equal(f.calls.length,3);
+    f.page.scrollTop=777;
+    if(f.events.has(reason))for(const listener of f.events.get(reason))listener({target:f.page});
+    else if(reason==='abort')f.abort.abort();else if(reason==='account')f.changeAccount();
+    else if(reason==='query')f.page.updateFilters('all','watchlisted','title',30,'true','Changed');
+    else t.mock.timers.tick(8000);
+    f.calls[2].resolve(indexedResult([f.item(f.target)],'third'));await turn();
+    assert.equal(f.focus.length,0);assert.equal(f.page.scrollTop,777);
+    if(reason!=='query')assert.equal(f.calls.length,3,'No further automatic request');
+    f.abort.abort();assert.equal(f.events.size,0,'Explicit listener cleanup works on Chromium 79');
+});
+for(const status of [400,409,401,403,503])test('Return failure '+status+' retains the correct recovery and authorization boundary',async t=>{
+    const f=returnFixture();t.after(()=>f.abort.abort());await returnFirst(f,[f.item('1'.repeat(32))],'second');
+    f.calls[2].reject({status});await turn();
+    assert.equal(f.calls.length,3);
+    if(status===401||status===403){assert.ok(f.denied()>=1);assert.equal(f.focus.length,0);assert.equal(f.page.children[5].children.length,0);}
+    else {assert.deepEqual(f.focus,['heading']);assert.equal(f.page.children.at(-1).hidden,false);assert.equal(f.page.children.at(-1).textContent,status===503?'Load more results':'Refresh this view');}
+});
+test('Changed resolved preferences or scope cancel restoration even when the URL is unchanged',async t=>{
+    const f=returnFixture({position:{view:'different-query'}});t.after(()=>f.abort.abort());await returnFirst(f,[f.item(f.target)],'second');
+    assert.equal(f.focus.length,0);assert.equal(f.forgotten(),1);assert.equal(f.calls.length,2);
 });

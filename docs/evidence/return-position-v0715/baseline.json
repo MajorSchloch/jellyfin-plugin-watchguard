@@ -1,0 +1,320 @@
+{
+  "baseline": true,
+  "server": "12.4.0",
+  "physicalTV": false,
+  "cases": [
+    {
+      "engine": "141.0.7390.37",
+      "layout": "desktop",
+      "width": 1280,
+      "depth": 1,
+      "before": {
+        "href": "#/details?id=30382ab61b5550890189cabe651dd773&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 342.109375,
+        "scroll": 1103,
+        "count": 25,
+        "state": "null",
+        "length": 5
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": true,
+        "top": 1445.109375,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 6
+      }
+    },
+    {
+      "engine": "141.0.7390.37",
+      "layout": "desktop",
+      "width": 1280,
+      "depth": 3,
+      "before": {
+        "href": "#/details?id=023644b41bebe649245789285744db1c&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 341.21875,
+        "scroll": 3869,
+        "count": 75,
+        "state": "null",
+        "length": 6
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": false,
+        "top": null,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 6
+      }
+    },
+    {
+      "engine": "141.0.7390.37",
+      "layout": "mobile",
+      "width": 390,
+      "depth": 1,
+      "before": {
+        "href": "#/details?id=30382ab61b5550890189cabe651dd773&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 180.265625,
+        "scroll": 4686,
+        "count": 25,
+        "state": "null",
+        "length": 5
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": true,
+        "top": 4866.265625,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 6
+      }
+    },
+    {
+      "engine": "141.0.7390.37",
+      "layout": "mobile",
+      "width": 390,
+      "depth": 3,
+      "before": {
+        "href": "#/details?id=023644b41bebe649245789285744db1c&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 180.34375,
+        "scroll": 14991,
+        "count": 75,
+        "state": "null",
+        "length": 6
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": false,
+        "top": null,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 6
+      }
+    },
+    {
+      "engine": "141.0.7390.37",
+      "layout": "tv",
+      "width": 1280,
+      "depth": 1,
+      "before": {
+        "href": "#/details?id=30382ab61b5550890189cabe651dd773&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 179.734375,
+        "scroll": 1583,
+        "count": 25,
+        "state": "null",
+        "length": 5
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": true,
+        "top": 1762.734375,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 6
+      }
+    },
+    {
+      "engine": "141.0.7390.37",
+      "layout": "tv",
+      "width": 1280,
+      "depth": 3,
+      "before": {
+        "href": "#/details?id=023644b41bebe649245789285744db1c&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 179.984375,
+        "scroll": 4927,
+        "count": 75,
+        "state": "null",
+        "length": 6
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": false,
+        "top": null,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 6
+      }
+    },
+    {
+      "engine": "HeadlessChrome/79.0.3945.0",
+      "layout": "desktop",
+      "width": 1280,
+      "depth": 1,
+      "before": {
+        "href": "#/details?id=30382ab61b5550890189cabe651dd773&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 349,
+        "scroll": 1069,
+        "count": 25,
+        "state": "null",
+        "length": 4
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": true,
+        "top": 1418,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 5
+      }
+    },
+    {
+      "engine": "HeadlessChrome/79.0.3945.0",
+      "layout": "desktop",
+      "width": 1280,
+      "depth": 3,
+      "before": {
+        "href": "#/details?id=023644b41bebe649245789285744db1c&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 349.484375,
+        "scroll": 3782,
+        "count": 75,
+        "state": "null",
+        "length": 5
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": false,
+        "top": null,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 5
+      }
+    },
+    {
+      "engine": "HeadlessChrome/79.0.3945.0",
+      "layout": "mobile",
+      "width": 390,
+      "depth": 1,
+      "before": {
+        "href": "#/details?id=30382ab61b5550890189cabe651dd773&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 180.875,
+        "scroll": 4594,
+        "count": 25,
+        "state": "null",
+        "length": 4
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": true,
+        "top": 4774.875,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 5
+      }
+    },
+    {
+      "engine": "HeadlessChrome/79.0.3945.0",
+      "layout": "mobile",
+      "width": 390,
+      "depth": 3,
+      "before": {
+        "href": "#/details?id=023644b41bebe649245789285744db1c&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 180.96875,
+        "scroll": 14715,
+        "count": 75,
+        "state": "null",
+        "length": 5
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": false,
+        "top": null,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 5
+      }
+    },
+    {
+      "engine": "HeadlessChrome/79.0.3945.0",
+      "layout": "tv",
+      "width": 1280,
+      "depth": 1,
+      "before": {
+        "href": "#/details?id=30382ab61b5550890189cabe651dd773&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 180.625,
+        "scroll": 1462,
+        "count": 25,
+        "state": "null",
+        "length": 4
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": true,
+        "top": 1642.625,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 5
+      }
+    },
+    {
+      "engine": "HeadlessChrome/79.0.3945.0",
+      "layout": "tv",
+      "width": 1280,
+      "depth": 3,
+      "before": {
+        "href": "#/details?id=023644b41bebe649245789285744db1c&serverId=e94229c8fd7f46bc96a80c1bb114a7f6",
+        "top": 180.34375,
+        "scroll": 4539,
+        "count": 75,
+        "state": "null",
+        "length": 5
+      },
+      "after": {
+        "samePanel": false,
+        "scroll": 0,
+        "found": false,
+        "top": null,
+        "focused": false,
+        "focusTag": "BODY",
+        "focusLabel": null,
+        "count": 25,
+        "state": "null",
+        "length": 5
+      }
+    }
+  ],
+  "result": "PASS"
+}

@@ -4,7 +4,7 @@ const fixture=JSON.parse(fs.readFileSync(process.argv[2]));
 assert.match(fixture.base,/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+(?:\/jellyfin)?$/);
 assert.equal(fixture.username,'WatchGuardPoCTest');
 const output=process.argv[3]||'artifacts/testing/return-position';fs.mkdirSync(output,{recursive:true});
-const baseline=true; // Baseline probe: change only after observing the unmodified runtime.
+const baseline=false;
 const report={baseline,server:fixture.serverVersion,physicalTV:false,cases:[],result:'RUNNING'};
 (async()=>{
  for(const old of [false,true]) {
