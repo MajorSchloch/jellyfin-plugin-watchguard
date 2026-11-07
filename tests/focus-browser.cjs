@@ -91,7 +91,8 @@ module.exports=async(page,fixture,output,old=false,baseline=false)=>{
             if(!baseline) {
                 if(layout==='tv')assert(row.menuMatchesNative,'TV Watchlists renders native text focus without a foreign border');
                 else assert(row.menu.outline!=='none'&&row.menu.edgePixels>20,'Desktop/mobile keyboard focus retains a visible outline');
-                assert.notEqual(row.active.color,row.activeFocused.color,'Active and focused states remain distinct');
+                if(layout==='tv')assert.notEqual(row.active.color,row.activeFocused.color,'TV active and focused text states remain distinct');
+                else assert(row.activeFocused.active==='page'&&row.activeFocused.outline!=='none','Desktop/mobile retain an outline when the active tab has focus');
                 assert(row.detailVisible,'Focus pixels must be visible inside the clipped detail disclosure');
             }
         }
