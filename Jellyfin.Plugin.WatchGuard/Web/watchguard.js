@@ -1779,10 +1779,15 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-state-Unknown {--wg-accent:#bac0ca}
         .watchguard-chip {display:inline-flex;align-items:center;color:var(--wg-accent,#ccc);background:rgba(255,255,255,.08);background:color-mix(in srgb,var(--wg-accent,#ccc) 10%,transparent);border:1px solid var(--wg-accent,#ccc);border:1px solid color-mix(in srgb,var(--wg-accent,#ccc) 30%,transparent);border-radius:1em;padding:.15em .65em;font-size:.85em;line-height:1.5;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
         .watchguard-status-icons [class*="watchguard-state-"] {color:var(--wg-accent)}
-        .watchguard-series-activity {width:100%;box-sizing:border-box;border:1px solid #ffffff24;border-radius:.7rem;background:#ffffff03;overflow:hidden}
+        .watchguard-series-activity,.watchguard-series-activity>summary {border-radius:.7rem}
+        .watchguard-series-activity {width:100%;box-sizing:border-box;border:1px solid #ffffff24;background:#ffffff03;overflow:hidden}
         .watchguard-series-activity summary {cursor:pointer;padding:.8rem 1rem;min-height:2.75rem;box-sizing:border-box;line-height:1.7;overflow-wrap:anywhere}
         .watchguard-series-activity summary::marker {color:#aab4bf}
-        .watchguard-series-activity summary:focus {outline:2px solid var(--jf-palette-primary-main,#00a4dc);outline-offset:-3px}
+        /* Inset shadow follows the heading radius in Chromium 79 without clipping or focusing the whole open section. */
+        .watchguard-series-activity summary:focus {outline:none!important;box-shadow:inset 0 0 0 2px var(--jf-palette-primary-main,#00a4dc)}
+        @supports selector(:focus-visible) {
+            .watchguard-series-activity summary:focus:not(:focus-visible) {box-shadow:none}
+        }
         .watchguard-series-activity summary>* {margin-inline-end:.5rem}
         .watchguard-activity-heading {font-weight:600;color:var(--jf-palette-text-primary,#eee)}
         .watchguard-series-viewers {list-style:none;padding:0 1rem;margin:0;max-height:28rem;overflow:auto}
