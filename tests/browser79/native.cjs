@@ -37,6 +37,7 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
         await page.keyboard.press('Enter');
         await page.waitForFunction(() => location.hash === '#/home' && window.WatchGuardPoc && WatchGuardPoc.isInstalled());
         report.nativeLogin = 'PASS';
+        report.focus=await require('../focus-browser.cjs')(page,fixture,path.join(output,'focus'),true);
         report.earlyFilters=await require('../early-filters-browser.cjs')(page,fixture,output,true);
         report.returnPosition=await require('../return-position-browser.cjs')(page,fixture,output,true);
         report.pluginVersion=await page.evaluate(async()=> (await ApiClient.ajax({url:ApiClient.getUrl('WatchGuard/IntegrationStatus'),type:'GET',dataType:'json'})).PluginVersion);

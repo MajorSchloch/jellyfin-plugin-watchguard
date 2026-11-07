@@ -234,6 +234,13 @@
         "Restore keyboard or TV remote focus when possible, with fresh authorized results and bounded loading."
       ],
       "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.15.md"
+    },
+    "0.7.16.0": {
+      "summary": [
+        "Match native Jellyfin text highlighting when the TV top menu has focus.",
+        "Keep viewing-information focus visible inside detail panels on older TV browsers."
+      ],
+      "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.16.md"
     }
   }
 }

@@ -9,6 +9,7 @@ const styles=locator=>locator.evaluate(e=>{const s=getComputedStyle(e),r=e.getBo
 (async()=>{const browser=await chromium.launch();const report={version:fixture.serverVersion,image:fixture.image,baseline,device:'Chromium mouse/touch emulation; not physical devices',cases:[],result:'RUNNING'};let page;
 try{
  const desktop=await browser.newContext({viewport:{width:1280,height:900},hasTouch:false,ignoreHTTPSErrors:fixture.tls===true,locale:'en-US'});page=await desktop.newPage();await readiness.login(page,fixture);
+ if(!baseline)report.focus=await require('./focus-browser.cjs')(page,fixture,path.join(out,'focus'));
  const mobile=await browser.newContext({viewport:{width:390,height:900},hasTouch:true,ignoreHTTPSErrors:fixture.tls===true,locale:'en-US',storageState:await desktop.storageState()}),touch=await mobile.newPage();await touch.goto(fixture.base+'/web/#/home');await touch.waitForFunction(()=>window.WatchGuardPoc?.isInstalled());
  const mouse=page;
  if(!process.argv.includes('--themes-only'))for(const layout of ['auto','modern','desktop-legacy','mobile-legacy'])for(const width of [390,1280,2048]){
