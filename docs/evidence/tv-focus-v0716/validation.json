@@ -1,0 +1,66 @@
+{
+  "runtimeCommit": "25ca68eec67a54ddb04acdad1b5bf36523e5994e",
+  "finalBrowser79TestCommit": "52376e33af147bfd9b2fa8cf2266b9bdcc6fd042",
+  "currentBrowserTestCommit": "25ca68eec67a54ddb04acdad1b5bf36523e5994e",
+  "candidateVersion": "0.7.16",
+  "zipSha256": "e473f1bbef8604e9ee8c2e48db40b9d8a183175e6a07b45a4c4976878f8091d2",
+  "dllSha256": "155df955cf36014e84f80fa6d3a9a6cb13f7f6420539c04a11b96e1159c8d766",
+  "publishedBaseline": {
+    "version": "0.7.15",
+    "zipSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+    "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834"
+  },
+  "browser79": {
+    "engine": "HeadlessChrome/79.0.3945.0",
+    "archiveSha256": "e6b754d211e4ad264c163b5a9e2fda9b2c07ab014402e8ee29e97de620ccefe6",
+    "snapshot": 706915,
+    "platform": "Mac Intel under Rosetta",
+    "completeNativeSuite": "PASS",
+    "focus": "PASS",
+    "tvFocusPixels": 3436,
+    "elapsedSeconds": 74.719,
+    "command": "WATCHGUARD_CHROMIUM79=<verified snapshot 706915 executable> WATCHGUARD_JELLYFIN_VERSION=12.4 python3 tests/docker-smoke.py --browser79 --base-path /jellyfin --proxy",
+    "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771"
+  },
+  "currentBrowser": {
+    "engine": "141.0.7390.37",
+    "playwright": "1.56.1",
+    "focus": "PASS",
+    "controls": 12,
+    "navigationShell": 8,
+    "outgoing": 10,
+    "returnPosition": 27,
+    "tvFocusPixels": 3436
+  },
+  "fast": {
+    "javascriptPassed": 306,
+    "dotnetPassed": 376,
+    "pythonPassed": 120,
+    "catalogPassed": 8,
+    "deterministicPackage": "PASS",
+    "packagedES2019": "PASS",
+    "qualificationPolicy": "PASS",
+    "releaseNotes": "PASS",
+    "publicCatalogUnchanged": true
+  },
+  "physicalLG": "Not tested; user confirmation follows installation",
+  "qualification": "Focused branch evidence only. All 13 reports under the existing policy remain required on merged master before publication.",
+  "core12.3": {
+    "result": "PASS",
+    "command": "WATCHGUARD_JELLYFIN_VERSION=12.3 python3 tests/docker-smoke.py --base-path /jellyfin --proxy",
+    "elapsedSeconds": 445.65,
+    "versions": {
+      "serverVersion": "12.3.0",
+      "webVersion": "12.3.0",
+      "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5"
+    },
+    "deployed": {
+      "version": "0.7.16",
+      "packageSha256": "e473f1bbef8604e9ee8c2e48db40b9d8a183175e6a07b45a4c4976878f8091d2",
+      "dllSha256": "155df955cf36014e84f80fa6d3a9a6cb13f7f6420539c04a11b96e1159c8d766",
+      "deployedDllSha256": "155df955cf36014e84f80fa6d3a9a6cb13f7f6420539c04a11b96e1159c8d766",
+      "activeVersion": "0.7.16.0",
+      "reportedVersion": "0.7.16"
+    }
+  }
+}

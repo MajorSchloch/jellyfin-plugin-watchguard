@@ -1782,7 +1782,7 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         .watchguard-series-activity {width:100%;box-sizing:border-box;border:1px solid #ffffff24;border-radius:.7rem;background:#ffffff03;overflow:hidden}
         .watchguard-series-activity summary {cursor:pointer;padding:.8rem 1rem;min-height:2.75rem;box-sizing:border-box;line-height:1.7;overflow-wrap:anywhere}
         .watchguard-series-activity summary::marker {color:#aab4bf}
-        .watchguard-series-activity summary:focus-visible {outline:2px solid #82c4ff;outline-offset:-3px}
+        .watchguard-series-activity summary:focus {outline:2px solid var(--jf-palette-primary-main,#00a4dc);outline-offset:-3px}
         .watchguard-series-activity summary>* {margin-inline-end:.5rem}
         .watchguard-activity-heading {font-weight:600;color:var(--jf-palette-text-primary,#eee)}
         .watchguard-series-viewers {list-style:none;padding:0 1rem;margin:0;max-height:28rem;overflow:auto}
