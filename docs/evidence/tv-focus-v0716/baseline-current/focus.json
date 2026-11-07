@@ -1,0 +1,319 @@
+{
+  "baseline": true,
+  "engine": "141.0.7390.37",
+  "server": "12.4.0",
+  "deployed": {
+    "version": "0.7.15",
+    "packageSha256": "40b81b2b0ec716b3834085a31d7eab3ed4f9752e3b54a9307333462976897db2",
+    "dllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+    "deployedDllSha256": "545c591ef8bc1926f03122ab75c89fbd490876a34e942d4d8c042a2ebbd9a834",
+    "activeVersion": "0.7.15.0",
+    "reportedVersion": "0.7.15"
+  },
+  "physicalTV": false,
+  "cases": [
+    {
+      "layout": "tv",
+      "width": 1280,
+      "home": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "none",
+        "offset": "0px",
+        "active": null,
+        "rect": {
+          "x": 443.31561279296875,
+          "y": 66.76094055175781,
+          "width": 129.4312744140625,
+          "height": 92.25936889648438
+        }
+      },
+      "favorite": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "none",
+        "offset": "0px",
+        "active": null,
+        "rect": {
+          "x": 538.7156372070312,
+          "y": 66.76094055175781,
+          "width": 165.5062255859375,
+          "height": 92.25936889648438
+        }
+      },
+      "menu": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "offset": "-2px",
+        "active": "false",
+        "rect": {
+          "x": 685.125,
+          "y": 77.40625,
+          "width": 136.625,
+          "height": 70.96875
+        },
+        "textPixels": 298
+      },
+      "active": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "offset": "0px",
+        "active": "page",
+        "rect": {
+          "x": 685.125,
+          "y": 77.40625,
+          "width": 136.625,
+          "height": 70.96875
+        }
+      },
+      "activeFocused": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "offset": "-2px",
+        "active": "page",
+        "rect": {
+          "x": 685.125,
+          "y": 77.40625,
+          "width": 136.625,
+          "height": 70.96875
+        }
+      },
+      "arrows": [
+        {
+          "tag": "SUMMARY",
+          "class": "focusable"
+        }
+      ],
+      "detail": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "offset": "-3px",
+        "active": null,
+        "rect": {
+          "x": 416.359375,
+          "y": 258.59375,
+          "width": 820.40625,
+          "height": 66
+        },
+        "focusEdgePixels": 3436,
+        "normalEdgePixels": 0
+      },
+      "onward": {
+        "tag": "BUTTON",
+        "class": "card overflowBackdropCard show-focus show-animation card-withuserdata itemAction"
+      },
+      "interaction": "PASS",
+      "menuMatchesNative": false,
+      "detailVisible": true
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "home": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "offset": "0px",
+        "active": null,
+        "rect": {
+          "x": 504.828125,
+          "y": 57.578125,
+          "width": 74.046875,
+          "height": 52.765625
+        }
+      },
+      "favorite": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "offset": "0px",
+        "active": null,
+        "rect": {
+          "x": 578.875,
+          "y": 57.578125,
+          "width": 94.671875,
+          "height": 52.765625
+        }
+      },
+      "menu": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "offset": "-2px",
+        "active": "false",
+        "rect": {
+          "x": 673.546875,
+          "y": 57.578125,
+          "width": 101.609375,
+          "height": 52.78125
+        },
+        "textPixels": 0
+      },
+      "active": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "offset": "0px",
+        "active": "page",
+        "rect": {
+          "x": 673.546875,
+          "y": 57.578125,
+          "width": 101.609375,
+          "height": 52.78125
+        }
+      },
+      "activeFocused": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "offset": "-2px",
+        "active": "page",
+        "rect": {
+          "x": 673.546875,
+          "y": 57.578125,
+          "width": 101.609375,
+          "height": 52.78125
+        }
+      },
+      "arrows": [
+        {
+          "tag": "BUTTON",
+          "class": "button-flat btnMoreCommands detailButton emby-button"
+        },
+        {
+          "tag": "SUMMARY",
+          "class": "focusable"
+        }
+      ],
+      "detail": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "offset": "-3px",
+        "active": null,
+        "rect": {
+          "x": 416.359375,
+          "y": 379.59375,
+          "width": 820.40625,
+          "height": 49.0625
+        },
+        "focusEdgePixels": 3408,
+        "normalEdgePixels": 0
+      },
+      "onward": {
+        "tag": "SMALL",
+        "class": "watchguard-coverage"
+      },
+      "interaction": "PASS",
+      "menuMatchesNative": false,
+      "detailVisible": true
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "home": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "offset": "0px",
+        "active": null,
+        "rect": {
+          "x": 64.171875,
+          "y": 55.71875,
+          "width": 71.671875,
+          "height": 51.09375
+        }
+      },
+      "favorite": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "offset": "0px",
+        "active": null,
+        "rect": {
+          "x": 135.84375,
+          "y": 55.71875,
+          "width": 91.640625,
+          "height": 51.09375
+        }
+      },
+      "menu": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "offset": "-2px",
+        "active": "false",
+        "rect": {
+          "x": 227.484375,
+          "y": 55.71875,
+          "width": 98.34375,
+          "height": 51.09375
+        },
+        "textPixels": 0
+      },
+      "active": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "offset": "0px",
+        "active": "page",
+        "rect": {
+          "x": 227.484375,
+          "y": 55.71875,
+          "width": 98.34375,
+          "height": 51.09375
+        }
+      },
+      "activeFocused": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "offset": "-2px",
+        "active": "page",
+        "rect": {
+          "x": 227.484375,
+          "y": 55.71875,
+          "width": 98.34375,
+          "height": 51.09375
+        }
+      },
+      "arrows": [
+        {
+          "tag": "BUTTON",
+          "class": "button-flat btnMoreCommands detailButton emby-button"
+        },
+        {
+          "tag": "SUMMARY",
+          "class": "focusable"
+        }
+      ],
+      "detail": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "offset": "-3px",
+        "active": null,
+        "rect": {
+          "x": 20.5,
+          "y": 453.65625,
+          "width": 349,
+          "height": 44.640625
+        },
+        "focusEdgePixels": 1502,
+        "normalEdgePixels": 0
+      },
+      "onward": {
+        "tag": "SMALL",
+        "class": "watchguard-coverage"
+      },
+      "interaction": "PASS",
+      "menuMatchesNative": false,
+      "detailVisible": true
+    }
+  ],
+  "result": "REPRODUCED"
+}

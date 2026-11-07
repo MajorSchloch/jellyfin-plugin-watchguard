@@ -1,0 +1,15 @@
+{
+  "environment": [
+    "First disposable fixture failed before browser tests: Docker disk was full. Reclaimed only build cache older than one week; images and volumes retained.",
+    "The old Chromium temporary cache had no executable. Downloaded and checksum-verified the same pinned snapshot 706915."
+  ],
+  "testDevelopment": [
+    "Native TV initial focus must complete before arrow traversal. The test waits for Home content and initial native focus.",
+    "Chromium 79 lacks Element.getAnimations; the test waits for stable rendered focus geometry/color over animation frames.",
+    "Down can leave the disclosure. Back dismissal assertions run within the disclosure; onward navigation is checked separately.",
+    "Text highlighting is native to TV tabs. Desktop/mobile retain outline assertions; a broad text-focus expectation was corrected.",
+    "Updated the assembly-version assertion to v0.7.16.",
+    "Running the new focus scenario before existing Chromium 79 initialization tests produced a 2-versus-1 request-counter failure. It now runs in a separate page after the existing scenarios; the complete suite passes with unchanged counter assertions."
+  ],
+  "runtimeChanges": "Only the final two scoped CSS changes and version metadata are delivered."
+}

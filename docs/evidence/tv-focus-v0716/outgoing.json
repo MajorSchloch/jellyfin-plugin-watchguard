@@ -1,0 +1,4990 @@
+{
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "cases": [
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 44,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 621.5,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1219.3000000715256,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1219.7000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1221,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1221,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 586.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 602,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 618.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 634.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 651.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 668.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 684.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 701.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 718.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 734.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 751,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 767.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 784.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 800.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 817.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 834.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 850.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 868.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 884.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 901.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 918.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 934.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 951.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 968,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 984.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1001.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1018.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1034.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1051.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1068.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1084.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1101.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1118,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1134.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1151.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1168,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1184.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1201.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1218.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1234.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1251.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1270.8999999761581,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1284.8000000715256,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1300.6000000238419,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": true,
+        "tag": "BUTTON"
+      },
+      "back": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1343.8000000715256,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1344,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1346.3999999761581,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1347.1000000238419,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 1347.8999999761581,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1339.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1351.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1368.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1375.3999999761581,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1375.3999999761581,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1376.8999999761581,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1377.2000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1379.3999999761581,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1370.1000000238419,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1384.8999999761581,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1401.3000000715256,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "tv",
+      "width": 1280,
+      "input": "remote",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 42,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1536.6000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1537.1000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1537.3000000715256,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1538.1000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1538.1000000238419,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 1519.6000000238419,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1535,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1550.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1568,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1584.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1600.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1617.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1634.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1651.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1668.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1684.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1700.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1718.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1734.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1751.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1768.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1784.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1801.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1817.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1834.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1852,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1868.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1885.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1902.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1919,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1935.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1951.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1968.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1985.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2002,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2018.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2035.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2051.899999976158,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2068.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2085.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2101.899999976158,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2118.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2134.899999976158,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2151.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2168.8000000715256,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2185,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2202.100000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": true,
+        "tag": "BUTTON"
+      },
+      "back": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2241,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2241.100000023842,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2243,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2243.600000023842,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 2244.3000000715256,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2236.5,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2254.3000000715256,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2267.899999976158,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2276.8000000715256,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2276.899999976158,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2278.100000023842,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2278.5,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 2280.899999976158,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2269.600000023842,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2284.8000000715256,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2300.899999976158,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2318.3000000715256,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 44,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 549.3999999761581,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1136.3999999761581,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1136.8999999761581,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1138.2000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1138.2999999523163,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 496.60000002384186,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 510.89999997615814,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 528.3999999761581,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 544.2999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 561.7999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 578.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 594.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 611.7999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 628.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 644.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 661.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 678.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 695.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 711.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 728.2999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 744.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 760.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 778.2999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 795,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 811.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 828.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 843.7999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 861.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 877.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 894.7999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 911,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 928.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 944.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 961.2999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 977.2999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 994,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1010.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1028.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1044.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1061,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1078,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1094.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1111.2999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1128.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1144.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1161.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1178.2999999523163,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1194.2999999523163,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1213,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1249.5,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1249.7000000476837,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1251.8999999761581,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1252.8999999761581,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 1253.7000000476837,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1245.7999999523163,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1261.7999999523163,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1278.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1286.1000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1286.2000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1287.8999999761581,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1288.2999999523163,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1290.3999999761581,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1279.8999999761581,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1294.8999999761581,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1311.2999999523163,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 42,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1463.7999999523163,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1464.2999999523163,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1464.5,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1465.2999999523163,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1465.3999999761581,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 1412.6000000238419,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1428.5,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1444.6000000238419,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1461.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1478,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1494.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1511.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1528.2999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1544.2999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1561.7999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1578.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1595,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1611.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1628.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1644.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1661.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1678.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1695.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1711.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1728.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1744.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1761.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1778.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1795.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1811.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1828,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1845.2999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1862.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1878.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1895.3999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1912,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1928.7999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1944.7999999523163,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1961.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1978.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1995.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2012.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2027.8999999761581,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2045.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2069.100000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2078.5,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2095.399999976158,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2135.2000000476837,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2135.2999999523163,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2137.7000000476837,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2138.5,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 2139.2999999523163,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2131.100000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2147.5,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2161.600000023842,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2171.399999976158,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2171.399999976158,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2173,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2173.399999976158,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 2175.899999976158,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2163.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2178.100000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2194.5,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 45,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 544,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1124.7000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1125.1000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1126.3000000715256,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1126.3000000715256,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 458.10000002384186,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 473,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 489.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 507,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 523,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 539.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 557.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 573.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 590.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 606.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 624.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 640.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 656.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 673.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 690,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 706.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 723.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 740.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 757,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 773.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 790.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 806.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 823.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 839.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 857.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 873.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 889.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 906.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 923.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 939.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 956,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 972.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 989.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1007,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1023.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1040.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1056.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1073.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1089.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1106.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1124,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1139.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1162.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1173.1000000238419,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1191,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1220.8000000715256,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1221,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1223.3000000715256,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1223.4000000953674,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 1224.9000000953674,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1216.6000000238419,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1225.4000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1240,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1256.8000000715256,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1264,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1264.1000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1265.6000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1265.6000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1267.7000000476837,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1258.1000000238419,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1273.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1291,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 43,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1459.3000000715256,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1459.8000000715256,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1459.9000000953674,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 1460.7000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1460.8000000715256,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 1391.5,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1407.3000000715256,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1423.4000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1440.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1457.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1473.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1490.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1506.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1524,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1540.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1556.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1573.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1590.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1607.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1624.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1639.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1657.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1673.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1690.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1707.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1723.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1739.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1757.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1773.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1789.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1807.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1823.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1839.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1857.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1873.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1890.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1907.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1923.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1939.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1956.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1973.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1990.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2006.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2023.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2040.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2064.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2073.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2090.600000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2120.100000023842,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2120.100000023842,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2122.4000000953674,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2122.4000000953674,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 2123.9000000953674,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2115.600000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2124.600000023842,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2139.9000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2157.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2163.7000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2163.9000000953674,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewhide",
+            "route": "#/details",
+            "target": "indexPage",
+            "at": 2165.5,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2165.600000023842,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 2168,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2158.600000023842,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2174.100000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2189.9000000953674,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 44,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 538.2000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1145,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1145.4000000953674,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 489.40000009536743,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 504.90000009536743,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 522,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 537.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 554.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 571.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 588.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 605.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 622,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 638.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 654.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 671.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 687.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 705.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 721.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 738.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 755.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 771.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 788.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 805.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 821.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 837.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 854.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 871.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 888.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 905.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 921,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 937.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 955.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 971.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 988.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1004.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1021.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1038.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1054.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1071.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1088.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1105.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1121.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1137.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1155.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1179.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1189,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1205.6000000238419,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1250.1000000238419,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1250.2000000476837,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1250.2000000476837,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1251.5,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 1253.9000000953674,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1240.9000000953674,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1257.1000000238419,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1271.5,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1287.8000000715256,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1306.1000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1307.7000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1309.5,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1289.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1310.1000000238419,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1322.1000000238419,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1339,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 43,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1489.9000000953674,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1490.1000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1490.3000000715256,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 1438.9000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1455.3000000715256,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1471.9000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1488.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1505.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1521.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1538.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1555.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1572.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1588.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1605.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1622.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1638.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1654.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1671.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1688.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1705.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1722.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1738.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1755.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1772,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1788.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1804.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1821.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1837.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1855.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1872.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1888.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1905,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1922.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1937.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1955.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1972.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1987.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2004.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2021.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2038.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2054.600000023842,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2071.600000023842,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2088.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2105.100000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2122,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2139.100000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2178.3000000715256,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2178.4000000953674,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2178.4000000953674,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2179.4000000953674,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 2181.8000000715256,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2170.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2182.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2187.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2204.600000023842,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 3,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2216.4000000953674,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2217.3000000715256,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 2219.3000000715256,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2205.8000000715256,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2222,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2238.100000023842,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "auto",
+      "width": 390,
+      "input": "touch",
+      "type": "Series",
+      "blocked": 2,
+      "language": "en-US",
+      "transition": {
+        "frames": 45,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 617.3000000715256,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1217.7000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1218.2000000476837,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 551.8000000715256,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 567.4000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 583.4000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 600.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 616.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 635.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 649.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 666.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 683.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 700.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 717.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 734,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 750,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 767.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 783.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 800,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 816.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 834.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 850.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 867.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 884.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 900.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 916.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 933.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 950.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 967,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 983.1000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1000.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1017.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1033.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1049.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1066.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1084,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1099.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1116.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1133.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1150.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1166.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1183.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1200.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1217,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1233.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1258.9000000953674,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1267.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1283.1000000238419,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1319.4000000953674,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 1319.5,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1319.7000000476837,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 1321.1000000238419,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 1323.6000000238419,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1310.3000000715256,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1324.1000000238419,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1333.9000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1350.5,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1365,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "16113371c48eb37108bd832a31e4fa16",
+            "target": "itemDetailPage",
+            "at": 1366.8000000715256,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1369.6000000238419,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 1352.5,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1370.4000000953674,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1384.1000000238419,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 1401.4000000953674,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    },
+    {
+      "layout": "auto",
+      "width": 390,
+      "input": "touch",
+      "type": "Movie",
+      "blocked": 4,
+      "language": "en-US",
+      "transition": {
+        "frames": 43,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 1584.9000000953674,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1585.1000000238419,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 1585.3000000715256,
+            "panel": false,
+            "cover": true
+          }
+        ],
+        "samples": [
+          {
+            "at": 1519,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1533.4000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1550.7000000476837,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1566.6000000238419,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 1584,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1600.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1617.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1633.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1649.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1667.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1683.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1701,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1716.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1733.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1750.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1767.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1784.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1800.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1817.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1833.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1850,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1866.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1883.3000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1900.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1917.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1933.6000000238419,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1950.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1967.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 1984.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2000.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2017.4000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2033.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2049.9000000953674,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2066.7000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2083.5,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2100.100000023842,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2117.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2134.2000000476837,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2150,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2166.8000000715256,
+            "home": false,
+            "cover": true,
+            "panel": false
+          },
+          {
+            "at": 2185.4000000953674,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2201.3000000715256,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2216.8000000715256,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      },
+      "focus": {
+        "inDetail": false,
+        "tag": "BODY"
+      },
+      "back": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforehide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2251.2000000476837,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewhide",
+            "route": "#/home",
+            "target": "itemDetailPage",
+            "at": 2251.3000000715256,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewbeforeshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2251.3000000715256,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "viewshow",
+            "route": "#/home",
+            "target": "indexPage",
+            "at": 2252.7000000476837,
+            "panel": true,
+            "cover": false
+          },
+          {
+            "name": "hashchange",
+            "route": "#/home",
+            "at": 2255.4000000953674,
+            "panel": true,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2242.3000000715256,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2255.9000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2267.100000023842,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2283.4000000953674,
+            "home": false,
+            "cover": false,
+            "panel": true
+          }
+        ]
+      },
+      "forward": {
+        "frames": 4,
+        "homeExposures": 0,
+        "events": [
+          {
+            "name": "viewbeforeshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2296.600000023842,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "viewshow",
+            "route": "#/details",
+            "item": "0861d0d4e102153477520464665669c1",
+            "target": "itemDetailPage",
+            "at": 2297.7000000476837,
+            "panel": false,
+            "cover": true
+          },
+          {
+            "name": "hashchange",
+            "route": "#/details",
+            "at": 2299.7000000476837,
+            "panel": false,
+            "cover": false
+          }
+        ],
+        "samples": [
+          {
+            "at": 2285,
+            "home": false,
+            "cover": false,
+            "panel": true
+          },
+          {
+            "at": 2300.2000000476837,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2316.9000000953674,
+            "home": false,
+            "cover": false,
+            "panel": false
+          },
+          {
+            "at": 2334,
+            "home": false,
+            "cover": false,
+            "panel": false
+          }
+        ]
+      }
+    }
+  ],
+  "result": "PASS",
+  "physicalTV": false,
+  "errors": [
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/Latest",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/Latest",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Shows/NextUp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/16113371c48eb37108bd832a31e4fa16/Similar",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/0861d0d4e102153477520464665669c1/Collections",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/web/config.json",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Shows/NextUp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/16113371c48eb37108bd832a31e4fa16/Collections",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/LiveTv/Programs",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/0861d0d4e102153477520464665669c1/Similar",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Shows/16113371c48eb37108bd832a31e4fa16/Seasons",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/0861d0d4e102153477520464665669c1/Images/Primary",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/web/itemDetails.7f3acdf2f17231b2e891.chunk.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/web/itemDetails-index-html.fc20dbd21fff214b6611.chunk.js",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "kind": "script",
+      "layout": "tv",
+      "message": "ChunkLoadError: Loading chunk 75844 failed.\n(error: [URL]\n    at s.f.j ([URL]\n    at [URL]\n    at Array.reduce (<anonymous>)\n    at s.e ([URL]\n    at Array.map (<anonymous>)\n    at i ([URL]\n    at p ([URL]\n    at [URL]\n    at [URL]\n    at Object.next ([URL]"
+    },
+    {
+      "path": "/jellyfin/Items/ce938f35e907199b46dbcf3f5c97da30/Images/Primary",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/088c13fda1a4fbd6ee52ace8c94d3535/Images/Primary",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/993070a620b4219d31eaa58d06b1956d/Images/Primary",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/b9842456637b30b874fd8f2c0aac5139/Images/Primary",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/b6394308fd89fe839ce06f56c8e4b950/Images/Primary",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/534835d293f9a312f519e26ce1c2907b/Images/Primary",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/9bcb29c97c06867307f1c1a44aa895f6/Images/Primary",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/b927ef65acc32be073427be5c0cf35e8/Images/Primary",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Logout",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/Latest",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/Latest",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/System/Info",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/Latest",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/Latest",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/System/Info",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/Latest",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Items/Latest",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/UserItems/Resume",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/Sessions/Capabilities/Full",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/16113371c48eb37108bd832a31e4fa16",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/jellyfin/WatchGuard/Watchlist/0861d0d4e102153477520464665669c1",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "runtimeSha256": "155df955cf36014e84f80fa6d3a9a6cb13f7f6420539c04a11b96e1159c8d766",
+  "engine": "141.0.7390.37",
+  "currentServerRoute": {
+    "frames": 16,
+    "homeExposures": 0,
+    "events": [
+      {
+        "name": "hashchange",
+        "route": "#/details",
+        "at": 470.89999997615814,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewbeforehide",
+        "route": "#/details",
+        "target": "indexPage",
+        "at": 656,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewbeforeshow",
+        "route": "#/details",
+        "item": "16113371c48eb37108bd832a31e4fa16",
+        "target": "itemDetailPage",
+        "at": 656.0999999046326,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewhide",
+        "route": "#/details",
+        "target": "indexPage",
+        "at": 657.1999999284744,
+        "panel": false,
+        "cover": true
+      },
+      {
+        "name": "viewshow",
+        "route": "#/details",
+        "item": "16113371c48eb37108bd832a31e4fa16",
+        "target": "itemDetailPage",
+        "at": 657.1999999284744,
+        "panel": false,
+        "cover": true
+      }
+    ],
+    "samples": [
+      {
+        "at": 464.39999997615814,
+        "home": false,
+        "cover": false,
+        "panel": true
+      },
+      {
+        "at": 480.39999997615814,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 497.6999999284744,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 512.3999999761581,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 529.5999999046326,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 546.2999999523163,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 563,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 579.5,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 596.3999999761581,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 612.7999999523163,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 629.6999999284744,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 646.1999999284744,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 663,
+        "home": false,
+        "cover": true,
+        "panel": false
+      },
+      {
+        "at": 688.0999999046326,
+        "home": false,
+        "cover": false,
+        "panel": false
+      },
+      {
+        "at": 696.1999999284744,
+        "home": false,
+        "cover": false,
+        "panel": false
+      },
+      {
+        "at": 711.8999999761581,
+        "home": false,
+        "cover": false,
+        "panel": false
+      }
+    ]
+  },
+  "cancelAndRapidSelection": "PASS",
+  "failureRecovery": "PASS",
+  "accountSwitch": "PASS",
+  "logout": "PASS"
+}

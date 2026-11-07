@@ -1,0 +1,70 @@
+{
+  "elapsedSeconds": 74.719,
+  "phases": [
+    {
+      "phase": "workspace",
+      "status": "PASS",
+      "seconds": 0.002
+    },
+    {
+      "phase": "container-start",
+      "status": "PASS",
+      "seconds": 8.778
+    },
+    {
+      "phase": "native-setup-authentication",
+      "status": "PASS",
+      "seconds": 0.594
+    },
+    {
+      "phase": "background-tasks",
+      "status": "PASS",
+      "seconds": 3.652
+    },
+    {
+      "phase": "generate-media",
+      "status": "PASS",
+      "seconds": 1.935
+    },
+    {
+      "phase": "configure-libraries",
+      "status": "PASS",
+      "seconds": 2.565
+    },
+    {
+      "phase": "media-indexing",
+      "status": "PASS",
+      "seconds": 3.371
+    },
+    {
+      "phase": "installation-and-regressions",
+      "status": "PASS",
+      "seconds": 0.085
+    },
+    {
+      "phase": "current-backend-contracts",
+      "status": "PASS",
+      "seconds": 2.16
+    },
+    {
+      "phase": "proxy-and-browser-setup",
+      "status": "PASS",
+      "seconds": 0.095
+    },
+    {
+      "phase": "chromium79-native",
+      "status": "PASS",
+      "seconds": 46.579
+    },
+    {
+      "phase": "native-uninstall-and-retained-data",
+      "status": "PASS",
+      "seconds": 4.682
+    },
+    {
+      "phase": "teardown",
+      "status": "PASS",
+      "seconds": 0.22
+    }
+  ]
+}
