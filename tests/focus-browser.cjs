@@ -16,12 +16,13 @@ function ink(buffer,color,inset=0,edge=false) {
 function ring(buffer,color,radius) {
     const p=PNG.sync.read(buffer),rgb=color.match(/[\d.]+/g).slice(0,3).map(Number),r=Math.max(6,Math.ceil(parseFloat(radius))),mask=new Uint8Array(p.width*p.height);
     const corners=(x,y)=>[x<r&&y<r,x>=p.width-r&&y<r,x>=p.width-r&&y>=p.height-r,x<r&&y>=p.height-r];
-    let pixels=0,outerCorners=0;
+    let pixels=0,outerCorners=0,cornerCutoutPixels=0;
     for(let y=0;y<p.height;y++)for(let x=0;x<p.width;x++) {
         if(Math.min(x,y,p.width-1-x,p.height-1-y)>r+2)continue;
         const i=(y*p.width+x)*4;
         if(rgb.every((v,c)=>Math.abs(p.data[i+c]-v)<25)) {
             mask[y*p.width+x]=1;pixels++;
+            if(Math.min(x,p.width-1-x)+Math.min(y,p.height-1-y)<r*.5)cornerCutoutPixels++;
             if((x<2||x>=p.width-2)&&(y<2||y>=p.height-2))outerCorners++;
         }
     }
@@ -39,7 +40,7 @@ function ring(buffer,color,radius) {
         }
         if(queue.length>largest.pixels)largest={pixels:queue.length,corners:hits,edges};
     }
-    return {pixels,outerCorners,components,largest,continuous:largest.corners.every(Boolean)&&largest.edges.every(Boolean)&&largest.pixels>p.width&&outerCorners===0};
+    return {pixels,outerCorners,cornerCutoutPixels,components,largest,continuous:largest.corners.every(Boolean)&&largest.edges.every(Boolean)&&largest.pixels>p.width&&outerCorners===0&&cornerCutoutPixels===0};
 }
 module.exports=async(page,fixture,output,old=false,baseline=false)=>{
     fs.mkdirSync(output,{recursive:true});
@@ -127,7 +128,7 @@ module.exports=async(page,fixture,output,old=false,baseline=false)=>{
             await page.screenshot({path:path.join(output,layout+'-watchlists-active-focus.png')});
             if(layout==='tv') {
                 const scale=(value,rest)=>({width:value.label.width/rest.label.width,height:value.label.height/rest.label.height});
-                row.growth={favoriteFocus:scale(row.favorite,row.resting.favorite),watchlistsFocus:scale(row.menu,row.resting.watchlists),favoriteActive:scale(row.favoriteActive,row.resting.favorite),watchlistsActive:scale(row.active,row.resting.watchlists),favoriteActiveFocus:scale(row.favoriteActiveFocused,row.resting.favorite),watchlistsActiveFocus:scale(row.activeFocused,row.resting.watchlists)};
+                row.growth={favoriteAfterActivation:scale(row.favoriteAfterActivation,row.resting.favorite),watchlistsAfterActivation:scale(row.afterActivation,row.resting.watchlists),favoriteFocus:scale(row.favorite,row.resting.favorite),watchlistsFocus:scale(row.menu,row.resting.watchlists),favoriteActive:scale(row.favoriteActive,row.resting.favorite),watchlistsActive:scale(row.active,row.resting.watchlists),favoriteActiveFocus:scale(row.favoriteActiveFocused,row.resting.favorite),watchlistsActiveFocus:scale(row.activeFocused,row.resting.watchlists)};
             }
             await page.goto(fixture.base+'/web/#/details?id='+fixture.items['PoC Series Detail']+'&serverId='+fixture.serverId);
             await wait(()=>document.querySelector('.watchguard-series-activity>summary')&&document.querySelector('.watchguard-toggle')&&!document.querySelector('.watchguard-toggle').disabled);
@@ -186,7 +187,7 @@ module.exports=async(page,fixture,output,old=false,baseline=false)=>{
                 assert(row.closedRing.continuous,'Closed heading has one continuous rounded focus ring');
                 assert(row.openRing.continuous,'Open heading has one continuous rounded focus ring');
                 for(const peer of ['home','favorite'])assert.deepEqual(row.neighbors[peer].layout,row.neighborsAfter[peer].layout,'Neighbor tab layout stays still through Watchlists focus and activation');
-                if(layout==='tv')for(const suffix of ['Focus','Active','ActiveFocus'])for(const axis of ['width','height'])
+                if(layout==='tv')for(const suffix of ['Focus','AfterActivation','Active','ActiveFocus'])for(const axis of ['width','height'])
                     assert(Math.abs(row.growth['favorite'+suffix][axis]-row.growth['watchlists'+suffix][axis])<.025,'TV '+suffix+' label growth matches its own native resting-size ratio');
             }
         }
