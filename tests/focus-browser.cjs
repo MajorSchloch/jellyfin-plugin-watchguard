@@ -22,7 +22,8 @@ function ring(buffer,color,radius) {
         const i=(y*p.width+x)*4;
         if(rgb.every((v,c)=>Math.abs(p.data[i+c]-v)<25)) {
             mask[y*p.width+x]=1;pixels++;
-            if(Math.min(x,p.width-1-x)+Math.min(y,p.height-1-y)<r*.5)cornerCutoutPixels++;
+            // Sample pixel centers, using the actual (possibly fractional) radius.
+            if(Math.min(x,p.width-1-x)+Math.min(y,p.height-1-y)+1<parseFloat(radius)*.5)cornerCutoutPixels++;
             if((x<2||x>=p.width-2)&&(y<2||y>=p.height-2))outerCorners++;
         }
     }
