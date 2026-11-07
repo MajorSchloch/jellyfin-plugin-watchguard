@@ -9,6 +9,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "0.7.16.0",
+        "changelog": "- Match native Jellyfin text highlighting when the TV top menu has focus.\n- Keep viewing-information focus visible inside detail panels on older TV browsers.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.16.md)",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.16/Jellyfin.Plugin.WatchGuard-v0.7.16.zip",
+        "checksum": "48ce9262d61e7bda83b1467d6548120a",
+        "timestamp": "2026-11-07T09:59:49Z"
+      },
+      {
         "version": "0.7.15.0",
         "changelog": "- Return from movie or series details to the selected Watchlists title and approximate scroll position.\n- Restore keyboard or TV remote focus when possible, with fresh authorized results and bounded loading.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.15.md)",
         "targetAbi": "12.2.0.0",
