@@ -37,7 +37,6 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
         await page.keyboard.press('Enter');
         await page.waitForFunction(() => location.hash === '#/home' && window.WatchGuardPoc && WatchGuardPoc.isInstalled());
         report.nativeLogin = 'PASS';
-        report.focus=await require('../focus-browser.cjs')(page,fixture,path.join(output,'focus'),true);
         report.earlyFilters=await require('../early-filters-browser.cjs')(page,fixture,output,true);
         report.returnPosition=await require('../return-position-browser.cjs')(page,fixture,output,true);
         report.pluginVersion=await page.evaluate(async()=> (await ApiClient.ajax({url:ApiClient.getUrl('WatchGuard/IntegrationStatus'),type:'GET',dataType:'json'})).PluginVersion);
@@ -160,6 +159,15 @@ report.runtimeSha256=crypto.createHash('sha256').update(fs.readFileSync('artifac
         await page.goto(fixture.base+'/web/#/configurationpage?name=WatchGuard');
         await page.waitForFunction(()=>document.querySelector('#wgIntegration') && document.querySelector('#wgIntegration').textContent.includes('Plugin loaded: true'));
         report.settingsInline='PASS';
+        // Keep the added rendering scenario out of the existing initialization
+        // request counters and route history. It owns a separate native page.
+        const focusPage=await browser.newPage();focusPage.setDefaultTimeout(20000);
+        focusPage.on('pageerror',error=>errors.push(error.message));
+        try {
+            await focusPage.goto(fixture.base+'/web/#/home');
+            await focusPage.waitForFunction(()=>window.WatchGuardPoc&&WatchGuardPoc.isInstalled());
+            report.focus=await require('../focus-browser.cjs')(focusPage,fixture,path.join(output,'focus'),true);
+        } finally {await focusPage.close();}
         report.errors=errors; assert.deepEqual(errors,[]);
         report.result='PASS';
     } catch(error) { report.result='FAIL';report.error=error.message;report.errors=errors;report.keys=await page.evaluate(()=>window.wgKeys);await page.screenshot({path:path.join(output,'failure.png')});throw error; }
