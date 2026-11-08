@@ -4,6 +4,11 @@ on:
     branches: [master]
   pull_request:
   workflow_dispatch:
+    inputs:
+      previous_stable_probe:
+        description: 'Inject public 504s and verify real anonymous previous-stable API downloads'
+        type: boolean
+        default: false
 concurrency:
   group: watchguard-development-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -65,3 +70,14 @@ jobs:
           path: |
             artifacts/${{ steps.candidate.outputs.package }}
             artifacts/${{ steps.candidate.outputs.package }}.sha256
+      - name: Verify previous-stable fallback with real public assets
+        if: github.event_name == 'workflow_dispatch' && inputs.previous_stable_probe
+        run: python3 tests/previous_stable_download_probe.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v6
+        if: github.event_name == 'workflow_dispatch' && inputs.previous_stable_probe
+        with:
+          name: WatchGuard-previous-stable-download-probe
+          path: artifacts/previous-stable-download-probe.json
+          if-no-files-found: error

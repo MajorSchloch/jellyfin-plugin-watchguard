@@ -157,7 +157,9 @@ def assets(release, version):
     return result
 
 
-def public_package(api, release, version, folder):
+def public_package(api, release, version, folder, *, download=None):
+    # Only previous-stable retrieval supplies a transport. Publisher/inspection
+    # retain catalog.download and all callers share these exact content checks.
     folder.mkdir(parents=True, exist_ok=True)
     files = assets(release, version)
     name = filename(version)
@@ -167,7 +169,7 @@ def public_package(api, release, version, folder):
         url = f'https://github.com/{api.repo}/releases/download/v{version}/' + asset['name']
         require(asset['browser_download_url'] == url, 'Unexpected asset URL.')
         target = folder / asset['name']
-        catalog.download(url, target, deadline=deadline)
+        (download or catalog.download)(url, target, deadline=deadline)
         content = target.read_bytes()
         require(len(content) == asset['size'], 'Public asset size differs: ' + asset['name'])
         require(asset.get('digest') == 'sha256:' + digest(content), 'Public asset digest differs: ' + asset['name'])
