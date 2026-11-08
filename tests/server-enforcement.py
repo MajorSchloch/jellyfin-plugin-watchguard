@@ -2,11 +2,12 @@ import fixture_images
 from fixture_evidence import capture as capture_failure, Phases
 from fixture_inventory import wait_inventory, wait_ready
 """Disposable native HTTP qualification. Never accepts a remote server/config/media path."""
-import argparse, functools, http.server, threading, runpy, concurrent.futures, hashlib, io, json, os, pathlib, shutil, subprocess, tempfile, time, urllib.request, urllib.error, uuid, zipfile
+import argparse, functools, http.server, threading, runpy, concurrent.futures, hashlib, json, os, pathlib, shutil, subprocess, sys, tempfile, time, urllib.request, urllib.error, uuid
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 DLL=ROOT/'artifacts/WatchGuard/Jellyfin.Plugin.WatchGuard.dll'
 BASELINE=ROOT/'artifacts/PublishedV048/Jellyfin.Plugin.WatchGuard.dll'
-BASELINE_SHA256='06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5'
+sys.path.insert(0, str(ROOT/'scripts'))
+from enforcement_baseline import load as load_baseline
 
 def docker(*args): return subprocess.check_output(['docker',*args],text=True,stderr=subprocess.DEVNULL,timeout=180).strip()
 
@@ -17,11 +18,13 @@ def main():
     output=ROOT/'artifacts/server-enforcement'/('linuxserver' if a.linuxserver else 'official')/('basepath' if a.base_path else 'direct')/uuid.uuid4().hex[:10];output.mkdir(parents=True,exist_ok=True)
     report={'image':image,'basePath':a.base_path,'cases':[],'status':'RUNNING'}
     (output/'results.json').write_text(json.dumps(report,indent=2)+'\n')
-    archive=subprocess.check_output(['curl','--fail','--silent','--show-error','--location','--max-time','60','https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.8/Jellyfin.Plugin.WatchGuard-v0.4.8.zip'])
-    assert hashlib.sha256(archive).hexdigest()==BASELINE_SHA256
+    baseline_dll, baseline_identity = load_baseline()
     BASELINE.parent.mkdir(parents=True,exist_ok=True)
-    BASELINE.write_bytes(zipfile.ZipFile(io.BytesIO(archive)).read('Jellyfin.Plugin.WatchGuard.dll'))
-    report['publishedBaselineZipSha256']=BASELINE_SHA256
+    BASELINE.write_bytes(baseline_dll)
+    report['publishedBaselineZipSha256'] = baseline_identity['zipSha256']
+    report['baselineInput'] = {**baseline_identity,
+        'artifactId': os.environ.get('WATCHGUARD_ENFORCEMENT_FIXTURE_ARTIFACT')}
+    (output/'results.json').write_text(json.dumps(report,indent=2)+'\n')
     name='wg-approval-test-'+uuid.uuid4().hex[:10]
     phases=Phases(output/'phases.json')
     with tempfile.TemporaryDirectory(prefix='wg-guard-disposable-') as temp:

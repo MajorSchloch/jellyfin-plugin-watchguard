@@ -36,3 +36,5 @@ Build jobs have a 20-minute bound and integration jobs 45 minutes, versus the fo
 Media generation occurs after container bootstrap so it uses the pinned container's tools, and before library creation. The phase order deliberately differs from generating media with an unpinned host ffmpeg.
 
 Run a profile with `python3 tests/run_suite.py <suite>` after installing the pinned tools and locked browser package. Migration/legacy accept `--injector-dll` for the pinned rollback-only dependency. The runner never retries a failed profile. CI creates independent ephemeral ports, networks, temporary paths and UUID artifact directories for parallel profiles.
+
+Before an enforcement fixture, run `python3 scripts/enforcement_baseline.py` to prepare its pinned local ZIP. Qualification does this once and shares the artifact by ID. Consumers verify the pin before extraction and do not fetch it themselves. See [shared enforcement baseline](shared-enforcement-baseline.md).

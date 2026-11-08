@@ -1,0 +1,71 @@
+{
+  "commit": "f4487ca24f789178444d0df9788247b87fb875f0",
+  "run": "42471583589",
+  "attempt": "1",
+  "image": "20261101.360.1",
+  "baseline": {
+    "version": "0.4.8",
+    "filename": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+    "zipSha256": "06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5",
+    "dllSha256": "c789623e8a824779c9d11fcf09c42ce4ed394d4181789fff19b318429c7574cf",
+    "source": "shared-local-zip",
+    "pinVerifiedBeforeExtraction": true,
+    "releaseId": 414023618,
+    "assets": [
+      {
+        "id": 644438413,
+        "name": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+        "digest": "sha256:06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5"
+      },
+      {
+        "id": 644438410,
+        "name": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256",
+        "digest": "sha256:6f15f552d0ab7c4c618ebd9cce0ea4cc72b36794476ae40ca632689fdf698820"
+      }
+    ],
+    "catalog": {
+      "version": "0.4.8.0",
+      "changelog": "- Reduce episode-query work when building series activity across multiple users.\n- Keep native permissions and incomplete-series explanations intact.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/episode-query-performance-v048.md)",
+      "targetAbi": "12.2.0.0",
+      "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.4.8/Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+      "checksum": "c09115ba15d1ec4f6e2b46566e040257",
+      "timestamp": "2026-10-15T16:21:22Z"
+    }
+  },
+  "transfers": [
+    {
+      "route": "public",
+      "asset": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+      "status": 504,
+      "controlled": true
+    },
+    {
+      "route": "anonymous-api",
+      "asset": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+      "assetId": 644438413,
+      "bytes": 269381,
+      "sha256": "06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5",
+      "seconds": 0.398,
+      "controlled": false
+    },
+    {
+      "route": "public",
+      "asset": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256",
+      "status": 504,
+      "controlled": true
+    },
+    {
+      "route": "anonymous-api",
+      "asset": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256",
+      "assetId": 644438410,
+      "bytes": 104,
+      "sha256": "6f15f552d0ab7c4c618ebd9cce0ea4cc72b36794476ae40ca632689fdf698820",
+      "seconds": 0.326,
+      "controlled": false
+    }
+  ],
+  "offlineConsumerReads": 4,
+  "corruptInputRejectedBeforeExtraction": true,
+  "seconds": 1.673,
+  "limitation": "Public 504s and corruption are injected. API bytes, pin and package/catalog checks are real. Native suite evidence is separate."
+}

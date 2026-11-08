@@ -1,0 +1,418 @@
+{
+  "testedCommit": "f4487ca24f789178444d0df9788247b87fb875f0",
+  "qualificationRun": 42471585268,
+  "attempt": 1,
+  "publish": false,
+  "proxyMatrix": true,
+  "affectedJobs": [
+    {
+      "name": "Integration / 12.4 / enforcement",
+      "databaseId": 128704118529,
+      "conclusion": "success",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42471585268/job/128704118529",
+      "startedAt": "2026-11-08T10:32:01Z",
+      "completedAt": "2026-11-08T10:37:21Z"
+    },
+    {
+      "name": "Integration / 12.4 / platforms",
+      "databaseId": 128704118620,
+      "conclusion": "success",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42471585268/job/128704118620",
+      "startedAt": "2026-11-08T10:32:01Z",
+      "completedAt": "2026-11-08T10:42:24Z"
+    },
+    {
+      "name": "Integration / 12.3 / enforcement",
+      "databaseId": 128704118634,
+      "conclusion": "success",
+      "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42471585268/job/128704118634",
+      "startedAt": "2026-11-08T10:32:01Z",
+      "completedAt": "2026-11-08T10:38:28Z"
+    }
+  ],
+  "consumers": [
+    {
+      "jellyfinVersion": "12.3",
+      "suite": "server-enforcement",
+      "status": "PASS",
+      "proxyMatrix": true,
+      "packageSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+      "runtimeSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+      "origin": {
+        "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+        "run": 42471585268,
+        "attempt": 1
+      },
+      "serverVersion": "12.3.0",
+      "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5",
+      "basePath": "",
+      "baselineInput": {
+        "version": "0.4.8",
+        "filename": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+        "zipSha256": "06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5",
+        "dllSha256": "c789623e8a824779c9d11fcf09c42ce4ed394d4181789fff19b318429c7574cf",
+        "source": "shared-local-zip",
+        "pinVerifiedBeforeExtraction": true,
+        "artifactId": "13613429272"
+      },
+      "catalogUpgrade": "PASS: published v0.4.8 without setting -> catalog candidate off -> explicit save -> restart active; stores preserved; single assembly",
+      "rollback": "native deletion restored after replacing the single assembly with verified published v0.4.8 and restart",
+      "recordedCases": 77
+    },
+    {
+      "jellyfinVersion": "12.4",
+      "suite": "server-enforcement",
+      "status": "PASS",
+      "proxyMatrix": true,
+      "packageSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+      "runtimeSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+      "origin": {
+        "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+        "run": 42471585268,
+        "attempt": 1
+      },
+      "serverVersion": "12.4.0",
+      "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+      "basePath": "",
+      "baselineInput": {
+        "version": "0.4.8",
+        "filename": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+        "zipSha256": "06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5",
+        "dllSha256": "c789623e8a824779c9d11fcf09c42ce4ed394d4181789fff19b318429c7574cf",
+        "source": "shared-local-zip",
+        "pinVerifiedBeforeExtraction": true,
+        "artifactId": "13613429272"
+      },
+      "catalogUpgrade": "PASS: published v0.4.8 without setting -> catalog candidate off -> explicit save -> restart active; stores preserved; single assembly",
+      "rollback": "native deletion restored after replacing the single assembly with verified published v0.4.8 and restart",
+      "recordedCases": 77
+    },
+    {
+      "jellyfinVersion": "12.4",
+      "suite": "server-enforcement-basepath",
+      "status": "PASS",
+      "proxyMatrix": false,
+      "packageSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+      "runtimeSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+      "origin": {
+        "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+        "run": 42471585268,
+        "attempt": 1
+      },
+      "serverVersion": "12.4.0",
+      "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+      "basePath": "/jellyfin",
+      "baselineInput": {
+        "version": "0.4.8",
+        "filename": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+        "zipSha256": "06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5",
+        "dllSha256": "c789623e8a824779c9d11fcf09c42ce4ed394d4181789fff19b318429c7574cf",
+        "source": "shared-local-zip",
+        "pinVerifiedBeforeExtraction": true,
+        "artifactId": "13613429272"
+      },
+      "catalogUpgrade": "PASS: published v0.4.8 without setting -> catalog candidate off -> explicit save -> restart active; stores preserved; single assembly",
+      "rollback": "native deletion restored after replacing the single assembly with verified published v0.4.8 and restart",
+      "recordedCases": 77
+    },
+    {
+      "jellyfinVersion": "12.4",
+      "suite": "server-enforcement-linuxserver",
+      "status": "PASS",
+      "proxyMatrix": false,
+      "packageSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+      "runtimeSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+      "origin": {
+        "repository": "MajorSchloch/jellyfin-plugin-watchguard",
+        "run": 42471585268,
+        "attempt": 1
+      },
+      "serverVersion": "12.4.0",
+      "image": "lscr.io/linuxserver/jellyfin:12.4ubu2604-ls57@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044",
+      "basePath": "",
+      "baselineInput": {
+        "version": "0.4.8",
+        "filename": "Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+        "zipSha256": "06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5",
+        "dllSha256": "c789623e8a824779c9d11fcf09c42ce4ed394d4181789fff19b318429c7574cf",
+        "source": "shared-local-zip",
+        "pinVerifiedBeforeExtraction": true,
+        "artifactId": "13613429272"
+      },
+      "catalogUpgrade": "PASS: published v0.4.8 without setting -> catalog candidate off -> explicit save -> restart active; stores preserved; single assembly",
+      "rollback": "native deletion restored after replacing the single assembly with verified published v0.4.8 and restart",
+      "recordedCases": 77
+    }
+  ],
+  "sharedArtifactId": 13613429272,
+  "probeRun": 42471583589,
+  "probeArtifacts": [
+    {
+      "digest": "sha256:6a563dbfe23c02dd3fabb5ccaf79acd65a1bf2abf761fdefbbe2d8e39d746a4c",
+      "id": 13613453933,
+      "name": "WatchGuard-python-selection"
+    },
+    {
+      "digest": "sha256:73bf4b6e100633d4107488fb32bb49d0c73a9bde6f4505be08325566c3ce84fc",
+      "id": 13613229347,
+      "name": "discovery-model-v048"
+    },
+    {
+      "digest": "sha256:8b75082fdc080f86329012df5e827f6472b8d9ad9c99fde8a211063ed0e767ee",
+      "id": 13613199491,
+      "name": "WatchGuard-enforcement-baseline-probe"
+    },
+    {
+      "digest": "sha256:31993589ef6701b2a2e3d36999e3d1d2bf44cb39c73fcf1205fe41c68fabc680",
+      "id": 13613154746,
+      "name": "WatchGuard-v0.7.17"
+    }
+  ],
+  "checks": {
+    "python": 141,
+    "dotnet": 376,
+    "javascript": 306,
+    "catalog": 8,
+    "packagedES2019": "PASS",
+    "releaseNotes": "PASS",
+    "qualificationPolicy": "PASS"
+  },
+  "candidate": {
+    "version": "0.7.17",
+    "zipSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+    "dllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+    "comparison": "Byte-identical to failed qualification run 42468878414 and retained master run 42463127640"
+  },
+  "setup": {
+    "name": "Verify pinned enforcement baseline once",
+    "conclusion": "success",
+    "startedAt": "2026-11-08T10:31:22Z",
+    "completedAt": "2026-11-08T10:31:46Z",
+    "seconds": 24.0
+  },
+  "realSetupTransportEvidence": [
+    "2026-11-08T10:31:34.2879602Z curl: (22) The requested URL returned error: 504",
+    "2026-11-08T10:31:45.7797821Z curl: (22) The requested URL returned error: 504",
+    "2026-11-08T10:31:46.0269825Z Previous stable public download unavailable; using anonymous asset API: Jellyfin.Plugin.WatchGuard-v0.4.8.zip",
+    "2026-11-08T10:31:46.0271153Z Previous stable public download unavailable; using anonymous asset API: Jellyfin.Plugin.WatchGuard-v0.4.8.zip.sha256",
+    "2026-11-08T10:31:46.0272193Z Verified shared enforcement baseline v0.4.8: 06f33f62d06d864b63c879213ec1b3536d81c8ebb0ab7ac186b6820580aa24d5"
+  ],
+  "artifacts": [
+    {
+      "digest": "sha256:ad284d8ec2b95f09b4560474ee9bda42fcfe537176a6b248e393e30806a6b128",
+      "id": 13614885046,
+      "name": "WatchGuard-publication-rehearsal-attempt-1"
+    },
+    {
+      "digest": "sha256:f2ad10135d45af80e84963727ca87ac91b296b28de6ca526bf1cd8408c8d6679",
+      "id": 13614581071,
+      "name": "WatchGuard-evidence-12.4-activity-browser-attempt-1"
+    },
+    {
+      "digest": "sha256:571729a386d047c40cf44cf9329d933ebcc29905114845e900e52a1d4e64f76a",
+      "id": 13614485706,
+      "name": "WatchGuard-evidence-12.3-upgrade-attempt-1"
+    },
+    {
+      "digest": "sha256:1b107e40eb46ae5f807d0b870ca017c2fcd97cb1f52d28beff0ebeb13594d03b",
+      "id": 13614365299,
+      "name": "WatchGuard-evidence-12.4-visibility-attempt-1"
+    },
+    {
+      "digest": "sha256:cfeda1bc25cde24355ee6207c4d63e93e8c9c3d8d3da2ce84df4effa74e9eec9",
+      "id": 13614357071,
+      "name": "WatchGuard-qualification-attempt-1"
+    },
+    {
+      "digest": "sha256:c905a1001b4ffa1c1e7d0ed425646ed42c5bc2aff29c5ea1359f228940be0199",
+      "id": 13614262398,
+      "name": "WatchGuard-evidence-12.4-navigation-attempt-1"
+    },
+    {
+      "digest": "sha256:a0592621f2d39230d11c937c5589f2166a7ebf35380da2c9779ccecec6feff60",
+      "id": 13614216741,
+      "name": "WatchGuard-evidence-12.4-activity-native-attempt-1"
+    },
+    {
+      "digest": "sha256:0ff6cc9614bd85145211a2420cf9045754becbca3cd26822a2817ea23e031341",
+      "id": 13614192592,
+      "name": "WatchGuard-qualification-diagnostics-attempt-1"
+    },
+    {
+      "digest": "sha256:215e48c0f00d856b544984eba70b56f89f540f4fbfb554479c74b87b6031a664",
+      "id": 13614191350,
+      "name": "WatchGuard-evidence-12.4-browser-attempt-1"
+    },
+    {
+      "digest": "sha256:cae16f9d9c66f2e9f5171c0f7685202c64b4e886711e2f6e46a7795db1e0c23f",
+      "id": 13614025791,
+      "name": "WatchGuard-previous-stable-attempt-1"
+    },
+    {
+      "digest": "sha256:77d86298390b308251b95544d27d9faec593340ab7ea2fab9fcd263857407552",
+      "id": 13613941641,
+      "name": "WatchGuard-evidence-12.4-platforms-attempt-1"
+    },
+    {
+      "digest": "sha256:5293f128fcd3cb65dc4174008cff13ffa2f29b103c581325a3c91f0b9488e0ed",
+      "id": 13613921274,
+      "name": "discovery-model-v048-attempt-1"
+    },
+    {
+      "digest": "sha256:5919de6ad788ade41d1ccd0fdb498743f465d34a48f61a18b0ba0f6d6cca9755",
+      "id": 13613853429,
+      "name": "WatchGuard-evidence-12.4-upgrade-attempt-1"
+    },
+    {
+      "digest": "sha256:537bd2c024823de2037e5499b3fdf750249004257b936821ff7d4774d589dc4c",
+      "id": 13613773586,
+      "name": "WatchGuard-evidence-12.3-enforcement-attempt-1"
+    },
+    {
+      "digest": "sha256:8ccef6f8ea26f5e66a9520c7866f582947b461cce8ced8e82e1e4495028ccf0b",
+      "id": 13613759414,
+      "name": "WatchGuard-evidence-12.3-browser-attempt-1"
+    },
+    {
+      "digest": "sha256:246bb13ed0e0b2edd792c460cdaff8089473fd17cc12399337c252791c3314df",
+      "id": 13613737904,
+      "name": "WatchGuard-release-plan-attempt-1"
+    },
+    {
+      "digest": "sha256:0fc5c4038dd0e49bdef42e6bf004e6e20019d00bde6cfc7c3e19b422030d06a6",
+      "id": 13613499863,
+      "name": "WatchGuard-evidence-12.4-enforcement-attempt-1"
+    },
+    {
+      "digest": "sha256:cc2c54b0f0f5c806314100ce4fe22952b2c5122b609387755a9586a303e72c69",
+      "id": 13613454331,
+      "name": "WatchGuard-build-diagnostics-attempt-1"
+    },
+    {
+      "digest": "sha256:ebde1be8d775773b1ccbe0927b79c84f5d6ec0db2e4886b8fc8e5d7cc3ec19a6",
+      "id": 13613429272,
+      "name": "WatchGuard-enforcement-baseline-attempt-1"
+    },
+    {
+      "digest": "sha256:d1a0071bcaca17879bcb5bd01b8696345a2c59723e7eab0a93df99ef8965a1dd",
+      "id": 13613399237,
+      "name": "WatchGuard-package-attempt-1"
+    },
+    {
+      "digest": "sha256:425b562bf379ffcdc19938a1c0e4042621b0f61366aa65a947d74b8c210733f8",
+      "id": 13613309857,
+      "name": "WatchGuard-evidence-12.4-browser79-attempt-1"
+    }
+  ],
+  "fullQualification": {
+    "result": "PASS",
+    "conclusion": "success",
+    "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42471585268",
+    "integrationJobs": 12,
+    "suiteReports": [
+      {
+        "jellyfinVersion": "12.3",
+        "suite": "basepath",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.3",
+        "suite": "server-enforcement",
+        "status": "PASS",
+        "proxyMatrix": true
+      },
+      {
+        "jellyfinVersion": "12.3",
+        "suite": "upgrade",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "activity-browser",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "activity-index",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "basepath",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "browser79",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "server-enforcement",
+        "status": "PASS",
+        "proxyMatrix": true
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "basepath-navigation",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "server-enforcement-basepath",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "server-enforcement-linuxserver",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "upgrade",
+        "status": "PASS",
+        "proxyMatrix": false
+      },
+      {
+        "jellyfinVersion": "12.4",
+        "suite": "verification",
+        "status": "PASS",
+        "proxyMatrix": false
+      }
+    ],
+    "publishRequested": false,
+    "packageArtifactId": 13613399237,
+    "recordArtifactId": 13614357071,
+    "gateJobs": [
+      {
+        "name": "Verify complete compatibility evidence",
+        "databaseId": 128708540342,
+        "conclusion": "success",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42471585268/job/128708540342"
+      },
+      {
+        "name": "publication-rehearsal",
+        "databaseId": 128708612213,
+        "conclusion": "success",
+        "url": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42471585268/job/128708612213"
+      }
+    ]
+  },
+  "rehearsal": {
+    "qualificationRun": 42471585268,
+    "qualificationAttempt": 1,
+    "write": false,
+    "state": "awaiting approval",
+    "recordArtifactId": 13614357071,
+    "draftVisibility": false
+  }
+}
