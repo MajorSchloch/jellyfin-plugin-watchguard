@@ -1788,6 +1788,9 @@ function createServerAdapter(ask, log, check, contextValid, dependencies) {
         @supports selector(:focus-visible) {
             .watchguard-series-activity summary:focus:not(:focus-visible) {box-shadow:none}
         }
+        @media (forced-colors: active) {
+            .watchguard-series-activity summary:focus {outline:2px solid Highlight!important;outline-offset:-3px;box-shadow:none}
+        }
         .watchguard-series-activity summary>* {margin-inline-end:.5rem}
         .watchguard-activity-heading {font-weight:600;color:var(--jf-palette-text-primary,#eee)}
         .watchguard-series-viewers {list-style:none;padding:0 1rem;margin:0;max-height:28rem;overflow:auto}

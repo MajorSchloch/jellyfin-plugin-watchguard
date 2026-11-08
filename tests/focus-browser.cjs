@@ -176,6 +176,29 @@ module.exports=async(page,fixture,output,old=false,baseline=false)=>{
             await page.focus(selector);
             await page.keyboard.press('Escape');
             assert(await page.$eval(selector,e=>!e.parentElement.open&&document.activeElement===e));
+            if(!old&&!baseline&&layout==='desktop-legacy') {
+                // Forced colors suppress box shadows. Reach the heading with
+                // Tab and inspect the rendered inset outline inside its crop.
+                await page.emulateMedia({forcedColors:'active'});
+                try {
+                    assert(await page.evaluate(()=>matchMedia('(forced-colors: active)').matches));
+                    await page.focus('.watchguard-toggle');
+                    for(let n=0;n<12;n++) {
+                        if(await page.$eval(selector,e=>document.activeElement===e))break;
+                        await page.keyboard.press('Tab');
+                    }
+                    assert(await page.$eval(selector,e=>document.activeElement===e),'Tab reaches the forced-colors heading');
+                    await settled(selector);
+                    const heading=await state(selector),focused=await crop(selector,'forced-colors-heading-focus');
+                    await page.screenshot({path:path.join(output,'forced-colors-detail-focus.png')});
+                    await page.$eval(selector,e=>e.blur());
+                    const normal=await crop(selector,'forced-colors-heading-normal');
+                    report.forcedColors={heading,ring:ring(focused,heading.outlineColor,heading.panelRadius),focusEdgePixels:ink(focused,heading.outlineColor,0,true),normalEdgePixels:ink(normal,heading.outlineColor,0,true)};
+                    assert(heading.outline==='solid'&&parseFloat(heading.offset)<0,'Forced-colors outline overrides outline:none and stays inset');
+                    assert(report.forcedColors.focusEdgePixels-report.forcedColors.normalEdgePixels>heading.rect.width,'Forced-colors focus renders inside the clipped heading');
+                    assert(report.forcedColors.ring.continuous,'Forced-colors outline connects all corners and edges without clipping');
+                } finally {await page.emulateMedia({forcedColors:'none'});}
+            }
             row.interaction='PASS';
             row.menuMatchesNative=row.menu.color===row.favorite.color&&row.menu.outline===row.favorite.outline&&row.menu.textPixels>20;
             row.detailVisible=row.detail.focusEdgePixels-row.detail.normalEdgePixels>row.detail.rect.width;
