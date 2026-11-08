@@ -193,7 +193,12 @@ module.exports=async(page,fixture,output,old=false,baseline=false)=>{
                     await page.screenshot({path:path.join(output,'forced-colors-detail-focus.png')});
                     await page.$eval(selector,e=>e.blur());
                     const normal=await crop(selector,'forced-colors-heading-normal');
-                    report.forcedColors={heading,ring:ring(focused,heading.outlineColor,heading.panelRadius),focusEdgePixels:ink(focused,heading.outlineColor,0,true),normalEdgePixels:ink(normal,heading.outlineColor,0,true)};
+                    // Highlight can be translucent. Compare its actual paint
+                    // over the unfocused edge background, not its raw RGB.
+                    const rgba=heading.outlineColor.match(/[\d.]+/g).map(Number),alpha=rgba.length===4?rgba[3]:1,background=PNG.sync.read(normal);
+                    const i=(2*background.width+Math.floor(background.width/2))*4;
+                    const paint='rgb('+rgba.slice(0,3).map((v,c)=>Math.round(v*alpha+background.data[i+c]*(1-alpha))).join(',')+')';
+                    report.forcedColors={heading,paint,ring:ring(focused,paint,heading.panelRadius),focusEdgePixels:ink(focused,paint,0,true),normalEdgePixels:ink(normal,paint,0,true)};
                     assert(heading.outline==='solid'&&parseFloat(heading.offset)<0,'Forced-colors outline overrides outline:none and stays inset');
                     assert(report.forcedColors.focusEdgePixels-report.forcedColors.normalEdgePixels>heading.rect.width,'Forced-colors focus renders inside the clipped heading');
                     assert(report.forcedColors.ring.continuous,'Forced-colors outline connects all corners and edges without clipping');
