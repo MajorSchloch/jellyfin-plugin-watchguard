@@ -435,3 +435,41 @@ test('Controlled pending response does not depend on native worker state or fetc
     // An already-settled native result remains valid in the ordinary path.
     extrasActivity.assertExtras(extrasResult(),extraTitle,extraUser);
 });
+
+// Layout readiness must not use the position assertion itself as a wait target:
+// an actual restoration error must still fail at the unchanged 48 px tolerance.
+test('return-position layout waits for native tabs and panel alignment, not the restored offset', () => {
+    const vm=require('node:vm'),probe=require('./return-position-layout.cjs');
+    const element=(top,height)=>({top,height,shown:true,
+        getBoundingClientRect(){return {top:this.top,bottom:this.top+this.height,left:0,width:1280,height:this.height};},
+        getClientRects(){return this.shown?[this.getBoundingClientRect()]:[];},
+        querySelector(){return null;},getAttribute(){return null;}});
+    const home=element(58,53),favorites=element(58,53),tabs=element(58,53),header=element(0,58),panel=element(58,642),anchor=element(220,265),card=element(220,373),title=element(457,28);
+    tabs.shown=false;tabs.querySelector=selector=>selector.includes('"0"')?home:favorites;
+    header.querySelector=()=>tabs;panel.querySelector=()=>anchor;panel.querySelectorAll=()=>[card];panel.scrollTop=888;
+    anchor.closest=()=>card;card.querySelector=()=>title;
+    const context={performance:{now:()=>1},document:{activeElement:anchor,querySelector:()=>panel,querySelectorAll:()=>[header]},
+        getComputedStyle:e=>({visibility:'visible',display:e.shown?'block':'none'})};
+    const measure=options=>vm.runInNewContext('('+probe.toString()+')('+JSON.stringify(options)+')',context);
+    const options={id:'synthetic-title',requireTabs:true};
+    assert.equal(measure(options).focused,true);
+    assert.equal(measure({...options,readyOnly:true}),false,'Data and focus can finish before the tab row');
+    tabs.shown=true;header.height=111;
+    assert.equal(measure({...options,readyOnly:true}),false,'Header mutation must also reach the panel position');
+    panel.top=111;
+    assert.equal(measure({...options,readyOnly:true}),true);
+    favorites.shown=false;
+    assert.equal(measure({...options,readyOnly:true}),false,'Both native tabs must be present and visible');
+    favorites.shown=true;anchor.top=20;
+    const wrong=measure(options);
+    assert.equal(wrong.layoutReady,true,'A wrong card offset must not delay the assertion until it happens to pass');
+    assert.throws(()=>assert.ok(Math.abs(wrong.top-272.45)<=48));
+    assert.equal(wrong.geometry.card.top,220);
+    assert.equal(wrong.geometry.title.top,457);
+    assert.equal(wrong.geometry.visibleHeaderHeight,111);
+    assert.equal(wrong.scroll,888);
+    tabs.shown=false;
+    assert.equal(measure({...options,requireTabs:false,readyOnly:true}),true,'Modern headers do not require legacy tabs');
+    header.shown=false;
+    assert.equal(measure({...options,requireTabs:false,readyOnly:true}),false,'An absent header is not a completed layout');
+});

@@ -1,0 +1,2085 @@
+{
+  "engine": "current Chromium",
+  "physicalTV": false,
+  "serverVersion": "12.4.0",
+  "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771",
+  "deployedPackage": {
+    "version": "0.7.17",
+    "packageSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+    "dllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+    "deployedDllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+    "activeVersion": "0.7.17.0",
+    "reportedVersion": "0.7.17"
+  },
+  "cases": [
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "controlled-native-layout",
+      "title": "Return Position 04",
+      "before": {
+        "top": 272.453125,
+        "scroll": 888,
+        "count": 25,
+        "at": 412,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.453125,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 272.453125,
+            "bottom": 645.140625,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "afterFocus": {
+        "at": 680.8999999761581,
+        "found": true,
+        "top": 219.53125,
+        "scroll": 888,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": false,
+        "geometry": {
+          "title": {
+            "top": 456.578125,
+            "bottom": 484.28125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 219.53125,
+            "bottom": 484.28125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 219.53125,
+            "bottom": 592.21875,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 57.4375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 642.5625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 57.4375,
+            "left": 0,
+            "width": 1280,
+            "height": 57.4375
+          },
+          "visibleHeaderHeight": 57.4375,
+          "tabs": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "width": 0,
+            "height": 0
+          },
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "prematureSample": {
+        "at": 713,
+        "found": true,
+        "top": 219.53125,
+        "scroll": 888,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": false,
+        "geometry": {
+          "title": {
+            "top": 456.578125,
+            "bottom": 484.28125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 219.53125,
+            "bottom": 484.28125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 219.53125,
+            "bottom": 592.21875,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 57.4375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 642.5625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 57.4375,
+            "left": 0,
+            "width": 1280,
+            "height": 57.4375
+          },
+          "visibleHeaderHeight": 57.4375,
+          "tabs": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "width": 0,
+            "height": 0
+          },
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "heldNativeEvents": [
+        "viewbeforeshow",
+        "viewshow"
+      ],
+      "controlledResponse": "Native Home lifecycle delivery only; ordinary cases remain unmodified",
+      "after": {
+        "at": 768,
+        "found": true,
+        "top": 272.453125,
+        "scroll": 888,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.453125,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 272.453125,
+            "bottom": 645.140625,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 20,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "first-movie",
+      "title": "Return Position 04",
+      "before": {
+        "top": 272.453125,
+        "scroll": 888,
+        "count": 25,
+        "at": 1013.1000000238419,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.453125,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 272.453125,
+            "bottom": 645.140625,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "afterFocus": {
+        "at": 1228.5,
+        "found": true,
+        "top": 272.453125,
+        "scroll": 888,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.453125,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 272.453125,
+            "bottom": 645.140625,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "after": {
+        "at": 1230.2999999523163,
+        "found": true,
+        "top": 272.453125,
+        "scroll": 888,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.453125,
+            "bottom": 537.203125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 272.453125,
+            "bottom": 645.140625,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 12,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "deep-movie",
+      "title": "Return Position 28",
+      "before": {
+        "top": 272.5,
+        "scroll": 2073,
+        "count": 45,
+        "at": 1545.6999999284744,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5625,
+            "bottom": 537.265625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.5,
+            "bottom": 537.265625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 272.5,
+            "bottom": 645.203125,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "afterFocus": {
+        "at": 1830.2999999523163,
+        "found": true,
+        "top": 272.5,
+        "scroll": 2073,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5625,
+            "bottom": 537.265625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.5,
+            "bottom": 537.265625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 272.5,
+            "bottom": 645.203125,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "after": {
+        "at": 1832.7999999523163,
+        "found": true,
+        "top": 272.5,
+        "scroll": 2073,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5625,
+            "bottom": 537.265625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.5,
+            "bottom": 537.265625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 272.5,
+            "bottom": 645.203125,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        },
+        {
+          "continuation": true,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 15,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "series",
+      "title": "PoC Parent Clear",
+      "before": {
+        "top": 272.4375,
+        "scroll": 493,
+        "count": 25,
+        "at": 2095.6999999284744,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5,
+            "bottom": 537.203125,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.4375,
+            "bottom": 537.203125,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 272.4375,
+            "bottom": 645.140625,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "afterFocus": {
+        "at": 2378.6999999284744,
+        "found": true,
+        "top": 272.4375,
+        "scroll": 493,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5,
+            "bottom": 537.203125,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.4375,
+            "bottom": 537.203125,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 272.4375,
+            "bottom": 645.140625,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "after": {
+        "at": 2380.2999999523163,
+        "found": true,
+        "top": 272.4375,
+        "scroll": 493,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 509.5,
+            "bottom": 537.203125,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 272.4375,
+            "bottom": 537.203125,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 272.4375,
+            "bottom": 645.140625,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 110.359375,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 589.640625
+          },
+          "header": {
+            "top": 0,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 110.359375
+          },
+          "visibleHeaderHeight": 110.359375,
+          "tabs": {
+            "top": 57.578125,
+            "bottom": 110.359375,
+            "left": 0,
+            "width": 1280,
+            "height": 52.78125
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 16,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "removed-membership",
+      "result": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "native-expired-continuation",
+      "status": 409,
+      "result": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "interaction-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "navigation-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "desktop-legacy",
+      "kind": "fresh-entry",
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "kind": "first-movie",
+      "title": "Return Position 04",
+      "before": {
+        "top": 257.46875,
+        "scroll": 3479,
+        "count": 25,
+        "at": 429.5,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 522.5625,
+            "bottom": 549.359375,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 26.796875
+          },
+          "anchor": {
+            "top": 257.46875,
+            "bottom": 549.359375,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 291.890625
+          },
+          "card": {
+            "top": 257.46875,
+            "bottom": 655.25,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 397.78125
+          },
+          "panel": {
+            "top": 106.8125,
+            "bottom": 700,
+            "left": 0,
+            "width": 390,
+            "height": 593.1875
+          },
+          "header": {
+            "top": 0,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 106.8125
+          },
+          "visibleHeaderHeight": 106.8125,
+          "tabs": {
+            "top": 55.71875,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 51.09375
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "afterFocus": {
+        "at": 730,
+        "found": true,
+        "top": 257.46875,
+        "scroll": 3479,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 522.5625,
+            "bottom": 549.359375,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 26.796875
+          },
+          "anchor": {
+            "top": 257.46875,
+            "bottom": 549.359375,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 291.890625
+          },
+          "card": {
+            "top": 257.46875,
+            "bottom": 655.25,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 397.78125
+          },
+          "panel": {
+            "top": 106.8125,
+            "bottom": 700,
+            "left": 0,
+            "width": 390,
+            "height": 593.1875
+          },
+          "header": {
+            "top": 0,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 106.8125
+          },
+          "visibleHeaderHeight": 106.8125,
+          "tabs": {
+            "top": 55.71875,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 51.09375
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "after": {
+        "at": 732.2000000476837,
+        "found": true,
+        "top": 257.46875,
+        "scroll": 3479,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 522.5625,
+            "bottom": 549.359375,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 26.796875
+          },
+          "anchor": {
+            "top": 257.46875,
+            "bottom": 549.359375,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 291.890625
+          },
+          "card": {
+            "top": 257.46875,
+            "bottom": 655.25,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 397.78125
+          },
+          "panel": {
+            "top": 106.8125,
+            "bottom": 700,
+            "left": 0,
+            "width": 390,
+            "height": 593.1875
+          },
+          "header": {
+            "top": 0,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 106.8125
+          },
+          "visibleHeaderHeight": 106.8125,
+          "tabs": {
+            "top": 55.71875,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 51.09375
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 16,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "kind": "deep-movie",
+      "title": "Return Position 28",
+      "before": {
+        "top": 257.90625,
+        "scroll": 8425,
+        "count": 45,
+        "at": 1011.9000000953674,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 523,
+            "bottom": 549.796875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 26.796875
+          },
+          "anchor": {
+            "top": 257.90625,
+            "bottom": 549.796875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 291.890625
+          },
+          "card": {
+            "top": 257.90625,
+            "bottom": 655.6875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 397.78125
+          },
+          "panel": {
+            "top": 106.8125,
+            "bottom": 700,
+            "left": 0,
+            "width": 390,
+            "height": 593.1875
+          },
+          "header": {
+            "top": 0,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 106.8125
+          },
+          "visibleHeaderHeight": 106.8125,
+          "tabs": {
+            "top": 55.71875,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 51.09375
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "afterFocus": {
+        "at": 1230.5,
+        "found": true,
+        "top": 257.90625,
+        "scroll": 8425,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 523,
+            "bottom": 549.796875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 26.796875
+          },
+          "anchor": {
+            "top": 257.90625,
+            "bottom": 549.796875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 291.890625
+          },
+          "card": {
+            "top": 257.90625,
+            "bottom": 655.6875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 397.78125
+          },
+          "panel": {
+            "top": 106.8125,
+            "bottom": 700,
+            "left": 0,
+            "width": 390,
+            "height": 593.1875
+          },
+          "header": {
+            "top": 0,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 106.8125
+          },
+          "visibleHeaderHeight": 106.8125,
+          "tabs": {
+            "top": 55.71875,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 51.09375
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "after": {
+        "at": 1238.7000000476837,
+        "found": true,
+        "top": 257.90625,
+        "scroll": 8425,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 523,
+            "bottom": 549.796875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 26.796875
+          },
+          "anchor": {
+            "top": 257.90625,
+            "bottom": 549.796875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 291.890625
+          },
+          "card": {
+            "top": 257.90625,
+            "bottom": 655.6875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 397.78125
+          },
+          "panel": {
+            "top": 106.8125,
+            "bottom": 700,
+            "left": 0,
+            "width": 390,
+            "height": 593.1875
+          },
+          "header": {
+            "top": 0,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 106.8125
+          },
+          "visibleHeaderHeight": 106.8125,
+          "tabs": {
+            "top": 55.71875,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 51.09375
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        },
+        {
+          "continuation": true,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 13,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "input": "touch",
+      "kind": "series",
+      "title": "PoC Parent Clear",
+      "before": {
+        "top": 257.65625,
+        "scroll": 1830,
+        "count": 25,
+        "at": 1478.4000000953674,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 522.75,
+            "bottom": 549.546875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 26.796875
+          },
+          "anchor": {
+            "top": 257.65625,
+            "bottom": 549.546875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 291.890625
+          },
+          "card": {
+            "top": 257.65625,
+            "bottom": 655.4375,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 397.78125
+          },
+          "panel": {
+            "top": 106.8125,
+            "bottom": 700,
+            "left": 0,
+            "width": 390,
+            "height": 593.1875
+          },
+          "header": {
+            "top": 0,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 106.8125
+          },
+          "visibleHeaderHeight": 106.8125,
+          "tabs": {
+            "top": 55.71875,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 51.09375
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "afterFocus": {
+        "at": 1695,
+        "found": true,
+        "top": 257.65625,
+        "scroll": 1830,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 522.75,
+            "bottom": 549.546875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 26.796875
+          },
+          "anchor": {
+            "top": 257.65625,
+            "bottom": 549.546875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 291.890625
+          },
+          "card": {
+            "top": 257.65625,
+            "bottom": 655.4375,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 397.78125
+          },
+          "panel": {
+            "top": 106.8125,
+            "bottom": 700,
+            "left": 0,
+            "width": 390,
+            "height": 593.1875
+          },
+          "header": {
+            "top": 0,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 106.8125
+          },
+          "visibleHeaderHeight": 106.8125,
+          "tabs": {
+            "top": 55.71875,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 51.09375
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "after": {
+        "at": 1697.6000000238419,
+        "found": true,
+        "top": 257.65625,
+        "scroll": 1830,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 522.75,
+            "bottom": 549.546875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 26.796875
+          },
+          "anchor": {
+            "top": 257.65625,
+            "bottom": 549.546875,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 291.890625
+          },
+          "card": {
+            "top": 257.65625,
+            "bottom": 655.4375,
+            "left": 12.859375,
+            "width": 176.734375,
+            "height": 397.78125
+          },
+          "panel": {
+            "top": 106.8125,
+            "bottom": 700,
+            "left": 0,
+            "width": 390,
+            "height": 593.1875
+          },
+          "header": {
+            "top": 0,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 106.8125
+          },
+          "visibleHeaderHeight": 106.8125,
+          "tabs": {
+            "top": 55.71875,
+            "bottom": 106.8125,
+            "left": 0,
+            "width": 390,
+            "height": 51.09375
+          },
+          "tabsVisible": true,
+          "nativeTabsVisible": true
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 13,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "removed-membership",
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "native-expired-continuation",
+      "status": 409,
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "interaction-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "navigation-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "mobile-legacy",
+      "kind": "fresh-entry",
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "first-movie",
+      "title": "Return Position 04",
+      "before": {
+        "top": 242.09375,
+        "scroll": 856,
+        "count": 25,
+        "at": 466.2999999523163,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 479.140625,
+            "bottom": 506.84375,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 242.09375,
+            "bottom": 506.84375,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 242.09375,
+            "bottom": 614.78125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 48,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 652
+          },
+          "header": {
+            "top": 0,
+            "bottom": 48,
+            "left": 0,
+            "width": 1280,
+            "height": 48
+          },
+          "visibleHeaderHeight": 48,
+          "tabs": null,
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "afterFocus": {
+        "at": 699.6000000238419,
+        "found": true,
+        "top": 242.09375,
+        "scroll": 856,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 479.140625,
+            "bottom": 506.84375,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 242.09375,
+            "bottom": 506.84375,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 242.09375,
+            "bottom": 614.78125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 48,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 652
+          },
+          "header": {
+            "top": 0,
+            "bottom": 48,
+            "left": 0,
+            "width": 1280,
+            "height": 48
+          },
+          "visibleHeaderHeight": 48,
+          "tabs": null,
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "after": {
+        "at": 701.2000000476837,
+        "found": true,
+        "top": 242.09375,
+        "scroll": 856,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 479.140625,
+            "bottom": 506.84375,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 242.09375,
+            "bottom": 506.84375,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 264.75
+          },
+          "card": {
+            "top": 242.09375,
+            "bottom": 614.78125,
+            "left": 388.0625,
+            "width": 158.03125,
+            "height": 372.6875
+          },
+          "panel": {
+            "top": 48,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 652
+          },
+          "header": {
+            "top": 0,
+            "bottom": 48,
+            "left": 0,
+            "width": 1280,
+            "height": 48
+          },
+          "visibleHeaderHeight": 48,
+          "tabs": null,
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 12,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "deep-movie",
+      "title": "Return Position 28",
+      "before": {
+        "top": 241.140625,
+        "scroll": 2042,
+        "count": 45,
+        "at": 1014.3999999761581,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 478.203125,
+            "bottom": 505.90625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 241.140625,
+            "bottom": 505.90625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 241.140625,
+            "bottom": 613.84375,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 48,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 652
+          },
+          "header": {
+            "top": 0,
+            "bottom": 48,
+            "left": 0,
+            "width": 1280,
+            "height": 48
+          },
+          "visibleHeaderHeight": 48,
+          "tabs": null,
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "afterFocus": {
+        "at": 1317.3999999761581,
+        "found": true,
+        "top": 241.140625,
+        "scroll": 2042,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 478.203125,
+            "bottom": 505.90625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 241.140625,
+            "bottom": 505.90625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 241.140625,
+            "bottom": 613.84375,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 48,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 652
+          },
+          "header": {
+            "top": 0,
+            "bottom": 48,
+            "left": 0,
+            "width": 1280,
+            "height": 48
+          },
+          "visibleHeaderHeight": 48,
+          "tabs": null,
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "after": {
+        "at": 1318.8999999761581,
+        "found": true,
+        "top": 241.140625,
+        "scroll": 2042,
+        "focused": true,
+        "focusLabel": null,
+        "count": 45,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 478.203125,
+            "bottom": 505.90625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 241.140625,
+            "bottom": 505.90625,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 241.140625,
+            "bottom": 613.84375,
+            "left": 906.796875,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 48,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 652
+          },
+          "header": {
+            "top": 0,
+            "bottom": 48,
+            "left": 0,
+            "width": 1280,
+            "height": 48
+          },
+          "visibleHeaderHeight": 48,
+          "tabs": null,
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        },
+        {
+          "continuation": true,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 16,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "modern",
+      "width": 1280,
+      "input": "mouse",
+      "kind": "series",
+      "title": "PoC Parent Clear",
+      "before": {
+        "top": 242.078125,
+        "scroll": 461,
+        "count": 25,
+        "at": 1564.2999999523163,
+        "found": true,
+        "focused": true,
+        "focusLabel": null,
+        "viewState": "ready",
+        "returnState": "none",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 479.140625,
+            "bottom": 506.84375,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 242.078125,
+            "bottom": 506.84375,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 242.078125,
+            "bottom": 614.78125,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 48,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 652
+          },
+          "header": {
+            "top": 0,
+            "bottom": 48,
+            "left": 0,
+            "width": 1280,
+            "height": 48
+          },
+          "visibleHeaderHeight": 48,
+          "tabs": null,
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "afterFocus": {
+        "at": 1816.7000000476837,
+        "found": true,
+        "top": 242.078125,
+        "scroll": 461,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 479.140625,
+            "bottom": 506.84375,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 242.078125,
+            "bottom": 506.84375,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 242.078125,
+            "bottom": 614.78125,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 48,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 652
+          },
+          "header": {
+            "top": 0,
+            "bottom": 48,
+            "left": 0,
+            "width": 1280,
+            "height": 48
+          },
+          "visibleHeaderHeight": 48,
+          "tabs": null,
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "after": {
+        "at": 1818.3999999761581,
+        "found": true,
+        "top": 242.078125,
+        "scroll": 461,
+        "focused": true,
+        "focusLabel": null,
+        "count": 25,
+        "viewState": "ready",
+        "returnState": "restored",
+        "layoutReady": true,
+        "geometry": {
+          "title": {
+            "top": 479.140625,
+            "bottom": 506.84375,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 27.703125
+          },
+          "anchor": {
+            "top": 242.078125,
+            "bottom": 506.84375,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 264.765625
+          },
+          "card": {
+            "top": 242.078125,
+            "bottom": 614.78125,
+            "left": 215.140625,
+            "width": 158.046875,
+            "height": 372.703125
+          },
+          "panel": {
+            "top": 48,
+            "bottom": 700,
+            "left": 0,
+            "width": 1280,
+            "height": 652
+          },
+          "header": {
+            "top": 0,
+            "bottom": 48,
+            "left": 0,
+            "width": 1280,
+            "height": 48
+          },
+          "visibleHeaderHeight": 48,
+          "tabs": null,
+          "tabsVisible": false,
+          "nativeTabsVisible": false
+        }
+      },
+      "queries": [
+        {
+          "continuation": false,
+          "check": false
+        }
+      ],
+      "transition": {
+        "frames": 13,
+        "homeExposures": 0
+      },
+      "repeatBack": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "removed-membership",
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "native-expired-continuation",
+      "status": 409,
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "interaction-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "navigation-cancels-return",
+      "result": "PASS"
+    },
+    {
+      "layout": "modern",
+      "kind": "fresh-entry",
+      "result": "PASS"
+    },
+    {
+      "kind": "detail-authorization-denial",
+      "status": 401,
+      "injectedFailure": true,
+      "result": "PASS"
+    },
+    {
+      "kind": "detail-authorization-denial",
+      "status": 403,
+      "injectedFailure": true,
+      "result": "PASS"
+    },
+    {
+      "kind": "account-change-during-return",
+      "result": "PASS"
+    }
+  ],
+  "browserVersion": "141.0.7390.37",
+  "result": "PASS",
+  "evidenceContext": "Local macOS, real pinned Jellyfin 12.4 /jellyfin fixture, Chromium 141. Controlled case delays native Home lifecycle delivery; other cases use native events without modification."
+}

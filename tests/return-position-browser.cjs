@@ -14,8 +14,17 @@ module.exports=async function returnPosition(page,fixture,output,old=false) {
     const gate=(continuation=false)=>{hold=true;holdContinuation=continuation;heldRequest=null;return Promise.all([new Promise(resolve=>{begin=resolve;}),page.waitForRequest(request=>{const url=new URL(request.url());return url.pathname.endsWith('/WatchGuard/ActivityBrowser')&&(!continuation||url.searchParams.has('continuation'));})]);};
     const completion=()=>new Promise(resolve=>{const expected=heldRequest;assert.ok(expected);const finish=request=>{if(request===expected){page.removeListener('requestfinished',finish);page.removeListener('requestfailed',finish);resolve();}};page.on('requestfinished',finish);page.on('requestfailed',finish);});
     const settled=()=>wait(()=>{const p=document.querySelector('.watchguard-page');return p&&p.getAttribute('aria-busy')==='false';});
-    const state=id=>page.evaluate(id=>{const p=document.querySelector('.watchguard-page'),a=p&&p.querySelector('.watchguard-card a.button-link[href*="'+id+'"]'),e=document.activeElement;
-        return {found:!!a,top:a&&a.getBoundingClientRect().top,scroll:p&&p.scrollTop,focused:e===a,focusLabel:e&&e.getAttribute('aria-label'),count:p&&p.querySelectorAll('.watchguard-card').length,viewState:p&&p.getAttribute('data-view-state'),returnState:p&&p.getAttribute('data-return-state')};},id);
+    const layoutProbe=require('./return-position-layout.cjs');
+    const state=(id,requireTabs=false)=>page.evaluate(layoutProbe,{id,requireTabs});
+    const nativeLayout=(id,requireTabs)=>wait(layoutProbe,{id,requireTabs,readyOnly:true});
+    const releaseNativeLayout=()=>page.evaluate(()=>{
+        const gate=window.wgReturnNativeGate;if(!gate)return [];
+        document.removeEventListener('viewbeforeshow',gate.listener,true);
+        document.removeEventListener('viewshow',gate.listener,true);
+        delete window.wgReturnNativeGate;
+        for(const event of gate.events)event.target.dispatchEvent(new CustomEvent(event.type,{detail:event.detail,bubbles:event.bubbles}));
+        return gate.events.map(event=>event.type);
+    });
     const scan=()=>page.evaluate(()=>{
         const data={frames:0,homeExposures:0};let running=true;
         function sample(){if(!running)return;data.frames++;for(const point of [[innerWidth/2,innerHeight/2],[25,innerHeight-40]]){const e=document.elementFromPoint(point[0],point[1]);if(e&&e.closest('.homePage,#homePage')){data.homeExposures++;break;}}requestAnimationFrame(sample);}sample();
@@ -25,7 +34,7 @@ module.exports=async function returnPosition(page,fixture,output,old=false) {
     const selectAnchor=async item=>{
         const before=await page.evaluate(id=>{const p=document.querySelector('.watchguard-page'),a=p.querySelector('.watchguard-card a.button-link[href*="'+id+'"]');a.scrollIntoView({block:'center'});a.focus({preventScroll:true});window.wgReturnOldPanel=p;
             return {top:a.getBoundingClientRect().top,scroll:p.scrollTop,count:p.querySelectorAll('.watchguard-card').length,history:history.state};},item.Id);
-        await frames(2);return before;
+        await frames(2);return {...before,...await state(item.Id)};
     };
     const detail=async item=>wait(item=>{const p=document.querySelector('#itemDetailPage:not(.hide)'),b=p&&p.querySelector('.btnPlaystate');return p&&b&&b.getAttribute('data-id')===item.Id&&p.querySelector('.nameContainer').textContent.includes(item.Name)&&!document.querySelector('.watchguard-page,.watchguard-outgoing');},item);
     const activate=async(item,input)=>{const selector='.watchguard-card a.button-link[href*="'+item.Id+'"]';if(input==='remote')await page.keyboard.press('Enter');else if(input==='touch'){const point=await page.$eval(selector,e=>{const r=e.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};});await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}else await page.click(selector);await detail(item);};
@@ -39,24 +48,54 @@ module.exports=async function returnPosition(page,fixture,output,old=false) {
         for(const [layout,width,input] of old?[['tv',1280,'remote']]:[['desktop-legacy',1280,'mouse'],['mobile-legacy',390,'touch'],['modern',1280,'mouse']]) {
             if(old)await page.setViewport({width,height:700});else await page.setViewportSize({width,height:700});
             await page.goto(fixture.base+'/web/#/home');await page.evaluate(value=>localStorage.setItem('layout',value),layout);await page.reload();await wait(()=>window.WatchGuardPoc&&WatchGuardPoc.isInstalled());
-            for(const kind of ['first-movie','deep-movie','series']) {
+            for(const kind of (layout==='desktop-legacy'?['controlled-native-layout','first-movie','deep-movie','series']:['first-movie','deep-movie','series'])) {
                 await fresh();
                 let target;
                 if(kind==='deep-movie'){await more();target=items.find(i=>i.Name==='Return Position 28');}
                 else if(kind==='series')target=items.find(i=>i.Type==='Series');
                 else target=items.find(i=>i.Name==='Return Position 04');
-                assert.ok(target);report.activeCase={layout,width,input,kind,title:target.Name,phase:'capture'};
+                assert.ok(target);report.activeCase={layout,width,input,kind,title:target.Name,itemId:target.Id,phase:'capture'};
+                await nativeLayout(target.Id,layout!=='modern');
                 const before=await selectAnchor(target);await page.screenshot({path:path.join(output,'return-'+layout+'-'+kind+'-before.png')});
-                report.activeCase.before={top:before.top,scroll:before.scroll,count:before.count};report.activeCase.phase='detail';await scan();await activate(target,input);assert.equal(await page.evaluate(()=>window.wgReturnOldPanel.isConnected),false,'Departed panel is destroyed');
-                report.activeCase.phase='return';const start=requests.length,started=gate();await page.goBack();await started;
+                report.activeCase.before={...before,history:undefined};report.activeCase.phase='detail';await scan();await activate(target,input);assert.equal(await page.evaluate(()=>window.wgReturnOldPanel.isConnected),false,'Departed panel is destroyed');
+                report.activeCase.phase='return';
+                if(kind==='controlled-native-layout')await page.evaluate(()=>{
+                    // Test-only barrier: defer native Home lifecycle delivery.
+                    // No fabricated cards, API results, styles, or runtime changes.
+                    const gate={events:[]};gate.listener=event=>{
+                        if(event.target.id!=='indexPage')return;
+                        gate.events.push({target:event.target,type:event.type,detail:event.detail,bubbles:event.bubbles});
+                        event.stopImmediatePropagation();
+                    };window.wgReturnNativeGate=gate;
+                    document.addEventListener('viewbeforeshow',gate.listener,true);
+                    document.addEventListener('viewshow',gate.listener,true);
+                });
+                const start=requests.length,started=gate();await page.goBack();await started;
                 await page.screenshot({path:path.join(output,'return-'+layout+'-'+kind+'-loading.png')});unhold();
                 await wait(id=>{const p=document.querySelector('.watchguard-page'),a=p&&p.querySelector('.watchguard-card a.button-link[href*="'+id+'"]');return p&&p.getAttribute('aria-busy')==='false'&&a&&document.activeElement===a;},target.Id);
-                await frames(3);const after=await state(target.Id),transition=await stopScan(),work=requests.slice(start);
+                const row={layout,width,input,kind,title:target.Name,before:{...before,history:undefined},afterFocus:await state(target.Id,layout!=='modern')};
+                report.cases.push(row);report.activeCase.measurements=row;
+                if(kind==='controlled-native-layout'){
+                    // Reproduce the former three-frame oracle, without changing
+                    // its 48 px tolerance. The real native layout is still held.
+                    await frames(3);row.prematureSample=await state(target.Id,true);
+                    await page.screenshot({path:path.join(output,'return-controlled-native-layout-premature.png')});
+                    assert.equal(row.prematureSample.focused,true);
+                    assert.equal(row.prematureSample.scroll,before.scroll);
+                    assert.equal(row.prematureSample.layoutReady,false);
+                    assert.ok(Math.abs(row.prematureSample.top-before.top)>48,'Former oracle samples the missing native tab row');
+                    row.heldNativeEvents=await releaseNativeLayout();
+                    assert.ok(row.heldNativeEvents.includes('viewbeforeshow'));
+                    row.controlledResponse='Native Home lifecycle delivery only; ordinary cases remain unmodified';
+                }
+                await nativeLayout(target.Id,layout!=='modern');
+                const after=await state(target.Id,layout!=='modern'),transition=await stopScan(),work=requests.slice(start);
+                Object.assign(row,{after,queries:work,transition});report.activeCase.after=after;
                 assert.ok(Math.abs(after.top-before.top)<=48,'Back restores the title viewport offset');assert.ok(after.count>=before.count,'Back restores required loaded depth');assert.ok(work.length>=1&&work.length<=6,'Return uses current, bounded query work');assert.equal(transition.homeExposures,0);
                 assert.equal(await page.evaluate(()=>document.querySelector('.watchguard-page')===window.wgReturnOldPanel),false,'Return authorizes a new panel');
                 const returnedHistory=await page.evaluate(()=>history.state);for(const key of Object.keys(before.history||{}).filter(k=>k!=='watchguardReturnEntry'))assert.deepEqual(returnedHistory[key],before.history[key],'Native history field '+key+' is preserved');
                 await page.screenshot({path:path.join(output,'return-'+layout+'-'+kind+'-after.png')});
-                const row={layout,width,input,kind,before:{top:before.top,scroll:before.scroll,count:before.count},after,queries:work,transition};report.cases.push(row);if(input==='remote'){await page.keyboard.press('ArrowRight');assert.equal(await page.evaluate(id=>{const e=document.activeElement;return !!e.closest('.watchguard-card')&&!e.matches('a.button-link[href*="'+id+'"]');},target.Id),true,'Native arrows work from restored card focus');row.remoteAfterReturn='PASS';}report.activeCase.phase='forward-back';
+                if(input==='remote'){await page.keyboard.press('ArrowRight');assert.equal(await page.evaluate(id=>{const e=document.activeElement;return !!e.closest('.watchguard-card')&&!e.matches('a.button-link[href*="'+id+'"]');},target.Id),true,'Native arrows work from restored card focus');row.remoteAfterReturn='PASS';}report.activeCase.phase='forward-back';
                 await page.goForward();await detail(target);await page.goBack();await wait(id=>{const p=document.querySelector('.watchguard-page'),a=p&&p.querySelector('a.button-link[href*="'+id+'"]');return p&&p.getAttribute('aria-busy')==='false'&&a&&document.activeElement===a;},target.Id);row.repeatBack='PASS';
             }
             // Changed memberships are fetched again, never restored from cached rows.
@@ -114,8 +153,8 @@ module.exports=async function returnPosition(page,fixture,output,old=false) {
             await page.goto(fixture.base+'/web/#/home');await page.reload();await wait(()=>window.WatchGuardPoc&&WatchGuardPoc.isInstalled());
         }
         delete report.activeCase;report.result='PASS';
-    } catch(error) {report.result='FAIL';report.error=error.message;report.failure=await page.evaluate(()=>{const p=document.querySelector('.watchguard-page'),e=document.activeElement;return {route:location.hash.split('?')[0],count:p&&p.querySelectorAll('.watchguard-card').length,scroll:p&&p.scrollTop,viewState:p&&p.getAttribute('data-view-state'),returnState:p&&p.getAttribute('data-return-state'),focus:e&&e.getAttribute('aria-label')};});await page.screenshot({path:path.join(output,'return-failure.png')});throw error;}
-    finally {unhold();await page.evaluate(()=>{if(window.wgReturnFrames)window.wgReturnFrames();});if(touch)await touch.detach();page.removeListener('request',observe);if(old){page.removeListener('request',intercept);await page.setRequestInterception(false);}else await page.unroute('**/WatchGuard/**',intercept);fs.writeFileSync(path.join(output,'return-position.json'),JSON.stringify(report,null,2)+'\n');}
+    } catch(error) {report.result='FAIL';report.error=error.message;if(report.activeCase&&report.activeCase.itemId)report.failureGeometry=await state(report.activeCase.itemId,report.activeCase.layout!=='modern');report.failure=await page.evaluate(()=>{const p=document.querySelector('.watchguard-page'),e=document.activeElement;return {route:location.hash.split('?')[0],count:p&&p.querySelectorAll('.watchguard-card').length,scroll:p&&p.scrollTop,viewState:p&&p.getAttribute('data-view-state'),returnState:p&&p.getAttribute('data-return-state'),focus:e&&e.getAttribute('aria-label')};});await page.screenshot({path:path.join(output,'return-failure.png')});throw error;}
+    finally {fs.writeFileSync(path.join(output,'return-position.json'),JSON.stringify(report,null,2)+'\n');unhold();await releaseNativeLayout();await page.evaluate(()=>{if(window.wgReturnFrames)window.wgReturnFrames();});if(touch)await touch.detach();page.removeListener('request',observe);if(old){page.removeListener('request',intercept);await page.setRequestInterception(false);}else await page.unroute('**/WatchGuard/**',intercept);}
     return report;
 };
 if(require.main===module){
