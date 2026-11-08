@@ -11,9 +11,22 @@ permissions:
   contents: read
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
+      - name: Verify Python is already in the hosted tool cache
+        run: python3 scripts/ci/verify-python-cache.py before
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+          check-latest: false
+      - name: Verify setup selected the same local interpreter
+        run: python3 scripts/ci/verify-python-cache.py after
+      - uses: actions/upload-artifact@v6
+        with:
+          name: WatchGuard-python-selection
+          path: artifacts/python-selection.json
+          if-no-files-found: error
       - id: candidate
         run: python3 scripts/release_plan.py --metadata-only
       - uses: actions/setup-dotnet@v5

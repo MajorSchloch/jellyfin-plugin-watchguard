@@ -8,7 +8,11 @@ Evidence includes elapsed time, counts, missing paths and parent mismatches in `
 
 Shared code covers indexing, readiness, phase journals, browser identity and sanitized failure evidence. The two scenario harnesses remain separate because enforcement and catalog/migration have different state transitions; they use the same runner locally and in CI. `installation-and-regressions` is a coarse phase, supplemented by browser assertions and catalog-operation timings, not a claim of per-scenario timing precision. Qualification results are recorded separately in `repeatability-results.md`.
 
-CI pins Ubuntu 24.04, Node 24.22.0, Python 3.12.0, .NET SDK from global.json and Playwright 1.56.1 from package-lock. Local qualification must use the same language/tool versions; macOS Docker Desktop remains a distinct host environment from hosted Linux.
+CI pins Ubuntu 24.04, Node 24.22.0, Python from [`.python-version`](../../.python-version), .NET SDK from global.json and Playwright 1.56.1 from package-lock. Local qualification must use the same language/tool versions; macOS Docker Desktop remains a distinct host environment from hosted Linux.
+
+Before a local fixture run, install or activate the exact Python patch in `.python-version`. Confirm that `python3 --version` matches that file. `tests/run_suite.py` rejects a different patch and records the observed full interpreter version in each `suite.json`. Its child scenario uses the same executable, rather than another `python3` found on PATH.
+
+Hosted workflows use `actions/setup-python` with `python-version-file: .python-version` and `check-latest: false`. This selects the exact cached version before any download fallback. The PR job explicitly uses Ubuntu 24.04 and verifies the cached interpreter before setup. It then checks that setup selected the same executable and records `WatchGuard-python-selection`. If that preflight fails after an image update, inspect the hosted inventory and review the shared pin; do not bypass suite version checks. See [Python selection evidence](python-runtime.md).
 
 Startup/restart probes require the native `/health` body to be `Healthy`, not merely HTTP 200 (ASP.NET health responses may return 200 for Degraded), plus authenticated API readiness. The pinned main pipeline maps `/health`; the setup server exposes a separate StartupCheck. This strengthens readiness; it is not asserted to explain the earlier catalog timeout without further evidence.
 
