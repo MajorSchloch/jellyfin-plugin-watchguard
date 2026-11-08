@@ -6,6 +6,8 @@ The single policy is `scripts/qualification-policy.json`. It supplies workflow m
 
 Qualification builds the candidate and intentionally rebuilds it to test determinism. Browser assets are generated within those package builds; integration jobs only extract the verified DLL. The previous stable ZIP and sidecar are downloaded and verified once, then shared as an immutable input with the two upgrade fixtures. Each job owns its disposable server. Startup and navigation use separate browser contexts on one server; native catalog installation keeps a separate fixture because it changes plugin installation. LinuxServer upgrade shares its fixture with TLS/WebSocket and current browser checks. Real polling intervals and server work limits are unchanged.
 
+Previous-stable retrieval tries the public asset URL first. A transient transport failure permits an anonymous release-asset API fallback. Both routes share one deadline and the same content checks. The publisher still requires the original public download route. See [download policy and hosted validation](testing/previous-stable-download.md).
+
 The upgrade baseline is the greatest published catalog version strictly below the candidate. Public SHA-256/asset checks and catalog installation metadata must agree. The fixture verifies the deployed previous DLL and active plugin version, writes personal data through the old API, installs the candidate through Jellyfin's package API, and verifies the candidate DLL, data bytes, dates, preferences, owner isolation and retained media. v0.7.13 validation therefore upgrades from v0.7.12. A future v0.7.14 upgrades from v0.7.13.
 
 ## Publication state and retries
