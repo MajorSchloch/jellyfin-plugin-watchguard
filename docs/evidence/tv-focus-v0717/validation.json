@@ -1,0 +1,56 @@
+{
+  "runtimeCommit": "1ea38dbefa8805c9a9d3e633efb58209c5878a9d",
+  "finalFocusTestCommit": "fdfe28d3652eda3e76741b806f1268caac57bbe7",
+  "fullBrowserSuiteTestCommit": "1ea38dbefa8805c9a9d3e633efb58209c5878a9d",
+  "candidateVersion": "0.7.17",
+  "zipSha256": "36091ca7694afeb42174115f316d51097a93ed8de7ecfa542dfb2263a789f580",
+  "dllSha256": "d54fed17cb63153c4daf6efc759271ea7a3e11898ac3068e48031ac04e8416e5",
+  "publishedBaseline": {
+    "version": "0.7.16",
+    "zipSha256": "e473f1bbef8604e9ee8c2e48db40b9d8a183175e6a07b45a4c4976878f8091d2",
+    "dllSha256": "155df955cf36014e84f80fa6d3a9a6cb13f7f6420539c04a11b96e1159c8d766"
+  },
+  "browser79": {
+    "engine": "HeadlessChrome/79.0.3945.0",
+    "archiveSha256": "e6b754d211e4ad264c163b5a9e2fda9b2c07ab014402e8ee29e97de620ccefe6",
+    "snapshot": 706915,
+    "platform": "Mac Intel under Rosetta",
+    "completeNativeSuite": "PASS",
+    "finalFocusTest": "PASS",
+    "elapsedSeconds": 84.5,
+    "command": "WATCHGUARD_CHROMIUM79=<verified snapshot 706915 executable> WATCHGUARD_JELLYFIN_VERSION=12.4 python3 tests/docker-smoke.py --browser79 --base-path /jellyfin --proxy",
+    "image": "jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771"
+  },
+  "currentBrowser": {
+    "engine": "141.0.7390.37",
+    "playwright": "1.56.1",
+    "finalFocusTest": "PASS",
+    "controls": 12,
+    "navigationShell": 8,
+    "outgoing": 10,
+    "returnPosition": 27
+  },
+  "core12.3": {
+    "result": "PASS",
+    "command": "WATCHGUARD_JELLYFIN_VERSION=12.3 python3 tests/docker-smoke.py --base-path /jellyfin --proxy",
+    "elapsedSeconds": 442.14,
+    "versions": {
+      "serverVersion": "12.3.0",
+      "webVersion": "12.3.0",
+      "image": "jellyfin/jellyfin:12.3@sha256:2038fe038ab3876a80f6e7b7e0aef6607b032c7dc0c9b3ad3296d0b2eba3bbb5"
+    }
+  },
+  "fast": {
+    "javascriptPassed": 306,
+    "dotnetPassed": 376,
+    "pythonPassed": 120,
+    "catalogPassed": 8,
+    "deterministicPackage": "PASS: repeated ZIP checksum identical",
+    "packagedES2019": "PASS",
+    "qualificationPolicy": "PASS",
+    "releaseNotes": "PASS",
+    "publicCatalogUnchanged": true
+  },
+  "physicalLG": "Not tested; confirmation follows installation",
+  "qualification": "Focused branch evidence only. All 13 reports under the existing policy remain required on exact merged master before publication."
+}

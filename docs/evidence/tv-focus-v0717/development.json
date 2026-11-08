@@ -1,0 +1,11 @@
+{
+  "observedBaseline": "v0.7.16 reproduces missing growth and disconnected focus corners in both engines.",
+  "testCorrections": [
+    "Native Favorites activation changes its active class without requiring a tab=1 URL; wait for the native active state.",
+    "Synthetic data setup uses the native MediaBrowser authorization header; X-Emby-Token was rejected by the fixture.",
+    "Corner cutout checks sample pixel centers with the actual fractional radius; rounding the radius and sampling pixel origins falsely rejected a curved desktop corner."
+  ],
+  "implementationCorrection": "An initial border-radius:inherit computed to 0px on the summary. Both panel and direct summary now share an explicit .7rem rule. The final packaged implementation passes rendered-corner checks.",
+  "scope": "Only scoped CSS and version metadata change in the runtime. No event handlers, permissions, workflows or public catalog changes.",
+  "proxyDiagnostics": "Disposable Python proxy logged connection reset/broken pipe messages when browser requests were cancelled. The suites completed with their strict assertions unchanged."
+}

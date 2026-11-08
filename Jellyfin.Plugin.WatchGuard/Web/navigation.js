@@ -28,7 +28,8 @@
         .watchguard-nav.watchguard-nav-tab[aria-current="page"] {color:var(--jf-palette-text-primary,#fff)}
         .watchguard-nav.watchguard-nav-tab:hover {background:transparent;color:var(--jf-palette-secondary-main,#00a4dc)}
         .watchguard-nav.watchguard-nav-tab:focus-visible {background:transparent;color:var(--jf-palette-secondary-main,#00a4dc)}
-        .layout-tv .watchguard-nav.watchguard-nav-tab:focus {outline:none!important;background:transparent;color:var(--jf-palette-secondary-main,#00a4dc)}
+        /* Native TV tabs scale on focus, not selection. Keep our link outside the native indexed-tab controller. */
+        .layout-tv .watchguard-nav.watchguard-nav-tab:focus {transform:scale(1.3);outline:none!important;background:transparent;color:var(--jf-palette-secondary-main,#00a4dc)}
         body.watchguard-page-open .headerTabs.watchguard-has-tab .emby-tab-button-active:not(:hover):not(:focus) {color:var(--jf-palette-text-secondary,rgba(255,255,255,.7))}
         @media(prefers-reduced-motion:reduce) {.watchguard-nav {transition:none!important}}
     `;

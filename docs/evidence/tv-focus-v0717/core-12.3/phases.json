@@ -1,0 +1,80 @@
+{
+  "elapsedSeconds": 442.14,
+  "phases": [
+    {
+      "phase": "workspace",
+      "status": "PASS",
+      "seconds": 0.002
+    },
+    {
+      "phase": "container-start",
+      "status": "PASS",
+      "seconds": 9.32
+    },
+    {
+      "phase": "native-setup-authentication",
+      "status": "PASS",
+      "seconds": 0.489
+    },
+    {
+      "phase": "background-tasks",
+      "status": "PASS",
+      "seconds": 4.843
+    },
+    {
+      "phase": "generate-media",
+      "status": "PASS",
+      "seconds": 1.973
+    },
+    {
+      "phase": "configure-libraries",
+      "status": "PASS",
+      "seconds": 2.607
+    },
+    {
+      "phase": "media-indexing",
+      "status": "PASS",
+      "seconds": 2.358
+    },
+    {
+      "phase": "installation-and-regressions",
+      "status": "PASS",
+      "seconds": 0.098
+    },
+    {
+      "phase": "current-backend-contracts",
+      "status": "PASS",
+      "seconds": 2.758
+    },
+    {
+      "phase": "proxy-and-browser-setup",
+      "status": "PASS",
+      "seconds": 0.089
+    },
+    {
+      "phase": "browser-standalone",
+      "status": "PASS",
+      "seconds": 2.822
+    },
+    {
+      "phase": "browser-settings",
+      "status": "PASS",
+      "seconds": 13.688
+    },
+    {
+      "phase": "browser-actions-and-permissions",
+      "status": "PASS",
+      "seconds": 395.983
+    },
+    {
+      "phase": "native-uninstall-and-retained-data",
+      "status": "PASS",
+      "seconds": 4.691
+    },
+    {
+      "phase": "teardown",
+      "status": "PASS",
+      "seconds": 0.419
+    }
+  ]
+}
