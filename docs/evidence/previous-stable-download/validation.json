@@ -1,0 +1,56 @@
+{
+  "testedCommit": "8827ee2454fc5d0a4402b643d4b00a9743676bf6",
+  "baselineFailure": {
+    "run": 42467247813,
+    "attempt": 1,
+    "cause": "Public ZIP route returned HTTP 504 on all six attempts."
+  },
+  "hostedRun": 42468380825,
+  "hostedAttempt": 1,
+  "hostedJob": 128693112088,
+  "hostedConclusion": "success",
+  "automaticPRRun": 42468382550,
+  "automaticPRConclusion": "success",
+  "hostedArtifacts": [
+    {
+      "digest": "sha256:58733901a1230bf6143811f725dcbe678e8dbf0cc661519ad894c7212384f5a0",
+      "id": 13612388338,
+      "name": "WatchGuard-previous-stable-download-probe"
+    },
+    {
+      "digest": "sha256:5a8d981064eb6587ab146d161834387bb013d752f1d3adf3bd31e5365ff057e7",
+      "id": 13612378512,
+      "name": "WatchGuard-python-selection"
+    },
+    {
+      "digest": "sha256:89b0d760f0af63eec2b94bcae12265e7f3433bafab09b3e8c59570f8d5bcfbfe",
+      "id": 13612273825,
+      "name": "discovery-model-v048"
+    },
+    {
+      "digest": "sha256:2b4406ca8b889b0d07c3f481b449705c8dc87dade77b83902e744d0b7f4ba02e",
+      "id": 13612214045,
+      "name": "WatchGuard-v0.7.17"
+    }
+  ],
+  "packageComparison": {
+    "referenceRun": 42463127640,
+    "referenceCommit": "7aebc07c6e1ead05708d4334e02fa04c07ef667b",
+    "result": "Byte-identical ZIP",
+    "version": "0.7.17",
+    "zipSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+    "dllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1"
+  },
+  "checks": {
+    "python": 134,
+    "dotnet": 376,
+    "javascript": 306,
+    "catalog": 8,
+    "deterministicPackaging": "PASS",
+    "packagedES2019": "PASS",
+    "qualificationPolicy": "PASS",
+    "releaseNotes": "PASS",
+    "publishedCatalogHistory": "PASS"
+  },
+  "scope": "CI-only fast checks and controlled-failure/real-download probe. No native compatibility matrix, publication, catalog write or asset mutation."
+}

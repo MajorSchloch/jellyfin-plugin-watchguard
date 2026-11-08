@@ -18,4 +18,19 @@ The probe injects one public HTTP 504 per asset. It then uses the real anonymous
 
 The local HTTP regressions cover 504 fallback, API retry success, failure of both routes, permanent denial, mismatched ZIP/checksum bytes, release/asset identity conflicts, sidecar/catalog mismatch and deadline exhaustion. They also verify that other consumers retain the original public downloader.
 
-Hosted results and candidate package comparison will be recorded after the branch check completes. No plugin version, runtime code, catalog entry, release asset, qualification job or approval permission changes in this patch.
+## Hosted results
+
+[Hosted probe 42468380825](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42468380825), attempt 1, passed at commit `8827ee2454fc5d0a4402b643d4b00a9743676bf6`. The runner used Ubuntu 24.04 image `20261101.360.1`. The [automatic PR check](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42468382550) also passed.
+
+The probe verified release `437486887`, ZIP asset `720298473` and checksum asset `720298556`. The real API transfers took 0.435 seconds and 0.384 seconds. Complete retrieval and validation took 1.910 seconds. These timings exclude a real public-route timeout because the two HTTP 504 failures were injected.
+
+- Previous-stable v0.7.16 ZIP SHA-256: `e473f1bbef8604e9ee8c2e48db40b9d8a183175e6a07b45a4c4976878f8091d2`.
+- Previous-stable DLL SHA-256: `155df955cf36014e84f80fa6d3a9a6cb13f7f6420539c04a11b96e1159c8d766`.
+- Unchanged v0.7.17 ZIP SHA-256: `9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266`.
+- Unchanged candidate DLL SHA-256: `75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1`.
+
+The hosted candidate ZIP is byte-identical to the retained master package from run `42463127640`. All 134 Python, 376 .NET, 306 JavaScript and eight catalog tests passed. Deterministic packaging, packaged ES2019 parsing, release-note validation, qualification-policy validation and published installation-metadata checks passed.
+
+[Hosted transfer record](../evidence/previous-stable-download/hosted-probe.json) · [Validation and artifact IDs](../evidence/previous-stable-download/validation.json)
+
+No plugin version, runtime code, catalog entry, release asset, qualification job or approval permission changes in this patch. No native matrix was rerun for this CI-only change. After merge, the existing qualification workflow remains responsible for the unpublished v0.7.17 candidate.

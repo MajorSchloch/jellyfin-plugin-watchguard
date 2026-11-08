@@ -1,0 +1,56 @@
+{
+  "commit": "8827ee2454fc5d0a4402b643d4b00a9743676bf6",
+  "run": "42468380825",
+  "attempt": "1",
+  "image": "20261101.360.1",
+  "candidate": "0.7.17",
+  "previous": {
+    "version": "0.7.16",
+    "filename": "Jellyfin.Plugin.WatchGuard-v0.7.16.zip",
+    "sha256": "e473f1bbef8604e9ee8c2e48db40b9d8a183175e6a07b45a4c4976878f8091d2",
+    "releaseId": 437486887,
+    "catalog": {
+      "version": "0.7.16.0",
+      "changelog": "- Match native Jellyfin text highlighting when the TV top menu has focus.\n- Keep viewing-information focus visible inside detail panels on older TV browsers.\n\n[Details](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.16.md)",
+      "targetAbi": "12.2.0.0",
+      "sourceUrl": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/releases/download/v0.7.16/Jellyfin.Plugin.WatchGuard-v0.7.16.zip",
+      "checksum": "48ce9262d61e7bda83b1467d6548120a",
+      "timestamp": "2026-11-07T09:59:49Z"
+    }
+  },
+  "dllSha256": "155df955cf36014e84f80fa6d3a9a6cb13f7f6420539c04a11b96e1159c8d766",
+  "transfers": [
+    {
+      "route": "public",
+      "asset": "Jellyfin.Plugin.WatchGuard-v0.7.16.zip",
+      "status": 504,
+      "controlled": true
+    },
+    {
+      "route": "anonymous-api",
+      "asset": "Jellyfin.Plugin.WatchGuard-v0.7.16.zip",
+      "assetId": 720298473,
+      "bytes": 606277,
+      "sha256": "e473f1bbef8604e9ee8c2e48db40b9d8a183175e6a07b45a4c4976878f8091d2",
+      "seconds": 0.435,
+      "controlled": false
+    },
+    {
+      "route": "public",
+      "asset": "Jellyfin.Plugin.WatchGuard-v0.7.16.zip.sha256",
+      "status": 504,
+      "controlled": true
+    },
+    {
+      "route": "anonymous-api",
+      "asset": "Jellyfin.Plugin.WatchGuard-v0.7.16.zip.sha256",
+      "assetId": 720298556,
+      "bytes": 105,
+      "sha256": "b9bb8c106593e8cc9e06a9402e75fce420a4ba781d6a6e2d4afe1e5d6159037e",
+      "seconds": 0.384,
+      "controlled": false
+    }
+  ],
+  "seconds": 1.91,
+  "limitation": "Public 504s are injected. API asset bytes and all release/package/catalog checks are real. No native compatibility tests."
+}
