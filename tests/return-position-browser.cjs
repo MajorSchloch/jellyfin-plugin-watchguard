@@ -78,6 +78,7 @@ module.exports=async function returnPosition(page,fixture,output,old=false) {
                 if(kind==='controlled-native-layout'){
                     // Reproduce the former three-frame oracle, without changing
                     // its 48 px tolerance. The real native layout is still held.
+                    await wait(()=>window.wgReturnNativeGate.events.some(event=>event.type==='viewshow'));
                     await frames(3);row.prematureSample=await state(target.Id,true);
                     await page.screenshot({path:path.join(output,'return-controlled-native-layout-premature.png')});
                     assert.equal(row.prematureSample.focused,true);
