@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import platform
 import subprocess
+import sys
 import time
 import uuid
 
@@ -32,7 +33,8 @@ report['playwright']=json.loads(Path('tests/browser/node_modules/playwright/pack
 report['chromium']=next(b for b in json.loads(Path('tests/browser/node_modules/playwright-core/browsers.json').read_text())['browsers'] if b['name']=='chromium')
 assert report['dotnet']==json.loads(Path('global.json').read_text())['sdk']['version'], 'Use pinned .NET SDK'
 assert report['playwright']=='1.56.1', 'Use locked Playwright dependency'
-assert report['python']=='3.12.0', 'Use pinned Python 3.12.0'
+required_python=(Path(__file__).resolve().parents[1]/'.python-version').read_text().strip()
+assert report['python']==required_python, f'Use Python {required_python} from .python-version'
 assert report['node']=='v24.22.0', 'Use pinned Node 24.22.0'
 def save(): (output/'suite.json').write_text(json.dumps(report,indent=2)+'\n')
 save()
@@ -40,7 +42,7 @@ for scenario in PLAN[a.suite]:
     command=[part.replace('{injector_dll}',a.injector_dll) for part in scenario['command']]
     env=scenario['env']
     started=time.monotonic()
-    result=subprocess.run(['python3',*command],env={**os.environ,**env})
+    result=subprocess.run([sys.executable,*command],env={**os.environ,**env})
     report['attempts'].append({'scenario':scenario['id'],'command':scenario['command'],'environment':env,'elapsedSeconds':round(time.monotonic()-started,3),'exitCode':result.returncode,'retry':False})
     if result.returncode:
         report['status']='FAIL';save();raise SystemExit(result.returncode)

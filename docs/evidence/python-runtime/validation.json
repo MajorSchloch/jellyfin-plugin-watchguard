@@ -1,0 +1,71 @@
+{
+  "testedCommit": "cb897999f1d2ef049fc6fe0858a1e21e7fa8bf9f",
+  "hostedRun": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42466555302",
+  "hostedJob": 128687318229,
+  "runner": "ubuntu-24.04",
+  "imageVersion": "20261101.360.1",
+  "selection": {
+    "required": "3.12.16",
+    "before": {
+      "version": "3.12.16",
+      "executable": "/opt/hostedtoolcache/Python/3.12.16/x64/bin/python3.12"
+    },
+    "image": "ubuntu24",
+    "imageVersion": "20261101.360.1",
+    "after": {
+      "version": "3.12.16",
+      "executable": "/opt/hostedtoolcache/Python/3.12.16/x64/bin/python3.12"
+    },
+    "result": "PASS: selected the verified preinstalled interpreter"
+  },
+  "setupLog": [
+    "build\tRun actions/setup-python@v6\t2026-11-08T09:17:41.0734917Z   python-version-file: .python-version",
+    "build\tRun actions/setup-python@v6\t2026-11-08T09:17:41.0735195Z   check-latest: false",
+    "build\tRun actions/setup-python@v6\t2026-11-08T09:17:41.1827698Z Successfully set up CPython (3.12.16)"
+  ],
+  "pythonDownloadInSetupLog": false,
+  "hostedArtifacts": [
+    {
+      "digest": "sha256:e9cc95f4b71857d138c196ed29a71da9f0879db1d069fc44333d708fbe7de146",
+      "id": 13612140459,
+      "name": "discovery-model-v048"
+    },
+    {
+      "digest": "sha256:11d417e406dee10960b84983bd9608654e5bf9b4ab2eef4bbb49ac5e20b934bc",
+      "id": 13611776827,
+      "name": "WatchGuard-v0.7.17"
+    },
+    {
+      "digest": "sha256:17ed3ad1c05d2c44dd9e46ffd1991d16fc45dc1beb0e5006ed19ecff26c912ab",
+      "id": 13610959202,
+      "name": "WatchGuard-python-selection"
+    }
+  ],
+  "masterRun": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42463127640",
+  "masterCommit": "7aebc07c6e1ead05708d4334e02fa04c07ef667b",
+  "masterArtifacts": [
+    {
+      "digest": "sha256:2c0ba7a50763b43a343233acd1b8b38169fce89050440c3ea8fd8d9115d86b99",
+      "id": 13610531842,
+      "name": "discovery-model-v048"
+    },
+    {
+      "digest": "sha256:6334ef109ff12b4879561a2b8629544e7707f5367021c914cd3dc638d6ca63c8",
+      "id": 13610402254,
+      "name": "WatchGuard-v0.7.17"
+    }
+  ],
+  "packageVersion": "0.7.17",
+  "packageByteComparison": "IDENTICAL",
+  "zipSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+  "dllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+  "tests": {
+    "python": 124,
+    "dotnet": 376,
+    "javascript": 306,
+    "catalog": 8,
+    "packagedBrowserAssets": "PASS: ES2019 parsing",
+    "qualificationPolicy": "PASS"
+  },
+  "scope": "CI-only. Existing qualification matrix and publication approval remain required. No full native matrix or browser benchmark was dispatched."
+}
