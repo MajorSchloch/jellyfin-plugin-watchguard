@@ -59,6 +59,7 @@ jobs:
     if: needs.plan.outputs.qualify == 'true'
     outputs:
       package_id: ${{ steps.package.outputs.artifact-id }}
+      fixture_id: ${{ steps.enforcement-fixture.outputs.artifact-id }}
     timeout-minutes: 20
     runs-on: ubuntu-24.04
     steps:
@@ -107,6 +108,16 @@ jobs:
           name: WatchGuard-previous-stable-attempt-${{ github.run_attempt }}
           path: artifacts/previous-stable/
           if-no-files-found: error
+      - name: Verify pinned enforcement baseline once
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/enforcement_baseline.py
+      - uses: actions/upload-artifact@v6
+        id: enforcement-fixture
+        with:
+          name: WatchGuard-enforcement-baseline-attempt-${{ github.run_attempt }}
+          path: artifacts/enforcement-baseline/
+          if-no-files-found: error
       - name: Rebuild and verify determinism
         run: |
           cp artifacts/${{ needs.plan.outputs.package }}.sha256 /tmp/first.sha256
@@ -132,6 +143,7 @@ jobs:
     name: Integration / ${{ matrix.jellyfin_version }} / ${{ matrix.shard }}
     env:
       WATCHGUARD_JELLYFIN_VERSION: ${{ matrix.jellyfin_version }}
+      WATCHGUARD_ENFORCEMENT_FIXTURE_ARTIFACT: ${{ needs.build.outputs.fixture_id }}
     needs: [plan, build]
     timeout-minutes: 45
     runs-on: ubuntu-24.04
@@ -170,6 +182,12 @@ jobs:
         with:
           name: WatchGuard-previous-stable-attempt-${{ github.run_attempt }}
           path: artifacts/previous-stable
+      - uses: actions/download-artifact@v6
+        if: matrix.shard == 'enforcement' || matrix.shard == 'platforms'
+        with:
+          artifact-ids: ${{ needs.build.outputs.fixture_id }}
+          merge-multiple: true
+          path: artifacts/enforcement-baseline
       - run: npm ci --prefix tests/browser
       - name: Preinstalled browser setup
         run: bash scripts/ci/setup-browser.sh

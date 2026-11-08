@@ -9,6 +9,10 @@ on:
         description: 'Inject public 504s and verify real anonymous previous-stable API downloads'
         type: boolean
         default: false
+      enforcement_baseline_probe:
+        description: 'Inject public 504s and verify the pinned enforcement baseline and corrupt-input rejection'
+        type: boolean
+        default: false
 concurrency:
   group: watchguard-development-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -80,4 +84,15 @@ jobs:
         with:
           name: WatchGuard-previous-stable-download-probe
           path: artifacts/previous-stable-download-probe.json
+          if-no-files-found: error
+      - name: Verify shared enforcement baseline fallback and offline consumers
+        if: github.event_name == 'workflow_dispatch' && inputs.enforcement_baseline_probe
+        run: python3 tests/enforcement_baseline_probe.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v6
+        if: github.event_name == 'workflow_dispatch' && inputs.enforcement_baseline_probe
+        with:
+          name: WatchGuard-enforcement-baseline-probe
+          path: artifacts/enforcement-baseline-probe.json
           if-no-files-found: error
