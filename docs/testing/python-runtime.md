@@ -10,4 +10,19 @@ The automatic PR check runs on Ubuntu 24.04. It verifies the cache entry and its
 
 Qualification jobs, required scenarios, artifact verification, approval and publication permissions are unchanged. The plugin stays at v0.7.17. Historical qualification reports keep their original Python version.
 
-Hosted validation and package comparison are recorded below after the PR check completes.
+## Hosted validation
+
+[PR check 42466555302](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42466555302) passed on hosted Ubuntu 24.04, image `20261101.360.1`, at commit `cb897999f1d2ef049fc6fe0858a1e21e7fa8bf9f`.
+
+The preflight found Python 3.12.16 before setup. The postflight resolved the same executable: `/opt/hostedtoolcache/Python/3.12.16/x64/bin/python3.12`. The action log reports successful CPython 3.12.16 setup without any Python download step. Both observations are retained in the [hosted selection record](../evidence/python-runtime/hosted-selection.json).
+
+All 124 Python, 376 .NET, 306 JavaScript and eight catalog tests passed. Package construction, packaged ES2019 browser assets and qualification-policy validation passed. New tests reject missing/inconsistent cache entries, wrong interpreter selection and unsupported patches. They also verify exact suite report values and child executable reuse.
+
+The hosted PR ZIP is byte-identical to the successful [current-master build 42463127640](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42463127640), commit `7aebc07c6e1ead05708d4334e02fa04c07ef667b`.
+
+- ZIP SHA-256: `9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266`.
+- DLL SHA-256: `75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1`.
+
+[Validation record and artifact IDs](../evidence/python-runtime/validation.json).
+
+This is hosted interpreter/build validation, not a new native compatibility qualification. The full matrix and browser benchmark were not dispatched. After merge, the existing unpublished-candidate workflow must produce a complete qualified record before publication approval. Future hosted image changes can remove an exact cached patch; the preflight makes that condition explicit and the shared pin must then be reviewed.

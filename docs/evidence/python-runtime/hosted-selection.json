@@ -1,0 +1,14 @@
+{
+  "required": "3.12.16",
+  "before": {
+    "version": "3.12.16",
+    "executable": "/opt/hostedtoolcache/Python/3.12.16/x64/bin/python3.12"
+  },
+  "image": "ubuntu24",
+  "imageVersion": "20261101.360.1",
+  "after": {
+    "version": "3.12.16",
+    "executable": "/opt/hostedtoolcache/Python/3.12.16/x64/bin/python3.12"
+  },
+  "result": "PASS: selected the verified preinstalled interpreter"
+}
