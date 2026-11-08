@@ -10,7 +10,7 @@ In pinned Jellyfin Web 12.4, the legacy Home controller installs tabs in its `vi
 
 ## Measurements
 
-Local Chromium 141, desktop-legacy, 1280 × 700, unchanged v0.7.17. Viewport coordinates in CSS pixels:
+Local and hosted Chromium 141 produced the same values below: desktop-legacy, 1280 × 700, unchanged v0.7.17. Viewport coordinates in CSS pixels:
 
 | Measurement | Activation | Early Back, lifecycle held | Native layout complete |
 | --- | ---: | ---: | ---: |
@@ -39,7 +39,16 @@ No fixed delay, action retry, timeout increase, runtime change or version change
 - Local unchanged baseline: full `tests/navigation-browser.cjs` passed.
 - Local corrected return suite: 28 cases passed, including controlled reproduction, desktop mouse, mobile touch, Modern, deeper pages, removed membership, native expired continuation, interaction/navigation cancellation, authorization denial and account change.
 - Fast readiness regression checks missing tabs, incomplete panel alignment, missing native entries, Modern header handling and a wrong offset that must still fail.
-- Hosted 12.4 navigation result: pending.
+- Fast checks: 376 .NET, 307 JavaScript and 141 Python tests passed. PR build/catalog/package checks passed.
+- Hosted [run 42482260589, attempt 1](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42482260589) passed with `publish=false`, `proxy_matrix=true`: all 12 integration jobs / 13 suite reports and the qualification evidence gate.
+- Affected [12.4 navigation job 128736878525](https://github.com/MajorSchloch/jellyfin-plugin-watchguard/actions/runs/42482260589/job/128736878525) passed, including all 28 return cases. The controlled sample failed the former offset check by 52.92 px, then passed at 0 px after native layout completion. All nine ordinary return samples had 0 px drift and retained focus; their initial post-focus samples already had the completed native layout.
+- Real hosted Chromium `79.0.3945.0` TV return checks passed all 11 cases, with 0 px drift and retained focus on all three measured returns. No physical-TV claim is made.
+- Tested source commit: `c09681f3c3ae6e57e110621cf9206f02e96e9ae8`. Subsequent changes only attach evidence.
+- Navigation evidence artifact: `13618881257`; exact candidate artifact: `13618132531`; sealed qualification record artifact: `13618616175`.
+
+[Hosted activation](legacy-return-position/hosted-activation.png) · [Hosted early Back](legacy-return-position/hosted-early-back.png) · [Hosted native layout complete](legacy-return-position/hosted-native-layout-ready.png) · [Hosted measurements](legacy-return-position/hosted-results.json)
+
+This run does not recover the missing timeline from the original failure. It demonstrates the temporary-layout failure path and verifies that the specific readiness condition succeeds in the full native suite. A lasting missing tab row would still time out and fail.
 
 Pinned server/Web image: `jellyfin/jellyfin:12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771`.
 
