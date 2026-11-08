@@ -1,0 +1,27 @@
+{
+  "runtimeCommit": "541c237914b562e02eb6143994746365706dbb40",
+  "focusTestCommit": "e852f52b766b1cc358e4b7d0bb326c1fa9555052",
+  "version": "0.7.17",
+  "zipSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+  "dllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+  "serverVersion": "12.4.0",
+  "deployed": {
+    "version": "0.7.17",
+    "packageSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+    "dllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+    "deployedDllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+    "activeVersion": "0.7.17.0",
+    "reportedVersion": "0.7.17"
+  },
+  "currentEngine": "141.0.7390.37",
+  "oldEngine": "HeadlessChrome/79.0.3945.0",
+  "forcedColors": "PASS: real Tab navigation, solid inset outline, 3375 visible edge pixels, one component connecting all corners/edges, zero outer-corner pixels",
+  "normalThemes": "PASS: all three TV/Desktop Legacy/Mobile Legacy cases in both engines, existing assertions unchanged",
+  "javascriptTests": 306,
+  "catalogTests": 8,
+  "deterministicPackage": "PASS",
+  "packagedES2019": "PASS",
+  "releaseAndPolicyChecks": "PASS",
+  "baseline": "Previous PR package 36091ca7694afeb42174115f316d51097a93ed8de7ecfa542dfb2263a789f580 failed with outline:none and zero rendered focus pixels.",
+  "limitations": "Forced-colors emulation in current Chromium; no physical high-contrast OS or LG test. Prior broad integration evidence remains tied to the earlier package. Exact master qualification still required after merge."
+}

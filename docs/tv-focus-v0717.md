@@ -33,7 +33,7 @@ The [native Favorites reference](evidence/tv-focus-v0717/candidate-79/tv-favorit
 
 [Mobile keyboard focus](evidence/tv-focus-v0717/candidate-current/mobile-legacy-watchlists-active-focus.png), [mobile heading focus](evidence/tv-focus-v0717/candidate-current/mobile-legacy-detail-focus.png) and [desktop heading focus](evidence/tv-focus-v0717/candidate-current/desktop-legacy-detail-focus.png) remain visible. The focus reports retain measurements and screenshots for TV, Desktop Legacy and Mobile Legacy in [Chromium 79](evidence/tv-focus-v0717/candidate-79/focus.json) and [current Chromium](evidence/tv-focus-v0717/candidate-current/focus.json).
 
-## Validation
+## Initial validation
 
 The [validation record](evidence/tv-focus-v0717/validation.json) identifies exact commits, package hashes and commands. Runtime commit `1ea38dbefa8805c9a9d3e633efb58209c5878a9d` supplied the package. Final focus assertions passed at `fdfe28d3652eda3e76741b806f1268caac57bbe7`; intervening commits change only the screenshot test.
 
@@ -50,6 +50,26 @@ DLL SHA-256: `d54fed17cb63153c4daf6efc759271ea7a3e11898ac3068e48031ac04e8416e5`.
 The checksum-verified baseline matches published v0.7.16. Its assets and public catalog entries remain unchanged. [Development notes](evidence/tv-focus-v0717/development.json) record the initial inherited-radius failure and test-oracle corrections.
 
 These local tests ran on macOS arm64, with Intel Chromium 79 under Rosetta. They exercise real browser engines with keyboard/remote-key and viewport/touch emulation, not physical LG hardware. The existing 13-report qualification policy remains required on the exact merged master package before release approval. No workflow or permission changes are included.
+
+## Forced-colors follow-up
+
+The current candidate adds a `forced-colors: active` fallback: `outline: 2px solid Highlight !important` with a `-3px` inset. It overrides the normal `outline:none!important` rule. The existing rounded shadow and TV tab growth remain unchanged outside this media query.
+
+The previous PR package had no rendered focus pixels in forced colors because the browser suppresses shadows. The new current-Chromium check enables forced colors, reaches the heading with Tab, and verifies the visible outline inside the clipped heading. It checks connected corners and straight edges, with no colored pixels in the outer corner cutouts. The system Highlight color can be translucent; the screenshot comparison accounts for its paint over the actual unfocused background.
+
+| Previous PR package | Current candidate |
+| --- | --- |
+| ![No forced-colors focus indicator](evidence/tv-focus-v0717/forced-colors/before.png) | ![Visible inset system-color focus outline](evidence/tv-focus-v0717/forced-colors/focused.png) |
+
+[Full native screenshot](evidence/tv-focus-v0717/forced-colors/detail.png), [unfocused heading](evidence/tv-focus-v0717/forced-colors/unfocused.png), [current-Chromium report](evidence/tv-focus-v0717/forced-colors/current.json), [Chromium 79 report](evidence/tv-focus-v0717/forced-colors/chromium79.json), and [updated package record](evidence/tv-focus-v0717/forced-colors/validation.json).
+
+The new forced-colors check passed with 3,375 visible focus-edge pixels and none when unfocused. All existing normal-theme focus checks passed in current Chromium and actual Chromium 79, including TV growth, rounded corners, inner-control focus and desktop/mobile keyboard focus. The 306 JavaScript tests, eight catalog tests, deterministic packaging, packaged ES2019 scripts, release notes and policy checks passed.
+
+Current ZIP SHA-256: `9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266`.
+
+Current DLL SHA-256: `75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1`.
+
+The initial broader integration evidence above remains tied to its recorded package. This follow-up uses the same pinned Jellyfin 12.4 `/jellyfin` proxy fixture. Forced-colors validation uses Chromium emulation, not a physical high-contrast OS or LG device. Full qualification remains required on the exact merged master package.
 
 ## Physical LG check after installation
 

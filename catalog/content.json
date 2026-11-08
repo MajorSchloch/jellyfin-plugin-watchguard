@@ -245,7 +245,8 @@
     "0.7.17.0": {
       "summary": [
         "Match native TV tab text growth when Watchlists has focus, including after activation.",
-        "Follow the rounded Series viewing heading with a continuous focus indicator on older and current browsers."
+        "Follow the rounded Series viewing heading with a continuous focus indicator on older and current browsers.",
+        "Keep keyboard focus visible in forced-color themes."
       ],
       "documentation": "https://github.com/MajorSchloch/jellyfin-plugin-watchguard/blob/master/docs/releases/v0.7.17.md"
     }

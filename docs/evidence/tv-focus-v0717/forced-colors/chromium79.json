@@ -1,0 +1,1727 @@
+{
+  "baseline": false,
+  "engine": "HeadlessChrome/79.0.3945.0",
+  "server": "12.4.0",
+  "deployed": {
+    "version": "0.7.17",
+    "packageSha256": "9b53815b0e7bcbcf99feaa694f36a310235408e5ff27730801f77b695f2e5266",
+    "dllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+    "deployedDllSha256": "75d0dddc6f9ffcd5dd8a8edd1e35ec14c8335f145f8a6617f96d5524e7523be1",
+    "activeVersion": "0.7.17.0",
+    "reportedVersion": "0.7.17"
+  },
+  "physicalTV": false,
+  "cases": [
+    {
+      "layout": "tv",
+      "width": 1280,
+      "home": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": true,
+        "transform": "matrix(1.3, 0, 0, 1.3, 0, 0)",
+        "label": {
+          "width": 64.28909301757812,
+          "height": 29.900001525878906
+        },
+        "rect": {
+          "x": 443.31561279296875,
+          "y": 66.5015640258789,
+          "width": 129.4312744140625,
+          "height": 91.12187957763672
+        },
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "width": 100,
+          "height": 70
+        }
+      },
+      "resting": {
+        "favorite": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 77.203125,
+            "height": 23
+          },
+          "rect": {
+            "x": 557.8125,
+            "y": 77.015625,
+            "width": 127.3125,
+            "height": 70.09375
+          },
+          "layout": {
+            "x": 100,
+            "y": 0,
+            "width": 127,
+            "height": 70
+          }
+        },
+        "watchlists": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": "false",
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 86.53125,
+            "height": 23
+          },
+          "rect": {
+            "x": 685.125,
+            "y": 77.015625,
+            "width": 136.625,
+            "height": 70.09375
+          },
+          "layout": {
+            "x": 685,
+            "y": 77,
+            "width": 137,
+            "height": 70
+          }
+        }
+      },
+      "nativeRules": [
+        ".emby-tab-button { background: transparent; border-radius: 0px; box-shadow: none; box-sizing: border-box; cursor: pointer; display: inline-block; flex-shrink: 0; font-family: inherit; font-size: inherit; font-weight: 600; height: auto; line-height: 1.25; margin: 0px; min-width: auto; outline: none; overflow: hidden; padding: 1.5em; position: relative; vertical-align: middle; width: auto; }",
+        ".emby-tab-button.show-focus:focus { background: 0px center !important; transform: scale(1.3) !important; }",
+        ".emby-tab-button { color: var(--jf-palette-text-secondary,hsla(0,0%,100%,0.7)); }",
+        ".emby-tab-button-active { color: var(--jf-palette-text-primary,#fff); }",
+        ".emby-tab-button.show-focus:focus, .emby-tab-button:hover { color: var(--jf-palette-secondary-main,#00a4dc); }",
+        ".guide-date-tab-button.emby-tab-button-active, .guide-date-tab-button:focus { color: var(--jf-palette-secondary-main,#00a4dc); }"
+      ],
+      "favorite": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": false,
+        "transform": "matrix(1.3, 0, 0, 1.3, 0, 0)",
+        "label": {
+          "width": 100.36407470703125,
+          "height": 29.900001525878906
+        },
+        "rect": {
+          "x": 538.7156372070312,
+          "y": 66.5015640258789,
+          "width": 165.5062255859375,
+          "height": 91.12187957763672
+        },
+        "layout": {
+          "x": 100,
+          "y": 0,
+          "width": 127,
+          "height": 70
+        }
+      },
+      "favoriteAfterActivation": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": true,
+        "transform": "matrix(1.3, 0, 0, 1.3, 0, 0)",
+        "label": {
+          "width": 100.36407470703125,
+          "height": 29.900001525878906
+        },
+        "rect": {
+          "x": 519.7156372070312,
+          "y": 66.5015640258789,
+          "width": 165.5062255859375,
+          "height": 91.12187957763672
+        },
+        "layout": {
+          "x": 100,
+          "y": 0,
+          "width": 127,
+          "height": 70
+        }
+      },
+      "favoriteActive": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(255, 255, 255)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": false,
+        "active": null,
+        "nativeActive": true,
+        "transform": "none",
+        "label": {
+          "width": 77.203125,
+          "height": 23
+        },
+        "rect": {
+          "x": 557.8125,
+          "y": 77.015625,
+          "width": 127.3125,
+          "height": 70.09375
+        },
+        "layout": {
+          "x": 100,
+          "y": 0,
+          "width": 127,
+          "height": 70
+        }
+      },
+      "favoriteActiveFocused": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": true,
+        "transform": "matrix(1.3, 0, 0, 1.3, 0, 0)",
+        "label": {
+          "width": 100.36407470703125,
+          "height": 29.900001525878906
+        },
+        "rect": {
+          "x": 538.7156372070312,
+          "y": 66.5015640258789,
+          "width": 165.5062255859375,
+          "height": 91.12187957763672
+        },
+        "layout": {
+          "x": 100,
+          "y": 0,
+          "width": 127,
+          "height": 70
+        }
+      },
+      "neighbors": {
+        "home": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 49.453125,
+            "height": 23
+          },
+          "rect": {
+            "x": 458.25,
+            "y": 77.015625,
+            "width": 99.5625,
+            "height": 70.09375
+          },
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 100,
+            "height": 70
+          }
+        },
+        "favorite": {
+          "color": "rgb(0, 164, 220)",
+          "outlineColor": "rgb(0, 164, 220)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgb(0, 164, 220)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": true,
+          "transform": "matrix(1.3, 0, 0, 1.3, 0, 0)",
+          "label": {
+            "width": 100.36407470703125,
+            "height": 29.900001525878906
+          },
+          "rect": {
+            "x": 538.7156372070312,
+            "y": 66.5015640258789,
+            "width": 165.5062255859375,
+            "height": 91.12187957763672
+          },
+          "layout": {
+            "x": 100,
+            "y": 0,
+            "width": 127,
+            "height": 70
+          }
+        }
+      },
+      "menu": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": "false",
+        "nativeActive": false,
+        "transform": "matrix(1.3, 0, 0, 1.3, 0, 0)",
+        "label": {
+          "width": 112.4906005859375,
+          "height": 29.900001525878906
+        },
+        "rect": {
+          "x": 664.6312255859375,
+          "y": 66.5015640258789,
+          "width": 177.612548828125,
+          "height": 91.12187957763672
+        },
+        "layout": {
+          "x": 685,
+          "y": 77,
+          "width": 137,
+          "height": 70
+        },
+        "textPixels": 546,
+        "edgePixels": 0
+      },
+      "afterActivation": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": "page",
+        "nativeActive": false,
+        "transform": "matrix(1.3, 0, 0, 1.3, 0, 0)",
+        "label": {
+          "width": 112.4906005859375,
+          "height": 29.900001525878906
+        },
+        "rect": {
+          "x": 664.6312255859375,
+          "y": 66.5015640258789,
+          "width": 177.612548828125,
+          "height": 91.12187957763672
+        },
+        "layout": {
+          "x": 685,
+          "y": 77,
+          "width": 137,
+          "height": 70
+        }
+      },
+      "active": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(255, 255, 255)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": false,
+        "active": "page",
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 86.53125,
+          "height": 23
+        },
+        "rect": {
+          "x": 685.125,
+          "y": 77.015625,
+          "width": 136.625,
+          "height": 70.09375
+        },
+        "layout": {
+          "x": 685,
+          "y": 77,
+          "width": 137,
+          "height": 70
+        }
+      },
+      "activeFocused": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": "page",
+        "nativeActive": false,
+        "transform": "matrix(1.3, 0, 0, 1.3, 0, 0)",
+        "label": {
+          "width": 112.4906005859375,
+          "height": 29.900001525878906
+        },
+        "rect": {
+          "x": 664.6312255859375,
+          "y": 66.5015640258789,
+          "width": 177.612548828125,
+          "height": 91.12187957763672
+        },
+        "layout": {
+          "x": 685,
+          "y": 77,
+          "width": 137,
+          "height": 70
+        }
+      },
+      "neighborsAfter": {
+        "home": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": true,
+          "transform": "none",
+          "label": {
+            "width": 49.453125,
+            "height": 23
+          },
+          "rect": {
+            "x": 458.25,
+            "y": 77.015625,
+            "width": 99.5625,
+            "height": 70.09375
+          },
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 100,
+            "height": 70
+          }
+        },
+        "favorite": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 77.203125,
+            "height": 23
+          },
+          "rect": {
+            "x": 557.8125,
+            "y": 77.015625,
+            "width": 127.3125,
+            "height": 70.09375
+          },
+          "layout": {
+            "x": 100,
+            "y": 0,
+            "width": 127,
+            "height": 70
+          }
+        }
+      },
+      "growth": {
+        "favoriteAfterActivation": {
+          "width": 1.300000158115766,
+          "height": 1.300000066342561
+        },
+        "watchlistsAfterActivation": {
+          "width": 1.2999997178584326,
+          "height": 1.300000066342561
+        },
+        "favoriteFocus": {
+          "width": 1.300000158115766,
+          "height": 1.300000066342561
+        },
+        "watchlistsFocus": {
+          "width": 1.2999997178584326,
+          "height": 1.300000066342561
+        },
+        "favoriteActive": {
+          "width": 1,
+          "height": 1
+        },
+        "watchlistsActive": {
+          "width": 1,
+          "height": 1
+        },
+        "favoriteActiveFocus": {
+          "width": 1.300000158115766,
+          "height": 1.300000066342561
+        },
+        "watchlistsActiveFocus": {
+          "width": 1.2999997178584326,
+          "height": 1.300000066342561
+        }
+      },
+      "arrows": [
+        {
+          "tag": "SUMMARY",
+          "class": "focusable"
+        }
+      ],
+      "detail": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "shadow": "rgb(0, 164, 220) 0px 0px 0px 2px inset",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "14px",
+        "panelRadius": "14px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 142.75,
+          "height": 27
+        },
+        "rect": {
+          "x": 416.359375,
+          "y": 258,
+          "width": 820.40625,
+          "height": 66
+        },
+        "layout": {
+          "x": 416,
+          "y": 26,
+          "width": 820,
+          "height": 66
+        },
+        "focusEdgePixels": 3418,
+        "normalEdgePixels": 0
+      },
+      "closedRing": {
+        "pixels": 3431,
+        "outerCorners": 0,
+        "cornerCutoutPixels": 0,
+        "components": 1,
+        "largest": {
+          "pixels": 3431,
+          "corners": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "edges": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "continuous": true
+      },
+      "openRing": {
+        "pixels": 3431,
+        "outerCorners": 0,
+        "cornerCutoutPixels": 0,
+        "components": 1,
+        "largest": {
+          "pixels": 3431,
+          "corners": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "edges": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "continuous": true
+      },
+      "inner": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "8px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 19.4375,
+          "height": 23
+        },
+        "rect": {
+          "x": 1018.734375,
+          "y": 343,
+          "width": 55,
+          "height": 55
+        },
+        "layout": {
+          "x": 1019,
+          "y": 111,
+          "width": 55,
+          "height": 55
+        },
+        "edgePixels": 504
+      },
+      "headingAfterInner": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgba(255, 255, 255, 0.7)",
+        "radius": "14px",
+        "panelRadius": "14px",
+        "offset": "0px",
+        "focused": false,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 142.75,
+          "height": 27
+        },
+        "rect": {
+          "x": 416.359375,
+          "y": 258,
+          "width": 820.40625,
+          "height": 66
+        },
+        "layout": {
+          "x": 416,
+          "y": 26,
+          "width": 820,
+          "height": 66
+        },
+        "edgePixels": 0
+      },
+      "onward": {
+        "tag": "BUTTON",
+        "class": "card overflowBackdropCard show-focus show-animation card-withuserdata itemAction"
+      },
+      "interaction": "PASS",
+      "menuMatchesNative": true,
+      "detailVisible": true
+    },
+    {
+      "layout": "desktop-legacy",
+      "width": 1280,
+      "home": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(255, 255, 255)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": true,
+        "transform": "none",
+        "label": {
+          "width": 36.78125,
+          "height": 17
+        },
+        "rect": {
+          "x": 504.828125,
+          "y": 56.734375,
+          "width": 74.046875,
+          "height": 52.25
+        },
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "width": 74,
+          "height": 52
+        }
+      },
+      "resting": {
+        "favorite": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 57.40625,
+            "height": 17
+          },
+          "rect": {
+            "x": 578.875,
+            "y": 56.734375,
+            "width": 94.671875,
+            "height": 52.25
+          },
+          "layout": {
+            "x": 74,
+            "y": 0,
+            "width": 95,
+            "height": 52
+          }
+        },
+        "watchlists": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": "false",
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 64.359375,
+            "height": 17
+          },
+          "rect": {
+            "x": 673.546875,
+            "y": 56.734375,
+            "width": 101.609375,
+            "height": 52.25
+          },
+          "layout": {
+            "x": 674,
+            "y": 57,
+            "width": 101,
+            "height": 52
+          }
+        }
+      },
+      "favorite": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgba(255, 255, 255, 0.7)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 57.40625,
+          "height": 17
+        },
+        "rect": {
+          "x": 578.875,
+          "y": 56.734375,
+          "width": 94.671875,
+          "height": 52.25
+        },
+        "layout": {
+          "x": 74,
+          "y": 0,
+          "width": 95,
+          "height": 52
+        }
+      },
+      "neighbors": {
+        "home": {
+          "color": "rgb(255, 255, 255)",
+          "outlineColor": "rgb(255, 255, 255)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgb(255, 255, 255)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": true,
+          "transform": "none",
+          "label": {
+            "width": 36.78125,
+            "height": 17
+          },
+          "rect": {
+            "x": 504.828125,
+            "y": 56.734375,
+            "width": 74.046875,
+            "height": 52.25
+          },
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 74,
+            "height": 52
+          }
+        },
+        "favorite": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 57.40625,
+            "height": 17
+          },
+          "rect": {
+            "x": 578.875,
+            "y": 56.734375,
+            "width": 94.671875,
+            "height": 52.25
+          },
+          "layout": {
+            "x": 74,
+            "y": 0,
+            "width": 95,
+            "height": 52
+          }
+        }
+      },
+      "menu": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "-2px",
+        "focused": true,
+        "active": "false",
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 64.359375,
+          "height": 17
+        },
+        "rect": {
+          "x": 673.546875,
+          "y": 56.734375,
+          "width": 101.609375,
+          "height": 52.25
+        },
+        "layout": {
+          "x": 674,
+          "y": 57,
+          "width": 101,
+          "height": 52
+        },
+        "textPixels": 0,
+        "edgePixels": 596
+      },
+      "afterActivation": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "-2px",
+        "focused": true,
+        "active": "page",
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 64.359375,
+          "height": 17
+        },
+        "rect": {
+          "x": 673.546875,
+          "y": 56.734375,
+          "width": 101.609375,
+          "height": 52.25
+        },
+        "layout": {
+          "x": 674,
+          "y": 57,
+          "width": 101,
+          "height": 52
+        }
+      },
+      "active": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(255, 255, 255)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": false,
+        "active": "page",
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 64.359375,
+          "height": 17
+        },
+        "rect": {
+          "x": 673.546875,
+          "y": 56.734375,
+          "width": 101.609375,
+          "height": 52.25
+        },
+        "layout": {
+          "x": 674,
+          "y": 57,
+          "width": 101,
+          "height": 52
+        }
+      },
+      "activeFocused": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "-2px",
+        "focused": true,
+        "active": "page",
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 64.359375,
+          "height": 17
+        },
+        "rect": {
+          "x": 673.546875,
+          "y": 56.734375,
+          "width": 101.609375,
+          "height": 52.25
+        },
+        "layout": {
+          "x": 674,
+          "y": 57,
+          "width": 101,
+          "height": 52
+        }
+      },
+      "neighborsAfter": {
+        "home": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": true,
+          "transform": "none",
+          "label": {
+            "width": 36.78125,
+            "height": 17
+          },
+          "rect": {
+            "x": 504.828125,
+            "y": 56.734375,
+            "width": 74.046875,
+            "height": 52.25
+          },
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 74,
+            "height": 52
+          }
+        },
+        "favorite": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 57.40625,
+            "height": 17
+          },
+          "rect": {
+            "x": 578.875,
+            "y": 56.734375,
+            "width": 94.671875,
+            "height": 52.25
+          },
+          "layout": {
+            "x": 74,
+            "y": 0,
+            "width": 95,
+            "height": 52
+          }
+        }
+      },
+      "arrows": [
+        {
+          "tag": "BUTTON",
+          "class": "button-flat btnMoreCommands detailButton emby-button"
+        },
+        {
+          "tag": "SUMMARY",
+          "class": "focusable"
+        }
+      ],
+      "detail": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "shadow": "rgb(0, 164, 220) 0px 0px 0px 2px inset",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "10.416px",
+        "panelRadius": "10.416px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 106.203125,
+          "height": 20
+        },
+        "rect": {
+          "x": 416.359375,
+          "y": 379.59375,
+          "width": 820.40625,
+          "height": 48.78125
+        },
+        "layout": {
+          "x": 416,
+          "y": 20,
+          "width": 820,
+          "height": 49
+        },
+        "focusEdgePixels": 3376,
+        "normalEdgePixels": 0
+      },
+      "closedRing": {
+        "pixels": 3384,
+        "outerCorners": 0,
+        "cornerCutoutPixels": 0,
+        "components": 1,
+        "largest": {
+          "pixels": 3384,
+          "corners": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "edges": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "continuous": true
+      },
+      "openRing": {
+        "pixels": 3384,
+        "outerCorners": 0,
+        "cornerCutoutPixels": 0,
+        "components": 1,
+        "largest": {
+          "pixels": 3384,
+          "corners": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "edges": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "continuous": true
+      },
+      "inner": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "5.952px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 14.453125,
+          "height": 18
+        },
+        "rect": {
+          "x": 1010.875,
+          "y": 442.765625,
+          "width": 40.90625,
+          "height": 40.90625
+        },
+        "layout": {
+          "x": 1011,
+          "y": 83,
+          "width": 41,
+          "height": 41
+        },
+        "edgePixels": 392
+      },
+      "headingAfterInner": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgba(255, 255, 255, 0.7)",
+        "radius": "10.416px",
+        "panelRadius": "10.416px",
+        "offset": "0px",
+        "focused": false,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 106.203125,
+          "height": 20
+        },
+        "rect": {
+          "x": 416.359375,
+          "y": 379.59375,
+          "width": 820.40625,
+          "height": 48.78125
+        },
+        "layout": {
+          "x": 416,
+          "y": 20,
+          "width": 820,
+          "height": 49
+        },
+        "edgePixels": 0
+      },
+      "onward": {
+        "tag": "SMALL",
+        "class": "watchguard-coverage"
+      },
+      "interaction": "PASS",
+      "menuMatchesNative": false,
+      "detailVisible": true
+    },
+    {
+      "layout": "mobile-legacy",
+      "width": 390,
+      "home": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(255, 255, 255)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": true,
+        "transform": "none",
+        "label": {
+          "width": 35.59375,
+          "height": 17
+        },
+        "rect": {
+          "x": 64.171875,
+          "y": 55.671875,
+          "width": 71.671875,
+          "height": 51.0625
+        },
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "width": 72,
+          "height": 51
+        }
+      },
+      "resting": {
+        "favorite": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 55.5625,
+            "height": 17
+          },
+          "rect": {
+            "x": 135.84375,
+            "y": 55.671875,
+            "width": 91.640625,
+            "height": 51.0625
+          },
+          "layout": {
+            "x": 72,
+            "y": 0,
+            "width": 91,
+            "height": 51
+          }
+        },
+        "watchlists": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": "false",
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 62.28125,
+            "height": 17
+          },
+          "rect": {
+            "x": 227.484375,
+            "y": 55.671875,
+            "width": 98.34375,
+            "height": 51.0625
+          },
+          "layout": {
+            "x": 227,
+            "y": 56,
+            "width": 99,
+            "height": 51
+          }
+        }
+      },
+      "favorite": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgba(255, 255, 255, 0.7)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 55.5625,
+          "height": 17
+        },
+        "rect": {
+          "x": 135.84375,
+          "y": 55.671875,
+          "width": 91.640625,
+          "height": 51.0625
+        },
+        "layout": {
+          "x": 72,
+          "y": 0,
+          "width": 91,
+          "height": 51
+        }
+      },
+      "neighbors": {
+        "home": {
+          "color": "rgb(255, 255, 255)",
+          "outlineColor": "rgb(255, 255, 255)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgb(255, 255, 255)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": true,
+          "transform": "none",
+          "label": {
+            "width": 35.59375,
+            "height": 17
+          },
+          "rect": {
+            "x": 64.171875,
+            "y": 55.671875,
+            "width": 71.671875,
+            "height": 51.0625
+          },
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 72,
+            "height": 51
+          }
+        },
+        "favorite": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 55.5625,
+            "height": 17
+          },
+          "rect": {
+            "x": 135.84375,
+            "y": 55.671875,
+            "width": 91.640625,
+            "height": 51.0625
+          },
+          "layout": {
+            "x": 72,
+            "y": 0,
+            "width": 91,
+            "height": 51
+          }
+        }
+      },
+      "menu": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "-2px",
+        "focused": true,
+        "active": "false",
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 62.28125,
+          "height": 17
+        },
+        "rect": {
+          "x": 227.484375,
+          "y": 55.671875,
+          "width": 98.34375,
+          "height": 51.0625
+        },
+        "layout": {
+          "x": 227,
+          "y": 56,
+          "width": 99,
+          "height": 51
+        },
+        "textPixels": 0,
+        "edgePixels": 584
+      },
+      "afterActivation": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "-2px",
+        "focused": true,
+        "active": "page",
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 62.28125,
+          "height": 17
+        },
+        "rect": {
+          "x": 227.484375,
+          "y": 55.671875,
+          "width": 98.34375,
+          "height": 51.0625
+        },
+        "layout": {
+          "x": 227,
+          "y": 56,
+          "width": 99,
+          "height": 51
+        }
+      },
+      "active": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgb(255, 255, 255)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": false,
+        "active": "page",
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 62.28125,
+          "height": 17
+        },
+        "rect": {
+          "x": 227.484375,
+          "y": 55.671875,
+          "width": 98.34375,
+          "height": 51.0625
+        },
+        "layout": {
+          "x": 227,
+          "y": 56,
+          "width": 99,
+          "height": 51
+        }
+      },
+      "activeFocused": {
+        "color": "rgb(255, 255, 255)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "0px",
+        "panelRadius": "0px",
+        "offset": "-2px",
+        "focused": true,
+        "active": "page",
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 62.28125,
+          "height": 17
+        },
+        "rect": {
+          "x": 227.484375,
+          "y": 55.671875,
+          "width": 98.34375,
+          "height": 51.0625
+        },
+        "layout": {
+          "x": 227,
+          "y": 56,
+          "width": 99,
+          "height": 51
+        }
+      },
+      "neighborsAfter": {
+        "home": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": true,
+          "transform": "none",
+          "label": {
+            "width": 35.59375,
+            "height": 17
+          },
+          "rect": {
+            "x": 64.171875,
+            "y": 55.671875,
+            "width": 71.671875,
+            "height": 51.0625
+          },
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 72,
+            "height": 51
+          }
+        },
+        "favorite": {
+          "color": "rgba(255, 255, 255, 0.7)",
+          "outlineColor": "rgba(255, 255, 255, 0.7)",
+          "outline": "none",
+          "shadow": "none",
+          "indicatorColor": "rgba(255, 255, 255, 0.7)",
+          "radius": "0px",
+          "panelRadius": "0px",
+          "offset": "0px",
+          "focused": false,
+          "active": null,
+          "nativeActive": false,
+          "transform": "none",
+          "label": {
+            "width": 55.5625,
+            "height": 17
+          },
+          "rect": {
+            "x": 135.84375,
+            "y": 55.671875,
+            "width": 91.640625,
+            "height": 51.0625
+          },
+          "layout": {
+            "x": 72,
+            "y": 0,
+            "width": 91,
+            "height": 51
+          }
+        }
+      },
+      "arrows": [
+        {
+          "tag": "BUTTON",
+          "class": "button-flat btnMoreCommands detailButton emby-button"
+        },
+        {
+          "tag": "SUMMARY",
+          "class": "focusable"
+        }
+      ],
+      "detail": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "shadow": "rgb(0, 164, 220) 0px 0px 0px 2px inset",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "10.08px",
+        "panelRadius": "10.08px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 102.78125,
+          "height": 19
+        },
+        "rect": {
+          "x": 20.5,
+          "y": 453.546875,
+          "width": 349,
+          "height": 44.15625
+        },
+        "layout": {
+          "x": 21,
+          "y": 19,
+          "width": 349,
+          "height": 44
+        },
+        "focusEdgePixels": 1472,
+        "normalEdgePixels": 0
+      },
+      "closedRing": {
+        "pixels": 1476,
+        "outerCorners": 0,
+        "cornerCutoutPixels": 0,
+        "components": 1,
+        "largest": {
+          "pixels": 1476,
+          "corners": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "edges": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "continuous": true
+      },
+      "openRing": {
+        "pixels": 1476,
+        "outerCorners": 0,
+        "cornerCutoutPixels": 0,
+        "components": 1,
+        "largest": {
+          "pixels": 1476,
+          "corners": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "edges": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "continuous": true
+      },
+      "inner": {
+        "color": "rgb(0, 164, 220)",
+        "outlineColor": "rgb(0, 164, 220)",
+        "outline": "solid",
+        "shadow": "none",
+        "indicatorColor": "rgb(0, 164, 220)",
+        "radius": "5.76px",
+        "panelRadius": "0px",
+        "offset": "0px",
+        "focused": true,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 14,
+          "height": 17
+        },
+        "rect": {
+          "x": 52.734375,
+          "y": 565.8125,
+          "width": 39.59375,
+          "height": 39.59375
+        },
+        "layout": {
+          "x": 53,
+          "y": 131,
+          "width": 39,
+          "height": 40
+        },
+        "edgePixels": 376
+      },
+      "headingAfterInner": {
+        "color": "rgba(255, 255, 255, 0.7)",
+        "outlineColor": "rgba(255, 255, 255, 0.7)",
+        "outline": "none",
+        "shadow": "none",
+        "indicatorColor": "rgba(255, 255, 255, 0.7)",
+        "radius": "10.08px",
+        "panelRadius": "10.08px",
+        "offset": "0px",
+        "focused": false,
+        "active": null,
+        "nativeActive": false,
+        "transform": "none",
+        "label": {
+          "width": 102.78125,
+          "height": 19
+        },
+        "rect": {
+          "x": 20.5,
+          "y": 453.546875,
+          "width": 349,
+          "height": 44.15625
+        },
+        "layout": {
+          "x": 21,
+          "y": 19,
+          "width": 349,
+          "height": 44
+        },
+        "edgePixels": 0
+      },
+      "onward": {
+        "tag": "SMALL",
+        "class": "watchguard-coverage"
+      },
+      "interaction": "PASS",
+      "menuMatchesNative": false,
+      "detailVisible": true
+    }
+  ],
+  "innerControl": "Native SeriesActivity from synthetic aired/played and future/unplayed episodes; original metadata and user data restored",
+  "result": "PASS"
+}
