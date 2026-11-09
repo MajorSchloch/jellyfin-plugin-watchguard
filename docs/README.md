@@ -14,7 +14,9 @@ Published v0.7.15: [Watchlists return position and focus](return-position-v0715.
 
 Published v0.7.16: [TV focus correction](tv-focus-v0716.md), [preparation record](release-v0716.md).
 
-Unpublished v0.7.17: [TV focus polish](tv-focus-v0717.md), [preparation record](release-v0717.md).
+Published v0.7.17: [TV focus polish](tv-focus-v0717.md), [preparation record](release-v0717.md).
+
+Unpublished v0.7.18: [TV tab animation](tv-tab-animation.md), [preparation record](release-v0718.md).
 
 Unpublished compatibility work: [older browsers, Chromium 79 validation and TV test procedure](browser-compatibility.md).
 

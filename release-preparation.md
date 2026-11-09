@@ -1,8 +1,8 @@
-# WatchGuard v0.7.17 preparation
+# WatchGuard v0.7.18 preparation
 
-Unpublished presentation patch for native TV tab text growth and rounded detail-heading focus. See [behavior and validation](docs/tv-focus-v0717.md) and [publication copy](docs/releases/v0.7.17.md).
+Unpublished presentation patch for the TV Watchlists zoom animation on focus and blur. See [behavior and browser validation](docs/tv-tab-animation.md), [release preparation](docs/release-v0718.md), and [publication copy](docs/releases/v0.7.18.md).
 
-Published v0.7.16 assets, catalog entries and historical evidence remain unchanged. The direct upgrade baseline is published v0.7.16.
+The direct upgrade baseline is published v0.7.17. Published assets, catalog entries and historical evidence remain unchanged.
 
 After merge, the existing workflow automatically qualifies the exact master package under the [current policy](scripts/qualification-policy.json). Publication requires that sealed record and approval of the existing release environment. Branch checks do not authorize publication.
 
