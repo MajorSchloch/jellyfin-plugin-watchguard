@@ -57,7 +57,7 @@ module.exports=async(page,fixture,output,old=false,baseline=false)=>{
     async function state(s) {return page.$eval(s,e=>{
         const c=getComputedStyle(e),r=e.getBoundingClientRect(),walk=document.createTreeWalker(e,NodeFilter.SHOW_TEXT);let node,label;
         while((node=walk.nextNode()))if(node.textContent.trim()){const range=document.createRange();range.selectNodeContents(node);const b=range.getBoundingClientRect();label={width:b.width,height:b.height};break;}
-        return {color:c.color,outlineColor:c.outlineColor,outline:c.outlineStyle,shadow:c.boxShadow,indicatorColor:c.boxShadow!=='none'?(c.boxShadow.match(/rgba?\([^)]*\)/)||[])[0]:c.outlineColor,radius:c.borderRadius,panelRadius:getComputedStyle(e.parentElement).borderRadius,offset:c.outlineOffset,focused:document.activeElement===e,active:e.getAttribute('aria-current'),nativeActive:e.classList.contains('emby-tab-button-active'),transform:c.transform,label,rect:{x:r.x,y:r.y,width:r.width,height:r.height},layout:{x:e.offsetLeft,y:e.offsetTop,width:e.offsetWidth,height:e.offsetHeight}};
+        return {color:c.color,outlineColor:c.outlineColor,outline:c.outlineStyle,shadow:c.boxShadow,indicatorColor:c.boxShadow!=='none'?(c.boxShadow.match(/rgba?\([^)]*\)/)||[])[0]:c.outlineColor,radius:c.borderRadius,panelRadius:getComputedStyle(e.parentElement).borderRadius,offset:c.outlineOffset,focused:document.activeElement===e,active:e.getAttribute('aria-current'),nativeActive:e.classList.contains('emby-tab-button-active'),transition:{property:c.transitionProperty,duration:c.transitionDuration,easing:c.transitionTimingFunction},transform:c.transform,label,rect:{x:r.x,y:r.y,width:r.width,height:r.height},layout:{x:e.offsetLeft,y:e.offsetTop,width:e.offsetWidth,height:e.offsetHeight}};
     });}
     async function settled(s) {
         // Wait for actual CSS transitions to finish, including the old engine.
@@ -70,6 +70,46 @@ module.exports=async(page,fixture,output,old=false,baseline=false)=>{
         }));
     }
     async function crop(s,name,pad=0) {const r=(await state(s)).rect;return page.screenshot({path:path.join(output,name+'.png'),clip:{x:r.x-pad,y:r.y-pad,width:r.width+pad*2,height:r.height+pad*2}});}
+    async function arrowMotion(s,key,event) {
+        // Arm before the remote key. Sample rendered transforms from the real
+        // focus/blur event through completion; an endpoint alone misses a snap.
+        await page.$eval(s,(e,event)=>{
+            window.watchguardFocusMotion=new Promise((resolve,reject)=>{
+                const timeout=setTimeout(()=>reject(new Error('Remote key did not trigger '+event)),3000);
+                e.addEventListener(event,()=>{
+                    clearTimeout(timeout);
+                    const start=performance.now(),samples=[];
+                    const c=getComputedStyle(e),duration=Math.max(...c.transitionDuration.split(',').map(v=>parseFloat(v)*1000));
+                    const sample=()=>{
+                        const transform=getComputedStyle(e).transform;
+                        samples.push({ms:performance.now()-start,scale:transform==='none'?1:parseFloat(transform.slice(7)),transform});
+                        if(performance.now()-start>=Math.max(250,duration+80))resolve(samples);
+                        else requestAnimationFrame(sample);
+                    };sample();
+                },{once:true});
+            });
+        },event);
+        await page.keyboard.press(key);
+        const samples=await page.evaluate(()=>window.watchguardFocusMotion);
+        return {samples,final:await state(s)};
+    }
+    async function tabMotion(home,favorite,nav) {
+        const result={resting:{favorite:await state(favorite),watchlists:await state(nav)}};
+        result.favorite={focus:await arrowMotion(favorite,'ArrowRight','focus'),blur:await arrowMotion(favorite,'ArrowLeft','blur')};
+        await page.keyboard.press('ArrowRight');await settled(favorite);
+        result.watchlists={focus:await arrowMotion(nav,'ArrowRight','focus'),blur:await arrowMotion(nav,'ArrowLeft','blur')};
+        const client=old?page._client:await page.context().newCDPSession(page);
+        try {
+            await client.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+            assert(await page.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches));
+            result.reduced={resting:await state(nav),focus:await arrowMotion(nav,'ArrowRight','focus'),blur:await arrowMotion(nav,'ArrowLeft','blur')};
+        } finally {
+            await client.send('Emulation.setEmulatedMedia',{features:[]});
+            if(!old)await client.detach();
+        }
+        await page.keyboard.press('ArrowLeft');await settled(home);
+        return result;
+    }
     try {
         // Real synthetic episode metadata gives the open panel a native extras
         // button. Restore it afterward: this suite shares a disposable fixture.
@@ -96,6 +136,31 @@ module.exports=async(page,fixture,output,old=false,baseline=false)=>{
                 const found=[];const visit=rules=>{for(const r of Array.from(rules)){if(r.cssRules)visit(r.cssRules);else if(r.selectorText&&r.selectorText.includes('emby-tab-button')&&!r.selectorText.includes('watchguard'))found.push(r.cssText);}};
                 for(const sheet of Array.from(document.styleSheets)){try{visit(sheet.cssRules);}catch(_){}}return found;
             });
+            if(layout==='tv'&&!baseline) {
+                row.motion=await tabMotion(home,favorite,nav);
+                // Match the transform entry even if native CSS lists other
+                // properties. Split easing outside cubic-bezier parentheses.
+                const transformTransition=t=>{
+                    const properties=t.property.split(',').map(v=>v.trim()),i=properties.findIndex(v=>v==='transform'||v==='all');
+                    const durations=t.duration.split(',').map(v=>v.trim()),easings=t.easing.match(/cubic-bezier\([^)]*\)|steps\([^)]*\)|[^,]+/g).map(v=>v.trim());
+                    return i<0?null:{duration:durations[i%durations.length],easing:easings[i%easings.length]};
+                };
+                const native=transformTransition(row.motion.resting.favorite.transition);
+                assert(native&&parseFloat(native.duration)>0,'Native Favorites has a transform transition');
+                assert.deepEqual(transformTransition(row.motion.resting.watchlists.transition),native,'Resting TV Watchlists matches native transform duration and easing');
+                for(const name of ['favorite','watchlists'])for(const event of ['focus','blur']) {
+                    const motion=row.motion[name][event];
+                    assert(motion.samples.some(s=>s.scale>1.001&&s.scale<1.299),name+' '+event+' has an intermediate rendered scale');
+                    assert(Math.abs(motion.samples.at(-1).scale-(event==='focus'?1.3:1))<.001,name+' '+event+' reaches its final scale');
+                    assert.deepEqual(transformTransition(motion.final.transition),native,name+' '+event+' retains the native transform transition');
+                }
+                assert.equal(row.motion.reduced.resting.transition.property,'none','Reduced motion disables the resting transition');
+                for(const event of ['focus','blur']) {
+                    const motion=row.motion.reduced[event];
+                    assert(!motion.samples.some(s=>s.scale>1.001&&s.scale<1.299),'Reduced motion has no intermediate '+event+' scale');
+                    assert(Math.abs(motion.samples.at(-1).scale-(event==='focus'?1.3:1))<.001,'Reduced motion retains the final '+event+' size');
+                }
+            }
             await page.screenshot({path:path.join(output,layout+'-home-focus.png')});
             if(layout==='tv')await page.keyboard.press('ArrowRight');else {await page.keyboard.press('Tab');await page.focus(favorite);}
             assert(await page.$eval(favorite,e=>document.activeElement===e));await settled(favorite);row.favorite=await state(favorite);
